@@ -11,7 +11,6 @@ import java.io.InputStream
 import java.io.PrintStream
 import java.io.PrintWriter
 import java.nio.file.Files
-import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 
 import scala.io.Codec
@@ -123,7 +122,7 @@ case class CliOptions(
     */
   def configPath: Path = tempConfigPath.getOrElse(
     canonicalConfigFile
-      .fold(throw new NoSuchFileException("Config file not found"))(_.get),
+      .fold(throw new RuntimeException("Config file not found"))(_.get),
   )
 
   private[cli] lazy val canonicalConfigFile: Option[Try[Path]] = gitOps

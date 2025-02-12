@@ -4,7 +4,6 @@ import org.scalafmt.Versions
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.sysops._
 
-import java.nio.file.NoSuchFileException
 import java.nio.file.Path
 
 import FileTestOps._
@@ -66,7 +65,7 @@ class CliOptionsTest extends FunSuite {
   test(".configPath returns path to workingDirectory's .scalafmt.conf by default, if exists") {
     assertEquals(baseCliOptions.config, None)
     assertEquals(baseCliOptions.configStr, None)
-    intercept[NoSuchFileException](baseCliOptions.configPath)
+    intercept[RuntimeException](baseCliOptions.configPath)
   }
 
   test(".scalafmtConfig returns the configuration encoded from configStr if configStr is exists") {
@@ -98,7 +97,7 @@ class CliOptionsTest extends FunSuite {
     val opt = baseCliOptions.copy(config = Some(configPath))
     assert(opt.scalafmtConfig.isInstanceOf[Configured.NotOk])
     val confError = opt.scalafmtConfig.asInstanceOf[Configured.NotOk].error
-    assert(confError.cause.exists(_.isInstanceOf[NoSuchFileException]))
+    assert(confError.cause.exists(_.isInstanceOf[RuntimeException]))
   }
 
   test(".scalafmtConfig returns Configured.NotOk for invalid configuration") {
