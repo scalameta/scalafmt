@@ -24,5 +24,6 @@ addSbtPlugin("org.scalameta"    % "sbt-scalafmt"     % "2.5.4")
 addSbtPlugin("org.scalameta"    % "sbt-native-image" % "0.3.4")
 addSbtPlugin("org.scala-js"     % "sbt-scalajs"      % "1.18.2")
 addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.6")
+addSbtPlugin("org.xerial.sbt"   % "sbt-sonatype"     % "3.12.2")
 
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.4.7")
