@@ -1,7 +1,9 @@
 package org.scalafmt.cli
 
-private[scalafmt] trait CliUtils {
-  protected val isScalaNative: Boolean = true
+import scala.io.Source
 
+private[scalafmt] trait CliUtils {
   protected def getDynamicRunner: Option[ScalafmtRunner] = None
+
+  def readInputLines: Iterator[String] = Source.stdin.getLines()
 }

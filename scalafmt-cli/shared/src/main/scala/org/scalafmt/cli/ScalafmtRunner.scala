@@ -11,7 +11,7 @@ trait ScalafmtRunner {
   private[cli] def run(
       options: CliOptions,
       termDisplayMessage: String,
-  ): ExitCode
+  ): Future[ExitCode]
 
   protected def newTermDisplay(
       options: CliOptions,
@@ -74,7 +74,7 @@ trait ScalafmtRunner {
       options: CliOptions,
       inputMethods: Seq[InputMethod],
       termDisplayMessage: String,
-  )(f: InputMethod => Future[ExitCode]): ExitCode = {
+  )(f: InputMethod => Future[ExitCode]): Future[ExitCode] = {
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
 
     implicit val executionContext: ExecutionContext =
@@ -102,7 +102,7 @@ trait ScalafmtRunner {
       termDisplay.stop()
     }
 
-    Await.result(completed.future, duration.Duration.Inf)
+    completed.future
   }
 
 }

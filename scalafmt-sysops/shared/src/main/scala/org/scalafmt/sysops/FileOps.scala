@@ -1,7 +1,7 @@
 package org.scalafmt.sysops
 
-import java.nio.file.AccessDeniedException
-import java.nio.file.NoSuchFileException
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -42,7 +42,7 @@ object FileOps {
   ): Option[Try[Path]] = config.fold(tryGetConfigInDir(workingDirectory)) { x =>
     val file = workingDirectory.join(x)
     tryCheckConfigFile(file)
-      .orElse(Some(Failure(new NoSuchFileException(s"Config missing: $file"))))
+      .orElse(Some(Failure(new RuntimeException(s"Config missing: $file"))))
   }
 
   def tryGetConfigInDir(dir: AbsoluteFile): Option[Try[Path]] =
@@ -51,6 +51,14 @@ object FileOps {
   private def tryCheckConfigFile(file: AbsoluteFile): Option[Try[Path]] =
     if (!file.exists) None
     else if (file.isRegularFile) Some(Success(file.path))
-    else Some(Failure(new AccessDeniedException(s"Config not a file: $file")))
+    else Some(Failure(new RuntimeException(s"Config not a file: $file")))
+
+  def readInputStream(is: InputStream): String = {
+    val baos = new ByteArrayOutputStream()
+    val buf = new Array[Byte](1024)
+    var cnt = 0
+    while ({ cnt = is.read(buf); cnt >= 0 }) baos.write(buf, 0, cnt)
+    baos.toString("utf-8")
+  }
 
 }

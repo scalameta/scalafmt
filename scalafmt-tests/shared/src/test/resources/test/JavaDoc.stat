@@ -260,8 +260,8 @@ multi
  *
  * {{{
  * multi
- * line
- * code
+ *   line
+ *     code
  * }}}
  * {{{
  * multi
@@ -308,8 +308,8 @@ multi
   *
   * {{{
   * multi
-  * line
-  * code
+  *   line
+  *     code
   * }}}
   * {{{
   * multi
@@ -358,9 +358,9 @@ multi
  *
  *  {{{
  *  multi
- *  line
+ *    line
  *
- *  code
+ *      code
  *  }}}
  *  {{{
  *  multi
@@ -3396,8 +3396,8 @@ def foo = ()
  * Title
  * @example
  *   {{{
- *    println("example")
- * some.example(foo)
+ *   println("example")
+ *  some.example(foo)
  *   }}}
  */
 def foo = ()
@@ -3417,8 +3417,8 @@ def foo = ()
 /** Title
   * @example
   *   {{{
-  *    println("example")
-  * some.example(foo)
+  *   println("example")
+  *  some.example(foo)
   *   }}}
   */
 def foo = ()
@@ -3438,7 +3438,7 @@ def foo = ()
 /** Title
  *  @example
  *    {{{
- *     println("example")
+ *   println("example")
  *  some.example(foo)
  *    }}}
  */
