@@ -42,11 +42,30 @@ jobs:
       - run: # for GitOps tests
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
       - run: sbt ++${{ matrix.scala }} test-jvm
+        id: testJVM
+        continue-on-error: true
       - run: sbt ++${{ matrix.scala }} test-js
+        id: testJS
+        continue-on-error: true
       - run: sbt ++${{ matrix.scala }} test-native
+        id: testNative
+        continue-on-error: true
       - run: sbt ++${{ matrix.scala }} publishLocal
+        id: publishLocal
+        continue-on-error: true
       - run: sbt ++${{ matrix.scala }} docs/run
         if: startsWith(matrix.scala, '2.12.')
+        id: docsRun
+        continue-on-error: true
+      - name: Fail on any test error
+        if: ${{
+          steps.testJVM.outcome == 'failure' ||
+          steps.testJS.outcome == 'failure' ||
+          steps.testNative.outcome == 'failure' ||
+          steps.publishLocal.outcome == 'failure' ||
+          steps.docsRun.outcome == 'failure' }}
+        run: exit 1
+        shell: bash
   community-test:
     if: github.event_name != 'release'
     strategy:
