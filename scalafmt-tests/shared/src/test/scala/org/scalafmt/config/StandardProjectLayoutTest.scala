@@ -6,10 +6,6 @@ import scala.meta.dialects
 
 class StandardProjectLayoutTest extends munit.FunSuite {
 
-  override def munitIgnore: Boolean =
-    // TODO: remove when scala.meta.internal.io.NodeNIOPath works on Windows
-    PlatformCompat.isJS && OsSpecific.isWindows
-
   import ProjectFiles.Layout.StandardConvention._
 
   Seq(

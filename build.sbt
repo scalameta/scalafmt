@@ -40,6 +40,9 @@ inThisBuild {
     crossScalaVersions := List(scala213, scala212),
     resolvers ++= Resolver.sonatypeOssRepos("releases"),
     resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
+    resolvers +=
+      "Sonatype Releases"
+        .at("https://oss.sonatype.org/content/repositories/releases"),
     testFrameworks += new TestFramework("munit.Framework"),
     // causes native image issues
     dependencyOverrides += "org.jline" % "jline" % "3.29.0",
