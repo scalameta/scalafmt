@@ -229,7 +229,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   // TODO: enable NPM publishing
   .jsSettings(scalaJsSettings, scalaJSUseMainModuleInitializer := true)
   .jvmEnablePlugins(NativeImagePlugin)
-  .jvmConfigure(_.dependsOn(dynamic.jvm).aggregate(dynamic.jvm)).aggregate(core)
+  .jvmConfigure(_.dependsOn(dynamic.jvm).aggregate(dynamic.jvm))
 
 lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-tests")).settings(
@@ -246,7 +246,7 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     }),
   ).enablePlugins(BuildInfoPlugin)
   .jvmSettings(javaOptions += "-Dfile.encoding=UTF8").dependsOn(core)
-  .jsSettings(scalaJsSettings).jsEnablePlugins(ScalaJSPlugin)
+  .aggregate(core).jsSettings(scalaJsSettings).jsEnablePlugins(ScalaJSPlugin)
 
 lazy val sharedTestSettings = Seq(libraryDependencies += munit.value % Test)
 
