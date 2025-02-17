@@ -9,7 +9,7 @@ import scala.concurrent.Future
 
 object Cli extends CliUtils {
 
-  import PlatformRunOps.executionContext
+  import PlatformRunOps.parasiticExecutionContext
 
   def main(args: Array[String]): Unit =
     mainWithOptions(CliOptions.default, args: _*)

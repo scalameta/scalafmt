@@ -26,8 +26,6 @@ import munit.FunSuite
 
 abstract class AbstractCliTest extends FunSuite {
 
-  import org.scalafmt.sysops.PlatformRunOps.executionContext
-
   def mkArgs(str: String): Array[String] = str.split(' ')
 
   def runWith(root: AbsoluteFile, argStr: String)(implicit

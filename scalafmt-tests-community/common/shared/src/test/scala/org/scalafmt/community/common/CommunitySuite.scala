@@ -57,8 +57,8 @@ abstract class CommunitySuite extends FunSuite {
     val stats =
       if (tasks.isEmpty) TestStats.init
       else {
-        val allTasks = Future
-          .reduceLeft(tasks)(TestStats.merge)(TestHelpers.executionContext)
+        import org.scalafmt.sysops.PlatformRunOps.executionContext
+        val allTasks = Future.reduceLeft(tasks)(TestStats.merge)
         Await.result(allTasks, duration.Duration.Inf)
       }
     val timePer1KLines = Math

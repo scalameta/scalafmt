@@ -4,6 +4,7 @@ import java.nio.file.Path
 import java.util.concurrent.Executors
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContextExecutorService
 import scala.sys.process.ProcessLogger
 import scala.util.Failure
 import scala.util.Success
@@ -13,11 +14,17 @@ private[scalafmt] object PlatformRunOps {
 
   implicit def executionContext: ExecutionContext = ExecutionContext.global
 
-  def ioExecutionContext: ExecutionContext =
-    GranularPlatformAsyncOps.ioExecutionContext
+  val inputExecutionContext: ExecutionContextExecutorService = ExecutionContext
+    .fromExecutorService(
+      Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors()),
+    )
+  val outputExecutionContext: ExecutionContextExecutorService = ExecutionContext
+    .fromExecutorService(
+      Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors()),
+    )
 
-  def getSingleThreadExecutionContext: ExecutionContext = ExecutionContext
-    .fromExecutor(Executors.newSingleThreadExecutor())
+  implicit def parasiticExecutionContext: ExecutionContext =
+    GranularDialectAsyncOps.parasiticExecutionContext
 
   def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[String] = {
     val err = new StringBuilder()

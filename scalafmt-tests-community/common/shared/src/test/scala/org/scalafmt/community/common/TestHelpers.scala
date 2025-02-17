@@ -5,24 +5,19 @@ import org.scalafmt.Formatted
 import org.scalafmt.Scalafmt
 import org.scalafmt.config._
 import org.scalafmt.sysops.PlatformFileOps
-import org.scalafmt.sysops.PlatformRunOps
+import org.scalafmt.sysops.PlatformRunOps.executionContext
 
 import java.io._
 import java.nio.file._
 
 import scala.collection.mutable
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import scala.concurrent.Promise
 
 import munit.ComparisonFailException
 import munit.diff.Diff
 import munit.diff.console.AnsiColors
 
 object TestHelpers {
-
-  implicit val executionContext: ExecutionContext =
-    PlatformRunOps.executionContext
 
   private[common] val communityProjectsDirectory = Paths
     .get("scalafmt-tests-community/target/community-projects")
@@ -111,13 +106,8 @@ object TestHelpers {
       finally ds.close()
     files.foreach { x =>
       val fileStr = x.toString
-      if (fileStr.endsWith(".scala") && !build.isExcluded(x)) {
-        val promise = Promise[TestStats]()
-        PlatformFileOps.readFileAsync(x).onComplete(r =>
-          promise.tryComplete(r.map(runFile(styleName, _, fileStr))),
-        )
-        futures += promise.future
-      }
+      if (fileStr.endsWith(".scala") && !build.isExcluded(x)) futures +=
+        PlatformFileOps.readFileAsync(x).map(runFile(styleName, _, fileStr))
     }
     dirs.foreach(checkFilesRecursive(styleName, _))
   }
