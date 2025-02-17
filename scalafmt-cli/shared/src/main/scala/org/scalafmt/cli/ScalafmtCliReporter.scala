@@ -6,6 +6,7 @@ import org.scalafmt.interfaces._
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference
 
 import scala.annotation.tailrec
@@ -13,18 +14,23 @@ import scala.util.control.NoStackTrace
 
 class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
   private val exitCode = new AtomicReference(ExitCode.Ok)
+  private val exitCodePerFile = new ConcurrentHashMap[String, ExitCode]()
 
   def getExitCode: ExitCode = exitCode.get()
-  private def updateExitCode(code: ExitCode): Unit =
-    if (!code.isOk) exitCode.getAndUpdate(ExitCode.merge(code, _))
+  def getExitCode(file: Path): ExitCode = exitCodePerFile.get(file.toString)
+
+  private def updateExitCode(code: ExitCode, file: Path): Unit = if (!code.isOk) {
+    exitCodePerFile.put(file.toString, code)
+    exitCode.getAndUpdate(ExitCode.merge(code, _))
+  }
 
   override def error(file: Path, message: String): Unit =
     if (!options.ignoreWarnings) {
       options.common.err.println(s"$message: $file")
-      updateExitCode(ExitCode.UnexpectedError)
+      updateExitCode(ExitCode.UnexpectedError, file)
     }
   override final def error(file: Path, e: Throwable): Unit =
-    updateExitCode(fail(e)(file))
+    updateExitCode(fail(e)(file), file)
   @tailrec
   private[cli] final def fail(e: Throwable)(file: Path): ExitCode = e match {
     case e: MisformattedFile =>

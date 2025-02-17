@@ -155,7 +155,7 @@ object TermDisplay extends TermUtils {
     private def shouldUpdate(): Boolean = shouldUpdateFlag
       .compareAndSet(true, false)
 
-    def end(): Unit = if (isStarted.get()) {
+    def end(): Unit = if (isStarted.compareAndSet(true, false)) {
       polling.cancel()
       if (fallbackMode) processStopFallback() else processStop()
     }
@@ -255,7 +255,7 @@ object TermDisplay extends TermUtils {
         -info.fraction.sum
       }
 
-    private def processStop(): Unit = {} // poison pill
+    private def processStop(): Unit = out.append("\n\n").flush() // poison pill
 
     private def processUpdate(): Unit = if (shouldUpdate()) {
       val (done0, downloads0) = downloads.synchronized {

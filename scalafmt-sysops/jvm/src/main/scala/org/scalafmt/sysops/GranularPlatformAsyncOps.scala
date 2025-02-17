@@ -6,18 +6,14 @@ import java.nio.channels.AsynchronousFileChannel
 import java.nio.channels.CompletionHandler
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
-import java.util.concurrent.Executors
+import java.{util => ju}
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.Promise
 import scala.io.Codec
 import scala.util.Try
 
 private[sysops] object GranularPlatformAsyncOps {
-
-  implicit val ioExecutionContext: ExecutionContext = ExecutionContext
-    .fromExecutor(Executors.newCachedThreadPool())
 
   def readFileAsync(path: Path)(implicit codec: Codec): Future[String] = {
     val promise = Promise[String]()
@@ -27,7 +23,11 @@ private[sysops] object GranularPlatformAsyncOps {
     val os = new ByteArrayOutputStream()
 
     Try {
-      val channel = AsynchronousFileChannel.open(path, StandardOpenOption.READ)
+      val channel = AsynchronousFileChannel.open(
+        path,
+        new ju.HashSet(ju.Arrays.asList(StandardOpenOption.READ)),
+        PlatformRunOps.inputExecutionContext,
+      )
       val handler = new CompletionHandler[Integer, AnyRef] {
         override def completed(result: Integer, unused: AnyRef): Unit = {
           val count = result.intValue()
@@ -63,9 +63,12 @@ private[sysops] object GranularPlatformAsyncOps {
     Try {
       val channel = AsynchronousFileChannel.open(
         path,
-        StandardOpenOption.CREATE,
-        StandardOpenOption.WRITE,
-        StandardOpenOption.TRUNCATE_EXISTING,
+        new ju.HashSet(ju.Arrays.asList(
+          StandardOpenOption.CREATE,
+          StandardOpenOption.WRITE,
+          StandardOpenOption.TRUNCATE_EXISTING,
+        )),
+        PlatformRunOps.outputExecutionContext,
       )
 
       val handler = new CompletionHandler[Integer, AnyRef] {

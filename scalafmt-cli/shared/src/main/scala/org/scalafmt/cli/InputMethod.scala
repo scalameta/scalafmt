@@ -34,8 +34,9 @@ sealed abstract class InputMethod {
       case WriteMode.Stdout => print(formatted, options); exitCode.future
       case _ if !codeChanged => ExitCode.Ok.future
       case WriteMode.List => list(options); options.exitCodeOnChange.future
-      case WriteMode.Override => overwrite(formatted, options)
-          .map(_ => options.exitCodeOnChange)(PlatformRunOps.ioExecutionContext)
+      case WriteMode.Override => overwrite(formatted, options).map(_ =>
+          options.exitCodeOnChange,
+        )(PlatformRunOps.parasiticExecutionContext)
       case WriteMode.Test =>
         val pathStr = path.toString
         val diff = InputMethod.unifiedDiff(pathStr, original, formatted)

@@ -7,7 +7,6 @@ import org.scalafmt.Versions
 import org.scalafmt.config.ProjectFiles
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.config.ScalafmtConfigException
-import org.scalafmt.sysops.PlatformRunOps
 
 import scala.meta.parsers.ParseException
 import scala.meta.tokenizers.TokenizeException
@@ -16,7 +15,6 @@ import scala.annotation.tailrec
 import scala.concurrent.Future
 
 object ScalafmtCoreRunner extends ScalafmtRunner {
-  import org.scalafmt.sysops.PlatformRunOps.executionContext
 
   override private[cli] def run(
       options: CliOptions,
@@ -36,10 +34,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
     }
   }
 
-  private def runWithFilterMatcher(
-      options: CliOptions,
-      termDisplayMessage: String,
-  )(
+  private def runWithFilterMatcher(options: CliOptions, displayMsg: String)(
       filterMatcher: ProjectFiles.FileMatcher,
   )(implicit scalafmtConf: ScalafmtConfig): Future[ExitCode] = {
     val inputMethods = getInputMethods(options, filterMatcher.matchesPath)
@@ -48,23 +43,18 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
       val adjustedScalafmtConf = {
         if (scalafmtConf.needGitAutoCRLF) options.gitOps.getAutoCRLF else None
       }.fold(scalafmtConf)(scalafmtConf.withGitAutoCRLF)
-
-      runInputs(options, inputMethods, termDisplayMessage)(inputMethod =>
-        handleFile(inputMethod, options, adjustedScalafmtConf)
-          .recover { case e: Error.MisformattedFile =>
-            options.common.err.println(e.customMessage)
-            ExitCode.TestError
-          },
-      )
+      runInputs(options, inputMethods, displayMsg) { case (code, path) =>
+        handleFile(code, path.toString, options, adjustedScalafmtConf)
+      }
     }
   }
 
   private[this] def handleFile(
-      inputMethod: InputMethod,
+      code: String,
+      path: String,
       options: CliOptions,
       scalafmtConfig: ScalafmtConfig,
-  ): Future[ExitCode] = {
-    val path = inputMethod.path.toString
+  ): Either[ExitCode, String] = {
     @tailrec
     def handleError(e: Throwable): ExitCode = e match {
       case Error.WithCode(e, _) => handleError(e)
@@ -75,20 +65,14 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
         new FailedToFormat(path, e).printStackTrace(options.common.err)
         ExitCode.UnexpectedError
     }
-    inputMethod.readInput(options).map { code =>
-      val res = Scalafmt.formatCode(code, scalafmtConfig, options.range, path)
-      res.formatted match {
-        case x: Formatted.Success => Right(code -> x.formattedCode)
-        case x: Formatted.Failure => Left(
-            if (res.config.runner.ignoreWarnings) ExitCode.Ok // do nothing
-            else handleError(x.e),
-          )
-      }
-    }.flatMap {
-      case Right((code, formattedCode)) => inputMethod
-          .write(formattedCode, code, options)
-      case Left(exitCode) => exitCode.future
-    }(PlatformRunOps.ioExecutionContext)
+    val res = Scalafmt.formatCode(code, scalafmtConfig, options.range, path)
+    res.formatted match {
+      case x: Formatted.Success => Right(x.formattedCode)
+      case x: Formatted.Failure => Left(
+          if (res.config.runner.ignoreWarnings) ExitCode.Ok // do nothing
+          else handleError(x.e),
+        )
+    }
   }
 
 }

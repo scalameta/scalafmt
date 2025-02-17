@@ -15,9 +15,8 @@ private[scalafmt] object PlatformRunOps {
   implicit def executionContext: ExecutionContext =
     scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
-  def ioExecutionContext: ExecutionContext = executionContext
-
-  def getSingleThreadExecutionContext: ExecutionContext = executionContext // same one
+  implicit def parasiticExecutionContext: ExecutionContext =
+    GranularDialectAsyncOps.parasiticExecutionContext
 
   def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[String] = {
     val options = cwd.fold(js.Dictionary[js.Any]())(cwd =>

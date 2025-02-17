@@ -1,26 +1,19 @@
 package org.scalafmt.sysops
 
-import java.nio.file.Files
 import java.nio.file.Path
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.io.Codec
 
 private[sysops] object GranularPlatformAsyncOps {
 
-  import PlatformRunOps.executionContext
-
-  def ioExecutionContext: ExecutionContext = executionContext
-
   def readFileAsync(path: Path)(implicit codec: Codec): Future[String] =
-    Future(PlatformFileOps.readFile(path))
+    Future(PlatformFileOps.readFile(path))(PlatformRunOps.inputExecutionContext)
 
-  def writeFileAsync(path: Path, content: String)(implicit
+  def writeFileAsync(path: Path, data: String)(implicit
       codec: Codec,
-  ): Future[Unit] = Future {
-    val bytes = content.getBytes(codec.charSet)
-    Files.write(path, bytes)
-  }
+  ): Future[Unit] = Future(
+    PlatformFileOps.writeFile(path, data),
+  )(PlatformRunOps.outputExecutionContext)
 
 }
