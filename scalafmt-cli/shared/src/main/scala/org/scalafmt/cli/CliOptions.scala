@@ -98,6 +98,7 @@ case class CliOptions(
     noStdErr: Boolean = false,
     private val error: Boolean = false,
     check: Boolean = false,
+    asyncFormat: Boolean = false,
 ) {
   val writeMode: WriteMode = writeModeOpt.getOrElse(WriteMode.Override)
 

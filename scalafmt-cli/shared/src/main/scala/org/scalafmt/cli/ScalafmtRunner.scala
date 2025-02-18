@@ -79,7 +79,14 @@ trait ScalafmtRunner {
   )(f: (String, Path) => Either[ExitCode, String]): Future[ExitCode] = {
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
 
-    import PlatformRunOps.parasiticExecutionContext
+    implicit val ec = PlatformRunOps.parasiticExecutionContext
+    val (formatContext, writeContext) =
+      if (options.asyncFormat) (
+        PlatformRunOps.formatExecutionContext,
+        PlatformRunOps.outputExecutionContext,
+      )
+      else (ec, ec)
+
     implicit class FutureExt[A](private val obj: Future[A]) extends AnyRef {
       def td(f: (TermDisplay, Try[A]) => Unit): Future[A] = termDisplay
         .fold(obj)(td => obj.transform { r => f(td, r); r })
@@ -98,13 +105,13 @@ trait ScalafmtRunner {
       if (!completed.isCompleted) {
         val read = inputMethod.readInput(options)
         val format = read.td { case (td, r) => td.doneRead(ok = r.isSuccess) }
-          .map(code => f(code, inputMethod.path).map((code, _)))
+          .map(code => f(code, inputMethod.path).map((code, _)))(formatContext)
           .td { case (td, r) => td.doneFormat(ok = r.toOption.exists(_.isRight)) }
         val future = format.flatMap {
           case Left(exitCode) => exitCode.future
           case Right((code, formattedCode)) => inputMethod
               .write(formattedCode, code, options)
-        }.transform { r =>
+        }(writeContext).transform { r =>
           val ok = r == Success(ExitCode.Ok)
           termDisplay.foreach(_.doneWrite(ok = ok))
           if (!ok && options.check) completed.trySuccess(asExit(r))

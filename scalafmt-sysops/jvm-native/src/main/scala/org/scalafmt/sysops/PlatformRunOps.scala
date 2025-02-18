@@ -2,6 +2,9 @@ package org.scalafmt.sysops
 
 import java.nio.file.Path
 import java.util.concurrent.Executors
+import java.util.concurrent.SynchronousQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutorService
@@ -14,15 +17,23 @@ private[scalafmt] object PlatformRunOps {
 
   implicit def executionContext: ExecutionContext = ExecutionContext.global
 
+  private val ncores = Runtime.getRuntime.availableProcessors()
+
   // creates non-daemon threads
   val inputExecutionContext: ExecutionContextExecutorService = ExecutionContext
-    .fromExecutorService(
-      Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors()),
+    .fromExecutorService(Executors.newFixedThreadPool(ncores))
+
+  lazy val formatExecutionContext: ExecutionContext = {
+    val queue = new SynchronousQueue[Runnable]() {
+      override def offer(e: Runnable): Boolean = { put(e); true } // blocks
+    }
+    ExecutionContext.fromExecutorService(
+      new ThreadPoolExecutor(ncores, ncores, 0L, TimeUnit.MILLISECONDS, queue),
     )
+  }
+
   val outputExecutionContext: ExecutionContextExecutorService = ExecutionContext
-    .fromExecutorService(
-      Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors()),
-    )
+    .fromExecutorService(Executors.newFixedThreadPool(ncores))
 
   implicit def parasiticExecutionContext: ExecutionContext =
     GranularDialectAsyncOps.parasiticExecutionContext
