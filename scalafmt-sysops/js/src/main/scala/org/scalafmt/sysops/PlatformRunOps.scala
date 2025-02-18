@@ -15,7 +15,9 @@ private[scalafmt] object PlatformRunOps {
   implicit def executionContext: ExecutionContext =
     scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
-  val inputExecutionContext: ExecutionContext = executionContext
+  def inputExecutionContext: ExecutionContext = executionContext
+  def formatExecutionContext: ExecutionContext = executionContext
+  def outputExecutionContext: ExecutionContext = executionContext
 
   implicit def parasiticExecutionContext: ExecutionContext =
     GranularDialectAsyncOps.parasiticExecutionContext
