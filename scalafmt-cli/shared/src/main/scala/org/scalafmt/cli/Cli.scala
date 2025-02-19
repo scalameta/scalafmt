@@ -6,14 +6,20 @@ import org.scalafmt.sysops.PlatformFileOps
 import org.scalafmt.sysops.PlatformRunOps
 
 import scala.concurrent.Future
+import scala.util.Failure
+import scala.util.Success
 
 object Cli extends CliUtils {
 
   import PlatformRunOps.parasiticExecutionContext
 
   def main(args: Array[String]): Unit =
-    mainWithOptions(CliOptions.default, args: _*)
-      .map(exit => PlatformRunOps.exit(exit.code))
+    mainWithOptions(CliOptions.default, args: _*).onComplete {
+      case Failure(ex) =>
+        ex.printStackTrace()
+        PlatformRunOps.exit(ExitCode.UnexpectedError.code)
+      case Success(exit) => PlatformRunOps.exit(exit.code)
+    }
 
   def mainWithOptions(options: CliOptions, args: String*): Future[ExitCode] =
     getConfig(options, args: _*) match {
