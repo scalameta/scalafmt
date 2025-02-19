@@ -3,7 +3,6 @@ package org.scalafmt
 import org.scalafmt.internal._
 import org.scalafmt.util.LoggerOps
 
-import scala.meta.Case
 import scala.meta.Tree
 import scala.meta.inputs.Position
 import scala.meta.internal.inputs._
@@ -19,12 +18,7 @@ sealed abstract class Error(msg: String) extends Exception(msg)
 object Error {
   import LoggerOps._
 
-  def reportIssue: String =
-    "Please file an issue on https://github.com/scalameta/scalafmt/issues"
   val cfgUrl = "https://scalameta.org/scalafmt/docs/configuration.html"
-
-  case object UnableToParseCliOptions
-      extends Error("Failed to parse CLI options")
 
   case class Incomplete(formattedCode: String)
       extends Error("Unable to format file due to bug in scalafmt")
@@ -36,9 +30,6 @@ object Error {
       )
   case class CantFindDefnToken(what: String, tree: Tree)
       extends Error(s"Expected keyword of type $what in tree $tree")
-
-  case class CaseMissingArrow(tree: Case)
-      extends Error(s"Missing => in case: \n$tree")
 
   case class FormatterChangedAST(diff: String, output: String)
       extends Error(
@@ -61,18 +52,6 @@ object Error {
             |Obtained: ${log(obtained)}""".stripMargin,
       )
 
-  case class CantFormatFile(msg: String)
-      extends Error("scalafmt cannot format this file:\n" + msg)
-
-  case class NoopDefaultPolicyApplied(decision: Decision)
-      extends Error(s"Default policy run on $decision")
-
-  case class UnknownStyle(style: String)
-      extends Error(s"Don't understand style $style")
-
-  case class UnableToFindStyle(filename: String, e: Throwable)
-      extends Error(s"Unable to find style for file $filename. $e")
-
   case class MisformattedFile(file: Path, customMessage: String)
       extends Error(s"$file is mis-formatted. $customMessage")
 
@@ -94,14 +73,7 @@ object Error {
       ft.left.pos.endLine + 1,
       why,
     )
-    def this(deepestState: State, why: String)(implicit
-        tokens: FormatTokens,
-        formatWriter: FormatWriter,
-    ) = this(deepestState, tokens(deepestState.depth), why)
   }
-
-  case class InvalidScalafmtConfiguration(throwable: Throwable)
-      extends Error(s"Failed to read configuration: $throwable")
 
   case object NoMatchingFiles
       extends Error(
@@ -110,15 +82,7 @@ object Error {
       )
       with NoStackTrace
 
-  case class InvalidOption(option: String)
-      extends Error(s"Invalid option $option")
-
-  case class FailedToParseOption(path: String, error: Throwable)
-      extends Error(s"Failed to read option $path, error: $error")
-
   case class IdempotencyViolated(msg: String) extends Error(msg)
-
-  case object MegaTestFailed extends Error("Mega test failed.")
 
   case class WithCode(error: Throwable, code: String)
       extends Exception(error.getMessage, error)
