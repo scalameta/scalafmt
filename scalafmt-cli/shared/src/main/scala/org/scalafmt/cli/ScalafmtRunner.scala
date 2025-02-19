@@ -6,7 +6,9 @@ import org.scalafmt.sysops._
 import java.nio.file.Path
 
 import scala.concurrent._
+import scala.util.Failure
 import scala.util.Success
+import scala.util.Try
 
 trait ScalafmtRunner {
   private[cli] def run(
@@ -78,40 +80,46 @@ trait ScalafmtRunner {
     val termDisplay = newTermDisplay(options, inputMethods, termDisplayMessage)
 
     import PlatformRunOps.parasiticExecutionContext
+    implicit class FutureExt[A](private val obj: Future[A]) extends AnyRef {
+      def td(f: (TermDisplay, Try[A]) => Unit): Future[A] = termDisplay
+        .fold(obj)(td => obj.transform { r => f(td, r); r })
+    }
+    def asExit(r: Try[ExitCode]): ExitCode = r match {
+      case Failure(ex) =>
+        ex.printStackTrace(options.common.err)
+        ExitCode.UnexpectedError
+      case Success(x) => x
+    }
+
     val completed = Promise[ExitCode]()
 
-    val tasks = List.newBuilder[Future[ExitCode]]
+    val tasks = List.newBuilder[Future[Try[ExitCode]]]
     inputMethods.foreach { inputMethod =>
       if (!completed.isCompleted) {
-        val input = inputMethod.readInput(options)
-        val future = input.map(code =>
-          f(code, inputMethod.path).map(formatted => (code, formatted)),
-        ).flatMap {
+        val read = inputMethod.readInput(options)
+        val format = read.map(code => f(code, inputMethod.path).map((code, _)))
+        val future = format.flatMap {
           case Left(exitCode) => exitCode.future
           case Right((code, formattedCode)) => inputMethod
               .write(formattedCode, code, options)
         }.transform { r =>
           val ok = r == Success(ExitCode.Ok)
           if (ok) termDisplay.foreach(_.taskProgress(termDisplayMessage))
-          else if (options.check) completed.tryComplete(r)
-          r
+          else if (options.check) completed.trySuccess(asExit(r))
+          Success(r)
         }
         tasks += future
       }
     }
 
-    Future.foldLeft(tasks.result())(ExitCode.Ok)(ExitCode.merge)
-      .onComplete(completed.tryComplete)
+    Future.foldLeft(tasks.result())(ExitCode.Ok) { case (res, r) =>
+      ExitCode.merge(res, asExit(r))
+    }.onComplete(completed.tryComplete)
 
-    val res = completed.future
-    termDisplay.fold(res)(td =>
-      res.transform { r =>
-        td.completedTask(termDisplayMessage, r.toOption.exists(_.isOk))
-        td.stop()
-        r
-      },
-    )
-
+    completed.future.td { case (td, r) =>
+      td.completedTask(termDisplayMessage, r == Success(ExitCode.Ok))
+      td.stop()
+    }
   }
 
 }
