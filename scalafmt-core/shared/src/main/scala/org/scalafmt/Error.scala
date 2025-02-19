@@ -7,8 +7,6 @@ import scala.meta.Tree
 import scala.meta.inputs.Position
 import scala.meta.internal.inputs._
 
-import java.nio.file.Path
-
 import scala.reflect.ClassTag
 import scala.reflect.classTag
 import scala.util.control.NoStackTrace
@@ -51,9 +49,6 @@ object Error {
         s"""|Expected: ${classTag[Expected].runtimeClass.getName}
             |Obtained: ${log(obtained)}""".stripMargin,
       )
-
-  case class MisformattedFile(file: Path, customMessage: String)
-      extends Error(s"$file is mis-formatted. $customMessage")
 
   case class SearchStateExploded private (
       deepestState: State,
