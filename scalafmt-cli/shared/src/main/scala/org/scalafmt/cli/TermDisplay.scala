@@ -73,33 +73,41 @@ private[cli] object TermDisplay extends TermUtils {
   private val refreshInterval = 1000 / 60
   private val fallbackRefreshInterval = 1000
 
+  private def fill(cnt: Int, ch: Char)(implicit sb: StringBuilder): Unit = {
+    var idx = 0
+    while (idx < cnt) {
+      idx += 1
+      sb.append(ch)
+    }
+  }
+
   private case class Counts(good: Int, fail: Int, changed: Boolean) {
+    def done = good + fail
     def show(
-        total: Int,
         okShow: Char,
-    )(sbPct: StringBuilder, sbShow: StringBuilder): Unit = {
-      def pct(cnt: Int) = 100.0 * cnt / total
+        label: String,
+        prevStage: Option[Counts],
+        nextStage: Option[Counts],
+    )(total: Int, sbRest: StringBuilder)(implicit sbShow: StringBuilder): Unit = {
+      def dec(cnt: Int) = 10 * cnt / total
+      val decDone = dec(done) - nextStage.fold(0)(x => dec(x.done))
+      val decGood = dec(good) - nextStage.fold(0)(x => dec(x.good))
+      val decFail = decDone - decGood
+      if (decFail <= 0) fill(decDone, okShow)
+      else { fill(decGood, okShow); fill(decFail, '-') }
 
-      val pctGood = pct(good)
-      sbPct.append(f"$pctGood%5.1f%%")
-
-      var idx = 0
-      val decGood = (pctGood / 10).toInt
-      while (idx < decGood) {
-        sbShow.append(okShow)
-        idx += 1
-      }
-      val decDone = (pct(good + fail) / 10).toInt
-      while (idx < decDone) {
-        sbShow.append('-')
-        idx += 1
-      }
+      sbRest.append(f"$label ${100.0 * good / total}%.1f%% $good")
+      val stageFail = fail - prevStage.fold(0)(_.fail)
+      if (stageFail > 0) sbRest.append('/').append(stageFail)
     }
 
-    def showFallback(total: Int)(implicit sb: StringBuilder): Unit = {
+    def showFallback(total: Int, prefix: String, prevStage: Option[Counts])(
+        implicit sb: StringBuilder,
+    ): Unit = {
       def pct(cnt: Int) = f"${100.0 * cnt / total}%.1f%%"
-      sb.append(" +").append(pct(good)).append("/").append(good).append(" -")
-        .append(pct(fail)).append("/").append(fail)
+      val stageFail = fail - prevStage.fold(0)(_.fail)
+      sb.append(prefix).append(" +").append(pct(good)).append("/").append(good)
+        .append(" -").append(pct(stageFail)).append("/").append(stageFail)
     }
   }
 
@@ -139,11 +147,18 @@ private[cli] class TermDisplay(
   private val scheduler = new PlatformPollingScheduler
   private var polling: PollingScheduler.Cancelable = _
   private val isStarted = new atomic.AtomicBoolean(false)
-  private val counter = new UpdateCounter
+  private val readCounter = new UpdateCounter
+  private val formatCounter = new UpdateCounter
+  private val writeCounter = new UpdateCounter
 
-  private def shouldUpdate(ending: Boolean): Option[Counts] = {
-    val counts = counter.get()
-    if (ending || counts.changed) Some(counts) else None
+  private def shouldUpdate(
+      ending: Boolean,
+  ): Option[(Counts, Counts, Counts)] = {
+    val wcounts = writeCounter.get()
+    val fcounts = formatCounter.get()
+    val rcounts = readCounter.get()
+    val ok = ending || rcounts.changed || fcounts.changed || wcounts.changed
+    if (ok) Some((wcounts, fcounts, rcounts)) else None
   }
 
   def end(): Unit = if (isStarted.compareAndSet(true, false)) {
@@ -152,16 +167,19 @@ private[cli] class TermDisplay(
     else processUpdate(ending = true)
   }
 
-  def done(ok: Boolean): Unit = counter.done(ok)
+  def doneRead(ok: Boolean): Unit = readCounter.done(ok)
+  def doneFormat(ok: Boolean): Unit = formatCounter.done(ok)
+  def doneWrite(ok: Boolean): Unit = writeCounter.done(ok)
 
   private def processUpdateFallback(): Unit =
     processUpdateFallback(ending = false)
   private def processUpdateFallback(ending: Boolean): Unit = shouldUpdate(ending)
-    .foreach { counts =>
+    .foreach { case (wcounts, fcounts, rcounts) =>
       implicit val sb = new StringBuilder()
       sb.append("(total ").append(todo)
-      sb.append(", done ")
-      counts.showFallback(todo)
+      rcounts.showFallback(todo, ", read ", None)
+      fcounts.showFallback(todo, ", format ", Some(rcounts))
+      wcounts.showFallback(todo, ", write ", Some(fcounts))
       sb.append(')')
       val extra = sb.result()
       val url = msg
@@ -202,20 +220,19 @@ private[cli] class TermDisplay(
 
   private def processUpdate(): Unit = processUpdate(ending = false)
   private def processUpdate(ending: Boolean): Unit = shouldUpdate(ending)
-    .foreach { counts =>
-      val sb = new StringBuilder()
-      val sbShow = new StringBuilder()
+    .foreach { case (wcounts, fcounts, rcounts) =>
+      implicit val sb = new StringBuilder()
+      val sbRest = new StringBuilder()
 
-      sb.append("  ")
-      counts.show(todo, '#')(sb, sbShow)
-      sb.append(" [").append(sbShow)
-
-      var padding = 10 - sbShow.length
-      while (padding > 0) { sb.append(' '); padding -= 1 }
-      sb.append("] ").append(todo).append(" source files (failed")
-      if (counts.fail > 0) sb.append(' ').append(counts.fail)
-      else sb.append(" none")
-      sb.append(')')
+      sb.append("  [")
+      val sbLen = sb.length
+      wcounts.show('#', " out", Some(fcounts), None)(todo, sbRest)
+      fcounts.show('>', ", fmt", Some(rcounts), Some(wcounts))(todo, sbRest)
+      rcounts.show('+', ", in", None, Some(fcounts))(todo, sbRest)
+      fill(sbLen + 10 - sb.length, ' ')
+      sb.append(']').append(sbRest)
+      val left = todo - rcounts.done
+      if (left > 0) sb.append(" todo=").append(left)
 
       truncatedPrintln(msg)
       out.clearLine(2)
