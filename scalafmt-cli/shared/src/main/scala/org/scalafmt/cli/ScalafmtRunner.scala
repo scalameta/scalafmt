@@ -20,19 +20,19 @@ trait ScalafmtRunner {
       options: CliOptions,
       inputMethods: Seq[InputMethod],
       msg: String,
-  ): Option[TermDisplay] =
-    if (
-      options.writeMode != WriteMode.Stdout && inputMethods.lengthCompare(5) > 0
-    ) {
+  ): Option[TermDisplay] = {
+    val numInputs = inputMethods.length
+    if (options.writeMode != WriteMode.Stdout && numInputs > 5) {
       val termDisplay = new TermDisplay(
         options.common.info.printWriter,
+        msg,
+        numInputs,
         fallbackMode = options.nonInteractive || TermDisplay.defaultFallbackMode,
       )
-      termDisplay.init()
-      termDisplay.startTask(msg, options.cwd.jfile)
-      termDisplay.taskLength(msg, inputMethods.length, 0)
+      termDisplay.start()
       Some(termDisplay)
     } else None
+  }
 
   protected def getInputMethods(
       options: CliOptions,
@@ -104,8 +104,8 @@ trait ScalafmtRunner {
               .write(formattedCode, code, options)
         }.transform { r =>
           val ok = r == Success(ExitCode.Ok)
-          if (ok) termDisplay.foreach(_.taskProgress(termDisplayMessage))
-          else if (options.check) completed.trySuccess(asExit(r))
+          termDisplay.foreach(_.done(ok = ok))
+          if (!ok && options.check) completed.trySuccess(asExit(r))
           Success(r)
         }
         tasks += future
@@ -116,10 +116,7 @@ trait ScalafmtRunner {
       ExitCode.merge(res, asExit(r))
     }.onComplete(completed.tryComplete)
 
-    completed.future.td { case (td, r) =>
-      td.completedTask(termDisplayMessage, r == Success(ExitCode.Ok))
-      td.stop()
-    }
+    completed.future.td { case (td, _) => td.end() }
   }
 
 }
