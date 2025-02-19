@@ -14,6 +14,7 @@ private[scalafmt] object PlatformRunOps {
 
   implicit def executionContext: ExecutionContext = ExecutionContext.global
 
+  // creates non-daemon threads
   val inputExecutionContext: ExecutionContextExecutorService = ExecutionContext
     .fromExecutorService(
       Executors.newFixedThreadPool(Runtime.getRuntime.availableProcessors()),
