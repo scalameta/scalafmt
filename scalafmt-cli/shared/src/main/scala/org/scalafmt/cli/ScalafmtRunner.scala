@@ -6,7 +6,6 @@ import org.scalafmt.sysops._
 import java.nio.file.Path
 
 import scala.concurrent._
-import scala.util.Failure
 import scala.util.Success
 
 trait ScalafmtRunner {
@@ -90,19 +89,13 @@ trait ScalafmtRunner {
         ).flatMap {
           case Left(exitCode) => exitCode.future
           case Right((code, formattedCode)) => inputMethod
-              .write(formattedCode, code, options).transform {
-                case Failure(e: Error.MisformattedFile) =>
-                  options.common.err.println(e.customMessage)
-                  Success(ExitCode.TestError)
-                case r =>
-                  if (r.toOption.exists(_.isOk)) termDisplay
-                    .foreach(_.taskProgress(termDisplayMessage))
-                  r
-              }
+              .write(formattedCode, code, options)
+        }.transform { r =>
+          val ok = r == Success(ExitCode.Ok)
+          if (ok) termDisplay.foreach(_.taskProgress(termDisplayMessage))
+          else if (options.check) completed.tryComplete(r)
+          r
         }
-        if (options.check) future.onComplete(r =>
-          if (!r.toOption.exists(_.isOk)) completed.tryComplete(r),
-        )
         tasks += future
       }
     }

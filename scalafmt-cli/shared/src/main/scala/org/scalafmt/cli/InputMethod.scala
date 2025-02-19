@@ -1,6 +1,5 @@
 package org.scalafmt.cli
 
-import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.sysops.FileOps
 import org.scalafmt.sysops.PlatformCompat
@@ -43,7 +42,8 @@ sealed abstract class InputMethod {
         val msg =
           if (diff.nonEmpty) diff
           else s"--- +$pathStr\n    => modified line endings only"
-        Future.failed(MisformattedFile(path, msg))
+        options.common.err.println(msg)
+        ExitCode.TestError.future
       case _ => options.exitCodeOnChange.future
     }
   }

@@ -1,6 +1,5 @@
 package org.scalafmt.cli
 
-import org.scalafmt.Error._
 import org.scalafmt.interfaces._
 
 import java.io.OutputStreamWriter
@@ -31,25 +30,22 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
     }
   override final def error(file: Path, e: Throwable): Unit =
     updateExitCode(fail(e)(file), file)
-  @tailrec
-  private[cli] final def fail(e: Throwable)(file: Path): ExitCode = e match {
-    case e: MisformattedFile =>
-      options.common.err.println(e.customMessage)
-      ExitCode.TestError
-    case _: PositionException =>
-      if (options.ignoreWarnings) ExitCode.Ok
-      else {
+  private[cli] final def fail(e: Throwable)(file: Path): ExitCode = {
+    @tailrec
+    def iter(e: Throwable): ExitCode = e match {
+      case _: PositionException =>
         options.common.err.println(s"${e.toString}: $file")
         ExitCode.ParseError
-      }
-    case _ =>
-      val cause = e.getCause
-      if (cause ne null) fail(cause)(file)
-      else if (options.ignoreWarnings) ExitCode.Ok
-      else {
-        new FailedToFormat(file.toString, e).printStackTrace(options.common.err)
-        ExitCode.UnexpectedError
-      }
+      case _ =>
+        val cause = e.getCause
+        if (cause ne null) iter(cause)
+        else {
+          new FailedToFormat(file.toString, e)
+            .printStackTrace(options.common.err)
+          ExitCode.UnexpectedError
+        }
+    }
+    if (options.ignoreWarnings) ExitCode.Ok else iter(e)
   }
 
   override def excluded(file: Path): Unit = options.common.debug
