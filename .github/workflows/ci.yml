@@ -7,7 +7,7 @@ on:
       - '*'
   pull_request:
   release:
-    types: [published]
+    types: [ published ]
 
 permissions:
   contents: read
@@ -17,7 +17,6 @@ jobs:
     if: github.event_name != 'release'
     strategy:
       fail-fast: false
-      max-parallel: 8
       matrix:
         java:
           - '11'
@@ -25,9 +24,6 @@ jobs:
         os:
           - windows-latest
           - ubuntu-latest
-        platform:
-          - 'jvm'
-          - 'native'
         scala:
           - '2.12.20'
           - '2.13.16'
@@ -43,19 +39,22 @@ jobs:
           distribution: 'temurin'
           cache: 'sbt'
       - uses: sbt/setup-sbt@v1
-      - run:
-          # for GitOps tests
+      - run: # for GitOps tests
           git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
-      - run: sbt ++${{ matrix.scala }} ci-test-${{ matrix.platform }}
-        shell: bash
+      - run: sbt ++${{ matrix.scala }} test-jvm
+      - run: sbt ++${{ matrix.scala }} test-js
+      - run: sbt ++${{ matrix.scala }} test-native
+      - run: sbt ++${{ matrix.scala }} publishLocal
+      - run: sbt ++${{ matrix.scala }} docs/run
+        if: startsWith(matrix.scala, '2.12.')
   community-test:
     if: github.event_name != 'release'
     strategy:
       fail-fast: false
       matrix:
         java: [ '11' ]
-        os: [windows-latest, ubuntu-latest]
-        group: [Scala2, Scala3, Spark, Intellij, Other]
+        os: [ windows-latest, ubuntu-latest ]
+        group: [ Scala2, Scala3, Spark, Intellij, Other ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -89,8 +88,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macOS-latest, ubuntu-latest]
-        libc: [default, musl]
+        os: [ macOS-latest, ubuntu-latest ]
+        libc: [ default, musl ]
         exclude:
           - os: macOS-latest
             libc: musl
@@ -144,12 +143,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        deploy: [ 
-          { os : macOS-13, name: scalafmt-x86_64-apple-darwin}, 
-          { os : macOS-14, name: scalafmt-aarch64-apple-darwin}, 
-          { os : ubuntu-latest, name: scalafmt-x86_64-pc-linux}, 
-          { os : ubuntu-24.04-arm, name: scalafmt-aarch64-pc-linux}, 
-          { os : windows-latest, name: scalafmt-x86_64-pc-win32}
+        deploy: [
+          { os: macOS-13, name: scalafmt-x86_64-apple-darwin },
+          { os: macOS-14, name: scalafmt-aarch64-apple-darwin },
+          { os: ubuntu-latest, name: scalafmt-x86_64-pc-linux },
+          { os: ubuntu-24.04-arm, name: scalafmt-aarch64-pc-linux },
+          { os: windows-latest, name: scalafmt-x86_64-pc-win32 }
         ]
     runs-on: ${{ matrix.deploy.os }}
     env:
@@ -181,7 +180,7 @@ jobs:
           asset_name: ${{ matrix.deploy.name }}
           asset_content_type: application/zip
   dockerize:
-    needs: [scala-native]
+    needs: [ scala-native ]
     runs-on: ubuntu-latest
     if: github.event_name == 'release'
     steps:

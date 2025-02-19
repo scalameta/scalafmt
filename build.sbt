@@ -65,22 +65,9 @@ addCommandAlias(
   "scala-native",
   "cliNative/compile;cliNative/nativeLink;copyScalaNative",
 )
-
-commands ++= Seq(
-  Command.command("ci-test-jvm") { s =>
-    val docsTest = if (isScala212.value) "docs/run" else "version"
-    // jvm tests
-    "tests/test" :: "cli/test" ::
-      // js tests
-      "testsJS/test" :: "cliJS/test" ::
-      // other
-      "publishLocal" :: docsTest :: s
-  },
-  Command.command("ci-test-native")(s =>
-    // for native, we don't publish nor build docs
-    "testsNative/test" :: "cliNative/test" :: s,
-  ),
-)
+addCommandAlias("test-jvm", "tests/test;cli/test")
+addCommandAlias("test-js", "testsJS/test;cliJS/test")
+addCommandAlias("test-native", "testsNative/test;cliNative/test")
 
 lazy val dynamic = crossProject(JVMPlatform) // don't build for NativePlatform
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-dynamic")).settings(
