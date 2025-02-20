@@ -38,7 +38,7 @@ private[scalafmt] object RegexCompat {
   val docstringLeadingSpace = pat("^\\h+")
 
   @inline
-  def compileStripMarginPattern(pipe: Char) = pat(s"\\h*\\r*\\n(\\h*\\$pipe)?")
+  def compileStripMarginPattern(pipe: Char) = pat(s"\\r*\\n(\\h*\\$pipe)?")
 
   @inline
   def compileStripMarginPatternWithLineContent(pipe: Char) =

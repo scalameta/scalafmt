@@ -36,7 +36,7 @@ private[scalafmt] object RegexCompat {
 
   @inline
   private def compileStripMarginPattern(pipe: Char) = Pattern
-    .compile(s"\\h*\\r*\\n(\\h*+\\$pipe)?")
+    .compile(s"\\r*\\n(\\h*+\\$pipe)?")
 
   @inline
   def compileStripMarginPatternWithLineContent(pipe: Char) = Pattern
