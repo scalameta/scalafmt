@@ -812,7 +812,7 @@ object a {
 }
 >>>
 object a {
-  """|foo
+  """|foo  
      |bar""".stripMargin
 }
 <<< #4825 keep trailing spaces, !assumeStandardLibraryStripMargin
