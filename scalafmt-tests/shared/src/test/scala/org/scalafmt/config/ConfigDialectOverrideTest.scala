@@ -54,7 +54,7 @@ class ConfigDialectOverrideTest extends FunSuite {
         if (testDirectly)
           assertEquals(getter(generatedMap(methodName)(Scala213, flag)), flag)
         assertEquals(
-          getter(ScalafmtRunner.overrideDialect(Scala213, methodName, flag)),
+          getter(RunnerSettings.overrideDialect(Scala213, methodName, flag)),
           flag,
         )
         assertEquals(

@@ -1,12 +1,7 @@
 package org.scalafmt.cli
 
-import org.scalafmt.Error
-import org.scalafmt.Formatted
-import org.scalafmt.Scalafmt
-import org.scalafmt.Versions
-import org.scalafmt.config.ProjectFiles
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.ScalafmtConfigException
+import org.scalafmt._
+import org.scalafmt.config._
 
 import scala.meta.parsers.ParseException
 import scala.meta.tokenizers.TokenizeException
