@@ -201,7 +201,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: scalafmt-x86_64-pc-linux
-          path: tmp/scalafmt
+          path: tmp/scalafmt-docker-build # Dockerfile uses this
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
