@@ -1,0 +1,141 @@
+name: Release Native
+on:
+  release:
+    types: [ published ]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Scalafmt version (e.g., 1.2.3)"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  scala-native:
+    if: github.event_name == 'release'
+    permissions:
+      contents: write  # for actions/upload-release-asset to upload release asset
+    strategy:
+      fail-fast: false
+      matrix:
+        deploy: [
+          { os: macOS-13, name: scalafmt-x86_64-apple-darwin },
+          { os: macOS-14, name: scalafmt-aarch64-apple-darwin },
+          { os: ubuntu-latest, name: scalafmt-x86_64-pc-linux },
+          { os: ubuntu-24.04-arm, name: scalafmt-aarch64-pc-linux },
+          { os: windows-latest, name: scalafmt-x86_64-pc-win32 }
+        ]
+    runs-on: ${{ matrix.deploy.os }}
+    env:
+      BINARY_NAME: ${{ (startsWith(matrix.deploy.os, 'windows') && 'scalafmt.exe') || 'scalafmt' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'sbt'
+      - uses: sbt/setup-sbt@v1
+      - run: sbt scala-native
+        env:
+          CI: true
+      - uses: actions/upload-artifact@master
+        with:
+          name: ${{ matrix.deploy.name }}
+          path: ${{ env.BINARY_NAME }}
+      - name: Upload release to Github
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ env.BINARY_NAME }}
+          asset_name: ${{ matrix.deploy.name }}
+          asset_content_type: application/zip
+  dockerize:
+    needs: [ scala-native ]
+    if: ${{ github.event_name == 'release' == success() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Docker Meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: scalameta/scalafmt
+          tags: type=raw,value=${{ github.event_name == 'release' && github.event.release.tag_name || github.event.inputs.version }}
+      - name: Downloading scalafmt for Docker Build
+        uses: actions/download-artifact@v4
+        with:
+          name: scalafmt-x86_64-pc-linux
+          path: tmp/scalafmt-docker-build # Dockerfile uses this
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+  native-image: # deprecated, will soon be removed
+    if: github.event_name == 'release'
+    permissions:
+      contents: write  # for actions/upload-release-asset to upload release asset
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macOS-latest, ubuntu-latest ]
+        libc: [ default, musl ]
+        exclude:
+          - os: macOS-latest
+            libc: musl
+        include:
+          - os: macOS-latest
+            artifact: scalafmt-macos
+            env:
+              NATIVE_IMAGE_STATIC: none
+          - os: ubuntu-latest
+            libc: default
+            artifact: scalafmt-linux-glibc
+            env:
+              NATIVE_IMAGE_STATIC: nolibc
+          - os: ubuntu-latest
+            libc: musl
+            artifact: scalafmt-linux-musl
+            env:
+              NATIVE_IMAGE_STATIC: musl
+    env: ${{ matrix.env }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm-community'
+          native-image-musl: ${{ matrix.libc == 'musl' }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: sbt/setup-sbt@v1
+      - run: bin/build-native-image.sh
+        env:
+          CI: true
+      - uses: actions/upload-artifact@master
+        with:
+          name: ${{ matrix.artifact }}
+          path: scalafmt
+      - name: Upload release to Github
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: scalafmt
+          asset_name: ${{ matrix.artifact }}
+          asset_content_type: application/zip
