@@ -7,6 +7,9 @@ on:
       version:
         description: "Scalafmt version (e.g., 1.2.3)"
         required: true
+      run_id:
+        description: "Github actions run_id which built the release"
+        required: true
 
 permissions:
   contents: read
@@ -73,6 +76,8 @@ jobs:
         with:
           name: scalafmt-x86_64-pc-linux
           path: tmp/scalafmt-docker-build # Dockerfile uses this
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event_name == 'release' && github.run_id || github.event.inputs.run_id }}
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
