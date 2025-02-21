@@ -1,16 +1,9 @@
 package org.scalafmt.cli
 
-import org.scalafmt.config.ConfParsed
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.ScalafmtConfigException
-import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.GitOps
-import org.scalafmt.sysops.OsSpecific
-import org.scalafmt.sysops.PlatformFileOps
+import org.scalafmt.config._
+import org.scalafmt.sysops._
 
-import java.io.InputStream
-import java.io.PrintStream
-import java.io.PrintWriter
+import java.io._
 import java.nio.file.Path
 
 import scala.io.Codec

@@ -116,7 +116,7 @@ case class ScalafmtConfig(
     lineEndings: Option[LineEndings] = None,
     rewrite: RewriteSettings = RewriteSettings.default,
     newlines: Newlines = Newlines(),
-    runner: ScalafmtRunner = ScalafmtRunner.default,
+    runner: RunnerSettings = RunnerSettings.default,
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: DanglingParentheses = DanglingParentheses.default,
     verticalMultiline: VerticalMultiline = VerticalMultiline(),

@@ -392,7 +392,7 @@ object BestFirstSearch {
 
   class StateStats private (
       tokens: FormatTokens,
-      runner: ScalafmtRunner,
+      runner: RunnerSettings,
       pruneSlowStates: ScalafmtOptimizer.PruneSlowStates,
   ) {
     var explored = 0
@@ -400,7 +400,7 @@ object BestFirstSearch {
     val best = mutable.Map.empty[Int, State]
     val visits = new Array[Int](tokens.length)
 
-    def this(tokens: FormatTokens, runner: ScalafmtRunner) =
+    def this(tokens: FormatTokens, runner: RunnerSettings) =
       this(tokens, runner, runner.optimizer.pruneSlowStates)
 
     /** Returns true if it's OK to skip over state.
