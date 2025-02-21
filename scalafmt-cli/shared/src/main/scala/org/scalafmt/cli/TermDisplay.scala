@@ -95,12 +95,6 @@ private[cli] object TermDisplay extends TermUtils {
         idx += 1
       }
     }
-
-    def showFallback(total: Int)(implicit sb: StringBuilder): Unit = {
-      def pct(cnt: Int) = f"${100.0 * cnt / total}%.1f%%"
-      sb.append(" +").append(pct(good)).append("/").append(good).append(" -")
-        .append(pct(fail)).append("/").append(fail)
-    }
   }
 
   private class UpdateCounter {
@@ -141,57 +135,12 @@ private[cli] class TermDisplay(
   private val isStarted = new atomic.AtomicBoolean(false)
   private val counter = new UpdateCounter
 
-  private def shouldUpdate(ending: Boolean): Option[Counts] = {
-    val counts = counter.get()
-    if (ending || counts.changed) Some(counts) else None
-  }
-
   def end(): Unit = if (isStarted.compareAndSet(true, false)) {
     polling.cancel()
-    if (fallbackMode) processUpdateFallback(ending = true)
-    else processUpdate(ending = true)
+    processUpdate(ending = true)
   }
 
   def done(ok: Boolean): Unit = counter.done(ok)
-
-  private def processUpdateFallback(): Unit =
-    processUpdateFallback(ending = false)
-  private def processUpdateFallback(ending: Boolean): Unit = shouldUpdate(ending)
-    .foreach { counts =>
-      implicit val sb = new StringBuilder()
-      sb.append("(total ").append(todo)
-      sb.append(", done ")
-      counts.showFallback(todo)
-      sb.append(')')
-      val extra = sb.result()
-      val url = msg
-
-      val baseExtraWidth = width / 5
-
-      val total = url.length + 1 + extra.length
-      val (url0, extra0) =
-        if (total >= width) { // or > ? If equal, does it go down 2 lines?
-          val overflow = total - width + 1
-
-          val extra0 =
-            if (extra.length > baseExtraWidth) extra
-              .take(baseExtraWidth.max(extra.length - overflow) - 1) + "…"
-            else extra
-
-          val total0 = url.length + 1 + extra0.length
-          val overflow0 = total0 - width + 1
-
-          val url0 =
-            if (total0 >= width) url.take(
-              (width - baseExtraWidth - 1).max(url.length - overflow0) - 1,
-            ) + "…"
-            else url
-
-          (url0, extra0)
-        } else (url, extra)
-
-      out.append(url0).append(' ').append(extra0).append('\n').flush()
-    }
 
   private def truncatedPrintln(s: String): Unit = {
     out.clearLine(2)
@@ -201,37 +150,40 @@ private[cli] class TermDisplay(
   }
 
   private def processUpdate(): Unit = processUpdate(ending = false)
-  private def processUpdate(ending: Boolean): Unit = shouldUpdate(ending)
-    .foreach { counts =>
-      val sb = new StringBuilder()
-      val sbShow = new StringBuilder()
+  private def processUpdate(ending: Boolean): Unit = {
+    val counts = counter.get()
+    val ok = ending || counts.changed
+    if (!ok) return
 
-      sb.append("  ")
-      counts.show(todo, '#')(sb, sbShow)
-      sb.append(" [").append(sbShow)
+    val sb = new StringBuilder()
+    val sbShow = new StringBuilder()
 
-      var padding = 10 - sbShow.length
-      while (padding > 0) { sb.append(' '); padding -= 1 }
-      sb.append("] ").append(todo).append(" source files (failed")
-      if (counts.fail > 0) sb.append(' ').append(counts.fail)
-      else sb.append(" none")
-      sb.append(')')
+    sb.append("  ")
+    counts.show(todo, '#')(sb, sbShow)
+    sb.append(" [").append(sbShow)
 
-      truncatedPrintln(msg)
+    var padding = 10 - sbShow.length
+    while (padding > 0) { sb.append(' '); padding -= 1 }
+    sb.append("] ").append(todo).append(" source files (failed")
+    if (counts.fail > 0) sb.append(' ').append(counts.fail)
+    else sb.append(" none")
+    sb.append(')')
+
+    truncatedPrintln(msg)
+    out.clearLine(2)
+    truncatedPrintln(sb.result())
+
+    if (!ending && !fallbackMode) {
       out.clearLine(2)
-      truncatedPrintln(sb.result())
-
-      if (!ending) {
-        out.clearLine(2)
-        out.down(1)
-        out.clearLine(2)
-        out.down(1)
-        out.up(2)
-        out.left(10000)
-      }
-
-      out.flush()
+      out.down(1)
+      out.clearLine(2)
+      out.down(1)
+      out.up(2)
+      out.left(10000)
     }
+
+    out.flush()
+  }
 
   def start(): Unit = if (isStarted.compareAndSet(false, true)) {
     Terminal.consoleDim("cols") match {
@@ -240,12 +192,9 @@ private[cli] class TermDisplay(
         out.clearLine(2)
       case None => fallbackMode = true
     }
-    polling =
-      if (!fallbackMode) scheduler.start(refreshInterval)(processUpdate)
-      else {
-        out.append(msg).append('\n').flush()
-        scheduler.start(fallbackRefreshInterval)(processUpdateFallback)
-      }
+    if (fallbackMode) out.append(msg).append('\n').flush()
+    val freq = if (fallbackMode) fallbackRefreshInterval else refreshInterval
+    polling = scheduler.start(freq)(processUpdate)
   }
 
 }
