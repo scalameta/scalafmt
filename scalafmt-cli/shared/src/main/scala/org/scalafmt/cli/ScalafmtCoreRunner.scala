@@ -23,7 +23,7 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
         ProjectFiles.FileMatcher(scalafmtConf.project, options.customExcludes),
       )
     catch {
-      case e: ScalafmtConfigException =>
+      case e @ (_: ScalafmtConfigException | _: sysops.ScalafmtSysException) =>
         options.common.err.println(e.getMessage)
         ExitCode.UnexpectedError.future
     }

@@ -2,8 +2,7 @@ package org.scalafmt.config
 
 import org.scalafmt.Versions
 import org.scalafmt.rewrite._
-import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.OsSpecific._
+import org.scalafmt.sysops._
 import org.scalafmt.util._
 
 import scala.meta._
@@ -202,7 +201,7 @@ case class ScalafmtConfig(
     val langResult = patStyles.collect { case (Left(lang), cfg) => lang -> cfg }
     val pmResult = patStyles.collect { case (Right(pat), cfg) =>
       val pattern =
-        if (pat(0) == '.') "glob:**" + pat else inPathMatcherForm(pat)
+        if (pat(0) == '.') "glob:**" + pat else OsSpecific.inPathMatcherForm(pat)
       PlatformPathMatcher(pattern) -> cfg
     }
     (langResult, pmResult)
