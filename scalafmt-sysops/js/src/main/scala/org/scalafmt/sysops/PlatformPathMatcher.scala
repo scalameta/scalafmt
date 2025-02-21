@@ -1,11 +1,9 @@
-package org.scalafmt.config
-
-import org.scalafmt.sysops.OsSpecific
+package org.scalafmt.sysops
 
 object PlatformPathMatcher {
   private def fail(pattern: String, msg: String): Nothing =
-    throw new ScalafmtConfigException(
-      s"Illegal pattern in configuration: $pattern; $msg",
+    throw new ScalafmtSysException(
+      s"Invalid path matcher pattern: $pattern; $msg",
     )
   def apply(pattern: String): PathMatcher = {
     val colon = pattern.indexOf(':')

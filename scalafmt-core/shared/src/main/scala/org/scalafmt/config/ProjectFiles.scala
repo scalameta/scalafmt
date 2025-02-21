@@ -1,8 +1,6 @@
 package org.scalafmt.config
 
-import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.FileOps
-import org.scalafmt.sysops.OsSpecific._
+import org.scalafmt.sysops._
 
 import scala.meta.Dialect
 import scala.meta.dialects
@@ -60,7 +58,7 @@ object ProjectFiles {
     }
 
     private def create(seq: Seq[String], f: String => PathMatcher) = seq
-      .map(inPathMatcherForm).distinct.map(f)
+      .map(OsSpecific.inPathMatcherForm).distinct.map(f)
     private def nio(seq: Seq[String]) = create(seq, PlatformPathMatcher.apply)
     private def regex(seq: Seq[String]) = create(seq, PathMatcher.Regex.apply)
 
