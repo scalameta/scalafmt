@@ -97,14 +97,16 @@ trait ScalafmtRunner {
     inputMethods.foreach { inputMethod =>
       if (!completed.isCompleted) {
         val read = inputMethod.readInput(options)
-        val format = read.map(code => f(code, inputMethod.path).map((code, _)))
+        val format = read.td { case (td, r) => td.doneRead(ok = r.isSuccess) }
+          .map(code => f(code, inputMethod.path).map((code, _)))
+          .td { case (td, r) => td.doneFormat(ok = r.toOption.exists(_.isRight)) }
         val future = format.flatMap {
           case Left(exitCode) => exitCode.future
           case Right((code, formattedCode)) => inputMethod
               .write(formattedCode, code, options)
         }.transform { r =>
           val ok = r == Success(ExitCode.Ok)
-          termDisplay.foreach(_.done(ok = ok))
+          termDisplay.foreach(_.doneWrite(ok = ok))
           if (!ok && options.check) completed.trySuccess(asExit(r))
           Success(r)
         }
