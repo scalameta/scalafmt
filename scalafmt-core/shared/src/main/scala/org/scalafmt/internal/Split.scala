@@ -55,6 +55,7 @@ case class Split(
     policy: Policy = NoPolicy,
     optimalAt: Option[OptimalToken] = None,
     penalty: Int = 0,
+    rank: Int = 0,
 )(implicit val fileLineStack: FileLineStack) {
   import PolicyOps._
 
