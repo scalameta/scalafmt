@@ -54,8 +54,8 @@ object PlatformFileOps {
   def readFile(file: Path)(implicit codec: Codec): String =
     new String(Files.readAllBytes(file), codec.charSet)
 
-  def readFileAsync(file: Path)(implicit codec: Codec): Future[String] = Future
-    .successful(readFile(file))
+  def readFileAsync(file: Path)(implicit codec: Codec): Future[String] =
+    GranularPlatformAsyncOps.readFileAsync(file)
 
   def readStdinAsync: Future[String] = Future
     .successful(FileOps.readInputStream(System.in))
@@ -64,6 +64,10 @@ object PlatformFileOps {
     val bytes = content.getBytes(codec.charSet)
     Files.write(path, bytes)
   }
+
+  def writeFileAsync(path: Path, content: String)(implicit
+      codec: Codec,
+  ): Future[Unit] = GranularPlatformAsyncOps.writeFileAsync(path, content)
 
   def cwd() = System.getProperty("user.dir")
 }

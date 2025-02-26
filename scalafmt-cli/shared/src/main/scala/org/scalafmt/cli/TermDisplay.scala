@@ -11,9 +11,7 @@ import org.scalafmt.sysops.PlatformRunOps
 
 import java.io.File
 import java.io.Writer
-import java.util.concurrent._
-
-import scala.collection.mutable
+import java.util.concurrent.atomic
 
 object Terminal {
 
@@ -53,7 +51,7 @@ object Terminal {
 
 }
 
-object TermDisplay extends TermUtils {
+private[cli] object TermDisplay extends TermUtils {
 
   def defaultFallbackMode: Boolean = {
     val env0 = sys.env.get("COURSIER_PROGRESS").map(_.toLowerCase).collect {
@@ -72,346 +70,148 @@ object TermDisplay extends TermUtils {
     env || nonInteractive || insideEmacs || ci
   }
 
-  private sealed abstract class Info extends Product with Serializable {
-    def fraction: Option[Double]
-    def display(): String
-  }
-
-  private case class DownloadInfo(
-      downloaded: Long,
-      previouslyDownloaded: Long,
-      length: Option[Long],
-      startTime: Long,
-      updateCheck: Boolean,
-  ) extends Info {
-
-    /** 0.0 to 1.0 */
-    def fraction: Option[Double] = length.map(downloaded.toDouble / _)
-
-    def display(): String = {
-      val decile = (10.0 * fraction.getOrElse(0.0)).toInt
-      assert(decile >= 0)
-      assert(decile <= 10)
-
-      fraction.fold(" " * 6)(p => f"${100.0 * p}%5.1f%%") + " [" +
-        "#" * decile + " " * (10 - decile) + "] " + downloaded +
-        " source files formatted"
-    }
-  }
-
-  private case class CheckUpdateInfo(
-      currentTimeOpt: Option[Long],
-      remoteTimeOpt: Option[Long],
-      isDone: Boolean,
-  ) extends Info {
-    def fraction = None
-    def display(): String =
-      if (isDone) (currentTimeOpt, remoteTimeOpt) match {
-        case (Some(current), Some(remote)) =>
-          if (current < remote) s"Updated since ${formatTimestamp(
-              current,
-            )} (${formatTimestamp(remote)})"
-          else if (current == remote)
-            s"No new update since ${formatTimestamp(current)}"
-          else s"Warning: local copy newer than remote one (${formatTimestamp(
-              current,
-            )} > ${formatTimestamp(remote)})"
-        case (Some(_), None) =>
-          // FIXME Likely a 404 Not found, that should be taken into account by the cache
-          "No modified time in response"
-        case (None, Some(remote)) => s"Last update: ${formatTimestamp(remote)}"
-        case (None, None) => "" // ???
-      }
-      else currentTimeOpt match {
-        case Some(current) =>
-          s"Checking for updates since ${formatTimestamp(current)}"
-        case None => "" // ???
-      }
-  }
-
-  private sealed abstract class Message extends Product with Serializable
-  private object Message {
-    case object Update extends Message
-    case object Stop extends Message
-  }
-
   private val refreshInterval = 1000 / 60
   private val fallbackRefreshInterval = 1000
 
-  private class UpdateDisplayThread(out: Writer, var fallbackMode: Boolean) {
-
-    import Terminal.Ansi
-
-    private var width = 80
-    private var currentHeight = 0
-    private val previousDownloads = mutable.Set.empty[String]
-
-    private val scheduler = new PlatformPollingScheduler
-    private var polling: PollingScheduler.Cancelable = _
-    private val isStarted = new atomic.AtomicBoolean
-    private val shouldUpdateFlag = new atomic.AtomicBoolean
-
-    def update(): Unit = shouldUpdateFlag.set(true)
-    private def shouldUpdate(): Boolean = shouldUpdateFlag
-      .compareAndSet(true, false)
-
-    def end(): Unit = if (isStarted.get()) {
-      polling.cancel()
-      if (fallbackMode) processStopFallback() else processStop()
+  private def fill(cnt: Int, ch: Char)(implicit sb: StringBuilder): Unit = {
+    var idx = 0
+    while (idx < cnt) {
+      idx += 1
+      sb.append(ch)
     }
+  }
 
-    private val downloads = new mutable.ArrayBuffer[String]
-    private val doneQueue = new mutable.ArrayBuffer[(String, Info)]
-    val infos = new ConcurrentHashMap[String, Info]
+  private case class Counts(good: Int, fail: Int, changed: Boolean) {
+    def done = good + fail
+    def show(
+        okShow: Char,
+        label: String,
+        prevStage: Option[Counts],
+        nextStage: Option[Counts],
+    )(total: Int, sbRest: StringBuilder)(implicit sbShow: StringBuilder): Unit = {
+      def dec(cnt: Int) = 10 * cnt / total
+      val decDone = dec(done) - nextStage.fold(0)(x => dec(x.done))
+      val decGood = dec(good) - nextStage.fold(0)(x => dec(x.good))
+      val decFail = decDone - decGood
+      if (decFail <= 0) fill(decDone, okShow)
+      else { fill(decGood, okShow); fill(decFail, '-') }
 
-    def newEntry(url: String, info: Info, fallbackMessage: => String): Unit = {
-      assert(!infos.containsKey(url))
-      val prev = infos.putIfAbsent(url, info)
-      assert(prev == null)
-
-      if (fallbackMode) {
-        // FIXME What about concurrent accesses to out from the thread above?
-        out.write(fallbackMessage)
-        out.flush()
-      }
-
-      downloads.synchronized(downloads.append(url))
-
-      update()
+      sbRest.append(f"$label ${100.0 * good / total}%.1f%% $good")
+      val stageFail = fail - prevStage.fold(0)(_.fail)
+      if (stageFail > 0) sbRest.append('/').append(stageFail)
     }
+  }
 
-    def removeEntry(url: String, success: Boolean, fallbackMessage: => String)(
-        update0: Info => Info,
-    ): Unit = {
-      downloads.synchronized {
-        downloads -= url
+  private class UpdateCounter {
+    // completed but not all updated
+    private val numGood = new atomic.AtomicInteger(0)
+    // failed but not all updated
+    private val numFail = new atomic.AtomicInteger(0)
+    // already updated
+    private val numDone = new atomic.AtomicInteger(-1)
 
-        val info = infos.remove(url)
+    def done(ok: Boolean): Unit = (if (ok) numGood else numFail).getAndIncrement()
 
-        if (success) doneQueue += url -> update0(info)
-      }
-
-      if (fallbackMode && success) {
-        // FIXME What about concurrent accesses to out from the thread above?
-        out.write(fallbackMessage)
-        out.flush()
-      }
-
-      update()
+    def get(): Counts = {
+      val good = numGood.get()
+      val fail = numFail.get()
+      val newdone = good + fail
+      val done = numDone.getAndSet(newdone)
+      Counts(good, fail, done < newdone)
     }
-
-    private def reflowed(url: String, info: Info) = {
-      val extra = info match {
-        case downloadInfo: DownloadInfo =>
-          val pctOpt = downloadInfo.fraction.map(100.0 * _)
-
-          if (downloadInfo.length.isEmpty && downloadInfo.downloaded == 0L) ""
-          else {
-            val pctOptStr = pctOpt.map(pct => f"$pct%.2f %%, ").mkString
-            val downloadInfoStr = downloadInfo.length.map(" / " + _).mkString
-            s"($pctOptStr${downloadInfo.downloaded}$downloadInfoStr)"
-          }
-
-        case _: CheckUpdateInfo => "Checking for updates"
-      }
-
-      val baseExtraWidth = width / 5
-
-      val total = url.length + 1 + extra.length
-      val (url0, extra0) =
-        if (total >= width) { // or > ? If equal, does it go down 2 lines?
-          val overflow = total - width + 1
-
-          val extra0 =
-            if (extra.length > baseExtraWidth) extra
-              .take(baseExtraWidth.max(extra.length - overflow) - 1) + "…"
-            else extra
-
-          val total0 = url.length + 1 + extra0.length
-          val overflow0 = total0 - width + 1
-
-          val url0 =
-            if (total0 >= width) url.take(
-              (width - baseExtraWidth - 1).max(url.length - overflow0) - 1,
-            ) + "…"
-            else url
-
-          (url0, extra0)
-        } else (url, extra)
-
-      (url0, extra0)
-    }
-
-    private def truncatedPrintln(s: String): Unit = {
-
-      out.clearLine(2)
-
-      if (s.length <= width) out.write(s + "\n")
-      else out.write(s.take(width - 1) + "…\n")
-    }
-
-    private def getDownloadInfos: Vector[(String, Info)] = downloads.toVector
-      .map(url => url -> infos.get(url)).sortBy { case (_, info) =>
-        -info.fraction.sum
-      }
-
-    private def processStop(): Unit = {} // poison pill
-
-    private def processUpdate(): Unit = if (shouldUpdate()) {
-      val (done0, downloads0) = downloads.synchronized {
-        val q = doneQueue.toVector.filter { case (url, _) =>
-          !url.endsWith(".sha1") && !url.endsWith(".md5")
-        }.sortBy { case (url, _) => url }
-
-        doneQueue.clear()
-
-        val dw = getDownloadInfos
-
-        (q, dw)
-      }
-
-      for ((url, info) <- done0 ++ downloads0) {
-        assert(info != null, s"Incoherent state ($url)")
-
-        truncatedPrintln(url)
-        out.clearLine(2)
-        out.write(s"  ${info.display()}\n")
-      }
-
-      val displayedCount = (done0 ++ downloads0).length
-
-      if (displayedCount < currentHeight) {
-        for (_ <- 1 to 2; _ <- displayedCount until currentHeight) {
-          out.clearLine(2)
-          out.down(1)
-        }
-
-        for (_ <- displayedCount until currentHeight) out.up(2)
-      }
-
-      for (_ <- downloads0.indices) out.up(2)
-
-      out.left(10000)
-
-      out.flush()
-      currentHeight = downloads0.length
-    }
-
-    private def processStopFallback(): Unit = { // poison pill
-      // clean up display
-      for (_ <- 1 to 2; _ <- 0 until currentHeight) {
-        out.clearLine(2)
-        out.down(1)
-      }
-      for (_ <- 0 until currentHeight) out.up(2)
-    }
-
-    private def processUpdateFallback(): Unit = if (shouldUpdate()) {
-      val downloads0 = downloads.synchronized(getDownloadInfos)
-
-      var displayedSomething = false
-      for ((url, info) <- downloads0 if previousDownloads(url)) {
-        assert(info != null, s"Incoherent state ($url)")
-
-        val (url0, extra0) = reflowed(url, info)
-
-        displayedSomething = true
-        out.write(s"$url0 $extra0\n")
-      }
-
-      if (displayedSomething) out.write("\n")
-
-      out.flush()
-      previousDownloads ++= downloads0.map { case (url, _) => url }
-    }
-
-    def start(): Unit = if (isStarted.compareAndSet(false, true)) {
-      Terminal.consoleDim("cols") match {
-        case Some(cols) =>
-          width = cols
-          out.clearLine(2)
-        case None => fallbackMode = true
-      }
-      polling =
-        if (!fallbackMode) scheduler.start(refreshInterval)(processUpdate)
-        else scheduler.start(fallbackRefreshInterval)(processUpdateFallback)
-    }
-
   }
 
 }
 
-object Cache {
-  trait Logger {
-    def startTask(url: String, file: File): Unit = {}
-    def taskProgress(url: String): Unit = {}
-    def completedTask(url: String, success: Boolean): Unit = {}
-    def checkingUpdates(url: String, currentTimeOpt: Option[Long]): Unit = {}
-  }
-}
-
-class TermDisplay(
+private[cli] class TermDisplay(
     out: Writer,
-    val fallbackMode: Boolean = TermDisplay.defaultFallbackMode,
-) extends Cache.Logger {
+    msg: String,
+    todo: Int,
+    var fallbackMode: Boolean,
+) {
 
   import TermDisplay._
+  import Terminal.Ansi
 
-  private val counter = new atomic.AtomicInteger()
-  private val updateThread = new UpdateDisplayThread(out, fallbackMode)
+  private var width = 80
 
-  def init(): Unit = updateThread.start()
+  private val scheduler = new PlatformPollingScheduler
+  private var polling: PollingScheduler.Cancelable = _
+  private val isStarted = new atomic.AtomicBoolean(false)
+  private val readCounter = new UpdateCounter
+  private val formatCounter = new UpdateCounter
+  private val writeCounter = new UpdateCounter
 
-  def stop(): Unit = updateThread.end()
-
-  override def startTask(msg: String, file: File): Unit = updateThread.newEntry(
-    msg,
-    DownloadInfo(0L, 0L, None, System.currentTimeMillis(), updateCheck = false),
-    s"$msg\n",
-  )
-
-  def taskLength(
-      url: String,
-      totalLength: Long,
-      alreadyDownloaded: Long,
-  ): Unit = {
-    val info = updateThread.infos.get(url)
-    assert(info != null)
-    val newInfo = info match {
-      case info0: DownloadInfo => info0.copy(
-          length = Some(totalLength),
-          previouslyDownloaded = alreadyDownloaded,
-        )
-      case _ => throw new Exception(s"Incoherent display state for $url")
-    }
-    updateThread.infos.put(url, newInfo)
-
-    updateThread.update()
-  }
-  override def taskProgress(url: String): Unit = {
-    val downloaded = counter.incrementAndGet()
-    val info = updateThread.infos.get(url)
-    if (info != null) { // We might not want the progress bar.
-      val newInfo = info match {
-        case info0: DownloadInfo => info0.copy(downloaded = downloaded)
-        case _ => throw new Exception(s"Incoherent display state for $url")
-      }
-      updateThread.infos.put(url, newInfo)
-
-      updateThread.update()
-    }
+  def end(): Unit = if (isStarted.compareAndSet(true, false)) {
+    polling.cancel()
+    processUpdate(ending = true)
   }
 
-  override def completedTask(url: String, success: Boolean): Unit = updateThread
-    .removeEntry(url, success, s"$url\n")(x => x)
+  def doneRead(ok: Boolean): Unit = readCounter.done(ok)
+  def doneFormat(ok: Boolean): Unit = formatCounter.done(ok)
+  def doneWrite(ok: Boolean): Unit = writeCounter.done(ok)
 
-  override def checkingUpdates(
-      url: String,
-      currentTimeOpt: Option[Long],
-  ): Unit = updateThread.newEntry(
-    url,
-    CheckUpdateInfo(currentTimeOpt, None, isDone = false),
-    s"$url\n",
-  )
+  private def truncatedPrintln(s: String): Unit = {
+    out.clearLine(2)
+    if (s.length <= width) out.append(s)
+    else out.append(s, 0, width - 1).append('…')
+    out.append('\n')
+  }
+
+  private def processUpdate(): Unit = processUpdate(ending = false)
+  private def processUpdate(ending: Boolean): Unit = {
+    val wcounts = writeCounter.get()
+    val fcounts = formatCounter.get()
+    val rcounts = readCounter.get()
+    val ok = ending || rcounts.changed || fcounts.changed || wcounts.changed
+    if (!ok) return
+
+    implicit val sb = new StringBuilder()
+    val sbRest = new StringBuilder()
+
+    val useFirstLine = msg.length + 13 <= width
+    val sbSecondLine = if (useFirstLine) sbRest else sb
+    sbSecondLine.append("  ")
+
+    if (useFirstLine) sb.append(msg).append(' ')
+    sb.append('[')
+    val sbLen = sb.length
+    wcounts.show('#', "out", Some(fcounts), None)(todo, sbRest)
+    fcounts.show('>', ", fmt", Some(rcounts), Some(wcounts))(todo, sbRest)
+    rcounts.show('+', ", in", None, Some(fcounts))(todo, sbRest)
+    fill(sbLen + 10 - sb.length, ' ')
+    sb.append(']')
+
+    truncatedPrintln(if (useFirstLine) sb.result() else msg)
+    out.clearLine(2)
+
+    if (sbSecondLine ne sbRest) sbSecondLine.append(' ').append(sbRest)
+    val left = todo - rcounts.done
+    if (left > 0) sbSecondLine.append(" todo=").append(left)
+    truncatedPrintln(sbSecondLine.result())
+
+    if (!ending && !fallbackMode) {
+      out.clearLine(2)
+      out.down(1)
+      out.clearLine(2)
+      out.down(1)
+      out.up(2)
+      out.left(10000)
+    }
+
+    out.flush()
+  }
+
+  def start(): Unit = if (isStarted.compareAndSet(false, true)) {
+    Terminal.consoleDim("cols") match {
+      case Some(cols) =>
+        width = cols
+        out.clearLine(2)
+      case None => fallbackMode = true
+    }
+    if (fallbackMode) out.append(msg).append('\n').flush()
+    val freq = if (fallbackMode) fallbackRefreshInterval else refreshInterval
+    polling = scheduler.start(freq)(processUpdate)
+  }
 
 }

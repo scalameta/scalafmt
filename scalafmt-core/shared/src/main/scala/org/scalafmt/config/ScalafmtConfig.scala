@@ -2,14 +2,13 @@ package org.scalafmt.config
 
 import org.scalafmt.Versions
 import org.scalafmt.rewrite._
-import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.OsSpecific._
+import org.scalafmt.sysops._
 import org.scalafmt.util._
 
 import scala.meta._
 import scala.meta.tokens.{Token => T}
 
-import java.nio.file._
+import java.nio.file.Path
 
 import scala.collection.mutable
 import scala.io.Codec
@@ -116,7 +115,7 @@ case class ScalafmtConfig(
     lineEndings: Option[LineEndings] = None,
     rewrite: RewriteSettings = RewriteSettings.default,
     newlines: Newlines = Newlines(),
-    runner: ScalafmtRunner = ScalafmtRunner.default,
+    runner: RunnerSettings = RunnerSettings.default,
     assumeStandardLibraryStripMargin: Boolean = false,
     danglingParentheses: DanglingParentheses = DanglingParentheses.default,
     verticalMultiline: VerticalMultiline = VerticalMultiline(),
@@ -200,11 +199,10 @@ case class ScalafmtConfig(
       eitherPat -> cfg
     }
     val langResult = patStyles.collect { case (Left(lang), cfg) => lang -> cfg }
-    val fs = FileSystems.getDefault
     val pmResult = patStyles.collect { case (Right(pat), cfg) =>
       val pattern =
-        if (pat(0) == '.') "glob:**" + pat else inPathMatcherForm(pat)
-      fs.getPathMatcher(pattern) -> cfg
+        if (pat(0) == '.') "glob:**" + pat else OsSpecific.inPathMatcherForm(pat)
+      PlatformPathMatcher(pattern) -> cfg
     }
     (langResult, pmResult)
   }

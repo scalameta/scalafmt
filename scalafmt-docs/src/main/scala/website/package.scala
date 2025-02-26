@@ -1,6 +1,6 @@
 import org.scalafmt.Scalafmt
+import org.scalafmt.config.RunnerSettings
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.ScalafmtRunner
 
 import java.io.PrintStream
 import java.nio.file.Files
@@ -55,10 +55,10 @@ package object website {
     *   the unformatted code * @param config the config as an HOCON string
     */
   def exampleBlock(code: String, config: String*): Unit =
-    example(code, config, ScalafmtRunner.sbt)
+    example(code, config, RunnerSettings.sbt)
   def exampleSource(code: String, config: String*): Unit =
-    example(code, config, ScalafmtRunner.default)
-  def example(code: String, config: Seq[String], runner: ScalafmtRunner): Unit = {
+    example(code, config, RunnerSettings.default)
+  def example(code: String, config: Seq[String], runner: RunnerSettings): Unit = {
     val processedCode = preProcess(code)
     val parsedConfig1 = ScalafmtConfig.fromHoconString(config.mkString("\n"))
       .get.copy(runner = runner)
@@ -91,7 +91,7 @@ package object website {
     */
   def formatExample(code: String, config: String*): Unit = {
     val parsedConfig = ScalafmtConfig.fromHoconString(config.mkString("\n")).get
-      .copy(maxColumn = 40, runner = ScalafmtRunner.sbt)
+      .copy(maxColumn = 40, runner = RunnerSettings.sbt)
     val processedCode = preProcess(code)
     val formatted = Scalafmt.format(processedCode, parsedConfig).get
     val configString =

@@ -6,14 +6,27 @@ import org.scalafmt.sysops.PlatformFileOps
 import org.scalafmt.sysops.PlatformRunOps
 
 import scala.concurrent.Future
+import scala.util.Failure
+import scala.util.Success
 
 object Cli extends CliUtils {
 
-  import PlatformRunOps.executionContext
+  import PlatformRunOps.parasiticExecutionContext
 
-  def main(args: Array[String]): Unit =
-    mainWithOptions(CliOptions.default, args: _*)
-      .map(exit => PlatformRunOps.exit(exit.code))
+  /** Wrap mainWithOptions in a Future, to make sure `inputExecutionContext` is
+    * initialized before this method completes.
+    *
+    * When `main` returns, JVM will exit unless there are running non-daemon
+    * threads, so let's make sure these threads exist.
+    */
+  def main(args: Array[String]): Unit = Future.unit.flatMap(_ =>
+    mainWithOptions(CliOptions.default, args: _*),
+  )(PlatformRunOps.inputExecutionContext).onComplete {
+    case Failure(ex) =>
+      ex.printStackTrace()
+      PlatformRunOps.exit(ExitCode.UnexpectedError.code)
+    case Success(exit) => PlatformRunOps.exit(exit.code)
+  }
 
   def mainWithOptions(options: CliOptions, args: String*): Future[ExitCode] =
     getConfig(options, args: _*) match {

@@ -1,6 +1,5 @@
 package org.scalafmt.cli
 
-import org.scalafmt.Error
 import org.scalafmt.dynamic.ScalafmtDynamicError
 import org.scalafmt.interfaces.Scalafmt
 import org.scalafmt.interfaces.ScalafmtSession
@@ -11,7 +10,6 @@ import java.nio.file.Path
 import scala.concurrent.Future
 
 object ScalafmtDynamicRunner extends ScalafmtRunner {
-  import org.scalafmt.sysops.PlatformRunOps.executionContext
 
   override private[cli] def run(
       options: CliOptions,
@@ -30,7 +28,7 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
 
   private def runWithSession(
       options: CliOptions,
-      termDisplayMessage: String,
+      displayMsg: String,
       reporter: ScalafmtCliReporter,
   )(session: ScalafmtSession): Future[ExitCode] = {
     val sessionMatcher = session.matchesProjectFilters _
@@ -41,20 +39,11 @@ object ScalafmtDynamicRunner extends ScalafmtRunner {
       }
     val inputMethods = getInputMethods(options, filterMatcher)
     if (inputMethods.isEmpty) ExitCode.Ok.future
-    else runInputs(options, inputMethods, termDisplayMessage)(inputMethod =>
-      handleFile(inputMethod, session, options).recover {
-        case x: Error.MisformattedFile => reporter.fail(x)(x.file)
-      }.map(ExitCode.merge(_, reporter.getExitCode)),
-    )
-  }
-
-  private[this] def handleFile(
-      inputMethod: InputMethod,
-      session: ScalafmtSession,
-      options: CliOptions,
-  ): Future[ExitCode] = inputMethod.readInput(options).map { input =>
-    val formatResult = session.format(inputMethod.path, input)
-    inputMethod.write(formatResult, input, options)
+    else runInputs(options, inputMethods, displayMsg) { case (code, path) =>
+      val formatted = session.format(path, code)
+      val exitCode = reporter.getExitCode(path)
+      if (exitCode eq null) Right(formatted) else Left(exitCode)
+    }
   }
 
   private def getFileMatcher(paths: Seq[Path]): Path => Boolean = {

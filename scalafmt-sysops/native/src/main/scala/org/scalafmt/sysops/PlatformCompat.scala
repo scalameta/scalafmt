@@ -3,6 +3,7 @@ package org.scalafmt.sysops
 import scala.scalanative.runtime.Platform
 
 private[scalafmt] object PlatformCompat {
+  def isJS = false
   def isJVM = false
   def isScalaNative = true
   def isNativeOnWindows = Platform.isWindows()

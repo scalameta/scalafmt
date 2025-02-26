@@ -6,8 +6,8 @@ import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 // scalafmt: { maxColumn = 120, align.preset = more, align.allowOverflow = true }
 
 object Dependencies {
-  val metaconfigV = "0.14.0"
-  val scalametaV  = "4.13.0"
+  val metaconfigV = "0.15.0"
+  val scalametaV  = "4.13.2"
   val scalacheckV = "1.18.1"
   val coursier    = "2.1.24"
   val munitV      = "1.1.0"
@@ -20,6 +20,7 @@ object Dependencies {
     smorg("scalameta", scalametaV).value
       .excludeAll("com.thesamet.scalapb" % s"scalapb-runtime_${scalaBinaryVersion.value}"),
   )
+  val scalametaIO      = smorg("io", scalametaV)
   val scalametaTestkit = smorg("testkit", scalametaV)
 
   private def metaconfig(pkg: String) = smorg(s"metaconfig-$pkg", metaconfigV)

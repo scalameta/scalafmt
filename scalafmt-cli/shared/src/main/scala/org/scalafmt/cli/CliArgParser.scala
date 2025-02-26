@@ -132,6 +132,12 @@ object CliArgParser {
         val offset = if (from == to) 0 else -1
         c.copy(range = c.range + Range(from - 1, to + offset))
       }.text("(experimental) only format line range from=to")
+      opt[Unit]("async-format").action((_, c) => c.copy(asyncFormat = true))
+        .text(
+          """|Use a dedicated thread pool for formatting, rather than
+             |continuing after read completes, thus separating I/O-bound
+             |input and CPU-bound formatting thread pools.""".stripMargin,
+        )
 
       note(
         s"""|Examples:

@@ -3,7 +3,7 @@ package org.scalafmt.util
 import org.scalafmt.Error.FormatterChangedAST
 import org.scalafmt.Error.FormatterOutputDoesNotParse
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.config.RunnerSettings
 
 import org.scalameta.logger
 import scala.meta.Dialect
@@ -23,7 +23,7 @@ trait FormatAssertions {
       filename: String,
       original: String,
       obtained: String,
-      runner: ScalafmtRunner,
+      runner: RunnerSettings,
   ): Unit = assertFormatPreservesAst(filename, original, obtained)(
     runner.getParser,
     runner.getDialectForParser,

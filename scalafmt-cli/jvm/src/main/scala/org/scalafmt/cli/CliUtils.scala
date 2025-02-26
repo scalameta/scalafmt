@@ -1,7 +1,7 @@
 package org.scalafmt.cli
 
 import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.PlatformRunOps.executionContext
+import org.scalafmt.sysops.PlatformRunOps
 
 import scala.io.Source
 
@@ -17,6 +17,7 @@ private[scalafmt] trait CliUtils {
                 .getWorkingDirectory}",
         ),
       )
+    import PlatformRunOps.parasiticExecutionContext
     Cli.mainWithOptions(
       CliOptions.default.copy(common =
         CliOptions.default.common.copy(

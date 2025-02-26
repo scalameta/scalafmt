@@ -1,6 +1,6 @@
 package org.scalafmt.config
 
-import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops._
 
 import scala.meta.dialects
 

@@ -1,9 +1,9 @@
 package org.scalafmt.util
 
 import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.sysops.PlatformCompat
 import org.scalafmt.tests.BuildInfo
-
-import java.nio.file.Paths
 
 import munit.Location
 
@@ -19,10 +19,11 @@ case class DiffTest(
     stateVisits: Option[Int] = None,
     stateVisits2: Option[Int] = None,
 ) {
-  val file = DiffTest.testDir.relativize(Paths.get(loc.path)).toString
+  val file = PlatformCompat
+    .relativize(AbsoluteFile(DiffTest.testDir), AbsoluteFile(loc.path))
   val fullName = s"$file:${loc.line}: $name"
 }
 
 object DiffTest {
-  val testDir = BuildInfo.resourceDirectory.toPath
+  val testDir = BuildInfo.resourceDirectory
 }

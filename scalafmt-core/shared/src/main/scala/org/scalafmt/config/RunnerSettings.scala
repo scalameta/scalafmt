@@ -18,7 +18,7 @@ import metaconfig._
   *   Are we formatting a scala.meta.{Source,Stat,Case,...}? For more details,
   *   see members of [[scala.meta.parsers]].
   */
-case class ScalafmtRunner(
+case class RunnerSettings(
     debug: Boolean = false,
     private val completeCallback: FormatEvent.CompleteFormat => Unit = _ => (),
     private val eventCallback: FormatEvent => Unit = null,
@@ -43,23 +43,19 @@ case class ScalafmtRunner(
   private[scalafmt] def getParser = parser.parse
 
   @inline
-  def withDialect(dialect: sourcecode.Text[Dialect]): ScalafmtRunner =
-    withDialect(NamedDialect(dialect))
-
-  @inline
-  private[scalafmt] def withDialect(dialect: NamedDialect): ScalafmtRunner =
+  private[scalafmt] def withDialect(dialect: NamedDialect) =
     copy(dialect = dialect)
 
   @inline
-  private[scalafmt] def withParser(parser: ScalafmtParser): ScalafmtRunner =
+  private[scalafmt] def withParser(parser: ScalafmtParser) =
     copy(parser = parser)
 
-  private[scalafmt] def forCodeBlock: ScalafmtRunner =
+  private[scalafmt] def forCodeBlock =
     copy(debug = false, eventCallback = null, parser = ScalafmtParser.Source)
 
   private[scalafmt] def withCompleteCallback(
       cb: FormatEvent.CompleteFormat => Unit,
-  ): ScalafmtRunner = copy(completeCallback = cb)
+  ) = copy(completeCallback = cb)
 
   def event(evt: FormatEvent.CompleteFormat): Unit = completeCallback(evt)
 
@@ -72,16 +68,15 @@ case class ScalafmtRunner(
   @inline
   def isDefaultDialect = dialect.name == NamedDialect.defaultName
 
-  private[scalafmt] def conservative: ScalafmtRunner =
-    copy(optimizer = optimizer.conservative)
+  private[scalafmt] def conservative = copy(optimizer = optimizer.conservative)
 
   private[scalafmt] def getMaxStateVisits: Int = maxStateVisits
     .getOrElse(1000000)
 
 }
 
-object ScalafmtRunner {
-  implicit lazy val surface: generic.Surface[ScalafmtRunner] =
+object RunnerSettings {
+  implicit lazy val surface: generic.Surface[RunnerSettings] =
     generic.deriveSurface
 
   implicit def formatEventEncoder[A <: FormatEvent]: ConfEncoder[A => Unit] =
@@ -89,11 +84,11 @@ object ScalafmtRunner {
 
   /** The default runner formats a compilation unit and listens to no events.
     */
-  val default = ScalafmtRunner()
+  val default = RunnerSettings()
 
-  val sbt = default.withDialect(meta.dialects.Sbt)
+  val sbt = default.withDialect(NamedDialect(meta.dialects.Sbt))
 
-  implicit val encoder: ConfEncoder[ScalafmtRunner] = generic.deriveEncoder
+  implicit val encoder: ConfEncoder[RunnerSettings] = generic.deriveEncoder
 
   private[config] def overrideDialect[T: ClassTag](
       d: Dialect,
@@ -106,7 +101,7 @@ object ScalafmtRunner {
     DialectMacro.dialectMap(methodName)(d, v)
   }
 
-  implicit val decoder: ConfDecoderEx[ScalafmtRunner] = generic
+  implicit val decoder: ConfDecoderEx[RunnerSettings] = generic
     .deriveDecoderEx(default).noTypos.flatMap { runner =>
       val overrides = runner.dialectOverride.values
       if (overrides.isEmpty) Configured.Ok(runner)

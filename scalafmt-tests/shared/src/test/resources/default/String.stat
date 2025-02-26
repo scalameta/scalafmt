@@ -803,3 +803,27 @@ object a {
     s"Can't create a new SpecialThingamer when forwarding without specialUserId/specialDetails. SpecialUserID: ${x.maybeSpecialUserId}, Special details count: ${maybeSpecialDetails.map(_.length).getOrElse(0)}"
   )
 }
+<<< #4825 keep trailing spaces, assumeStandardLibraryStripMargin
+assumeStandardLibraryStripMargin = true
+===
+object a {
+  """|foo  
+     |bar""".stripMargin
+}
+>>>
+object a {
+  """|foo  
+     |bar""".stripMargin
+}
+<<< #4825 keep trailing spaces, !assumeStandardLibraryStripMargin
+assumeStandardLibraryStripMargin = false
+===
+object a {
+  """|foo  
+     |bar""".stripMargin
+}
+>>>
+object a {
+  """|foo  
+     |bar""".stripMargin
+}

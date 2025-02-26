@@ -2,15 +2,7 @@ package org.scalafmt.util
 
 import org.scalafmt.Debug
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.ConfParsed
-import org.scalafmt.config.DanglingParentheses
-import org.scalafmt.config.FormatEvent._
-import org.scalafmt.config.Indents
-import org.scalafmt.config.NamedDialect
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.ScalafmtOptimizer
-import org.scalafmt.config.ScalafmtParser
-import org.scalafmt.config.ScalafmtRunner
+import org.scalafmt.config._
 import org.scalafmt.sysops.PlatformFileOps
 import org.scalafmt.tests.BuildInfo
 
@@ -265,17 +257,17 @@ object HasTests {
     if (isPrefix(name, prefix)) Some(name.substring(prefix.length).trim)
     else None
 
-  def scalafmtRunner(sr: ScalafmtRunner, dg: Debug): ScalafmtRunner = sr.copy(
+  def scalafmtRunner(sr: RunnerSettings, dg: Debug): RunnerSettings = sr.copy(
     debug = true,
     maxStateVisits = sr.maxStateVisits.orElse(Some(150000)),
     completeCallback = dg.completed,
     eventCallback = {
-      case CreateFormatOps(ops) => dg.formatOps = ops
-      case Routes(routes) => dg.routes = routes
-      case explored: Explored if explored.n % 10000 == 0 =>
+      case FormatEvent.CreateFormatOps(ops) => dg.formatOps = ops
+      case FormatEvent.Routes(routes) => dg.routes = routes
+      case explored: FormatEvent.Explored if explored.n % 10000 == 0 =>
         org.scalafmt.util.LoggerOps.logger.elem(explored)
-      case Enqueue(split) => dg.enqueued(split)
-      case x: Written => dg.locations = x.formatLocations
+      case FormatEvent.Enqueue(split) => dg.enqueued(split)
+      case x: FormatEvent.Written => dg.locations = x.formatLocations
       case _ =>
     },
   )

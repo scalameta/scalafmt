@@ -10,11 +10,6 @@ import org.scalafmt.util._
 
 import scala.meta.parsers.ParseException
 
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.concurrent.duration._
-
 import munit.FunSuite
 import munit.diff.Diff
 
@@ -153,16 +148,14 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     val explored = Debug.explored.get()
     logger.debug(s"Total explored: $explored")
     if (!onlyUnit && !onlyManual)
-      assertEquals(explored, 2520110, "total explored")
+      assertEquals(explored, 2520174, "total explored")
     // TODO(olafur) don't block printing out test results.
-    // I don't want to deal with scalaz's Tasks :'(
-    val k = for {
-      _ <- Future(PlatformFileOps.writeFile(
-        FileOps.getPath("target", "index.html"),
-        Report.heatmap(debugResults.result()),
-      ))
-    } yield ()
-    // Travis exits right after running tests.
-    if (sys.env.contains("TRAVIS")) Await.ready(k, 20.seconds)
+    TestPlatformCompat.executeAndWait(PlatformFileOps.writeFile(
+      FileOps.getPath("target", "index.html"),
+      Report.heatmap(debugResults.result()),
+    ))(
+      // Travis exits right after running tests.
+      if (sys.env.contains("TRAVIS")) Some(20) else None,
+    )
   }
 }

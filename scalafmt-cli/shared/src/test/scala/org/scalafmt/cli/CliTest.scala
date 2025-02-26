@@ -26,8 +26,6 @@ import munit.FunSuite
 
 abstract class AbstractCliTest extends FunSuite {
 
-  import org.scalafmt.sysops.PlatformRunOps.executionContext
-
   def mkArgs(str: String): Array[String] = str.split(' ')
 
   def runWith(root: AbsoluteFile, argStr: String)(implicit
@@ -810,8 +808,7 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
       assertOut = out =>
         assertContains(
           out,
-          """|Illegal regex in configuration: .*foo(
-             |reason: Unclosed group near index 6
+          """|Invalid config: Invalid path patcher regex: /.*foo(/; Unclosed group near index 6
              |.*foo(
              |""".stripMargin,
         ),

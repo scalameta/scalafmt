@@ -1,16 +1,9 @@
 package org.scalafmt.cli
 
-import org.scalafmt.config.ConfParsed
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.ScalafmtConfigException
-import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.GitOps
-import org.scalafmt.sysops.OsSpecific
-import org.scalafmt.sysops.PlatformFileOps
+import org.scalafmt.config._
+import org.scalafmt.sysops._
 
-import java.io.InputStream
-import java.io.PrintStream
-import java.io.PrintWriter
+import java.io._
 import java.nio.file.Path
 
 import scala.io.Codec
@@ -96,8 +89,9 @@ case class CliOptions(
     quiet: Boolean = false,
     stdIn: Boolean = false,
     noStdErr: Boolean = false,
-    error: Boolean = false,
+    private val error: Boolean = false,
     check: Boolean = false,
+    asyncFormat: Boolean = false,
 ) {
   val writeMode: WriteMode = writeModeOpt.getOrElse(WriteMode.Override)
 
@@ -108,8 +102,9 @@ case class CliOptions(
     * See https://github.com/scalameta/scalafmt/pull/1367#issuecomment-464744077
     */
   private[this] val tempConfigPath: Option[Path] = configStr.map { s =>
-    val file = PlatformFileOps.mkdtemp(Random.alphanumeric.take(10).mkString)
-      .resolve(".scalafmt.conf")
+    // -temp is for JS; if random sequence ends with 'X', JS complains
+    val tmpprefix = s"scalafmt-${Random.alphanumeric.take(10).mkString}-temp"
+    val file = PlatformFileOps.mkdtemp(tmpprefix).resolve(".scalafmt.conf")
     PlatformFileOps.writeFile(file, s)
     file
   }
@@ -203,5 +198,8 @@ case class CliOptions(
   /** Returns None if .scalafmt.conf is not found or version setting is missing.
     */
   private[cli] def getVersionOpt: Option[String] = getHoconValueOpt(_.version)
+
+  private[cli] def exitCodeOnChange =
+    if (error) ExitCode.TestError else ExitCode.Ok
 
 }

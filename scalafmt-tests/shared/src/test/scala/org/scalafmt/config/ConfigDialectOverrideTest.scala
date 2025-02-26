@@ -3,6 +3,8 @@ package org.scalafmt.config
 import scala.meta.Dialect
 import scala.meta.dialects.Scala213
 
+import metaconfig.ConfError
+import metaconfig.Configured
 import munit.FunSuite
 
 class ConfigDialectOverrideTest extends FunSuite {
@@ -19,16 +21,21 @@ class ConfigDialectOverrideTest extends FunSuite {
     ).get,
   )
 
-  test("throws on an incorrect type of setting")(
-    intercept[java.util.NoSuchElementException](
-      ScalafmtConfig.fromHoconString(
-        """|
-           |runner.dialectOverride.toplevelSeparator = true
-           |runner.dialect = scala213
-           |""".stripMargin,
-      ).get,
-    ),
-  )
+  test("throws on an incorrect type of setting") {
+    val res =
+      try ScalafmtConfig.fromHoconString(
+          """|
+             |runner.dialectOverride.toplevelSeparator = true
+             |runner.dialect = scala213
+             |""".stripMargin,
+        )
+      catch { case ex: Throwable => Configured.NotOk(ConfError.exception(ex)) }
+    res match {
+      case Configured.NotOk(err: ConfError) =>
+        assert(err.msg.contains("cannot be cast to"), err.msg)
+      case _ => fail("should have failed")
+    }
+  }
 
   def testBooleanFlag(
       methodName: String,
@@ -47,7 +54,7 @@ class ConfigDialectOverrideTest extends FunSuite {
         if (testDirectly)
           assertEquals(getter(generatedMap(methodName)(Scala213, flag)), flag)
         assertEquals(
-          getter(ScalafmtRunner.overrideDialect(Scala213, methodName, flag)),
+          getter(RunnerSettings.overrideDialect(Scala213, methodName, flag)),
           flag,
         )
         assertEquals(

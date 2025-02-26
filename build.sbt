@@ -1,6 +1,8 @@
 import scala.scalanative.build._
 import scala.util.Properties
 
+import org.scalajs.linker.interface.ESVersion
+
 import Dependencies._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
@@ -40,7 +42,7 @@ inThisBuild {
     resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
     testFrameworks += new TestFramework("munit.Framework"),
     // causes native image issues
-    dependencyOverrides += "org.jline" % "jline" % "3.28.0",
+    dependencyOverrides += "org.jline" % "jline" % "3.29.0",
   )
 }
 
@@ -63,17 +65,9 @@ addCommandAlias(
   "scala-native",
   "cliNative/compile;cliNative/nativeLink;copyScalaNative",
 )
-
-commands ++= Seq(
-  Command.command("ci-test-jvm") { s =>
-    val docsTest = if (isScala212.value) "docs/run" else "version"
-    "tests/test" :: "cli/test" :: "publishLocal" :: docsTest :: s
-  },
-  Command.command("ci-test-native")(s =>
-    // for native, we don't publish nor build docs
-    "testsNative/test" :: "cliNative/test" :: s,
-  ),
-)
+addCommandAlias("test-jvm", "tests/test;cli/test")
+addCommandAlias("test-js", "testsJS/test;cliJS/test")
+addCommandAlias("test-native", "testsNative/test;cliNative/test")
 
 lazy val dynamic = crossProject(JVMPlatform) // don't build for NativePlatform
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-dynamic")).settings(
@@ -109,7 +103,7 @@ lazy val interfaces = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     autoScalaLibrary := false,
   )
 
-lazy val sysops = crossProject(JVMPlatform, NativePlatform)
+lazy val sysops = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-sysops")).settings(
     moduleName := "scalafmt-sysops",
     description := "Scalafmt systems operations",
@@ -118,25 +112,25 @@ lazy val sysops = crossProject(JVMPlatform, NativePlatform)
       if (!isScala212.value) Nil
       else Seq("com.github.bigwheel" %% "util-backports" % "2.1")
     },
-    parallelCollections,
     sharedTestSettings,
+  ).platformsSettings(JVMPlatform, NativePlatform)(parallelCollections)
+  .jsEnablePlugins(ScalaJSPlugin).jsSettings(
+    libraryDependencies += "org.scalameta" %%% "io" % scalametaV,
+    scalaJsSettings,
   )
 
-lazy val config = crossProject(JVMPlatform, NativePlatform)
+lazy val config = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-config")).settings(
     moduleName := "scalafmt-config",
     description := "Scalafmt config parsing",
     scalacOptions ++= scalacJvmOptions.value,
     libraryDependencies += metaconfigCore.value,
   ).jvmSettings(libraryDependencies += metaconfigTypesafe.value)
-  .nativeSettings(libraryDependencies += metaconfigSconfig.value)
-// .jsSettings(
-//   libraryDependencies ++= Seq(
-//     metaconfigHocon.value,
-//   )
-// )
+  .platformsSettings(NativePlatform, JSPlatform)(
+    libraryDependencies += metaconfigSconfig.value,
+  ).jsSettings(scalaJsSettings)
 
-lazy val core = crossProject(JVMPlatform, NativePlatform)
+lazy val core = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .in(file("scalafmt-core")).settings(
     moduleName := "scalafmt-core",
     buildInfoSettings("org.scalafmt", "Versions"),
@@ -149,16 +143,10 @@ lazy val core = crossProject(JVMPlatform, NativePlatform)
       ))
     },
   )
-  // .jsSettings(
-  //   libraryDependencies ++= List(
-  //     scalatest.value % Test // must be here for coreJS/test to run anything
-  //   )
-  // )
   .nativeSettings(libraryDependencies += "com.lihaoyi" %%% "fastparse" % "3.1.1")
   .aggregate(sysops, config, macros).dependsOn(sysops, config, macros)
   .enablePlugins(BuildInfoPlugin)
 lazy val coreJVM = core.jvm
-// lazy val coreJS = core.js
 
 lazy val macros = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .in(file("scalafmt-macros")).settings(
@@ -182,7 +170,7 @@ val scalacJvmOptions = Def.setting {
   cross ++ unused ++ Seq("-target:8", "-release:8")
 }
 
-lazy val cli = crossProject(JVMPlatform, NativePlatform)
+lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-cli")).settings(
     moduleName := "scalafmt-cli",
     assembly / mainClass := Some("org.scalafmt.cli.Cli"),
@@ -225,10 +213,12 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform)
       }
     },
   ).nativeSettings(scalaNativeConfig).dependsOn(core, interfaces)
+  // TODO: enable NPM publishing
+  .jsSettings(scalaJsSettings, scalaJSUseMainModuleInitializer := true)
   .jvmEnablePlugins(NativeImagePlugin)
-  .jvmConfigure(_.dependsOn(dynamic.jvm).aggregate(dynamic.jvm, core.jvm))
+  .jvmConfigure(_.dependsOn(dynamic.jvm).aggregate(dynamic.jvm))
 
-lazy val tests = crossProject(JVMPlatform, NativePlatform)
+lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-tests")).settings(
     publish / skip := true,
     sharedTestSettings,
@@ -242,7 +232,8 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
         .get
     }),
   ).enablePlugins(BuildInfoPlugin)
-  .jvmSettings(javaOptions += "-Dfile.encoding=UTF8").dependsOn(core, cli)
+  .jvmSettings(javaOptions += "-Dfile.encoding=UTF8").dependsOn(core)
+  .aggregate(core).jsSettings(scalaJsSettings).jsEnablePlugins(ScalaJSPlugin)
 
 lazy val sharedTestSettings = Seq(libraryDependencies += munit.value % Test)
 
@@ -340,6 +331,13 @@ lazy val communityTestsSettings: Seq[Def.Setting[_]] = Seq(
   publish / skip := true,
   scalacOptions ++= scalacJvmOptions.value,
   javaOptions += "-Dfile.encoding=UTF8",
+)
+
+lazy val scalaJsSettings = Seq(
+  // to support Node.JS functionality
+  scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
+  // to support MULTILINE in regex
+  scalaJSLinkerConfig ~= (_.withESFeatures(_.withESVersion(ESVersion.ES2018))),
 )
 
 lazy val scalaNativeConfig = nativeConfig ~= { _.withMode(Mode.releaseFull) }

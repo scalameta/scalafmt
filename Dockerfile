@@ -1,6 +1,6 @@
 FROM alpine
 
-COPY tmp/scalafmt-linux-musl/scalafmt /bin/scalafmt
+COPY tmp/scalafmt-docker-build/scalafmt /bin/scalafmt
 RUN chmod +x /bin/scalafmt
 
 ENTRYPOINT ["/bin/scalafmt"]

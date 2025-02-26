@@ -1,10 +1,10 @@
 package org.scalafmt.cli
 
-import org.scalafmt.Error.MisformattedFile
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.sysops.FileOps
 import org.scalafmt.sysops.PlatformCompat
 import org.scalafmt.sysops.PlatformFileOps
+import org.scalafmt.sysops.PlatformRunOps
 
 import java.io.InputStream
 import java.nio.file.Path
@@ -20,28 +20,32 @@ sealed abstract class InputMethod {
 
   protected def print(text: String, options: CliOptions): Unit
   protected def list(options: CliOptions): Unit
-  protected def overwrite(text: String, options: CliOptions): Unit
+  protected def overwrite(text: String, options: CliOptions): Future[Unit]
 
   final def write(
       formatted: String,
       original: String,
       options: CliOptions,
-  ): ExitCode = {
-    val codeChanged = formatted != original
-    if (options.writeMode == WriteMode.Stdout) print(formatted, options)
-    else if (codeChanged) options.writeMode match {
+  ): Future[ExitCode] = {
+    def codeChanged = formatted != original
+    def exitCode = if (codeChanged) options.exitCodeOnChange else ExitCode.Ok
+    options.writeMode match {
+      case WriteMode.Stdout => print(formatted, options); exitCode.future
+      case _ if !codeChanged => ExitCode.Ok.future
+      case WriteMode.List => list(options); options.exitCodeOnChange.future
+      case WriteMode.Override => overwrite(formatted, options).map(_ =>
+          options.exitCodeOnChange,
+        )(PlatformRunOps.parasiticExecutionContext)
       case WriteMode.Test =>
         val pathStr = path.toString
         val diff = InputMethod.unifiedDiff(pathStr, original, formatted)
         val msg =
           if (diff.nonEmpty) diff
           else s"--- +$pathStr\n    => modified line endings only"
-        throw MisformattedFile(path, msg)
-      case WriteMode.Override => overwrite(formatted, options)
-      case WriteMode.List => list(options)
-      case _ =>
+        options.common.err.println(msg)
+        ExitCode.TestError.future
+      case _ => options.exitCodeOnChange.future
     }
-    if (options.error && codeChanged) ExitCode.TestError else ExitCode.Ok
   }
 
 }
@@ -61,8 +65,10 @@ object InputMethod {
     override protected def print(text: String, options: CliOptions): Unit =
       options.common.out.print(text)
 
-    override protected def overwrite(text: String, options: CliOptions): Unit =
-      print(text, options)
+    override protected def overwrite(
+        text: String,
+        options: CliOptions,
+    ): Future[Unit] = Future.successful(print(text, options))
 
     override protected def list(options: CliOptions): Unit = options.common.out
       .println(filename)
@@ -76,8 +82,11 @@ object InputMethod {
     override protected def print(text: String, options: CliOptions): Unit =
       options.common.out.print(text)
 
-    override protected def overwrite(text: String, options: CliOptions): Unit =
-      file.writeFile(text)(options.encoding)
+    override protected def overwrite(
+        text: String,
+        options: CliOptions,
+    ): Future[Unit] = PlatformFileOps
+      .writeFileAsync(file.path, text)(options.encoding)
 
     override protected def list(options: CliOptions): Unit = options.common.out
       .println(PlatformCompat.relativize(options.cwd, file))

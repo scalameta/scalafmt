@@ -277,11 +277,9 @@ class DynamicSuite extends FunSuite {
           |]
           |""".stripMargin,
     )
-    val err = f.assertThrows[ScalafmtDynamicError.ConfigParseError]().getMessage
     assertNoDiff(
-      err.takeRight(120),
-      """|Invalid config: Illegal regex in configuration: .*foo(
-         |reason: Unclosed group near index 6
+      f.assertThrows[ScalafmtDynamicError.ConfigParseError]().getMessage,
+      """|Invalid config: Invalid path patcher regex: /.*foo(/; Unclosed group near index 6
          |.*foo(
          |""".stripMargin,
     )
@@ -297,10 +295,7 @@ class DynamicSuite extends FunSuite {
           |""".stripMargin,
     )
     val err = f.assertThrows[ScalafmtDynamicError.ConfigParseError]().getMessage
-    assertNoDiff(
-      err.takeRight(120),
-      "Invalid config: Illegal pattern in configuration: foo.scala",
-    )
+    assertNoDiff(err, "Invalid config: Invalid path matcher pattern: foo.scala")
   }
 
   check("config-cache") { f =>

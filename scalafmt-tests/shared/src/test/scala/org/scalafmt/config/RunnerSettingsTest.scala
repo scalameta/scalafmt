@@ -1,14 +1,12 @@
-package org.scalafmt
-
-import org.scalafmt.config._
+package org.scalafmt.config
 
 import scala.meta._
 
 import munit.FunSuite
 
-class ScalafmtRunnerTest extends FunSuite {
+class RunnerSettingsTest extends FunSuite {
   test("sbt dialect supports trailing commas")(
-    ScalafmtRunner.sbt.getDialect(
+    RunnerSettings.sbt.getDialect(
       """|
          |lazy
          |val x = project(
