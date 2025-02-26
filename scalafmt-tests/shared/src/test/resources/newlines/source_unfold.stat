@@ -12262,3 +12262,195 @@ object a {
         |baz
         |qux""".stripMargin
 }
+<<< `do` starts a new statement
+def foo = {
+    next.offset = begCharOffset
+    do putCharAndNext()
+    while (ch != CR && ch != LF && ch != FF && ch != SU)
+}
+>>>
+def foo = {
+  next.offset = begCharOffset
+  do putCharAndNext() while (
+    ch != CR && ch != LF && ch != FF &&
+      ch != SU
+  )
+}
+<<< splits: `after equals` or `before statement` 1
+maxColumn = 80
+===
+ object ScriptRunner {
+   def apply(settings: GenericRunnerSettings): ScriptRunner =
+     settings.Yscriptrunner.value match {
+       case custom =>
+         val loader =
+           new ClassLoader(getClass.getClassLoader) with ScalaClassLoader
+         loader.create[ScriptRunner](custom, settings.errorFn)(settings)
+     }
+ }
+>>>
+object ScriptRunner {
+  def apply(settings: GenericRunnerSettings): ScriptRunner =
+    settings.Yscriptrunner.value match {
+      case custom =>
+        val loader =
+          new ClassLoader(getClass.getClassLoader) with ScalaClassLoader
+        loader.create[ScriptRunner](custom, settings.errorFn)(settings)
+    }
+}
+<<< splits: `after right paren` or `before statement` 1
+maxColumn = 80
+===
+ object a {
+    override def safeToString =
+      if (sym.isOmittablePrefix)
+        s"${if (sym.isPackageObjectOrClass || sym.isJavaDefined)
+            sym.fullNameString
+          else sym.nameString}.type"
+      else s"${prefixString}type"
+ }
+>>>
+object a {
+  override def safeToString =
+    if (sym.isOmittablePrefix)
+      s"${if (sym.isPackageObjectOrClass || sym.isJavaDefined)
+          sym.fullNameString
+        else
+          sym.nameString}.type"
+    else
+      s"${prefixString}type"
+}
+<<< splits: `after right paren` or `before statement` 2
+maxColumn = 80
+===
+ object a {
+    def foo =
+        if (args.size == params.size)
+          if (untouchable) new AppliedTypeVar(origin, constr, params, args)
+            with UntouchableTypeVar
+          else new AppliedTypeVar(origin, constr, params, args)
+        else if (args.isEmpty)
+          if (untouchable)
+            new HKTypeVar(origin, constr, params) with UntouchableTypeVar
+          else new HKTypeVar(origin, constr, params)
+        else throw new Error(
+          "Invalid TypeVar construction: " + ((origin, constr, args, params))
+        )
+ }
+>>>
+object a {
+  def foo =
+    if (args.size == params.size)
+      if (untouchable)
+        new AppliedTypeVar(origin, constr, params, args) with UntouchableTypeVar
+      else
+        new AppliedTypeVar(origin, constr, params, args)
+    else if (args.isEmpty)
+      if (untouchable)
+        new HKTypeVar(origin, constr, params) with UntouchableTypeVar
+      else
+        new HKTypeVar(origin, constr, params)
+    else
+      throw new Error(
+        "Invalid TypeVar construction: " + ((origin, constr, args, params))
+      )
+}
+<<< splits: `after right paren` or `before statement` 3
+maxColumn = 80
+===
+ object a {
+    while (it.hasNext) it.next() match {
+      case vi: VarInsnNode if isNull(vi, vi.`var`) =>
+        if (vi.getOpcode == ALOAD) toReplace(vi) = List(new InsnNode(ACONST_NULL))
+        else if (vi.getOpcode == ASTORE)
+          for (frame <- frameAt(vi) if frame.peekStack(0) == NullValue)
+            toReplace(vi) = List(getPop(1))
+
+      case ji: JumpInsnNode =>
+        val isIfNull = ji.getOpcode == IFNULL
+    }
+ }
+>>>
+object a {
+  while (it.hasNext)
+    it.next() match {
+      case vi: VarInsnNode if isNull(vi, vi.`var`) =>
+        if (vi.getOpcode == ALOAD)
+          toReplace(vi) = List(new InsnNode(ACONST_NULL))
+        else if (vi.getOpcode == ASTORE)
+          for (
+            frame <- frameAt(vi)
+            if frame.peekStack(0) == NullValue
+          )
+            toReplace(vi) = List(getPop(1))
+
+      case ji: JumpInsnNode =>
+        val isIfNull = ji.getOpcode == IFNULL
+    }
+}
+<<< splits: `after ident` or `before brace` in infix
+maxColumn = 80
+===
+object a {
+  Example[{
+    val foo: Int
+  } :+: { val bar: String } :+: { val baz: Boolean } :+:
+    { val buzz: Double } :+: { val booze: Float } :+: End].apply(_.foo)
+}
+>>>
+object a {
+  Example[{
+    val foo: Int
+  } :+:
+    {
+      val bar: String
+    } :+:
+    {
+      val baz: Boolean
+    } :+:
+    {
+      val buzz: Double
+    } :+:
+    {
+      val booze: Float
+    } :+: End].apply(_.foo)
+}
+<<< splits: `after ident` or `before brace` in infix 2
+maxColumn = 78
+===
+object a {
+    val totalSize = headerBuffer.length + lengthWithLength(nameBuffer) +
+      {
+        for ((nameRef, buf) <- sections) yield natSize(nameRef.index) +
+          lengthWithLength(buf)
+      }.sum
+}
+>>>
+object a {
+  val totalSize =
+    headerBuffer.length + lengthWithLength(nameBuffer) +
+      {
+        for ((nameRef, buf) <- sections)
+          yield natSize(nameRef.index) + lengthWithLength(buf)
+      }.sum
+}
+<<< splits: `after right paren` or `before for`
+maxColumn = 70
+===
+object a {
+  if (sym.isPrimaryConstructor) for (
+    cpa <- sym.owner.constrParamAccessors if cpa.isPrivateLocal
+  ) params += cpa
+  else if (sym.isSynthetic && sym.isImplicit) return
+}
+>>>
+object a {
+  if (sym.isPrimaryConstructor)
+    for (
+      cpa <- sym.owner.constrParamAccessors
+      if cpa.isPrivateLocal
+    )
+      params += cpa
+  else if (sym.isSynthetic && sym.isImplicit)
+    return
+}
