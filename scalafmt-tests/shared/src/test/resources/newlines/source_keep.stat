@@ -9003,6 +9003,56 @@ object a {
       ).transpose
     catch { case _: IllegalArgumentException => }
 }
+<<< single-line block as arg in one-arg-per-line, solo expression
+object a {
+  new EntrySpliterator[K, V](
+    tab,
+    baseSize,
+    { baseLimit = h; h },
+    f,
+    { est >>>= 1; est },
+    map
+  )
+}
+>>>
+object a {
+  new EntrySpliterator[K, V](
+    tab,
+    baseSize,
+    { baseLimit = h; h },
+    f,
+    { est >>>= 1; est },
+    map
+  )
+}
+<<< single-line block as arg in one-arg-per-line, `else` expression
+object a {
+  if (foo) null
+  else
+    new EntrySpliterator[K, V](
+      tab,
+      baseSize,
+      { baseLimit = h; h },
+      f,
+      { est >>>= 1; est },
+      map
+    )
+}
+>>>
+object a {
+  if (foo) null
+  else
+    new EntrySpliterator[K, V](
+      tab,
+      baseSize, {
+        baseLimit = h; h
+      },
+      f, {
+        est >>>= 1; est
+      },
+      map
+    )
+}
 <<< #4133 case body enclosed, no break before lparen, no break after lparen
 object a {
   foo match {
