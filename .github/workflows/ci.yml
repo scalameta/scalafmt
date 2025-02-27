@@ -19,8 +19,8 @@ jobs:
           - '11'
           - '21'
         os:
-          - windows-latest
-          - ubuntu-latest
+          - windows-2022
+          - ubuntu-22.04
         scala:
           - '2.12.20'
           - '2.13.16'
