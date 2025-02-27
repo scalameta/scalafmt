@@ -154,10 +154,14 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             if (cost <= maxCost) {
               val stateToQueue = split.optimalAt match {
                 case Some(opt) if handleOptimalTokens =>
-                  if (cost > 0) killOnFail(opt)
-                  else processOptimalToken(opt) match {
-                    case Left(x) => x
-                    case Right(x) => optimalFound = true; x
+                  val killOnFail = willKillOnFail(opt.killOnFail, opt.token)
+                  def overNonPolicyCost = split.costWithoutPenalty > 0 ||
+                    nextState.appliedPenalty > curr.appliedPenalty
+                  if (killOnFail && overNonPolicyCost) null
+                  else processOptimalToken(opt, killOnFail) match {
+                    case Left(x) if x == null || cost <= 0 => x
+                    case Left(_) => if (killOnFail) null else nextState
+                    case Right(x) => if (cost <= 0) optimalFound = true; x
                   }
                 case _ => nextState
               }
@@ -198,10 +202,8 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       nextState: State,
   ): Boolean = kill || nextState.hasSlbUntil(end)
 
-  private def killOnFail(opt: OptimalToken)(implicit nextState: State): State =
-    if (willKillOnFail(opt.killOnFail, opt.token)) null else nextState
-
-  private def processOptimalToken(opt: OptimalToken)(implicit
+  private def processOptimalToken(opt: OptimalToken, killOnFail: Boolean)(
+      implicit
       nextState: State,
       queue: StateQueue,
       style: ScalafmtConfig,
@@ -210,7 +212,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     val nextNextState =
       if (optIdx <= nextState.depth) nextState
       else if (tokens.width(nextState.depth, optIdx) > 3 * style.maxColumn)
-        return Left(killOnFail(opt))
+        return Left(if (killOnFail) null else nextState)
       else {
         val res = shortestPath(
           nextState,

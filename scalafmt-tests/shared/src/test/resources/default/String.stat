@@ -723,11 +723,10 @@ println("""|
   |""".stripMargin
 )
 >>>
-println(
-    """|
-       |A very long string
-       |with multiple lines
-       |""".stripMargin)
+println("""|
+           |A very long string
+           |with multiple lines
+           |""".stripMargin)
 <<< #4067 avoid classic
 preset = default
 maxColumn = 120

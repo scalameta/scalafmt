@@ -69,7 +69,7 @@ private[parser] trait CacheControlHeader { this: Parser with CommonRules with Co
     clearSB() ~ zeroOrMore(!'"' ~ !',' ~ qdtext ~ appendSB() | `quoted-pair`) ~ push(sb.toString)
   }
 }
->>> { stateVisits = 35486, stateVisits2 = 35486 }
+>>> { stateVisits = 35487 }
 /** Copyright (C) 2009-2016 Lightbend Inc. <http://www.lightbend.com>
   */
 
