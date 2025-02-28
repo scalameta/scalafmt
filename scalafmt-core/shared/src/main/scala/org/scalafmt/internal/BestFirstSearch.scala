@@ -26,7 +26,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   /** Precomputed table of splits for each token.
     */
   val routes: Array[Seq[Split]] = {
-    val router = new Router(formatOps)
+    val router = new Router
     val result = Array.newBuilder[Seq[Split]]
     tokens.foreach(t => result += router.getSplits(t))
     result.result()

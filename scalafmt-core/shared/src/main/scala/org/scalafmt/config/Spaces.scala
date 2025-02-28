@@ -65,22 +65,11 @@ case class Spaces(
     afterKeywordBeforeParen: Boolean = true,
     inByNameTypes: Boolean = true,
     afterSymbolicDefs: Boolean = false,
-    private val afterColonInMatchPattern: Spaces.AfterColonInMatchPattern =
+    afterColonInMatchPattern: Spaces.AfterColonInMatchPattern =
       Spaces.AfterColonInMatchPattern.Always,
 ) {
   def isSpaceAfterKeyword(tokenAfter: T): Boolean = afterKeywordBeforeParen ||
     !tokenAfter.is[T.LeftParen]
-
-  def notAfterColon(owner: meta.Tree): Boolean = owner match {
-    case x: meta.Pat.Typed => afterColonInMatchPattern match {
-        case Spaces.AfterColonInMatchPattern.Never => true
-        case Spaces.AfterColonInMatchPattern.Always => false
-        case Spaces.AfterColonInMatchPattern.NoAlternatives => x.parent
-            .is[meta.Pat.Alternative]
-      }
-    case _ => false
-  }
-
 }
 
 object Spaces {

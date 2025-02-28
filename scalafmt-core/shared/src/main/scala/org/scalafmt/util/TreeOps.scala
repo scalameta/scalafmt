@@ -130,9 +130,6 @@ object TreeOps {
       throw new IllegalArgumentException(s"Mismatching parens ($o, $c)")
   }
 
-  final def childOf(child: Tree, tree: Tree): Boolean =
-    findTreeOrParentSimple(child)(_ eq tree).isDefined
-
   @tailrec
   final def numParents(tree: Tree, cnt: Int = 0)(f: Tree => Boolean): Int =
     tree.parent match {
@@ -244,8 +241,9 @@ object TreeOps {
     case _ => None
   }
 
-  val ColonDeclTpeLeft = new FT.ExtractFromMeta(x => colonDeclType(x.leftOwner))
-  val ColonDeclTpeRight = new FT.ExtractFromMeta(x => colonDeclType(x.rightOwner))
+  object ColonDeclType {
+    def unapply(tree: Tree): Option[Type] = colonDeclType(tree)
+  }
 
   def isParamClauseSite(tree: Tree): Boolean = tree match {
     case _: Type.ParamClause => !tree.parent.is[Type.Lambda]
@@ -296,19 +294,6 @@ object TreeOps {
       }
     case _ => false
   }
-
-  def isModPrivateProtected(tree: Tree): Boolean = tree match {
-    case _: Mod.Private | _: Mod.Protected => true
-    case _ => false
-  }
-
-  val DefValAssignLeft = new FT.ExtractFromMeta(_.leftOwner match {
-    case _: Enumerator => None // it's WithBody
-    case t: Ctor.Secondary => Some(t.body.init)
-    case t: Tree.WithBody => Some(t.body)
-    case t: Term.Param => t.default
-    case _ => None
-  })
 
   /** How many parents of tree are Term.Apply?
     */
@@ -602,12 +587,6 @@ object TreeOps {
   def hasImplicitParamList(kwOwner: Tree): Boolean =
     getImplicitParamList(kwOwner).isDefined
 
-  def isChildOfCaseClause(tree: Tree): Boolean = findTreeWithParent(tree) {
-    case t: Case => Some(tree ne t.body)
-    case _: Pat | _: Pat.ArgClause => None
-    case _ => Some(false)
-  }.isDefined
-
   def getEndOfFirstCall(tree: Tree)(implicit ftoks: FormatTokens) = {
     @tailrec
     def traverse(tree: Tree, res: Option[Tree]): Option[Tree] = tree match {
@@ -899,11 +878,6 @@ object TreeOps {
       else baseStyle.copy(newlines = checkedNewlines)
     (initStyle, ownersMap.result())
   }
-
-  val ParamClauseParentLeft = new FT.ExtractFromMeta(_.leftOwner match {
-    case ParamClauseParent(p) => Some(p)
-    case _ => None
-  })
 
   def isFewerBraces(
       tree: Term.Apply,

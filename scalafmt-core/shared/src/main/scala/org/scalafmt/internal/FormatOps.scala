@@ -1,13 +1,6 @@
 package org.scalafmt.internal
 
-import org.scalafmt.config.BinPack
-import org.scalafmt.config.IndentOperator
-import org.scalafmt.config.Indents
-import org.scalafmt.config.Newlines
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.ScalafmtOptimizer
-import org.scalafmt.config.TrailingCommas
-import org.scalafmt.internal.Policy.NoPolicy
+import org.scalafmt.config._
 import org.scalafmt.rewrite.RedundantBraces
 import org.scalafmt.util.InfixApp._
 import org.scalafmt.util._
@@ -157,10 +150,6 @@ class FormatOps(
         case Term.Select(Term.Name("js"), Term.Name("native")) => true
         case _ => false
       })
-
-  val StartsStatementRight = new FT.ExtractFromMeta[Tree](meta =>
-    optimizationEntities.statementStarts.get(meta.idx + 1),
-  )
 
   def parensTuple(ft: FT): TokenRanges = matchingOptLeft(ft)
     .fold(TokenRanges.empty)(other => TokenRanges(TokenRange(ft, other)))
@@ -900,7 +889,7 @@ class FormatOps(
                 !isAttachedCommentThenBreak(ftd) =>
             d.onlyNewlinesWithoutFallback
         }
-      case _ => NoPolicy
+      case _ => Policy.NoPolicy
     }
     findTemplateGroupOnRight { x =>
       // this method is called on a `with` or comma; hence, it can
@@ -1229,18 +1218,6 @@ class FormatOps(
       val isDetachedSlc = ft.hasBreak && isBreakAfterRight(ft)
       if (isDetachedSlc || ft.rightHasNewline) commentNL else Space
     case _: T.LeftParen if ft.meta.rightOwner eq ft.meta.leftOwner => NoSplit
-    case _ => Space(spaceOk && style.spaces.inParentheses)
-  }
-
-  def getNoSplitBeforeClosing(
-      ft: FT,
-      commentNL: Modification,
-      spaceOk: Boolean = true,
-  )(implicit style: ScalafmtConfig): Modification = ft.left match {
-    case _: T.Comment =>
-      val isDetachedSlc = ft.hasBreak && prev(ft).hasBreak
-      if (isDetachedSlc || ft.leftHasNewline) commentNL else Space
-    case _: T.RightParen if ft.meta.rightOwner eq ft.meta.leftOwner => NoSplit
     case _ => Space(spaceOk && style.spaces.inParentheses)
   }
 
@@ -1739,8 +1716,8 @@ class FormatOps(
         val semi = nextNonCommentSameLineAfter(nft)
         if (semi.noBreak || (semi.left eq x) && !semi.right.is[T.Comment])
           decideNewlinesOnlyAfterToken(semi)
-        else NoPolicy
-      case _ => NoPolicy
+        else Policy.NoPolicy
+      case _ => Policy.NoPolicy
     })
   }
 
@@ -1768,8 +1745,6 @@ class FormatOps(
     getClosingIfBodyEnclosedAsBlock(body).isDefined
 
   object GetSelectLike {
-    val OnRight =
-      new FT.ExtractFromMeta(m => onRightOpt(m.rightOwner, tokens(m.idx)))
 
     private def get(
         ro: Tree,
@@ -1779,16 +1754,10 @@ class FormatOps(
       case _ => None
     }
 
-    private[FormatOps] def onRightOpt(ro: Tree, ft: => FT): Option[SelectLike] =
-      get(ro)(_ =>
-        nextNonCommentAfter(ft) match {
-          case xft @ FT(_, _: T.KwMatch, _) => Some(next(xft))
-          case _ => None
-        },
-      )
-
-    def onRightOpt(ft: FT): Option[SelectLike] =
-      onRightOpt(ft.meta.rightOwner, ft)
+    def onRightOpt(ft: FT): Option[SelectLike] = get(ft.rightOwner) { _ =>
+      val nft = nextNonCommentAfter(ft)
+      if (nft.right.is[T.KwMatch]) Some(next(nft)) else None
+    }
 
     def unapply(tree: Tree): Option[SelectLike] =
       get(tree)(x => Some(tokenBefore(x.casesBlock)))
@@ -1843,9 +1812,6 @@ class FormatOps(
     // Optional braces after any token that can start indentation:
     // )  =  =>  ?=>  <-  catch  do  else  finally  for
     // if  match  return  then  throw  try  while  yield
-    def unapply(ftMeta: FT.Meta)(implicit
-        style: ScalafmtConfig,
-    ): Option[Seq[Split]] = get(tokens(ftMeta.idx)).flatMap(_.splits)
 
     def get(
         ft: FT,
@@ -2802,7 +2768,7 @@ class FormatOps(
         case Newlines.fold
             if shouldDangle && !style.binPack.indentCallSiteOnce =>
           decideNewlinesOnlyBeforeCloseOnBreak(close)
-        case _ => NoPolicy
+        case _ => Policy.NoPolicy
       }
     }
 
@@ -2890,10 +2856,10 @@ class FormatOps(
         exclude: TokenRanges,
     ): (Option[FT], Policy) = {
       val beforeDelims = getBeforeRightDelims(ft)
-      if (beforeDelims eq null) return (None, NoPolicy)
+      if (beforeDelims eq null) return (None, Policy.NoPolicy)
 
       val afterDelims = getAfterRightDelims(ft)
-      if (afterDelims eq null) return (None, NoPolicy)
+      if (afterDelims eq null) return (None, Policy.NoPolicy)
 
       def closeBreakPolicy() = {
         @tailrec
@@ -2926,7 +2892,7 @@ class FormatOps(
         delayedBreakPolicy(Policy.End >= beforeDelims, exclude)(
           Policy.RelayOnSplit { case (s, nextft) =>
             s.isNL && nextft.idx > beforeDelims.idx // don't need anymore
-          }(policy)(NoPolicy),
+          }(policy)(Policy.NoPolicy),
         )
 
       (afterDelims.right match {
@@ -2962,7 +2928,7 @@ class FormatOps(
           }
         case _ => null
       }) match {
-        case null => (None, NoPolicy)
+        case null => (None, Policy.NoPolicy)
         case (nft, policyOrOkToBreak) =>
           val policyOpt = policyOrOkToBreak match {
             case Left(policy) => Some(policy)
@@ -2980,7 +2946,7 @@ class FormatOps(
           if !nextNonCommentAfter(afterArg).right.is[T.CloseDelim] =>
         (None, splitOneArgPerLineAfterCommaOnBreak(exclude)(next(afterArg)))
       case _: T.CloseDelim if isCallSite => policyOnRightDelim(afterArg, exclude)
-      case _ => (None, NoPolicy)
+      case _ => (None, Policy.NoPolicy)
     }
   }
 
@@ -3040,21 +3006,6 @@ class FormatOps(
       isWithinBraces: Boolean = true,
   )(implicit style: ScalafmtConfig, ft: FT): Modification =
     getBracesToParensMod(rb, mod, isWithinBraces)._1
-
-  @tailrec
-  private def getSingleFunctionArg(
-      values: List[Tree],
-  ): Option[Term.FunctionTerm] = values match {
-    case (t: Term.FunctionTerm) :: Nil => Some(t)
-    case (t: Term.Block) :: Nil if !isEnclosedInBraces(t) =>
-      getSingleFunctionArg(t.stats)
-    case _ => None
-  }
-
-  val LambdaAtSingleArgCallSite = new FT.ExtractFromMeta(_.leftOwner match {
-    case Term.ArgClause(v, None) => getSingleFunctionArg(v)
-    case _ => None
-  })
 
 }
 
@@ -3148,24 +3099,6 @@ object FormatOps {
 
   def alignOpenDelim(implicit clauseSiteFlags: ClauseSiteFlags): Boolean =
     clauseSiteFlags.alignOpenDelim
-
-  val ImplicitUsingOnLeft =
-    new FT.ExtractFromMeta(meta => TreeOps.getImplicitParamList(meta.leftOwner))
-
-  val WithTemplateOnLeft = new FT.ExtractFromMeta(_.leftOwner match {
-    case lo: Stat.WithTemplate => Some(lo.templ)
-    case _ => None
-  })
-
-  val TemplateOnRight = new FT.ExtractFromMeta(_.rightOwner match {
-    case ro: Template => Some(ro)
-    case _ => None
-  })
-
-  val EnumeratorAssignRhsOnLeft = new FT.ExtractFromMeta(_.leftOwner match {
-    case x: Enumerator.Assign => Some(x.rhs)
-    case _ => None
-  })
 
   @tailrec
   private def getBlockWithNonSingleTermStat(t: Term.Block): Option[Term.Block] =
