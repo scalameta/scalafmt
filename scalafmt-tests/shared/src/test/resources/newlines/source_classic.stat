@@ -9173,9 +9173,8 @@ object a {
   def fn(): Boolean =
     try
       in.readYesOrNo(
-        explain + replayQuestionMessage, {
-          echo("\nYou must enter y or n."); fn()
-        }
+        explain + replayQuestionMessage,
+        { echo("\nYou must enter y or n."); fn() }
       )
     catch { case _: RuntimeException => false }
 }
@@ -9240,12 +9239,10 @@ object a {
   else
     new EntrySpliterator[K, V](
       tab,
-      baseSize, {
-        baseLimit = h; h
-      },
-      f, {
-        est >>>= 1; est
-      },
+      baseSize,
+      { baseLimit = h; h },
+      f,
+      { est >>>= 1; est },
       map
     )
 }
