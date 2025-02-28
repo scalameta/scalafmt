@@ -65,7 +65,7 @@ case class Split(
   }
 
   @inline
-  def costWithPenalty: Int = cost + penalty
+  def costWithPenalty: Int = cost + penalty.max(0)
 
   @inline
   def fileLine: FileLine = fileLineStack.fileLineLast
@@ -251,8 +251,7 @@ case class Split(
     else copy(policy = newPolicy & policy)
 
   def withPenalty(penalty: Int): Split =
-    if (isIgnored || penalty <= 0) this
-    else copy(penalty = this.penalty + penalty)
+    if (isIgnored) this else copy(penalty = this.penalty + penalty)
 
   def withIndent(length: => Length, expire: => FT, when: ExpiresOn): Split =
     withIndent(length, expire, when, ignore = false)

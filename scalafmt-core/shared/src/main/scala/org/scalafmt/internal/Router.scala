@@ -1598,7 +1598,7 @@ class Router(formatOps: FormatOps) {
             val multiLine = decideNewlinesOnlyAfterToken(breakAfter) ==>
               decideNewlinesOnlyBeforeClose(close)
             Seq(
-              Split(Newline, 0).withSingleLine(close),
+              Split(Newline, 0, penalty = -1).withSingleLine(close),
               Split(Space, 1, policy = multiLine),
             )
         }

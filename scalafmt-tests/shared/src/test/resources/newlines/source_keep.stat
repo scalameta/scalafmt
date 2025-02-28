@@ -9044,12 +9044,10 @@ object a {
   else
     new EntrySpliterator[K, V](
       tab,
-      baseSize, {
-        baseLimit = h; h
-      },
-      f, {
-        est >>>= 1; est
-      },
+      baseSize,
+      { baseLimit = h; h },
+      f,
+      { est >>>= 1; est },
       map
     )
 }
