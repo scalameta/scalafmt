@@ -10,6 +10,7 @@ on:
       run_id:
         description: "Github actions run_id which built the release"
         required: true
+  pull_request:
 
 permissions:
   contents: read
@@ -79,11 +80,15 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: scalafmt-x86_64-pc-linux.zip
-          path: tmp/scalafmt-docker-build.zip # Dockerfile uses this
+          path: tmp/scalafmt-docker-build # Dockerfile uses this
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event_name == 'release' && github.run_id || github.event.inputs.run_id }}
+          run-id: ${{ github.event_name == 'release' && github.run_id || '13596561226' }}
+      - name: What do we have 1
+        run: ls -ltr tmp/scalafmt-docker-build
       - name: Decompress scalafmt artifact
-        run: unzip tmp/scalafmt-docker-build.zip -d tmp # Dockerfile uses this
+        run: unzip tmp/scalafmt-docker-build/scalafmt-x86_64-pc-linux.zip -d tmp/scalafmt-docker-build
+      - name: What do we have 2
+        run: ls -ltr tmp/scalafmt-docker-build
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
