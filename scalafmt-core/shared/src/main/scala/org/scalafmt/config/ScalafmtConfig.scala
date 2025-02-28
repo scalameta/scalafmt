@@ -134,12 +134,11 @@ case class ScalafmtConfig(
       k -> v.getMatcher
     }
 
-  private[scalafmt] def withDialect(dialect: NamedDialect): ScalafmtConfig =
-    copy(runner = runner.withDialect(dialect))
+  def withDialect(nd: NamedDialect): ScalafmtConfig =
+    copy(runner = runner.withDialect(nd))
 
-  private[scalafmt] def withDialect(
-      dialect: Option[NamedDialect],
-  ): ScalafmtConfig = dialect.fold(this)(withDialect)
+  def withDialect(nd: Option[NamedDialect]): ScalafmtConfig = nd
+    .fold(this)(withDialect)
 
   def withDialect(dialect: Dialect, name: String): ScalafmtConfig =
     withDialect(NamedDialect(name, dialect))
