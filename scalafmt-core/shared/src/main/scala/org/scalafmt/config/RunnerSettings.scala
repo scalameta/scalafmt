@@ -44,12 +44,10 @@ case class RunnerSettings(
   private[scalafmt] def getParser = parser.parse
 
   @inline
-  private[scalafmt] def withDialect(dialect: NamedDialect) =
-    copy(dialect = dialect)
+  def withDialect(nd: NamedDialect): RunnerSettings = copy(dialect = nd)
 
   @inline
-  private[scalafmt] def withParser(parser: ScalafmtParser) =
-    copy(parser = parser)
+  def withParser(parser: ScalafmtParser): RunnerSettings = copy(parser = parser)
 
   private[scalafmt] def forCodeBlock =
     copy(debug = false, eventCallback = null, parser = ScalafmtParser.Source)
