@@ -129,9 +129,9 @@ object ProjectFiles {
         Some(NamedDialect(text))
       private[config] val s210 = nd(dialects.Scala210)
       private[config] val s211 = nd(dialects.Scala211)
-      private[config] val s212 = nd(NamedDialect.scala212)
-      private[config] val s213 = nd(NamedDialect.scala213)
-      private[config] val s3 = nd(NamedDialect.scala3)
+      private[config] val s212 = nd(dialects.Scala212)
+      private[config] val s213 = nd(dialects.Scala213)
+      private[config] val s3 = nd(dialects.Scala3)
 
       override protected[config] def getDialectByLang(
           lang: String,
