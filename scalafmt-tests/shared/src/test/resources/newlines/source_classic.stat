@@ -10472,7 +10472,7 @@ object A {
         (Seq(), Seq())
   ): Unit = ???
 }
-<<< #4219
+<<< #4219 !avoidForSimpleOverflow
 object a {
   val expression = for (
     x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
@@ -10485,6 +10485,23 @@ object a {
     for (
       x <-
         loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+      y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+    ) yield x + y
+}
+<<< #4219 avoidForSimpleOverflow
+newlines.avoidForSimpleOverflow = all
+===
+object a {
+  val expression = for (
+    x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+    y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+  ) yield x + y
+}
+>>>
+object a {
+  val expression =
+    for (
+      x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
       y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
     ) yield x + y
 }
