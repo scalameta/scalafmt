@@ -16,6 +16,9 @@ using [HOCON](https://github.com/lightbend/config) syntax.
 Here is an example `.scalafmt.conf`:
 
 ```scala config
+version = @STABLE_VERSION@    // mandatory
+runner.dialect = scala213    // mandatory, see below for available dialects
+
 align.preset = more    // For pretty alignment.
 maxColumn = 1234
 ```
