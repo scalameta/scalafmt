@@ -8897,7 +8897,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 4176, stateVisits2 = 3915 }
+>>> { stateVisits = 4348, stateVisits2 = 4087 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -9399,7 +9399,7 @@ class UDFRegistration private[sql] (functionRegistry: FunctionRegistry) extends 
     val inputEncoders: Seq[Option[ExpressionEncoder[_]]] = Try(ExpressionEncoder[A1]()).toOption :: Try(ExpressionEncoder[A2]()).toOption :: Try(ExpressionEncoder[A3]()).toOption :: Try(ExpressionEncoder[A4]()).toOption :: Try(ExpressionEncoder[A5]()).toOption :: Try(ExpressionEncoder[A6]()).toOption :: Try(ExpressionEncoder[A7]()).toOption :: Try(ExpressionEncoder[A8]()).toOption :: Try(ExpressionEncoder[A9]()).toOption :: Try(ExpressionEncoder[A10]()).toOption :: Try(ExpressionEncoder[A11]()).toOption :: Try(ExpressionEncoder[A12]()).toOption :: Try(ExpressionEncoder[A13]()).toOption :: Try(ExpressionEncoder[A14]()).toOption :: Try(ExpressionEncoder[A15]()).toOption :: Try(ExpressionEncoder[A16]()).toOption :: Try(ExpressionEncoder[A17]()).toOption :: Try(ExpressionEncoder[A18]()).toOption :: Try(ExpressionEncoder[A19]()).toOption :: Try(ExpressionEncoder[A20]()).toOption :: Try(ExpressionEncoder[A21]()).toOption :: Try(ExpressionEncoder[A22]()).toOption :: Nil
   }
 }
->>> { stateVisits = 2626, stateVisits2 = 1038 }
+>>> { stateVisits = 2649, stateVisits2 = 1038 }
 class UDFRegistration private[sql] (
     functionRegistry: FunctionRegistry
 ) extends Logging {
@@ -9630,7 +9630,7 @@ class UDFRegistration {
     val inputEncoders: Seq[Option[ExpressionEncoder[_]]] = Try(ExpressionEncoder[A1]).toOption :: Try(ExpressionEncoder[A2]).toOption :: Try(ExpressionEncoder[A3]).toOption :: Try(ExpressionEncoder[A4]).toOption :: Try(ExpressionEncoder[A5]).toOption :: Try(ExpressionEncoder[A6]).toOption :: Try(ExpressionEncoder[A7]).toOption :: Try(ExpressionEncoder[A8]).toOption :: Try(ExpressionEncoder[A9]).toOption :: Try(ExpressionEncoder[A10]).toOption :: Try(ExpressionEncoder[A11]).toOption :: Try(ExpressionEncoder[A12]).toOption :: Try(ExpressionEncoder[A13]).toOption :: Try(ExpressionEncoder[A14]).toOption :: Try(ExpressionEncoder[A15]).toOption :: Try(ExpressionEncoder[A16]).toOption :: Try(ExpressionEncoder[A17]).toOption :: Try(ExpressionEncoder[A18]).toOption :: Try(ExpressionEncoder[A19]).toOption :: Try(ExpressionEncoder[A20]).toOption :: Try(ExpressionEncoder[A21]).toOption :: Try(ExpressionEncoder[A22]).toOption :: Nil
   }
 }
->>> { stateVisits = 2164, stateVisits2 = 748 }
+>>> { stateVisits = 2186, stateVisits2 = 748 }
 class UDFRegistration {
   def foo = {
     val inputEncoders: Seq[
@@ -10472,7 +10472,7 @@ object A {
         (Seq(), Seq())
   ): Unit = ???
 }
-<<< #4219
+<<< #4219 !avoidForSimpleOverflow
 object a {
   val expression = for (
     x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
@@ -10485,6 +10485,23 @@ object a {
     for (
       x <-
         loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+      y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+    ) yield x + y
+}
+<<< #4219 avoidForSimpleOverflow
+newlines.avoidForSimpleOverflow = all
+===
+object a {
+  val expression = for (
+    x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+    y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+  ) yield x + y
+}
+>>>
+object a {
+  val expression =
+    for (
+      x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
       y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
     ) yield x + y
 }
@@ -10905,7 +10922,9 @@ system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
                 Failure(
                   new NoSuchMethodException(
                     s"The serializer [$fqn] for binding [$bindingName] doesn't have a matching " +
-                      s"constructor, see API documentation of ${classOf[Serializer].getName}"
+                      s"constructor, see API documentation of ${classOf[
+                          Serializer
+                        ].getName}"
                   )
                 )
               }

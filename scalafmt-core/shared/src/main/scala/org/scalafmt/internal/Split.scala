@@ -66,6 +66,8 @@ case class Split(
   }
 
   @inline
+  def costWithoutPenalty: Int = cost
+  @inline
   def costWithPenalty: Int = cost + penalty.max(0)
 
   @inline

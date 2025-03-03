@@ -6822,7 +6822,7 @@ object a {
     }
   ))
 }
->>> { stateVisits = 2070, stateVisits2 = 2070 }
+>>> { stateVisits = 2077 }
 object a {
   buffer.append((
     if (!fetchContent) {
@@ -8341,7 +8341,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 4702, stateVisits2 = 4702 }
+>>> { stateVisits = 4736 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -8428,7 +8428,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 3882, stateVisits2 = 3882 }
+>>> { stateVisits = 3882 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -9603,7 +9603,7 @@ object a {
       .map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 52849, stateVisits2 = 52849 }
+>>> { stateVisits = 52896 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
@@ -9762,7 +9762,24 @@ object A {
         (Seq(), Seq())
   ): Unit = ???
 }
-<<< #4219
+<<< #4219 !avoidForSimpleOverflow
+object a {
+  val expression = for (
+    x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+    y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+  ) yield x + y
+}
+>>>
+object a {
+  val expression = for (
+    x <-
+      loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
+    y <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu
+  ) yield x + y
+}
+<<< #4219 avoidForSimpleOverflow
+newlines.avoidForSimpleOverflow = all
+===
 object a {
   val expression = for (
     x <- loremipsumdolorsitametconsecteturadipiscingelitseddoeiusmodtemporincididu;
@@ -10151,7 +10168,7 @@ system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
             }
       }
 }
->>> { stateVisits = 3689, stateVisits2 = 3689 }
+>>> { stateVisits = 3717 }
 system.dynamicAccess.createInstanceFor[Serializer](fqn, Nil).recoverWith {
   case _: NoSuchMethodException => system.dynamicAccess
       .createInstanceFor[Serializer](
@@ -10772,7 +10789,7 @@ object ZStreamSpec extends DefaultRunnableSpec {
     )
 
 }
->>> { stateVisits = 6608, stateVisits2 = 6608 }
+>>> { stateVisits = 6630 }
 object ZStreamSpec extends DefaultRunnableSpec {
   def spec: ZSpec[Environment, Failure] = suite("ZStreamSpec")(
     suite("Combinators")(
