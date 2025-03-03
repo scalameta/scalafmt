@@ -11431,3 +11431,30 @@ object a {
       params += cpa
   else if (sym.isSynthetic && sym.isImplicit) return
 }
+<<< lambda with implicit parameter, scala213
+maxColumn = 80
+runner.dialect = scala213
+===
+Zone.acquire { implicit z: Zone =>
+    import scalanative.libc.string
+    assertEquals("case 2", 0, string.strcmp(buf2, c"1"))
+}
+>>>
+Zone.acquire { implicit z: Zone =>
+  import scalanative.libc.string
+  assertEquals("case 2", 0, string.strcmp(buf2, c"1"))
+}
+<<< lambda with implicit parameter, scala3
+maxColumn = 80
+runner.dialect = scala3
+===
+Zone.acquire { implicit z: Zone =>
+    import scalanative.libc.string
+    assertEquals("case 2", 0, string.strcmp(buf2, c"1"))
+}
+>>>
+Zone.acquire {
+  implicit z: Zone =>
+    import scalanative.libc.string
+    assertEquals("case 2", 0, string.strcmp(buf2, c"1"))
+}
