@@ -148,7 +148,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     val explored = Debug.explored.get()
     logger.debug(s"Total explored: $explored")
     if (!onlyUnit && !onlyManual)
-      assertEquals(explored, 2537686, "total explored")
+      assertEquals(explored, 2537604, "total explored")
     // TODO(olafur) don't block printing out test results.
     TestPlatformCompat.executeAndWait(PlatformFileOps.writeFile(
       FileOps.getPath("target", "index.html"),

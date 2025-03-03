@@ -373,13 +373,14 @@ object TreeOps {
       style: ScalafmtConfig,
   ): Boolean = !style.dialect.allowFewerBraces || {
     val params = func.paramClause
-    params.values match {
+    params.mod.nonEmpty ||
+    (params.values match {
       case param :: Nil => param.decltpe match {
           case Some(_: Type.Name) => ftoks.isEnclosedInMatching(params)
           case _ => true
         }
       case _ => true
-    }
+    })
   }
 
   @tailrec

@@ -12222,8 +12222,7 @@ Zone.acquire { implicit z: Zone =>
     assertEquals("case 2", 0, string.strcmp(buf2, c"1"))
 }
 >>>
-Zone.acquire {
-  implicit z: Zone =>
-    import scalanative.libc.string
-    assertEquals("case 2", 0, string.strcmp(buf2, c"1"))
+Zone.acquire { implicit z: Zone =>
+  import scalanative.libc.string
+  assertEquals("case 2", 0, string.strcmp(buf2, c"1"))
 }
