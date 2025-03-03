@@ -5,6 +5,22 @@ title: Installation
 
 You can use Scalafmt from your editor, build tool or terminal.
 
+Create a configuration file called `.scalafmt.conf` at the root of your
+project. As a minimum it should include the Scalafmt version and the
+dialect of Scala you are formatting:
+
+```
+version = @STABLE_VERSION@
+runner.dialect = scala3
+```
+
+For help choosing a dialect refer to the
+[documentation for configuration dialects](configuration.md#scala-dialects),
+but common choices are `scala3` and `scala213`.
+
+[The Configuration documentation](configuration.md) includes detailed
+documentation on the options available in this file.
+
 ## IntelliJ
 
 The _Scala_ plugin compatible with recent versions of IntelliJ IDEA has
