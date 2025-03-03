@@ -10,6 +10,7 @@ on:
       run_id:
         description: "Github actions run_id which built the release"
         required: true
+  pull_request:
 
 permissions:
   contents: read
@@ -74,27 +75,18 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: scalameta/scalafmt
-          tags: type=raw,value=${{ github.event_name == 'release' && github.event.release.tag_name || github.event.inputs.version }}
+          tags: type=raw,value=${{ github.event_name == 'release' && github.event.release.tag_name || '3.9.2' }}
       - name: Downloading scalafmt for Docker Build
         uses: actions/download-artifact@v4
         with:
           name: scalafmt-x86_64-pc-linux.zip
           path: tmp/scalafmt-docker-build # Dockerfile uses this
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event_name == 'release' && github.run_id || github.event.inputs.run_id }}
+          run-id: ${{ github.event_name == 'release' && github.run_id || '13596561226' }}
       - name: Decompress scalafmt artifact
         run: unzip tmp/scalafmt-docker-build/scalafmt-x86_64-pc-linux.zip -d tmp/scalafmt-docker-build
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
+      - name: list
+        run: find tmp/scalafmt-docker-build/
   native-image: # deprecated, will soon be removed
     if: github.event_name == 'release'
     permissions:
