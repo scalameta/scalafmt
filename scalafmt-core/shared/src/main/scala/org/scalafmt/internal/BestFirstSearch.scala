@@ -197,8 +197,12 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       nextState: State,
   ): Boolean = kill || nextState.hasSlbUntil(end)
 
+  private def killOnFail(end: => FT)(opt: OptimalToken)(implicit
+      nextState: State,
+  ): State = if (willKillOnFail(opt.killOnFail, end)) null else nextState
+
   private def killOnFail(opt: OptimalToken)(implicit nextState: State): State =
-    if (willKillOnFail(opt.killOnFail, opt.token)) null else nextState
+    killOnFail(opt.token)(opt)
 
   private def processOptimalToken(opt: OptimalToken)(implicit
       nextState: State,
@@ -224,20 +228,15 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         }
       }
     def checkPenalty(state: State, orElse: => Either[State, State]) =
-      if (state.appliedPenalty > nextNextState.appliedPenalty)
-        Left(nextNextState)
-      else orElse
+      if (state.appliedPenalty == nextNextState.appliedPenalty) orElse
+      else Left(nextNextState)
+    def kof = killOnFail {
+      val useNextNext = (null ne nextNextState) &&
+        nextNextState.appliedPenalty > nextState.prev.appliedPenalty
+      if (useNextNext) tokens(nextNextState.depth) else opt.token
+    }(opt)
     traverseSameLine(nextNextState) match {
-      case x @ Left(s) =>
-        if (s eq null) Left {
-          def getEnd: FT = {
-            val useNextNext = (null ne nextNextState) &&
-              nextNextState.appliedPenalty > nextState.prev.appliedPenalty
-            if (useNextNext) tokens(nextNextState.depth) else opt.token
-          }
-          if (willKillOnFail(opt.killOnFail, getEnd)) null else nextState
-        }
-        else checkPenalty(s, x)
+      case x @ Left(s) => if (s eq null) Left(kof) else checkPenalty(s, x)
       case x @ Right(s) => checkPenalty(s, if (opt.recurseOnly) Left(s) else x)
     }
   }
