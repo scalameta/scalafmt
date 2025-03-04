@@ -3377,25 +3377,25 @@ object SplitsAfterYield extends Splits {
       cfg: ScalafmtConfig,
   ): Seq[Split] = {
     import fo._, tokens._, ft._
-    leftOwner match {
-      case t: Term.ForYield =>
-        val lastToken = getLast(t.body)
-        if (
-          t.body.is[Tree.Block] && right.is[T.LeftBrace] &&
-          matchingOptRight(ft).exists(_.idx >= lastToken.idx)
-        ) Seq(Split(Space, 0))
-        else {
-          val indent = Indent(cfg.indent.main, lastToken, ExpiresOn.After)
-          if (cfg.newlines.avoidAfterYield && !rightOwner.is[Term.If]) {
-            val noIndent = !isRightCommentWithBreak(ft)
-            Seq(Split(Space, 0).withIndent(indent, noIndent))
-          } else Seq(
-            // Either everything fits in one line or break on =>
-            Split(Space, 0).withSingleLine(lastToken),
-            Split(Newline, 1).withIndent(indent),
-          )
-        }
-      case _ => Seq.empty
+    (leftOwner match {
+      case t: Term.ForYield => Some(t.body)
+      case _ => None
+    }).fold(Seq.empty[Split]) {
+      case b: Tree.Block
+          if right.is[T.LeftBrace] &&
+            matchingOptRight(ft).exists(_.idx >= getLast(b).idx) =>
+        Seq(Split(Space, 0))
+      case b =>
+        val lastToken = getLast(b)
+        val indent = Indent(cfg.indent.main, lastToken, ExpiresOn.After)
+        if (cfg.newlines.avoidAfterYield && !rightOwner.is[Term.If]) {
+          val noIndent = !isRightCommentWithBreak(ft)
+          Seq(Split(Space, 0).withIndent(indent, noIndent))
+        } else Seq(
+          // Either everything fits in one line or break on =>
+          Split(Space, 0).withSingleLine(lastToken),
+          Split(Newline, 1).withIndent(indent),
+        )
     }
   }
 }
