@@ -3381,6 +3381,12 @@ object SplitsAfterYield extends Splits {
       case t: Term.ForYield => Some(t.body)
       case _ => None
     }).fold(Seq.empty[Split]) {
+      case b: Term.PartialFunction
+          if dialect.allowSignificantIndentation &&
+            nextNonComment(ft).right.is[T.KwCase] =>
+        val split = Split(Newline, 0)
+          .withIndent(cfg.indent.getSignificant, getLast(b), ExpiresOn.After)
+        Seq(split)
       case b: Tree.Block
           if right.is[T.LeftBrace] &&
             matchingOptRight(ft).exists(_.idx >= getLast(b).idx) =>

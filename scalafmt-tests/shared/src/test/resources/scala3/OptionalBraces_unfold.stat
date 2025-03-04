@@ -8883,12 +8883,7 @@ for
 yield
   case Some(x) => foo
 >>>
-test does not parse: [dialect scala3] illegal start of simple expression
 for foo <- Some(42)
-yield case Some(x) =>
-      ^
-  foo
-====== full result: ======
-for foo <- Some(42)
-yield case Some(x) =>
-  foo
+yield
+   case Some(x) =>
+     foo
