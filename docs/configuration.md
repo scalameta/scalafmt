@@ -19,6 +19,7 @@ Here is an example `.scalafmt.conf`:
 version = @STABLE_VERSION@    // mandatory
 runner.dialect = scala213    // mandatory, see below for available dialects
 
+// here are some examples of optional settings
 align.preset = more    // For pretty alignment.
 maxColumn = 1234
 ```
