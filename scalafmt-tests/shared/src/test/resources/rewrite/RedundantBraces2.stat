@@ -797,3 +797,27 @@ object a {
     val len = firstColumn + syntax.length; (len, len)
   }
 }
+<<< redundant braces around infix arg
+newlines.source = fold
+===
+def atEndOfId(): Boolean = {
+  var escaped = false
+  atEnd() || {
+    lookingAt('\\') && {
+      popCh()
+      escaped = true
+      atEnd()
+    }
+  } || {
+    lookingAt('#') || lookingAt('.') || lookingAt('(') || lookingAt('[')
+  }
+}
+>>>
+def atEndOfId(): Boolean = {
+  var escaped = false
+  atEnd() || lookingAt('\\') && {
+    popCh()
+    escaped = true
+    atEnd()
+  } || { lookingAt('#') || lookingAt('.') || lookingAt('(') || lookingAt('[') }
+}
