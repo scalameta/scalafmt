@@ -251,10 +251,34 @@ if (other == null) {
 } else if (len <= 0) {
   true
 }
-<<< #391
+<<< #391 break after infix op
 {{
       phrase(a ^^
       { case p1 =>
+          Rowset(p1.toSeq map { fromXML[eveapi.xml.char.ContactList.Row](_, scalaxb.ElemName(node) ) },
+            ListMap(List(
+            (node \ "@name").headOption.map( x => DataRecord() )
+            ).flatten: _*))
+      })
+}}
+>>>
+{
+  {
+    phrase(a ^^ { case p1 =>
+      Rowset(
+          p1.toSeq map {
+            fromXML[eveapi.xml.char.ContactList.Row](_, scalaxb.ElemName(node))
+          },
+          ListMap(
+              List(
+                  (node \ "@name").headOption.map(x => DataRecord())
+              ).flatten: _*))
+    })
+  }
+}
+<<< #391 no break after infix op
+{{
+      phrase(a ^^ { case p1 =>
           Rowset(p1.toSeq map { fromXML[eveapi.xml.char.ContactList.Row](_, scalaxb.ElemName(node) ) },
             ListMap(List(
             (node \ "@name").headOption.map( x => DataRecord() )

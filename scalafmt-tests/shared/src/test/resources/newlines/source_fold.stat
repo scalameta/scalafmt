@@ -175,13 +175,26 @@ object a {
   the[Exception] thrownBy { SizeUtils.calculate(segments, "user") } should
     have message """Cannot resolve column name "user" among (segment_id);"""
 }
-<<< 1.c.3: block followed by an infix, overflowing if no break
+<<< 1.c.3: block followed by an infix, break before, overflowing if no break
 newlines.afterInfix = keep
 maxColumn = 80
 ===
 object a {
     the[Exception] thrownBy
        { SizeUtils.calculate(segments, "user") } should
+       have message """Cannot resolve column name "user" among (segment_id);"""
+}
+>>>
+object a {
+  the[Exception] thrownBy { SizeUtils.calculate(segments, "user") } should
+    have message """Cannot resolve column name "user" among (segment_id);"""
+}
+<<< 1.c.4: block followed by an infix, no break before, overflowing if no break
+newlines.afterInfix = keep
+maxColumn = 80
+===
+object a {
+    the[Exception] thrownBy { SizeUtils.calculate(segments, "user") } should
        have message """Cannot resolve column name "user" among (segment_id);"""
 }
 >>>
@@ -2404,11 +2417,26 @@ def insertAndDelete(eventClient: LEvents) = {
   (resultBefore must beEqualTo(Some(expectedBefore))) and
     (deleteStatus must beEqualTo(true)) and (resultAfter must beEqualTo(None))
 }
-<<< 8.28
+<<< 8.28 break before block
 object a {
   val b = qual1 op1 { 1 + 2 + 3 + 4 + 5 } op2
     111 * 222 * 333 * 444 * 555 op3
     { "1 / 2 / 3 / 4 / 5 / 6 / 7" }
+}
+>>>
+object a {
+  val b = qual1 op1 {
+    1 + 2 + 3 + 4 + 5
+  } op2
+    111 * 222 * 333 * 444 * 555 op3 {
+      "1 / 2 / 3 / 4 / 5 / 6 / 7"
+    }
+}
+<<< 8.28 no break before block
+object a {
+  val b = qual1 op1 { 1 + 2 + 3 + 4 + 5 } op2
+    111 * 222 * 333 * 444 * 555 op3 {
+      "1 / 2 / 3 / 4 / 5 / 6 / 7" }
 }
 >>>
 object a {
