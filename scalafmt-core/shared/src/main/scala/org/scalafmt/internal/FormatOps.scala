@@ -701,19 +701,21 @@ class FormatOps(
         nlSinglelineSplit,
       )
 
+      def getNextOp: Option[Name] =
+        if (!isAfterOp) Some(app.op)
+        else getInfixRhsAsInfix(app) match {
+          case Some(ia) => Some(findLeftInfix(ia).op)
+          case _ if app eq fullInfix => None
+          case _ => findNextInfixInParent(app, fullInfix)
+        }
+
       val otherSplits = closeOpt.fold {
         val nlSplit = Split(nlMod, 1 + breakPenalty)
         Seq(nlSplit.withIndent(nlIndent).withPolicy(nlPolicy & delayedBreak))
       } { closeFt =>
         val noSingleLine = newStmtMod.isDefined || breakMany ||
           rightAsInfix.exists(10 < infixSequenceLength(_))
-        val nextOp =
-          if (!afterInfix.breakOnNested) None
-          else if (!isAfterOp) Some(app.op)
-          else getInfixRhsAsInfix(app) match {
-            case Some(ia) => Some(findLeftInfix(ia).op)
-            case _ => findNextInfixInParent(app, fullInfix)
-          }
+        val nextOp = if (afterInfix.breakOnNested) getNextOp else None
         val endOfNextOp = nextOp.map(getLast)
         val breakAfterClose: Policy = endOfNextOp.map(breakAfterComment)
 

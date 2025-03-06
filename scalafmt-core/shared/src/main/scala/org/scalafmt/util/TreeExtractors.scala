@@ -10,8 +10,8 @@ object InfixApp {
     def precedence: Int = InfixApp.getPrecedence(tree.op.value)
 
     def singleArg: Option[Tree] = tree.arg match {
-      case Member.ArgClause(v :: Nil) => Some(v)
-      case _ => None
+      case x: Member.ArgClause => TreeOps.getSingleElement(x.values)
+      case x => Some(x)
     }
 
     def args: Seq[Tree] = tree.arg match {
