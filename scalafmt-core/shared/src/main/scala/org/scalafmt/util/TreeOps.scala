@@ -426,13 +426,16 @@ object TreeOps {
   }
 
   @tailrec
-  def findNextInfixInParent(tree: Tree, scope: Tree): Option[Name] =
-    tree.parent match {
-      case Some(t: Member.ArgClause) => findNextInfixInParent(t, scope)
-      case Some(t: Member.Infix) if tree ne scope =>
-        if (t.lhs eq tree) Some(t.op) else findNextInfixInParent(t, scope)
-      case _ => None
-    }
+  def findNextInfixInParent(tree: Tree, scope: Tree)(implicit
+      ftoks: FormatTokens,
+  ): Option[Name] = tree.parent match {
+    case Some(t: Member.ArgClause) => findNextInfixInParent(t, scope)
+    case Some(t: Term.Block) if !ftoks.isEnclosedInBraces(t) =>
+      findNextInfixInParent(t, scope)
+    case Some(t: Member.Infix) if tree ne scope =>
+      if (t.lhs eq tree) Some(t.op) else findNextInfixInParent(t, scope)
+    case _ => None
+  }
 
   def infixSequenceLength(app: Member.Infix): Int = {
     val queue = new mutable.Queue[Member.Infix]()

@@ -729,9 +729,25 @@ class FormatOps(
         Seq(singleLineSplit, nlSplit)
       }
 
+      def otherSplitsWithBraces(closeFt: FT) = {
+        val endOfNextOp = getNextOp.map(getLast)
+        val slbEnd = endOfNextOp.getOrElse(fullExpire)
+        val slbPolicy = getSingleLineInfixPolicy(closeFt)
+        // check if enclosed
+        if (endOfNextOp.fold(slbEnd)(prevNonCommentBefore) eq closeFt) Seq(
+          Split(spaceMod, 0),
+          Split(nlMod, 1).withSingleLineNoOptimal(slbEnd)
+            .andPolicy(nlPolicy & slbPolicy).withIndent(nlIndent),
+        )
+        else Seq(
+          Split(spaceMod, 0).withSingleLine(slbEnd).andPolicy(slbPolicy),
+          Split(nlMod, 0, policy = nlPolicy).withIndent(nlIndent),
+        )
+      }
+
       val otherSplits = closeOpt.fold(otherSplitsNoDelims)(closeFt =>
-        // TODO: handle braces
-        otherSplitsWithParens(closeFt),
+        if (closeFt.left.is[T.RightBrace]) otherSplitsWithBraces(closeFt)
+        else otherSplitsWithParens(closeFt),
       )
 
       val spaceSplits: Seq[Split] =
@@ -791,15 +807,12 @@ class FormatOps(
       case _ => true
     })
 
-  private def findNestedInfixes(
-      res: mutable.Buffer[Member.Infix],
-  )(pred: Member.Infix => Boolean)(tree: Tree): Boolean = tree match {
+  private def findNestedInfixes(res: mutable.Buffer[Member.Infix])(
+      pred: Member.Infix => Boolean,
+  )(tree: Tree): Boolean = CtrlBodySplits.getBlockStat(tree) match {
     case Member.ArgClause(arg :: Nil)
         if !isEnclosedWithinParensOrBraces(tree) =>
-      findNestedInfixes(res)(pred)(arg match {
-        case Tree.Block(x :: Nil) => x
-        case x => x
-      })
+      findNestedInfixes(res)(pred)(arg)
     case ia: Member.Infix if !isEnclosedWithinParens(tree) =>
       findNestedInfixes(res)(pred)(ia.lhs) && pred(ia) && {
         res += ia
@@ -808,21 +821,18 @@ class FormatOps(
           case Some(arg) => findNestedInfixes(res)(pred)(arg)
         }
       }
-    case Tree.Block(arg :: Nil) if !isEnclosedWithinParensOrBraces(tree) =>
-      findNestedInfixes(res)(pred)(arg)
     case _ => true
   }
 
   @tailrec
-  final def findLeftInfix(app: Member.Infix): Member.Infix = app.lhs match {
-    case ia: Member.Infix if !isEnclosedWithinParens(ia) => findLeftInfix(ia)
-    case b @ Tree.Block((ia: Member.Infix) :: Nil)
-        if !isEnclosedWithinParensOrBraces(b) => findLeftInfix(ia)
-    case _ => app
-  }
+  final def findLeftInfix(app: Member.Infix): Member.Infix =
+    CtrlBodySplits.getBlockStat(app.lhs) match {
+      case ia: Member.Infix if !isEnclosedWithinParens(ia) => findLeftInfix(ia)
+      case _ => app
+    }
 
   private def getInfixRhsAsInfix(app: Member.Infix): Option[Member.Infix] =
-    app.singleArg match {
+    app.singleArg.map(CtrlBodySplits.getBlockStat) match {
       case Some(t: Member.Infix) if !isEnclosedWithinParens(t) => Some(t)
       case _ => None // multiple parameters to infix are always enclosed
     }

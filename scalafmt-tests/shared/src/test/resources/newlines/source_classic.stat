@@ -202,7 +202,8 @@ object a {
 }
 >>>
 object a {
-  the[Exception] thrownBy { SizeUtils.calculate(segments, "user") } should
+  the[Exception] thrownBy
+    { SizeUtils.calculate(segments, "user") } should
     have message """Cannot resolve column name "user" among (segment_id);"""
 }
 <<< 1.c.4: block followed by an infix, no break before, overflowing if no break
@@ -2593,9 +2594,8 @@ object a {
   val b = qual1 op1 {
     1 + 2 + 3 + 4 + 5
   } op2
-    111 * 222 * 333 * 444 * 555 op3 {
-      "1 / 2 / 3 / 4 / 5 / 6 / 7"
-    }
+    111 * 222 * 333 * 444 * 555 op3
+    { "1 / 2 / 3 / 4 / 5 / 6 / 7" }
 }
 <<< 8.28 no break before block
 object a {
@@ -9287,9 +9287,8 @@ object a {
 >>>
 object a {
   if (
-    { rs = counterCells; rs } != null && {
-      m = rs.length; m
-    } > 0 && rs({ j = (m - 1) & h; j }) == null
+    { rs = counterCells; rs } != null &&
+    { m = rs.length; m } > 0 && rs({ j = (m - 1) & h; j }) == null
   ) {
     rs(j) = r
   }

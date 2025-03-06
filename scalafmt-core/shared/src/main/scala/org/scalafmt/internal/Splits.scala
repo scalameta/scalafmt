@@ -749,24 +749,15 @@ object SplitsBeforeLeftBrace extends Splits {
         else otherSplits.map(_.onlyFor(SplitTag.OneArgPerLine))
       singleSplit +: oneArgPerLineSplits
     } else SplitsBeforeStatement.getOpt.getOrElse {
-      def maybeBracesToParensWithRB(rb: FT) = {
-        val mod = getBracesToParensModOnly(rb, isWithinBraces = false)
-        Seq(Split(mod, 0))
-      }
-      def maybeBracesToParens() = maybeBracesToParensWithRB(matchingRight(ft))
+      def maybeBracesToParensWithRB(rb: FT)(implicit fl: FileLine) =
+        Seq(Split(getBracesToParensModOnly(rb, isWithinBraces = false), 0))
+      def maybeBracesToParens()(implicit fl: FileLine) =
+        maybeBracesToParensWithRB(matchingRight(ft))
       // partial initial expr
-      @tailrec
-      def startsInfix(ai: Term.ApplyInfix, t: Tree): Boolean = (ai.lhs eq t) &&
-        (ai.parent match {
-          case Some(_: Term.ArgClause) => false
-          case Some(p: Term.ApplyInfix) => startsInfix(p, ai)
-          case _ => true
-        })
       val roPos = rightOwner.pos
       if (!isTokenHeadOrBefore(right, roPos)) maybeBracesToParens()
       else rightOwner.parent.fold(Seq.empty[Split]) {
-        case p: Term.ApplyInfix => // exclude start of infix
-          if (startsInfix(p, rightOwner)) Seq.empty else maybeBracesToParens()
+        case _: Term.ApplyInfix => Seq.empty // exclude start of infix
         case _: Term.ArgClause => maybeBracesToParens()
         case p => matchingOptRight(ft).fold(Seq.empty[Split]) { rb =>
             val ko = isTokenHeadOrBefore(right, p) &&
@@ -2803,12 +2794,8 @@ object SplitsAfterIdent extends Splits {
           } => Seq(Split(NoSplit, 0)) // Kind projector type lambda
       case t: Name => t.parent match {
           case Some(p: Member.Infix) if p.op eq t =>
-            val splits = right match {
-              case _: T.LeftBrace => SplitsBeforeLeftBrace.get
-              case _: T.Colon => Seq(Split(NoSplit, 0))
-              case _ => Seq.empty
-            }
-            if (splits.isEmpty) insideInfixSplit(p) else splits
+            if (right.is[T.Colon]) Seq(Split(NoSplit, 0))
+            else insideInfixSplit(p)
           case Some(p: Term.ApplyUnary)
               if (p.op eq t) && (t.tokens.head eq left) =>
             val useSpace = right match {
