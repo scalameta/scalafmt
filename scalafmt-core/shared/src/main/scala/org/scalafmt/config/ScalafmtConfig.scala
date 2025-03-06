@@ -385,9 +385,8 @@ object ScalafmtConfig {
       }
       if (!dialect.allowSignificantIndentation) addIf(newlines.beforeOpenParenCallSite.nonEmpty, errDialect)
       addIfDirect( // can't use addIf on multiline conditions
-        !(binPack.callSite == BinPack.Site.Never && binPack.defnSite == BinPack.Site.Never) && {
-          newlines.implicitParamListModifierForce.nonEmpty || newlines.implicitParamListModifierPrefer.nonEmpty
-        },
+        !(binPack.callSite == BinPack.Site.Never && binPack.defnSite == BinPack.Site.Never) &&
+          { newlines.implicitParamListModifierForce.nonEmpty || newlines.implicitParamListModifierPrefer.nonEmpty },
         "binPack.xxxSite && newlines.implicitParamListModifierXXX (not implemented)",
       )
       checkPositive(indent.main, indent.callSite, indent.defnSite, indent.commaSiteRelativeToExtends)
