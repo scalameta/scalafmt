@@ -833,17 +833,18 @@ val memberSel: Elems =
                                 } ++
                                   (Li(`class` = "alpha in",
                                       elems = Span(
-                                          elems = Txt("Alphabetic"))) :: {
-                                    if (
-                                        tpl.linearizationTemplates.isEmpty && tpl.conversions.isEmpty
-                                    )
-                                      NoElems
-                                    else
-                                      Li(`class` = "inherit out",
-                                          elems = Span(
-                                              elems = Txt(
-                                                  "By Inheritance"))) :: NoElems
-                                  })
+                                          elems = Txt("Alphabetic"))) ::
+                                    {
+                                      if (
+                                          tpl.linearizationTemplates.isEmpty && tpl.conversions.isEmpty
+                                      )
+                                        NoElems
+                                      else
+                                        Li(`class` = "inherit out",
+                                            elems = Span(
+                                                elems = Txt(
+                                                    "By Inheritance"))) :: NoElems
+                                    })
                             )
                     ) ++ (
                         if (

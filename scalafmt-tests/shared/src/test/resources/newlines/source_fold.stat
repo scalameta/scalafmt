@@ -186,7 +186,8 @@ object a {
 }
 >>>
 object a {
-  the[Exception] thrownBy { SizeUtils.calculate(segments, "user") } should
+  the[Exception] thrownBy
+    { SizeUtils.calculate(segments, "user") } should
     have message """Cannot resolve column name "user" among (segment_id);"""
 }
 <<< 1.c.4: block followed by an infix, no break before, overflowing if no break
@@ -1884,13 +1885,13 @@ val a =
       8 % 9
     }
 >>>
-val a = 1 + 2 * 3 && 4 ^ 5 || 6 op
-    7 map { 8 % 9 }
+val a = 1 + 2 * 3 && 4 ^ 5 || 6 op 7 map
+    { 8 % 9 }
 <<< 8.2: infix with shorter left ||
 val a = 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map { 8 % 9 }
 >>>
-val a = 1 + 2 * 3 || 4 ^ 5 && 6 op
-  7 map { 8 % 9 }
+val a = 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map
+  { 8 % 9 }
 <<< 8.3: infix with longer left ||, narrow
 maxColumn = 20
 indent.main = 3
@@ -2152,12 +2153,10 @@ private lazy val subNode: Parser[SubNode] = rep(' ') ~>
    '^' ~ '^' ^^ (a => SelectThisNode(false)))
 >>>
 private lazy val subNode: Parser[SubNode] = rep(' ') ~>
-  ((opt('*') ~ '[' ~> attrName <~ '+' ~ ']' ^^ { name =>
-    AttrAppendSubNode(name)
-  }) |
-    (opt('*') ~ '[' ~> attrName <~ '!' ~ ']' ^^ { name =>
-      AttrRemoveSubNode(name)
-    }) |
+  ((opt('*') ~ '[' ~> attrName <~ '+' ~ ']' ^^
+    { name => AttrAppendSubNode(name) }) |
+    (opt('*') ~ '[' ~> attrName <~ '!' ~ ']' ^^
+      { name => AttrRemoveSubNode(name) }) |
     (opt('*') ~ '[' ~> attrName <~ ']' ^^ { name => AttrSubNode(name) }) |
     ('!' ~ '!' ^^ (a => DontMergeAttributes)) |
     ('<' ~ '*' ~ '>') ^^
@@ -2427,10 +2426,8 @@ object a {
 object a {
   val b = qual1 op1 {
     1 + 2 + 3 + 4 + 5
-  } op2
-    111 * 222 * 333 * 444 * 555 op3 {
-      "1 / 2 / 3 / 4 / 5 / 6 / 7"
-    }
+  } op2 111 * 222 * 333 * 444 * 555 op3
+    { "1 / 2 / 3 / 4 / 5 / 6 / 7" }
 }
 <<< 8.28 no break before block
 object a {
@@ -2442,10 +2439,8 @@ object a {
 object a {
   val b = qual1 op1 {
     1 + 2 + 3 + 4 + 5
-  } op2
-    111 * 222 * 333 * 444 * 555 op3 {
-      "1 / 2 / 3 / 4 / 5 / 6 / 7"
-    }
+  } op2 111 * 222 * 333 * 444 * 555 op3
+    { "1 / 2 / 3 / 4 / 5 / 6 / 7" }
 }
 <<< 8.29
 object a {
