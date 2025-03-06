@@ -8536,3 +8536,14 @@ yield
 for foo <- Some(42)
 yield
    case Some(x) => foo
+<<< scalaz nested refined types
+def foldStep(
+  onGosub: ~>[({type l[a] = (S[a], a => Free[S, A])})#l, ({type l[a] = B})#l]
+): B = ???
+>>>
+def foldStep(
+    onGosub: ~>[
+      ({ type l[a] = (S[a], a => Free[S, A]) })#l,
+      ({ type l[a] = B })#l
+    ]
+): B = ???

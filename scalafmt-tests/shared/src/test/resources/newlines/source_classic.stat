@@ -9246,6 +9246,24 @@ object a {
       map
     )
 }
+<<< single-line block as infix arg
+maxColumn = 80
+===
+object a {
+  if ({ rs = counterCells; rs } != null &&
+    { m = rs.length; m } > 0 && rs({ j = (m - 1) & h; j }
+  ) == null) {
+    rs(j) = r
+  }
+}
+>>>
+object a {
+  if ({ rs = counterCells; rs } != null && {
+    m = rs.length; m
+  } > 0 && rs({ j = (m - 1) & h; j }) == null) {
+    rs(j) = r
+  }
+}
 <<< #4133 case body enclosed, no break before lparen, no break after lparen
 object a {
   foo match {
