@@ -1977,10 +1977,10 @@ object SplitsAfterLeftParen extends Splits {
   }
 
   private def get2(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig) =
-    ft.right match {
+    getIfForWhile.getOrElse(ft.right match {
       case _: T.LeftBrace => Seq(Split(NoSplit, 0))
-      case _ => getIfForWhile.getOrElse(getRest)
-    }
+      case _ => getRest
+    })
 
   private def getIfForWhile(implicit
       ft: FT,
@@ -1988,12 +1988,7 @@ object SplitsAfterLeftParen extends Splits {
       cfg: ScalafmtConfig,
   ) = {
     import fo._, tokens._, ft._
-    val ifForWhile = leftOwner match { // If/For/While/For with (
-      case t: Term.EnumeratorsBlock => getHeadOpt(t).contains(ft)
-      case _: Term.If | _: Term.While => !isTokenHeadOrBefore(left, leftOwner)
-      case _ => false
-    }
-    if (ifForWhile) Some {
+    def impl(enclosedInBraces: => Boolean) = Some {
       val close = matchingLeft(ft)
       val indentLen = cfg.indent.ctrlSite.getOrElse(cfg.indent.callSite)
       def indents =
@@ -2008,7 +2003,7 @@ object SplitsAfterLeftParen extends Splits {
           if (cfg.align.openParenCtrlSite) baseNoSplit().withIndents(indents)
             .withPolicy(penalizeNewlines)
             .andPolicy(decideNewlinesOnlyBeforeCloseOnBreak(close))
-          else baseNoSplit().withSingleLine(close)
+          else baseNoSplit().withSingleLine(close, ignore = enclosedInBraces)
         Seq(
           noSplit,
           Split(Newline, 1).withIndent(indentLen, close, Before)
@@ -2019,7 +2014,14 @@ object SplitsAfterLeftParen extends Splits {
         baseNoSplit(Newline).withIndents(indents).withPolicy(penalizeNewlines),
       )
     }
-    else None
+    def withCond(t: Tree.WithCond) =
+      if (isTokenHeadOrBefore(left, t)) None else impl(isEnclosedInBraces(t.cond))
+    leftOwner match { // If/For/While/For with (
+      case t: Term.EnumeratorsBlock if getHeadOpt(t).contains(ft) => impl(false)
+      case t: Term.If => withCond(t)
+      case t: Term.While => withCond(t)
+      case _ => None
+    }
   }
 
   private def getRest(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig) = {
