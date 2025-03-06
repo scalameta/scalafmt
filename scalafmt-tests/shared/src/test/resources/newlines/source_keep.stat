@@ -9063,9 +9063,11 @@ object a {
 }
 >>>
 object a {
-  if ({ rs = counterCells; rs } != null && { m = rs.length; m } > 0 && rs({
-    j = (m - 1) & h; j
-  }) == null) {
+  if (
+    { rs = counterCells; rs } != null && { m = rs.length; m } > 0 && rs({
+      j = (m - 1) & h; j
+    }) == null
+  ) {
     rs(j) = r
   }
 }
