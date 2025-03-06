@@ -628,7 +628,7 @@ class FormatOps(
         afterInfix: Newlines.Infix.Site,
         newStmtMod: Option[Modification] = None,
         spaceMod: Modification = Space,
-    )(implicit ft: FT): Seq[Split] = {
+    ): Seq[Split] = {
       val maxPrecedence =
         if (isAfterOp) infixSequenceMaxPrecedence(fullInfix) else 0 // 0 unused
       val breakPenalty = if (isAfterOp) maxPrecedence - app.precedence else 1
@@ -709,23 +709,30 @@ class FormatOps(
           case _ => findNextInfixInParent(app, fullInfix)
         }
 
-      val otherSplits = closeOpt.fold {
+      def otherSplitsNoDelims = {
         val nlSplit = Split(nlMod, 1 + breakPenalty)
         Seq(nlSplit.withIndent(nlIndent).withPolicy(nlPolicy & delayedBreak))
-      } { closeFt =>
+      }
+
+      def otherSplitsWithParens(closeFt: FT) = {
         val noSingleLine = newStmtMod.isDefined || breakMany ||
           rightAsInfix.exists(10 < infixSequenceLength(_))
         val nextOp = if (afterInfix.breakOnNested) getNextOp else None
         val endOfNextOp = nextOp.map(getLast)
         val breakAfterClose: Policy = endOfNextOp.map(breakAfterComment)
 
-        val nlSplit = Split(nlMod, 0).andPolicy(breakAfterClose)
-          .withIndent(nlIndent).withPolicy(nlPolicy)
+        val nlSplit = Split(nlMod, 0, policy = breakAfterClose & nlPolicy)
+          .withIndent(nlIndent)
         val singleLineSplit = Split(spaceMod, 0).notIf(noSingleLine)
           .withSingleLine(endOfNextOp.getOrElse(closeFt))
           .andPolicy(breakAfterClose).andPolicy(getSingleLineInfixPolicy(closeFt))
         Seq(singleLineSplit, nlSplit)
       }
+
+      val otherSplits = closeOpt.fold(otherSplitsNoDelims)(closeFt =>
+        // TODO: handle braces
+        otherSplitsWithParens(closeFt),
+      )
 
       val spaceSplits: Seq[Split] =
         if (ft.right.is[T.Comment]) Seq.empty
