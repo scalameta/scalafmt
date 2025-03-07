@@ -12093,7 +12093,9 @@ def foo = {
 def foo = {
   next.offset = begCharOffset
   do putCharAndNext()
-  while (ch != CR && ch != LF && ch != FF && ch != SU)
+  while (
+    ch != CR && ch != LF && ch != FF && ch != SU
+  )
 }
 <<< `do` starts a new statement, wide, danglingParentheses.ctrlSite
 maxColumn = 60

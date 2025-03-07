@@ -2003,12 +2003,10 @@ object SplitsAfterLeftParen extends Splits {
         else alignIndents,
       ))
     }
-    def withCond(t: Tree.WithCond) =
-      if (isTokenHeadOrBefore(left, t)) None else impl(isEnclosedInBraces(t.cond))
     leftOwner match { // If/For/While/For with (
       case t: Term.EnumeratorsBlock if getHeadOpt(t).contains(ft) => impl(false)
-      case t: Term.If => withCond(t)
-      case t: Term.While => withCond(t)
+      case t: Tree.WithCond if !isTokenHeadOrBefore(left, t) =>
+        impl(isEnclosedInBraces(t.cond))
       case _ => None
     }
   }

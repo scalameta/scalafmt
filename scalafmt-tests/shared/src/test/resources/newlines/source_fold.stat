@@ -11319,8 +11319,10 @@ def foo = {
 >>>
 def foo = {
   next.offset = begCharOffset
-  do putCharAndNext() while (ch != CR &&
-    ch != LF && ch != FF && ch != SU)
+  do putCharAndNext() while (
+    ch != CR && ch != LF && ch != FF &&
+      ch != SU
+  )
 }
 <<< `do` starts a new statement, wide, danglingParentheses.ctrlSite
 maxColumn = 60
@@ -11334,8 +11336,9 @@ def foo = {
 >>>
 def foo = {
   next.offset = begCharOffset
-  do putCharAndNext()
-  while (ch != CR && ch != LF && ch != FF && ch != SU)
+  do putCharAndNext() while (
+    ch != CR && ch != LF && ch != FF && ch != SU
+  )
 }
 <<< `do` starts a new statement, narrow, !danglingParentheses.ctrlSite
 danglingParentheses.ctrlSite = false
@@ -11348,8 +11351,9 @@ def foo = {
 >>>
 def foo = {
   next.offset = begCharOffset
-  do putCharAndNext() while (ch != CR &&
-    ch != LF && ch != FF && ch != SU)
+  do putCharAndNext()
+  while (ch != CR && ch != LF &&
+      ch != FF && ch != SU)
 }
 <<< `do` starts a new statement, wide, !danglingParentheses.ctrlSite
 maxColumn = 60

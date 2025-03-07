@@ -2480,9 +2480,15 @@ object a {
 >>>
 object a {
   do foo
-  while (true)
+  while (
+    true
+  )
   do a + b
-  while (true)
+  while (
+    true
+  )
   do a + b
-  while (true)
+  while (
+    true
+  )
 }
