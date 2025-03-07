@@ -12043,3 +12043,55 @@ Zone.acquire { implicit z: Zone =>
   import scalanative.libc.string
   assertEquals("case 2", 0, string.strcmp(buf2, c"1"))
 }
+<<< if cond in braces, danglingParentheses.ctrlSite
+maxColumn = 80
+danglingParentheses.ctrlSite = true
+===
+if ({
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
+>>>
+if ({
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
+<<< if cond in braces, !danglingParentheses.ctrlSite
+maxColumn = 80
+danglingParentheses.ctrlSite = false
+===
+if ({
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
+>>>
+if ({
+    nread = is.read(buffer, 0, buffer.length)
+    nread != -1
+  }) baos.write(buffer, 0, nread)
+<<< while cond in braces, danglingParentheses.ctrlSite
+maxColumn = 80
+danglingParentheses.ctrlSite = true
+===
+while ({
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
+>>>
+while ({
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
+<<< while cond in braces, !danglingParentheses.ctrlSite
+maxColumn = 80
+danglingParentheses.ctrlSite = false
+===
+while ({
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
+>>>
+while ({
+    nread = is.read(buffer, 0, buffer.length)
+    nread != -1
+  }) baos.write(buffer, 0, nread)
