@@ -326,9 +326,9 @@ object Split {
       fileLineStack: FileLineStack,
   ): Split = if (ignore) ignored else Split(modExt, cost)
 
-  def opt(mod: Modification, cost: Int)(implicit
-      fileLineStack: FileLineStack,
-  ): Split = if (mod eq null) ignored else Split(mod, cost)
+  def opt(mod: Modification, cost: Int, policy: Policy = Policy.NoPolicy)(
+      implicit fileLineStack: FileLineStack,
+  ): Split = if (mod eq null) ignored else Split(mod, cost, policy = policy)
 
   implicit class ImplicitSeqSplit(private val obj: Seq[Split]) extends AnyVal {
     def penalize(penalty: Int): Seq[Split] = obj.map(_.withPenalty(penalty))

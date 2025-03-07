@@ -1982,28 +1982,26 @@ object SplitsAfterLeftParen extends Splits {
     def impl(enclosedInBraces: => Boolean) = Some {
       val close = matchingLeft(ft)
       val indentLen = cfg.indent.ctrlSite.getOrElse(cfg.indent.callSite)
-      def indents =
-        if (cfg.align.openParenCtrlSite) getOpenParenAlignIndents(close)
-        else Seq(Indent(indentLen, close, ExpiresOn.Before))
+      val indent = Indent(indentLen, close, ExpiresOn.Before)
+      val noAlign = !cfg.align.openParenCtrlSite
+      def alignIndents = getOpenParenAlignIndents(close)
       val penalizeNewlines = penalizeNewlineByNesting(ft, close)
-      def baseNoSplit(commentNL: Modification = null)(implicit
+      def baseNoSplit(policy: Policy, commentNL: Modification = null)(implicit
           fileLine: FileLine,
-      ) = Split.opt(getNoSplitAfterOpening(ft, commentNL = commentNL), 0)
+      ) = Split.opt(getNoSplitAfterOpening(ft, commentNL = commentNL), 0, policy)
       if (cfg.danglingParentheses.ctrlSite) {
+        def noSplitPolicy = penalizeNewlines &
+          decideNewlinesOnlyBeforeCloseOnBreak(close)
         val noSplit =
-          if (cfg.align.openParenCtrlSite) baseNoSplit().withIndents(indents)
-            .withPolicy(penalizeNewlines)
-            .andPolicy(decideNewlinesOnlyBeforeCloseOnBreak(close))
-          else baseNoSplit().withSingleLine(close, ignore = enclosedInBraces)
-        Seq(
-          noSplit,
-          Split(Newline, 1).withIndent(indentLen, close, Before)
-            .withPolicy(penalizeNewlines)
-            .andPolicy(decideNewlinesOnlyBeforeClose(close)),
-        )
-      } else Seq(
-        baseNoSplit(Newline).withIndents(indents).withPolicy(penalizeNewlines),
-      )
+          if (noAlign) baseNoSplit(Policy.NoPolicy)
+            .withSingleLine(close, ignore = enclosedInBraces)
+          else baseNoSplit(noSplitPolicy).withIndents(alignIndents)
+        val nlPolicy = penalizeNewlines & decideNewlinesOnlyBeforeClose(close)
+        Seq(noSplit, Split(Newline, 1, policy = nlPolicy).withIndent(indent))
+      } else Seq(baseNoSplit(penalizeNewlines, Newline).withIndents(
+        if (noAlign) Seq(indent) // TODO: check if enclosed
+        else alignIndents,
+      ))
     }
     def withCond(t: Tree.WithCond) =
       if (isTokenHeadOrBefore(left, t)) None else impl(isEnclosedInBraces(t.cond))
