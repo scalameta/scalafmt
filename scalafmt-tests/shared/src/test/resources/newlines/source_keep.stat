@@ -12066,9 +12066,9 @@ if ({
 }) baos.write(buffer, 0, nread)
 >>>
 if ({
-    nread = is.read(buffer, 0, buffer.length)
-    nread != -1
-  }) baos.write(buffer, 0, nread)
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
 <<< while cond in braces, danglingParentheses.ctrlSite
 maxColumn = 80
 danglingParentheses.ctrlSite = true
@@ -12092,6 +12092,6 @@ while ({
 }) baos.write(buffer, 0, nread)
 >>>
 while ({
-    nread = is.read(buffer, 0, buffer.length)
-    nread != -1
-  }) baos.write(buffer, 0, nread)
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
