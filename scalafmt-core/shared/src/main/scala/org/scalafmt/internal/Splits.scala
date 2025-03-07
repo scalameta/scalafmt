@@ -1999,7 +1999,7 @@ object SplitsAfterLeftParen extends Splits {
         val nlPolicy = penalizeNewlines & decideNewlinesOnlyBeforeClose(close)
         Seq(noSplit, Split(Newline, 1, policy = nlPolicy).withIndent(indent))
       } else Seq(baseNoSplit(penalizeNewlines, Newline).withIndents(
-        if (noAlign) Seq(indent) // TODO: check if enclosed
+        if (noAlign) if (enclosedInBraces) Seq.empty else Seq(indent)
         else alignIndents,
       ))
     }
