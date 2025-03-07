@@ -11853,7 +11853,53 @@ object a {
       |baz
       |qux""".stripMargin
 }
-<<< `do` starts a new statement
+<<< `do` starts a new statement, narrow, danglingParentheses.ctrlSite
+danglingParentheses.ctrlSite = true
+===
+def foo = {
+    next.offset = begCharOffset
+    do putCharAndNext()
+    while (ch != CR && ch != LF && ch != FF && ch != SU)
+}
+>>>
+def foo = {
+  next.offset = begCharOffset
+  do putCharAndNext()
+  while (ch != CR && ch != LF && ch != FF && ch != SU)
+}
+<<< `do` starts a new statement, wide, danglingParentheses.ctrlSite
+maxColumn = 60
+danglingParentheses.ctrlSite = true
+===
+def foo = {
+    next.offset = begCharOffset
+    do putCharAndNext()
+    while (ch != CR && ch != LF && ch != FF && ch != SU)
+}
+>>>
+def foo = {
+  next.offset = begCharOffset
+  do putCharAndNext()
+  while (ch != CR && ch != LF && ch != FF && ch != SU)
+}
+<<< `do` starts a new statement, narrow, !danglingParentheses.ctrlSite
+danglingParentheses.ctrlSite = false
+===
+def foo = {
+    next.offset = begCharOffset
+    do putCharAndNext()
+    while (ch != CR && ch != LF && ch != FF && ch != SU)
+}
+>>>
+def foo = {
+  next.offset = begCharOffset
+  do putCharAndNext()
+  while (ch != CR && ch != LF && ch != FF && ch != SU)
+}
+<<< `do` starts a new statement, wide, !danglingParentheses.ctrlSite
+maxColumn = 60
+danglingParentheses.ctrlSite = false
+===
 def foo = {
     next.offset = begCharOffset
     do putCharAndNext()
