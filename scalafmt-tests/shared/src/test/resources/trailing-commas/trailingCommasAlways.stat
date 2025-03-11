@@ -492,7 +492,7 @@ extension [
     A,
     B,
 ](
-    self: Int,
+    self: Int
 )(using
     a: A,
     b: B,
@@ -518,7 +518,7 @@ extension [
     A,
     B,
 ](
-    self: Int,
+    self: Int
 )(using
     a: A,
     b: B,

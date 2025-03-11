@@ -717,7 +717,15 @@ object TreeOps {
   ): Boolean = {
     def owner = ft.meta.rightOwner
     def isArgOrParamClauseSite(tree: Tree) = !whenNL || isArgClauseSite(tree) ||
-      isParamClauseSite(tree)
+      isParamClauseSite(tree) &&
+      (tree match { // exclude extended instance; type/`using` clause is ok
+        case t: Term.ParamClause if t.mod.isEmpty && isSeqSingle(t.values) =>
+          tree.parent.forall {
+            case p: Member.ParamClauseGroup => !p.parent.is[Defn.ExtensionGroup]
+            case _ => true
+          }
+        case _ => true
+      })
     // skip empty parens/braces/brackets
     ft.right match {
       case _: T.RightBrace => !left.is[T.LeftBrace] && owner.is[Importer]
