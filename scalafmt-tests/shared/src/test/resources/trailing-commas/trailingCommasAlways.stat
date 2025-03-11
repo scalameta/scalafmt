@@ -473,3 +473,55 @@ f(
   else
     1234567890,
 )
+<<< #4869 has comma
+runner.dialect = scala3
+===
+extension [
+  A,
+  B
+](
+  self: Int,
+)(using
+  a: A,
+  b: B
+){
+  def foo = self.hashCode
+}
+>>>
+extension [
+    A,
+    B,
+](
+    self: Int,
+)(using
+    a: A,
+    b: B,
+) {
+  def foo = self.hashCode
+}
+<<< #4869 no comma
+runner.dialect = scala3
+===
+extension [
+  A,
+  B
+](
+  self: Int
+)(using
+  a: A,
+  b: B
+){
+  def foo = self.hashCode
+}
+>>>
+extension [
+    A,
+    B,
+](
+    self: Int,
+)(using
+    a: A,
+    b: B,
+) {
+  def foo = self.hashCode
+}
