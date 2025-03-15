@@ -6,9 +6,12 @@ import scala.collection.immutable
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
-// scalafmt: { binPack.callSite = always }
-// scalafmt: { binPack.defnSite = always }
-// scalafmt: { newlines.configStyle.fallBack.forceIfOptimized = false }
+/* scalafmt: {
+     binPack.defnSite = always
+     binPack.callSite = always
+     newlines.configStyle.fallBack.prefer = false
+   }
+ */
 object SplitsBuilder {
 
   type LookupMap = immutable.Map[Class[_], Splits]
@@ -24,34 +27,19 @@ object SplitsBuilder {
     builder.add[T.EOF](SplitsAfterEOF)
     builder.add[T.Shebang](SplitsNewline2X)
     builder.add[T.Interpolation.Start](SplitsAfterInterpolationStart)
-    builder.add[T.Interpolation.Id, T.Interpolation.Part](SplitsNoSplit)
-    builder.add[T.Interpolation.SpliceStart, T.Xml.Part](SplitsNoSplit)
-    builder.add[T.MacroSplice, T.MacroQuote](SplitsNoSplit)
+    builder.add[T.Xml.Part, T.MacroSplice, T.MacroQuote, T.Interpolation.Id,
+      T.Interpolation.Part, T.Interpolation.SpliceStart,
+    ](SplitsNoSplit)
     builder.add[T.Dot](SplitsAfterDot)
     builder.add[T.LeftBrace](SplitsAfterLeftBrace)
     builder.add[T.LeftParen](SplitsAfterLeftParen)
     builder.add[T.LeftBracket](SplitsAfterLeftBracket)
-    builder.add(
-      classOf[T.Equals],
-      classOf[T.Colon],
-      classOf[T.KwWith],
-      classOf[T.RightParen],
-      classOf[T.KwReturn],
-      classOf[T.RightArrow],
-      classOf[T.ContextArrow],
-      classOf[T.LeftArrow],
-      classOf[T.KwMatch],
-      classOf[T.KwThen],
-      classOf[T.KwElse],
-      classOf[T.KwThrow],
-      classOf[T.KwTry],
-      classOf[T.KwCatch],
-      classOf[T.KwFinally],
-      classOf[T.KwFor],
-      classOf[T.KwDo],
-      classOf[T.KwWhile],
-      classOf[T.KwYield],
-      classOf[T.KwIf],
+    builder.add(classOf[T.Equals], classOf[T.Colon], classOf[T.KwWith],
+      classOf[T.RightParen], classOf[T.KwReturn], classOf[T.RightArrow],
+      classOf[T.ContextArrow], classOf[T.LeftArrow], classOf[T.KwMatch],
+      classOf[T.KwThen], classOf[T.KwElse], classOf[T.KwThrow], classOf[T.KwTry],
+      classOf[T.KwCatch], classOf[T.KwFinally], classOf[T.KwFor], classOf[T.KwDo],
+      classOf[T.KwWhile], classOf[T.KwYield], classOf[T.KwIf],
     )(SplitsAfterOptionalBracesKeyword)
     builder.add[T.Equals](SplitsAfterEquals)
     builder.add[T.LeftArrow](SplitsAfterLeftArrow)
@@ -86,9 +74,9 @@ object SplitsBuilder {
   val lookupBefore: LookupMap = build { builder =>
     builder.add[T.BOF](SplitsNewline)
     builder.add[T.EOF](SplitsNewline)
-    builder.add[T.Interpolation.Part](SplitsNoSplit)
-    builder.add[T.Interpolation.End](SplitsNoSplit)
-    builder.add[T.Interpolation.SpliceEnd](SplitsNoSplit)
+    builder.add[T.Xml.Part, T.Interpolation.Part, T.Interpolation.End,
+      T.Interpolation.SpliceEnd,
+    ](SplitsNoSplit)
     builder.add[T.LeftBrace](SplitsBeforeLeftBrace)
     builder.add[T.RightBrace](SplitsBeforeRightBrace)
     builder.add[T.RightParen](SplitsBeforeRightParen)
@@ -96,8 +84,7 @@ object SplitsBuilder {
     builder.add[T.RightArrow](SplitsBeforeRightArrow)
     builder.add[T.Semicolon](SplitsBeforeSemicolon)
     builder.add[T.LeftParen](SplitsBeforeLeftParenOrBracket)
-    builder.add[T.LeftBracket](
-      SplitsBeforeLeftParenOrBracket,
+    builder.add[T.LeftBracket](SplitsBeforeLeftParenOrBracket,
       SplitsBeforeLeftBracket,
     )
     builder.add[T.Colon](SplitsBeforeColon)
@@ -113,7 +100,6 @@ object SplitsBuilder {
     builder.add[T.KwElse, T.KwYield](SplitsBeforeElseYield)
     builder.add[T.KwThen](SplitsBeforeThen)
     builder.add[T.KwDo](SplitsBeforeDo)
-    builder.add[T.Xml.Part](SplitsNoSplit)
     builder.add[T.KwMatch](SplitsBeforeMatch)
     builder.add[T.At](SplitsBeforeAt)
     builder.add[T.Comma](SplitsBeforeComma)
@@ -160,12 +146,7 @@ private[internal] class SplitsBuilder {
     add[T1, T2, T3, T4](gen: _*)
     add[T5](gen: _*)
   }
-  def add[
-      T1: ClassTag,
-      T2: ClassTag,
-      T3: ClassTag,
-      T4: ClassTag,
-      T5: ClassTag,
+  def add[T1: ClassTag, T2: ClassTag, T3: ClassTag, T4: ClassTag, T5: ClassTag,
       T6: ClassTag,
   ](gen: Splits*): Unit = {
     add[T1, T2, T3, T4, T5](gen: _*)
