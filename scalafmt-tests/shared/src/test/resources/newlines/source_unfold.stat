@@ -12640,3 +12640,59 @@ while ({
   nread != -1
 })
   baos.write(buffer, 0, nread)
+<<< binpack type args
+maxColumn = 70
+binPack.defnSite = always
+binPack.callSite = always
+newlines.configStyle.fallBack.prefer = false
+===
+object a {
+  builder
+    .add[T.Interpolation.Id, T.Interpolation.Part, T.Interpolation.SpliceStart,
+      T.Xml.Part, T.MacroSplice, T.MacroQuote,
+    ](SplitsNoSplit)
+  builder.add[T.Interpolation.Id, T.Interpolation.Part, T.Interpolation.SpliceStart,
+      T.Xml.Part, T.MacroSplice, T.MacroQuote,
+    ](SplitsNoSplit)
+}
+>>>
+object a {
+  builder.add[
+    T.Interpolation.Id, T.Interpolation.Part,
+    T.Interpolation.SpliceStart, T.Xml.Part, T.MacroSplice,
+    T.MacroQuote
+  ](SplitsNoSplit)
+  builder.add[
+    T.Interpolation.Id, T.Interpolation.Part,
+    T.Interpolation.SpliceStart, T.Xml.Part, T.MacroSplice,
+    T.MacroQuote
+  ](SplitsNoSplit)
+}
+<<< binpack term args
+maxColumn = 70
+binPack.defnSite = always
+binPack.callSite = always
+newlines.configStyle.fallBack.prefer = false
+===
+object a {
+  builder
+    .add(T.Interpolation.Id, T.Interpolation.Part, T.Interpolation.SpliceStart,
+      T.Xml.Part, T.MacroSplice, T.MacroQuote,
+    )(SplitsNoSplit)
+  builder.add(T.Interpolation.Id, T.Interpolation.Part, T.Interpolation.SpliceStart,
+      T.Xml.Part, T.MacroSplice, T.MacroQuote,
+    )(SplitsNoSplit)
+}
+>>>
+object a {
+  builder.add(
+    T.Interpolation.Id, T.Interpolation.Part,
+    T.Interpolation.SpliceStart, T.Xml.Part, T.MacroSplice,
+    T.MacroQuote
+  )(SplitsNoSplit)
+  builder.add(
+    T.Interpolation.Id, T.Interpolation.Part,
+    T.Interpolation.SpliceStart, T.Xml.Part, T.MacroSplice,
+    T.MacroQuote
+  )(SplitsNoSplit)
+}
