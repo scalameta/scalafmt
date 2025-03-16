@@ -49,7 +49,7 @@ class ScalafmtTest extends FunSuite {
        |  function(
        |    aaaaaaaa,
        |    bbbbbbbbbb,
-       |    ddddd(eeeeeeeeee, fffffff, gggggggg)
+       |    ddddd(eeeeeeeeee, fffffff, gggggggg),
        |  )
        |}
        |""".stripMargin,
