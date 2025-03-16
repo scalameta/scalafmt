@@ -2668,8 +2668,7 @@ object SplitsBeforeDot extends Splits {
         if (nextDotIfSig.isEmpty)
           if (nlOnly) Seq(nlSplitBase(0))
           else {
-            val end = nextSelect
-              .fold(expire)(x => prevNonCommentBefore(tokenBefore(x.nameFt)))
+            val end = nextSelect.fold(expire)(x => getLastNonTrivial(x.qual))
             val exclude = insideBracesBlock(ft, end, parensToo = true)
               .excludeCloseDelim
             val arrowPolicy = exclude.ranges.map { tr =>
