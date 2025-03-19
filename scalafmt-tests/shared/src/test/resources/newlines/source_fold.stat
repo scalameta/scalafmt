@@ -11616,16 +11616,14 @@ object a {
 }
 >>>
 object a {
-  builder
-    .add[T.Interpolation.Id, T.Interpolation.Part,
-      T.Interpolation.SpliceStart, T.Xml.Part, T.MacroSplice,
-      T.MacroQuote
-    ](SplitsNoSplit)
-  builder
-    .add[T.Interpolation.Id, T.Interpolation.Part,
-      T.Interpolation.SpliceStart, T.Xml.Part, T.MacroSplice,
-      T.MacroQuote
-    ](SplitsNoSplit)
+  builder.add[T.Interpolation.Id, T.Interpolation.Part,
+    T.Interpolation.SpliceStart, T.Xml.Part, T.MacroSplice,
+    T.MacroQuote
+  ](SplitsNoSplit)
+  builder.add[T.Interpolation.Id, T.Interpolation.Part,
+    T.Interpolation.SpliceStart, T.Xml.Part, T.MacroSplice,
+    T.MacroQuote
+  ](SplitsNoSplit)
 }
 <<< binpack term args
 maxColumn = 70

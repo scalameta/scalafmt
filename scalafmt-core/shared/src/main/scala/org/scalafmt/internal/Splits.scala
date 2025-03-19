@@ -2669,8 +2669,11 @@ object SplitsBeforeDot extends Splits {
           if (nlOnly) Seq(nlSplitBase(0))
           else {
             val end = nextSelect.fold(expire)(x => getLastNonTrivial(x.qual))
-            val exclude = insideBracesBlock(ft, end, parens = true)
-              .excludeCloseDelim
+            val bracketsToo = nextSelect.forall(_.qual.is[Term.ApplyType]) &&
+              (cfg.binPack.callSiteFor(isBracket = true) ne BinPack.Site.Never)
+            val exclude =
+              insideBracesBlock(ft, end, parens = true, brackets = bracketsToo)
+                .excludeCloseDelim
             val arrowPolicy = exclude.ranges.map { tr =>
               Policy.End <= tr.lt ==> Policy.onRight(tr.rt, "PNL+DOTARR") {
                 case Decision(FT(_: T.FunctionArrow, r, m), ss)
