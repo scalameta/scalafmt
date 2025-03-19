@@ -2669,7 +2669,7 @@ object SplitsBeforeDot extends Splits {
           if (nlOnly) Seq(nlSplitBase(0))
           else {
             val end = nextSelect.fold(expire)(x => getLastNonTrivial(x.qual))
-            val exclude = insideBracesBlock(ft, end, parensToo = true)
+            val exclude = insideBracesBlock(ft, end, parens = true)
               .excludeCloseDelim
             val arrowPolicy = exclude.ranges.map { tr =>
               Policy.End <= tr.lt ==> Policy.onRight(tr.rt, "PNL+DOTARR") {
@@ -3000,7 +3000,7 @@ object SplitsBeforeIf extends Splits {
         if (isFirst) cfg.newlines.source match {
           case Newlines.fold =>
             val endOfGuard = getLast(rightOwner)
-            val exclude = insideBracesBlock(ft, endOfGuard, parensToo = true)
+            val exclude = insideBracesBlock(ft, endOfGuard, parens = true)
             Seq(
               Split(Space, 0).withSingleLine(endOfGuard, exclude = exclude),
               Split(Newline, 1),
@@ -3110,7 +3110,7 @@ object SplitsAfterDo extends Splits {
             if (noBreak && isRightCommentThenBreak(ft)) Split(Space, 0)
               .withIndents(indent)
             else {
-              val exclude = insideBracesBlock(ft, eft, parensToo = true)
+              val exclude = insideBracesBlock(ft, eft, parens = true)
               Split(Space, 0)
                 .withSingleLine(getSlbEndOnLeft(eft), exclude = exclude)
             }

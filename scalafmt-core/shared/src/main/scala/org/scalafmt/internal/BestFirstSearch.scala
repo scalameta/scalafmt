@@ -38,7 +38,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
   private def getBlockCloseToRecurse(ft: FT)(implicit
       style: ScalafmtConfig,
-  ): Option[Int] = getEndOfBlock(ft, parensToo = true).collect {
+  ): Option[Int] = getEndOfBlock(ft, parens = true).collect {
     // Block must span at least 3 lines to be worth recursing.
     case close if tokens.width(ft, close) > style.maxColumn * 3 => close.idx
   }
