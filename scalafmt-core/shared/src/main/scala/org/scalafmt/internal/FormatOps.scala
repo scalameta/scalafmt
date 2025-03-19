@@ -162,9 +162,10 @@ class FormatOps(
   def insideBlock(start: FT, end: FT, matches: FT => Boolean): TokenRanges =
     insideBlock(x => if (matches(x)) matchingOptLeft(x) else None)(start, end)
 
-  def insideBracesBlock(start: FT, end: FT, parensToo: Boolean = false)(implicit
+  def insideBracesBlock(start: FT, end: FT, parens: Boolean = false)(implicit
       style: ScalafmtConfig,
-  ): TokenRanges = insideBlock(x => getEndOfBlock(x, parensToo))(start, end)
+  ): TokenRanges =
+    insideBlock(x => getEndOfBlock(x, parens = parens))(start, end)
 
   def insideBlock(
       matches: FT => Option[FT],
@@ -2692,11 +2693,11 @@ class FormatOps(
     case _ => other
   }
 
-  def getEndOfBlock(ft: FT, parensToo: => Boolean)(implicit
+  def getEndOfBlock(ft: FT, parens: => Boolean)(implicit
       style: ScalafmtConfig,
   ): Option[FT] = ft.left match {
     case _: T.LeftBrace => matchingOptLeft(ft)
-    case _: T.LeftParen => if (parensToo) matchingOptLeft(ft) else None
+    case _: T.LeftParen => if (parens) matchingOptLeft(ft) else None
     case _ => OptionalBraces.get(ft)
         .flatMap(_.rightBrace.map(x => nextNonCommentSameLine(x)))
   }
