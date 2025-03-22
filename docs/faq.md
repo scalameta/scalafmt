@@ -3,29 +3,12 @@ id: faq
 title: FAQ / Troubleshooting
 ---
 
-## Why not Scalariform?
-
-[Scalariform](http://scala-ide.org/scalariform/) does an excellent job of
-tidying up common formatting errors. However,
-
-- Scalariform does not have a `maxColumn` setting, which I personally like and
-  is present in many popular coding styles.
-- Scalariform preserves most line breaking decisions, leaving it up to you (or
-  even worse, your colleagues) to choose a formatting layout. Scalafmt takes
-  liberty to add/remove newlines, making your entire codebase look consistent.
-
-Finally, scalafmt is my Master's thesis project. I thought it would be a fun
-challenge to write a code formatter :)
-
 ## Why is scalafmt so slow?
-
-My benchmarks show that scalafmt is for most common cases around 4-6x slower
-than scalariform (btw, scalariform is already impressively fast). This means
-that formatting your average 1.000 LOC file on modern hardware will take around
+Formatting your average 1.000 LOC file on modern hardware will take around
 200ms, which should still feel close enough to instant.
 
-The main feature that makes scalafmt slower than scalariform is the column-width
-limit. To figure the "best" way to break a long line, Scalafmt may try thousands
+The main feature that makes scalafmt slow is the column-width limit. 
+To figure the "best" way to break a long line, Scalafmt may try thousands
 of different formatting solutions.
 
 I am sure that scalafmt could benefit greatly from micro optimizations. Any help
