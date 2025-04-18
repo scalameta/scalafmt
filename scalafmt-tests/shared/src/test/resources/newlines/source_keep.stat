@@ -780,20 +780,20 @@ def a(
     eeeeeeeeeeeeeeeee: Long
 ) = true
 <<< 3.2: def non-config-style, short
-def a( b:Int,
- c:String,
-  d:Long) = true
+def a( b:Int
+ , c:String
+  , d:Long) = true
 >>>
 def a(b: Int, c: String, d: Long) = true
 <<< 3.3: apply non-config-style, no breaks on ( and )
-val a = b(c, d,
-  efgh)
+val a = b(c, d
+  , efgh)
 >>>
 val a = b(c, d, efgh)
 <<< 3.4: apply non-config-style, no break on (, break on )
-val a = b(c,
- d,
-  efgh
+val a = b(c
+  , d
+  , efgh
 )
 >>>
 val a = b(c, d, efgh)
@@ -3254,8 +3254,8 @@ object a {
 }
 <<< #2113 if-apply 1
 object a {
-  if (a) Seq(a,
-    b
+  if (a) Seq(a
+    , b
   )
   else Seq(
     a,
@@ -10266,12 +10266,17 @@ align.openParenCallSite = true
 ===
 object A {
   def f(a: (
+             Seq[Int], Seq[Int]) =
+           (Seq(), Seq())): Unit = ???
+  def f(a: (
              Seq[Int],
                Seq[Int]) =
            (Seq(), Seq())): Unit = ???
 }
 >>>
 object A {
+  def f(a: (Seq[Int], Seq[Int]) =
+    (Seq(), Seq())): Unit = ???
   def f(a: (Seq[Int], Seq[Int]) =
     (Seq(), Seq())): Unit = ???
 }
@@ -12196,4 +12201,58 @@ object a {
     T.Interpolation.SpliceStart,
     T.Xml.Part, T.MacroSplice, T.MacroQuote
   )(SplitsNoSplit)
+}
+<<< #4887
+maxColumn = 100
+binPack.callSite = onelinesjs
+newlines.configStyleCallSite.prefer = false
+===
+object a {
+  Seq(
+    (1, 2),
+    (3, 4),
+    (5, 6)
+  )
+
+  Seq(
+    1 -> 2,
+    3 -> 4,
+    5 -> 6
+  )
+
+  Seq(
+    Seq(1, 2),
+    Seq(3, 4),
+    Seq(5, 6)
+  )
+
+  Seq(
+    1,
+    2,
+    3
+  )
+}
+>>>
+object a {
+  Seq(
+    (1, 2), (3, 4), (5, 6)
+  )
+
+  Seq(
+    1 -> 2,
+    3 -> 4,
+    5 -> 6
+  )
+
+  Seq(
+    Seq(1, 2),
+    Seq(3, 4),
+    Seq(5, 6)
+  )
+
+  Seq(
+    1,
+    2,
+    3
+  )
 }
