@@ -2378,28 +2378,23 @@ object SplitsAfterComma extends Splits {
           Seq(noSplit, nlSplit)
         }
 
-      def defaultSplits(implicit fileLine: FileLine) =
-        Seq(Split(Space, 0), Split(Newline, 1))
+      def defaultSplits(indent: Length)(implicit fileLine: FileLine) = Seq(
+        Split(Space, 0),
+        Split(Newline, 1, rank = 1).withIndent(indent, next(ft), ExpiresOn.After),
+      )
 
       def altSplits = leftOwner match {
-        case _: Defn.Val | _: Defn.Var => Seq(
-            Split(Space, 0),
-            Split(Newline, 1)
-              .withIndent(cfg.indent.getDefnSite(leftOwner), next(ft), After),
-          )
-        case _: Defn.RepeatedEnumCase if {
-              if (!cfg.newlines.sourceIgnored) hasBreak else cfg.newlines.unfold
-            } => Seq(Split(Newline, 0))
-        case _: ImportExportStat => Seq(
-            Split(Space, 0),
-            Split(Newline, 1)
-              .withIndent(cfg.indent.main, next(ft), ExpiresOn.After),
-          )
-        case _ => defaultSplits
+        case _: Defn.Val | _: Defn.Var =>
+          defaultSplits(cfg.indent.getDefnSite(leftOwner))
+        case _: Defn.RepeatedEnumCase
+            if cfg.newlines.unfold || !cfg.newlines.fold && hasBreak =>
+          Seq(Split(Newline, 0))
+        case _: ImportExportStat => defaultSplits(cfg.indent.main)
+        case _ => defaultSplits(0)
       }
 
       cfg.binPack.siteFor(leftOwner).fold(altSplits) { case (bp, isCallSite) =>
-        forBinPack(bp, isCallSite).getOrElse(defaultSplits)
+        forBinPack(bp, isCallSite).getOrElse(defaultSplits(0))
       }
     }
   }
