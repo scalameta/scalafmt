@@ -11651,3 +11651,43 @@ object a {
     T.MacroQuote
   )(SplitsNoSplit)
 }
+<<< #4887
+maxColumn = 100
+binPack.callSite = onelinesjs
+newlines.configStyleCallSite.prefer = false
+===
+object a {
+  Seq(
+    (1, 2),
+    (3, 4),
+    (5, 6)
+  )
+
+  Seq(
+    1 -> 2,
+    3 -> 4,
+    5 -> 6
+  )
+
+  Seq(
+    Seq(1, 2),
+    Seq(3, 4),
+    Seq(5, 6)
+  )
+
+  Seq(
+    1,
+    2,
+    3
+  )
+}
+>>>
+object a {
+  Seq((1, 2), (3, 4), (5, 6))
+
+  Seq(1 -> 2, 3 -> 4, 5 -> 6)
+
+  Seq(Seq(1, 2), Seq(3, 4), Seq(5, 6))
+
+  Seq(1, 2, 3)
+}
