@@ -2379,7 +2379,7 @@ object SplitsAfterComma extends Splits {
         }
 
       def defaultSplits(indent: Length)(implicit fileLine: FileLine) = Seq(
-        Split(Space, 0),
+        Split(cfg.newlines.keepBreak(hasBreak), 0)(Space),
         Split(Newline, 1, rank = 1).withIndent(indent, next(ft), ExpiresOn.After),
       )
 

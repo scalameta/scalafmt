@@ -10277,7 +10277,9 @@ object A {
 object A {
   def f(a: (Seq[Int], Seq[Int]) =
     (Seq(), Seq())): Unit = ???
-  def f(a: (Seq[Int], Seq[Int]) =
+  def f(a: (Seq[Int],
+            Seq[Int]
+  ) =
     (Seq(), Seq())): Unit = ???
 }
 <<< #4219
@@ -12235,7 +12237,9 @@ object a {
 >>>
 object a {
   Seq(
-    (1, 2), (3, 4), (5, 6)
+    (1, 2),
+    (3, 4),
+    (5, 6)
   )
 
   Seq(
