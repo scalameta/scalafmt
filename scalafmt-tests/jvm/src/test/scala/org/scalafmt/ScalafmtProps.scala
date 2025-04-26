@@ -1,6 +1,6 @@
 package org.scalafmt
 
-import org.scalafmt.CompatCollections.ParConverters._
+import org.scalafmt.TestCompatCollections.ParConverters._
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.util.FormatAssertions
@@ -20,10 +20,7 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
       config: ScalafmtConfig = ScalafmtConfig.default,
       count: Int = Int.MaxValue,
   ): mutable.Seq[(CorpusFile, Observation[Bug])] = {
-    val corpus = Corpus.files(
-      // TODO(olafur) remove once testkit 1.7 is out
-      Corpus.fastparse.copy(Corpus.fastparse.url.replace("olafurpg", "scalameta")),
-    ).take(count).toBuffer.par
+    val corpus = Corpus.files(Corpus.fastparse).take(count).toBuffer.par
     SyntaxAnalysis.run[Observation[Bug]](corpus) { file =>
       val code = file.read
       try Scalafmt.format(code, config) match {

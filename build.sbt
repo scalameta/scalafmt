@@ -113,8 +113,7 @@ lazy val sysops = crossProject(JVMPlatform, NativePlatform, JSPlatform)
       else Seq("com.github.bigwheel" %% "util-backports" % "2.1")
     },
     sharedTestSettings,
-  ).platformsSettings(JVMPlatform, NativePlatform)(parallelCollections)
-  .jsEnablePlugins(ScalaJSPlugin).jsSettings(
+  ).jsEnablePlugins(ScalaJSPlugin).jsSettings(
     libraryDependencies += "org.scalameta" %%% "io" % scalametaV,
     scalaJsSettings,
   )
@@ -231,9 +230,9 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
       (Test / resourceDirectories).value.find(_.toPath.startsWith(sharedTests))
         .get
     }),
-  ).enablePlugins(BuildInfoPlugin)
-  .jvmSettings(javaOptions += "-Dfile.encoding=UTF8").dependsOn(core)
-  .aggregate(core).jsSettings(scalaJsSettings).jsEnablePlugins(ScalaJSPlugin)
+  ).enablePlugins(BuildInfoPlugin).dependsOn(core).aggregate(core)
+  .jvmSettings(javaOptions += "-Dfile.encoding=UTF8", parallelCollections)
+  .jsSettings(scalaJsSettings).jsEnablePlugins(ScalaJSPlugin)
 
 lazy val sharedTestSettings = Seq(libraryDependencies += munit.value % Test)
 
