@@ -184,7 +184,6 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     },
     libraryDependencies ++= Seq(
       "org.scalameta" %%% "munit-diff" % munitV,
-      "com.martiansoftware" % "nailgun-server" % "0.9.1",
       "com.github.scopt" %%% "scopt" % "4.1.0",
     ),
     scalacOptions ++= scalacJvmOptions.value,
@@ -196,6 +195,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
       case x => (assembly / assemblyMergeStrategy).value(x)
     },
   ).jvmSettings(
+    libraryDependencies += "com.facebook" % "nailgun-server" % "1.0.1",
     nativeImageInstalled := isCI,
     nativeImageOptions += "-march=compatibility",
     nativeImageOptions ++= {
