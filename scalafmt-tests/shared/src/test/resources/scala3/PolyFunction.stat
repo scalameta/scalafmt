@@ -71,23 +71,17 @@ def foo =
 
   [T] => (a: T) => a
 >>>
-test does not parse: [dialect scala3] `;` expected but `=>` found
 def foo =
-  bar[T] => (a: T) => a
-         ^
-====== full result: ======
-def foo =
-  bar[T] => (a: T) => a
+  bar
+
+  [T] => (a: T) => a
 <<< #4892 poly after closing paren
 def foo =
   println()
 
   [T] => (a: T) => a
 >>>
-test does not parse: [dialect scala3] `;` expected but `=>` found
 def foo =
-  println()[T] => (a: T) => a
-               ^
-====== full result: ======
-def foo =
-  println()[T] => (a: T) => a
+  println()
+
+  [T] => (a: T) => a

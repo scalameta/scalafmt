@@ -287,7 +287,7 @@ object TreeOps {
     case _: Term.Super => true
     case t: Member.ArgClause => !t.parent.is[Member.Infix]
     case _: Member.ParamClause => tree.parent.exists {
-        case _: Term.FunctionTerm => false
+        case _: Member.Function => false
         case t: Ctor.Primary => t.mods.isEmpty ||
           !t.paramClauses.headOption.contains(tree)
         case _ => true
