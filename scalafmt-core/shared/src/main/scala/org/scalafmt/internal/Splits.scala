@@ -1342,7 +1342,9 @@ object SplitsBeforeLeftBracket extends Splits {
       ft: FT,
       fo: FormatOps,
       cfg: ScalafmtConfig,
-  ): Seq[Split] = Seq(Split(Space(!ft.leftOwner.is[Mod.WithWithin]), 0))
+  ): Seq[Split] =
+    if (!ft.rightOwner.parent.exists(_.pos.start < ft.right.start)) Seq.empty
+    else Seq(Split(Space(!ft.leftOwner.is[Mod.WithWithin]), 0))
 }
 
 object SplitsBeforeRightBracket extends Splits {
