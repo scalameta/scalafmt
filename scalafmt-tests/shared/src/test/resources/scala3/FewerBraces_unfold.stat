@@ -2765,3 +2765,34 @@ def main() =
      .map(_ * 2)
      .last
    println(first)
+<<< empty case body
+object a:
+  foo
+    .bar:
+      case 1 => one
+      case _ =>
+    .qux
+>>>
+object a:
+   foo
+     .bar:
+        case 1 =>
+          one
+        case _ =>
+     .qux
+<<< non-empty case body
+object a:
+  foo
+    .bar:
+      case 1 => one
+      case _ => two
+    .qux
+>>>
+object a:
+   foo
+     .bar:
+        case 1 =>
+          one
+        case _ =>
+          two
+     .qux

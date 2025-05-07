@@ -2479,3 +2479,36 @@ def main() =
         foo bar
      .map(_ * 2).last
    println(first)
+<<< SKIP empty case body
+object a:
+  foo
+    .bar:
+      case 1 => one
+      case _ =>
+    .qux
+>>>
+BestFirstSearch:317 Failed to format
+UNABLE TO FORMAT,
+tok #14/17: [14] => . >>> RightArrow [59..61) | Dot [66..67) >>> Case.CaseImpl [52..61) [Term.PartialFunction] | Term.Select [12..70) [Template.Body] <<<[LF]>>>
+policies:
+  REL?:[Splits:3283](CASESLB>ARROW:[Splits:3276]d <== >=RightArrow[14] ??? NoPolicy)
+  NA:[FormatOps:2000]d <== >=RightArrow[14]
+  (NEXTSEL1NL:[Splits:2712]d <== <Ident(qux)[16] & NA:[Splits:2701]d <== >=RightArrow[14])
+  <=Ident(qux)[16] ==> NA:[FormatOps:1929]d <== >=Ident(qux)[16]
+splits (before policy):
+  c=1[0] NL:[Splits:977->Splits:55](NoPolicy)
+splits (after policy):
+  [!SelectChainFirstNL]c=1[0] NL:[Splits:977->Splits:55](NoPolicy)
+<<< non-empty case body
+object a:
+  foo
+    .bar:
+      case 1 => one
+      case _ => two
+    .qux
+>>>
+object a:
+   foo.bar:
+      case 1 => one
+      case _ => two
+   .qux
