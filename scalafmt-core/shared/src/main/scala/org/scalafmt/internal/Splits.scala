@@ -935,7 +935,8 @@ object SplitsAfterRightArrow extends Splits {
   ): Seq[Split] = {
     import ft._
     leftOwner match {
-      case t: CaseTree if !right.isAny[T.KwCatch, T.KwFinally] => caseTree(t) // Case arrow
+      case t: CaseTree if !right.isAny[T.KwCatch, T.KwFinally, T.Dot] => // Case arrow
+        caseTree(t)
       case _: Type.ByNameType => Seq(Split(Space(cfg.spaces.inByNameTypes), 0))
       case _ => Seq.empty
     }
