@@ -2751,7 +2751,7 @@ object a:
         case 1 => one
         case _ =>
      .qux
-<<< SKIP empty case body, only a comment
+<<< empty case body, only a comment
 object a:
   foo
     .bar:
@@ -2759,21 +2759,12 @@ object a:
       case _ => // two
     .qux
 >>>
-BestFirstSearch:317 Failed to format
-UNABLE TO FORMAT,
-tok #15/18: [15] // two . >>> Comment( two) [62..68) | Dot [73..74) >>> Term.Select [12..77) [Template.Body] | Term.Select [12..77) [Template.Body] <<<[LF]>>>
-policies:
-  CBCMT[15]:[FormatOps:1653]d <== >=Comment( two)[15]
-  REL?:[Splits:3283](CASESLB>ARROW:[Splits:3276]d <== >=Comment( two)[15] ??? NoPolicy)
-  NA:[FormatOps:2000]d <== >=Comment( two)[15]
-  (NEXTSEL2NL[15]:[Splits:2523]d <== >=Comment( two)[15] & PNL+2:[Splits:2579]d <== <Ident(qux)[17])
-  <=Ident(qux)[17] ==> NA:[FormatOps:1929]d <== >=Ident(qux)[17]
-splits (before policy):
-  [SelectChainSecondNL]c=1[0] NL:[Splits:2627->Splits:2568](NoPolicy)
-  c=0[0] NL:[Splits:2629->Splits:2629](NoPolicy)
-  [SelectChainSecondNL,SelectChainFirstNL]c=1[0] NL:[Splits:2627->Splits:2568](NoPolicy)
-  [SelectChainFirstNL]c=0[0] NL:[Splits:2629->Splits:2629](NoPolicy)
-splits (after policy):
+object a:
+   foo
+     .bar:
+        case 1 => one
+        case _ => // two
+     .qux
 <<< non-empty case body
 object a:
   foo
