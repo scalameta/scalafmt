@@ -2734,6 +2734,20 @@ object a:
         case 1 => one
         case _ =>
      .qux
+<<< empty case body, only a comment
+object a:
+  foo
+    .bar:
+      case 1 => one
+      case _ => // two
+    .qux
+>>>
+object a:
+   foo
+     .bar:
+        case 1 => one
+        case _ => // two
+     .qux
 <<< non-empty case body
 object a:
   foo
