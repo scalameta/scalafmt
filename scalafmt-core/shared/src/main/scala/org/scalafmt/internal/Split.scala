@@ -69,6 +69,9 @@ case class Split(
   def costWithPenalty: Int = cost + penalty.max(0)
 
   @inline
+  def noCost: Boolean = cost <= 0 && penalty <= 0
+
+  @inline
   def fileLine: FileLine = fileLineStack.fileLineLast
 
   @inline
