@@ -2712,8 +2712,9 @@ object SplitsBeforeDot extends Splits {
       Policy.beforeLeft(selectLike.nameFt, "NEXTSEL1NL") {
         case Decision(FT(_, _: T.Dot, m), s) if m.rightOwner eq tree =>
           SplitTag.SelectChainFirstNL.activateOnly(s)
-        case Decision(FT(l, _: T.Comment, m), s)
-            if m.rightOwner.eq(tree) && !l.is[T.Comment] =>
+        case Decision(FT(_, _: T.Comment, m), s)
+            if m.rightOwner.eq(tree) &&
+              s.exists(_.isNeededFor(SplitTag.SelectChainFirstNL)) =>
           SplitTag.SelectChainFirstNL.activateOnly(s)
       }
     }
