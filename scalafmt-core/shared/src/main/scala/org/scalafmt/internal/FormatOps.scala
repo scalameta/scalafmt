@@ -1644,14 +1644,11 @@ class FormatOps(
       else if (ft.hasBreak) Seq(nlSplitFunc(0).forThisLine)
       else {
         val nextFt = nextNonCommentSameLineAfter(ft)
-        val splits =
-          if (nextFt.noBreak) splitsFunc(nextFt)
-          else {
-            val split = nlSplitFunc(0).forThisLine
-            Seq(if (rhsIsCommentedOut(nextFt)) split.withNoIndent else split)
-          }
-        val policy = Policy.onlyFor(nextFt, "CBCMT")(_ => splits)
-        Seq(Split(Space, 0, policy = policy))
+        val nlPolicy = decideNewlinesOnlyAfterClose(nextFt)
+        if (nextFt.hasBreakOrEOF)
+          Seq(nlSplitFunc(1).forThisLine.withMod(Space).andPolicy(nlPolicy))
+        else splitsFunc(nextFt)
+          .map(s => s.withMod(Space).andPolicy(nlPolicy, !s.isNL))
       }
 
     def folded(
