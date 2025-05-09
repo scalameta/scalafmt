@@ -87,8 +87,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     var preForkState: State = start
     var preFork = !isKillOnFail
     val activeSplitsFilter: Split => Boolean =
-      if (isOpt)
-        s => if (s.costWithPenalty <= 0) true else { preFork = false; false }
+      if (isOpt) s => if (s.noCost) true else { preFork = false; false }
       else _ => true
 
     var curr: State = null

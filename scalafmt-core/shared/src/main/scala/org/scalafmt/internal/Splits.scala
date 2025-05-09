@@ -3277,7 +3277,10 @@ object SplitsAfterCase extends Splits {
           ss.flatMap { s =>
             val split = s.andPolicy(postArrowPolicy)
             if (s.isNL) Seq(split)
-            else Seq(s.withSingleLine(slbExpire, extend = true), split)
+            else Seq(
+              s.withSingleLine(slbExpire, extend = true, noOptimal = !s.noCost),
+              split,
+            )
           }
         }
       Policy.RelayOnSplit((s, _) => s.isNL)(onArrowPolicy)(postArrowPolicy)
