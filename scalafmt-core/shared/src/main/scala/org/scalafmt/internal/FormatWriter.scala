@@ -1698,12 +1698,9 @@ object FormatWriter {
     def tryAppendToBlock(line: AlignLine, sameOwner: Boolean)(implicit
         floc: FormatLocation,
     ): Boolean = {
-      val checkEol: (Tree => Boolean) => Boolean =
-        if (floc.style.align.multiline) _ => true
-        else {
-          val endOfLineOwner = floc.formatToken.meta.rightOwner
-          TreeOps.findTreeWithParentSimple(endOfLineOwner)(_).isEmpty
-        }
+      val endOfLineOwner: Option[Tree] =
+        if (floc.style.align.multiline) None
+        else Some(floc.formatToken.meta.rightOwner)
 
       val curStops = line.stops
       val refLen = refStops.length
@@ -1775,7 +1772,10 @@ object FormatWriter {
         def matchStops() = (refStop.nonSlcOwner, curStop.nonSlcOwner) match {
           case (Some(refRowOwner), Some(curRowOwner)) =>
             def isRowOwner(x: Tree) = (x eq refRowOwner) || (x eq curRowOwner)
-            if (sameOwner && checkEol(isRowOwner)) {
+            val isMatchPossible = sameOwner && endOfLineOwner.forall(
+              TreeOps.findTreeWithParentSimple(_)(isRowOwner).isEmpty,
+            )
+            if (isMatchPossible) {
               val cmpDepth = Integer.compare(refStop.depth, curStop.depth)
               if (0 < cmpDepth) {
                 retainRefStop()
