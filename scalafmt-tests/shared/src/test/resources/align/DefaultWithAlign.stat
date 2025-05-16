@@ -1852,7 +1852,9 @@ case class Foo() {
   def Bar(abc:        Int, deg:         String, xyz:        Boolean) = ???
   def Baz(hijk:       Int, lmnop:       String)                      = ???
 }
-<<< align infix with breaks
+<<< align infix with breaks, !multiline
+align.multiline = false
+===
 foo ++= Seq(
   foo % bar, // c2
   fooo %% barr % baz % "test",
@@ -1875,6 +1877,32 @@ foo ++= Seq(
     bazz %
     "test",
   foo %%% bar % baz % "test"
+)
+<<< align infix with breaks, multiline
+align.multiline = true
+===
+foo ++= Seq(
+  foo % bar, // c2
+  fooo %% barr % baz % "test",
+  foooo %% bar % bazz % "test",
+  fooooo % barrr %
+     baz % "test",
+  foooooo % barrrr %
+     bazz %
+     "test",
+  foo %%% bar % baz % "test"
+)
+>>>
+foo ++= Seq(
+  foo     % bar, // c2
+  fooo   %% barr   % baz  % "test",
+  foooo  %% bar    % bazz % "test",
+  fooooo  % barrr  %
+    baz   % "test",
+  foooooo % barrrr %
+    bazz  %
+    "test",
+  foo   %%% bar    % baz  % "test"
 )
 <<< curry params after
 align.tokens."+" = [{
