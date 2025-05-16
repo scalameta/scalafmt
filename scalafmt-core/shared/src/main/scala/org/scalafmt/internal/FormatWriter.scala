@@ -1698,9 +1698,9 @@ object FormatWriter {
     def tryAppendToBlock(line: AlignLine, sameOwner: Boolean)(implicit
         floc: FormatLocation,
     ): Boolean = {
-      val endOfLineOwner: Option[Tree] =
+      val endOfLineOwnerPos: Option[Position] =
         if (floc.style.align.multiline) None
-        else Some(floc.formatToken.meta.rightOwner)
+        else Some(floc.formatToken.meta.rightOwner.pos)
 
       val curStops = line.stops
       val refLen = refStops.length
@@ -1771,10 +1771,14 @@ object FormatWriter {
         // see: https://github.com/scalameta/scalafmt/issues/1242
         def matchStops() = (refStop.nonSlcOwner, curStop.nonSlcOwner) match {
           case (Some(refRowOwner), Some(curRowOwner)) =>
-            def isRowOwner(x: Tree) = (x eq refRowOwner) || (x eq curRowOwner)
-            val isMatchPossible = sameOwner && endOfLineOwner.forall(
-              TreeOps.findTreeWithParentSimple(_)(isRowOwner).isEmpty,
-            )
+            val isMatchPossible = sameOwner && endOfLineOwnerPos.forall { x =>
+              val refPos = refRowOwner.pos
+              val curPos = curRowOwner.pos
+              val refEnd = refPos.end
+              val curBeg = curPos.start
+              if (refEnd > curBeg) refEnd < x.end || refPos.start > x.start
+              else curBeg > x.start || curPos.end < x.end
+            }
             if (isMatchPossible) {
               val cmpDepth = Integer.compare(refStop.depth, curStop.depth)
               if (0 < cmpDepth) {
