@@ -1868,11 +1868,11 @@ foo ++= Seq(
 )
 >>>
 foo ++= Seq(
-  foo     % bar, // c2
-  fooo   %% barr % baz  % "test",
-  foooo  %% bar  % bazz % "test",
-  fooooo  % barrr %
-    baz   % "test",
+  foo    % bar, // c2
+  fooo  %% barr % baz  % "test",
+  foooo %% bar  % bazz % "test",
+  fooooo % barrr %
+    baz  % "test",
   foooooo % barrrr %
     bazz %
     "test",
