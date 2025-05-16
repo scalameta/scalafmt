@@ -2158,3 +2158,89 @@ object a {
         val quux = Quux()
     }
 }
+<<< mixed single- and multi-line infix, !multiline
+align.multiline = false
+align.tokens."+" = [
+  { code = "+:", owners = [{ regex = "Term\\.ApplyInfix" }] },
+  { code = "++:", owners = [{ regex = "Term\\.ApplyInfix" }] },
+  { code = "+++:", owners = [{ regex = "Term\\.ApplyInfix" }] },
+]
+===
+object a {
+  a ++: aaa +: aa
+  bbb ++: bb +++:
+  cccccc ++: c ++: cc {
+    3
+  } +: cc +++:
+  ddd ++: dd ++: d
+  e +++: eeeeee +: eee
+
+  a %% aaa % aa
+  bbb %% bb %%%
+  cccccc %% c %% cc {
+    3
+  } % cc %%%
+  ddd %% dd %% d
+  e %%% eeeeee % eee
+}
+>>>
+object a {
+  a ++: aaa +: aa
+  bbb ++: bb +++:
+    cccccc ++: c ++: cc {
+      3
+    }    +: cc   +++:
+    ddd ++: dd    ++: d
+  e    +++: eeeeee +: eee
+
+  a %% aaa % aa
+  bbb %% bb %%%
+    cccccc %% c %% cc {
+      3
+    }    % cc   %%%
+    ddd %% dd    %% d
+  e    %%% eeeeee % eee
+}
+<<< mixed single- and multi-line infix, multiline
+align.multiline = true
+align.tokens."+" = [
+  { code = "+:", owners = [{ regex = "Term\\.ApplyInfix" }] },
+  { code = "++:", owners = [{ regex = "Term\\.ApplyInfix" }] },
+  { code = "+++:", owners = [{ regex = "Term\\.ApplyInfix" }] },
+]
+===
+object a {
+  a ++: aaa +: aa
+  bbb ++: bb +++:
+  cccccc ++: c ++: cc {
+    3
+  } +: cc +++:
+  ddd ++: dd ++: d
+  e +++: eeeeee +: eee
+
+  a %% aaa % aa
+  bbb %% bb %%%
+  cccccc %% c %% cc {
+    3
+  } % cc %%%
+  ddd %% dd %% d
+  e %%% eeeeee % eee
+}
+>>>
+object a {
+  a        ++: aaa    +: aa
+  bbb      ++: bb   +++:
+    cccccc ++: c     ++: cc {
+      3
+    }       +: cc   +++:
+    ddd    ++: dd    ++: d
+  e       +++: eeeeee +: eee
+
+  a        %% aaa    % aa
+  bbb      %% bb   %%%
+    cccccc %% c     %% cc {
+      3
+    }       % cc   %%%
+    ddd    %% dd    %% d
+  e       %%% eeeeee % eee
+}
