@@ -1883,12 +1883,13 @@ object FormatWriter {
   private def getAlignNonSlcOwner(ft: FT, nextFloc: FormatLocation)(implicit
       floc: FormatLocation,
   ): Option[Option[Tree]] = {
-    def getNonSlcOwner = ft.meta.rightOwner match {
-      case name: Term.Name => name.parent match {
-          case Some(p: Term.ApplyInfix) => p
-          case _ => name
+    @tailrec
+    def getNonSlcOwner(x: Tree): Tree = x match {
+      case _: Term.Name | _: Term.ApplyInfix => x.parent match {
+          case Some(p: Term.ApplyInfix) => getNonSlcOwner(p)
+          case _ => x
         }
-      case x => x
+      case _ => x
     }
 
     val slc = ft.right.is[T.Comment] && nextFloc.hasBreakAfter &&
@@ -1896,7 +1897,7 @@ object FormatWriter {
     val code = if (slc) "//" else ft.meta.right.text
     floc.style.alignMap.get(code).flatMap { matchers =>
       // Corner case when line ends with comment
-      val nonSlcOwner = if (slc) None else Some(getNonSlcOwner)
+      val nonSlcOwner = if (slc) None else Some(getNonSlcOwner(ft.rightOwner))
       val owner = nonSlcOwner.getOrElse(ft.meta.leftOwner)
       val ok = matchers.isEmpty || matchers.exists(_.matches(owner))
       if (ok) Some(nonSlcOwner) else None
