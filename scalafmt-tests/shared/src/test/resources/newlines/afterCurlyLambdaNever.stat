@@ -68,7 +68,7 @@ class Bar {
       .flatMap { campaigns =>
         request match {
           case Nil => connection.pure(Right(toResponse(campaigns, Map.empty)))
-          case _ =>
+          case _   =>
             getProfileEmails(request.securityContext, profileIds).to[ConnectionIO].map {
               profileEmails =>
                 Right(toResponse(campaigns, profileEmails))
