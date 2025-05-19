@@ -1189,20 +1189,20 @@ class FormatWriter(formatOps: FormatOps) {
               floc.hasBreakAfter || ft.leftHasNewline || idx >= locations.length
             ) floc
             else {
-              getAlignNonSlcOwner(ft, locations(idx)).foreach { nonSlcOwner =>
+              getAlignIsSlc(ft, locations(idx)).foreach { isSlc =>
                 val (container, depth) =
-                  getAlignContainer(nonSlcOwner.getOrElse(ft.meta.rightOwner))
+                  getAlignContainer(if (isSlc) ft.leftOwner else ft.rightOwner)
                 def appendCandidate() = columnCandidates += new AlignStop(
                   getAlignColumn(floc) + columnShift,
                   depth,
                   floc,
                   getAlignHashKey(floc),
-                  nonSlcOwner,
+                  isSlc,
                 )
                 if (alignContainer eq null) alignContainer = container
                 else if (alignContainer ne container) {
                   val pos1 = alignContainer.pos
-                  if (nonSlcOwner.isEmpty) {
+                  if (isSlc) {
                     val prevFt = prevNonCommentSameLine(ft)
                     if (pos1.end >= prevFt.left.end) appendCandidate()
                   } else {
@@ -1661,7 +1661,7 @@ object FormatWriter {
       val depth: Int,
       val floc: FormatLocation,
       val hashKey: Int,
-      val nonSlcOwner: Option[Tree],
+      val isSlc: Boolean,
   ) {
     var shiftedColumn: AlignStopColumn = new AlignStopColumn
     @inline
@@ -1766,10 +1766,11 @@ object FormatWriter {
         // skip checking if they match if both continue to a single line of comment
         // in order to vertical align adjacent single lines of comment
         // see: https://github.com/scalameta/scalafmt/issues/1242
-        def matchStops() = (refStop.nonSlcOwner, curStop.nonSlcOwner) match {
-          case (Some(refRow), Some(curRow)) =>
+        def matchStops() = (refStop.isSlc, curStop.isSlc) match {
+          case (false, false) =>
             val isMatchPossible = sameOwner &&
-              (floc.style.align.multiline || refRow.pos.end <= curRow.pos.start)
+              (floc.style.align.multiline ||
+                refStop.ft.rightOwner.pos.end <= curStop.ft.rightOwner.pos.start)
             if (isMatchPossible) {
               val cmpDepth = Integer.compare(refStop.depth, curStop.depth)
               if (0 < cmpDepth) {
@@ -1783,13 +1784,13 @@ object FormatWriter {
                 Some((refIdx + 1, curIdx + 1, true))
               } else noMatch()
             } else noMatch()
-          case (None, None) => // both are comments
+          case (true, true) => // both are comments
             updateStop()
             None
-          case (None, _) if newStops.nonEmpty || lastCurIsComment => // ref is comment
+          case (true, _) if newStops.nonEmpty || lastCurIsComment => // ref is comment
             appendCurStop()
             endRef()
-          case (_, None) if newStops.nonEmpty || lastRefIsComment => // cur is comment
+          case (_, true) if newStops.nonEmpty || lastRefIsComment => // cur is comment
             retainRefStop()
             endCur()
           case _ => None
@@ -1873,26 +1874,26 @@ object FormatWriter {
     if (useLeft) floc.state.prev.column else floc.state.column
   }
 
-  private def getAlignNonSlcOwner(ft: FT, nextFloc: FormatLocation)(implicit
+  private def getAlignIsSlc(ft: FT, nextFloc: FormatLocation)(implicit
       floc: FormatLocation,
-  ): Option[Option[Tree]] = {
+  ): Option[Boolean] = {
     val slc = ft.right.is[T.Comment] && nextFloc.hasBreakAfter &&
       !ft.rightHasNewline
     val code = if (slc) "//" else ft.meta.right.text
     floc.style.alignMap.get(code).flatMap { matchers =>
-      // Corner case when line ends with comment
-      val nonSlcOwner = if (slc) None else Some(ft.rightOwner)
       val ok = matchers.isEmpty || {
-        val owner = nonSlcOwner.fold(ft.leftOwner) {
-          case x: Term.Name =>
-            /* historically, we match infix operator as infix expression,
-             * since initially we didn't have a way to match parent trees */
-            x.parent match { case Some(p: Term.ApplyInfix) => p; case _ => x }
-          case x => x
-        }
+        val owner =
+          if (slc) ft.leftOwner // Corner case when line ends with comment
+          else ft.rightOwner match {
+            case x: Term.Name =>
+              /* historically, we match infix operator as infix expression,
+               * since initially we didn't have a way to match parent trees */
+              x.parent match { case Some(p: Term.ApplyInfix) => p; case _ => x }
+            case x => x
+          }
         matchers.exists(_.matches(owner))
       }
-      if (ok) Some(nonSlcOwner) else None
+      if (ok) Some(slc) else None
     }
   }
 
