@@ -1707,6 +1707,9 @@ object FormatWriter {
       val curLen = curStops.length
       val newStopLen = refLen.max(curLen)
 
+      def lastRefIsComment = refStops(refLen - 1).ft.right.is[T.Comment]
+      def lastCurIsComment = curStops(curLen - 1).ft.right.is[T.Comment]
+
       // compute new stops for the block
       var refShift = 0
       var curShift = 0
@@ -1744,8 +1747,6 @@ object FormatWriter {
           curStop.shiftedColumn = refStop.shiftedColumn
           newStops += curStop
         }
-        def lastRefIsComment = refStops(refLen - 1).ft.right.is[T.Comment]
-        def lastCurIsComment = curStops(curLen - 1).ft.right.is[T.Comment]
         @inline
         def endRef() = Some((refIdx, curIdx + 1, false))
         @inline
@@ -1833,10 +1834,8 @@ object FormatWriter {
               },
           )) && {
           // now we mutate
-          (0 until newStops.length)
-            .foreach(idx => newStops(idx).shifted = newColumns(idx))
-          (endRefIdx until refStops.length)
-            .foreach(refStops(_).shiftedColumn.reset())
+          newStops.indices.foreach(idx => newStops(idx).shifted = newColumns(idx))
+          refStops.view.drop(endRefIdx).foreach(_.shiftedColumn.reset())
 
           buffer += line
           refStops = newStops.toIndexedSeq
