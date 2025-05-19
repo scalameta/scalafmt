@@ -363,7 +363,7 @@ object Cleaver {
     def join(x: A -> B): R  = f(x._1, x._2)
   }
 }
-<<< only align single-line statements
+<<< only align single-line statements, break before multiline
 {
 val a = function(1, b)
 val aaaaa = function(1, b)
@@ -375,6 +375,24 @@ val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbb
   val aaaaa = function(1, b)
   val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa =
     function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)
+}
+<<< only align single-line statements, break within multiline
+{
+val a = function(1, b)
+val aaaaa = function(1, b)
+val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(
+  1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+)
+}
+>>>
+{
+  val a     = function(1, b)
+  val aaaaa = function(1, b)
+  val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(
+    1,
+    b,
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  )
 }
 <<< infix owner
    Ok(Json.obj(
@@ -713,6 +731,52 @@ object a {
         s"Not sure at all what kinda class this is: ${unknown.getClass}"
       )
   }
+}
+<<< #1811 1 with break within rhs, !multiline
+align.multiline = false
+===
+object a {
+  for {
+    a   <- Option(1)
+    bbb <- Option(2)
+    cccccc <- Option {
+      3
+    }
+    dd <- Option(4)
+  } yield ()
+}
+>>>
+object a {
+  for {
+    a   <- Option(1)
+    bbb <- Option(2)
+    cccccc <- Option {
+      3
+    }
+    dd <- Option(4)
+  } yield ()
+}
+<<< #1811 1 with break before rhs, !multiline
+align.multiline = false
+===
+object a {
+  for {
+    a   <- Option(1)
+    bbb <- Option(2)
+    cccccc <-
+     Option(3)
+    dd <- Option(4)
+  } yield ()
+}
+>>>
+object a {
+  for {
+    a   <- Option(1)
+    bbb <- Option(2)
+    cccccc <-
+      Option(3)
+    dd <- Option(4)
+  } yield ()
 }
 <<< #1811 1 no blanks
 align.multiline = true
