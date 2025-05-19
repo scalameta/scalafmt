@@ -1698,10 +1698,6 @@ object FormatWriter {
     def tryAppendToBlock(line: AlignLine, sameOwner: Boolean)(implicit
         floc: FormatLocation,
     ): Boolean = {
-      val endOfLineOwnerPos: Option[Position] =
-        if (floc.style.align.multiline) None
-        else Some(floc.formatToken.meta.rightOwner.pos)
-
       val curStops = line.stops
       val refLen = refStops.length
       val curLen = curStops.length
@@ -1770,15 +1766,9 @@ object FormatWriter {
         // in order to vertical align adjacent single lines of comment
         // see: https://github.com/scalameta/scalafmt/issues/1242
         def matchStops() = (refStop.nonSlcOwner, curStop.nonSlcOwner) match {
-          case (Some(refRowOwner), Some(curRowOwner)) =>
-            val isMatchPossible = sameOwner && endOfLineOwnerPos.forall { x =>
-              val refPos = refRowOwner.pos
-              val curPos = curRowOwner.pos
-              val refEnd = refPos.end
-              val curBeg = curPos.start
-              if (refEnd > curBeg) refEnd < x.end || refPos.start > x.start
-              else curBeg > x.start || curPos.end < x.end
-            }
+          case (Some(refRow), Some(curRow)) =>
+            val isMatchPossible = sameOwner &&
+              (floc.style.align.multiline || refRow.pos.end <= curRow.pos.start)
             if (isMatchPossible) {
               val cmpDepth = Integer.compare(refStop.depth, curStop.depth)
               if (0 < cmpDepth) {

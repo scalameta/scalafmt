@@ -371,8 +371,8 @@ val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbb
 }
 >>>
 {
-  val a     = function(1, b)
-  val aaaaa = function(1, b)
+  val a                                = function(1, b)
+  val aaaaa                            = function(1, b)
   val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa =
     function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)
 }
@@ -386,8 +386,8 @@ val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(
 }
 >>>
 {
-  val a     = function(1, b)
-  val aaaaa = function(1, b)
+  val a                                = function(1, b)
+  val aaaaa                            = function(1, b)
   val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(
     1,
     b,
@@ -748,8 +748,8 @@ object a {
 >>>
 object a {
   for {
-    a   <- Option(1)
-    bbb <- Option(2)
+    a      <- Option(1)
+    bbb    <- Option(2)
     cccccc <- Option {
       3
     }
@@ -771,8 +771,8 @@ object a {
 >>>
 object a {
   for {
-    a   <- Option(1)
-    bbb <- Option(2)
+    a      <- Option(1)
+    bbb    <- Option(2)
     cccccc <-
       Option(3)
     dd <- Option(4)
@@ -1111,7 +1111,7 @@ class ThisIsMyClass(a: Long, b: Long) {
   val myClass                                          = new ThisIsMyClass(init, end)
   val thisIsMyListOfClasses: ListBuffer[ThisIsMyClass] = ListBuffer()
   val abcdefghijklmnopqrstuvwxyz                       = new ThisIsMyClass(init, end)
-  val abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst =
+  val abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst   =
     new ThisIsMyClass(init, end)
 }
 <<< #2449, !allowOverflow
