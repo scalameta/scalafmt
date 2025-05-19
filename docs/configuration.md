@@ -1473,8 +1473,11 @@ was disabled since the parameter's introduction in v2.5.0.
 
 ### `align.multiline`
 
-If this flag is set, when alignment is applied, multiline statements will not be
-excluded from search of tokens to align.
+This flag controls whether to include multiline statements in the search for
+tokens to align, with the following values:
+
+- `false`: align tokens only on adjacent lines
+- `true`: align consecutive statements even if tokens to align are not on adjacent lines
 
 > Since v2.5.0.
 
