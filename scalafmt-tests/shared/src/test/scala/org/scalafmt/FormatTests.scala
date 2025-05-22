@@ -149,13 +149,9 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     logger.debug(s"Total explored: $explored")
     if (!onlyUnit && !onlyManual)
       assertEquals(explored, 2565660, "total explored")
-    // TODO(olafur) don't block printing out test results.
-    TestPlatformCompat.executeAndWait(PlatformFileOps.writeFile(
+    if (!sys.env.contains("CI")) PlatformFileOps.writeFileAsync(
       FileOps.getPath("target", "index.html"),
       Report.heatmap(debugResults.result()),
-    ))(
-      // Travis exits right after running tests.
-      if (sys.env.contains("TRAVIS")) Some(20) else None,
     )
   }
 }
