@@ -1,9 +1,9 @@
-import scala.scalanative.build._
 import scala.util.Properties
 
 import org.scalajs.linker.interface.ESVersion
 
 import Dependencies._
+import Extensions._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 def parseTagVersion: String = {
@@ -211,7 +211,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
         case _ => Nil
       }
     },
-  ).nativeSettings(scalaNativeConfig).dependsOn(core, interfaces)
+  ).dependsOn(core, interfaces).nativeSettings(scalaNativeConfigRelease)
   // TODO: enable NPM publishing
   .jsSettings(scalaJsSettings, scalaJSUseMainModuleInitializer := true)
   .jvmEnablePlugins(NativeImagePlugin)
@@ -233,6 +233,7 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   ).enablePlugins(BuildInfoPlugin).dependsOn(core).aggregate(core)
   .jvmSettings(javaOptions += "-Dfile.encoding=UTF8", parallelCollections)
   .jsSettings(scalaJsSettings).jsEnablePlugins(ScalaJSPlugin)
+  .nativeSettings(scalaNativeConfigTest)
 
 lazy val sharedTestSettings = Seq(libraryDependencies += munit.value % Test)
 
@@ -264,7 +265,7 @@ lazy val communityTestsOther = crossProject(JVMPlatform, NativePlatform)
 def confCommunityTestShared(where: String)(
     project: sbtcrossproject.CrossProject,
 ) = project.in(file(where)).settings(communityTestsSettings)
-  .settings(sharedTestSettings).nativeSettings(scalaNativeConfig)
+  .settings(sharedTestSettings).nativeSettings(scalaNativeConfigTest)
 
 def confCommunityTest(where: String)(project: sbtcrossproject.CrossProject) =
   project.configureCross(confCommunityTestShared(where))
@@ -339,7 +340,8 @@ lazy val scalaJsSettings = Seq(
   scalaJSLinkerConfig ~= (_.withESFeatures(_.withESVersion(ESVersion.ES2018))),
 )
 
-lazy val scalaNativeConfig = nativeConfig ~= { _.withMode(Mode.releaseFull) }
+lazy val scalaNativeConfigTest = nativeConfig ~= { _.forTest }
+lazy val scalaNativeConfigRelease = nativeConfig ~= { _.forRelease }
 
 def parallelCollections = libraryDependencies ++= {
   if (!isScala213.value) Nil
