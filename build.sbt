@@ -234,8 +234,12 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     }),
   ).enablePlugins(BuildInfoPlugin).dependsOn(core).aggregate(core)
   .jvmSettings(javaOptions += "-Dfile.encoding=UTF8", parallelCollections)
-  .jsSettings(scalaJsSettings).jsEnablePlugins(ScalaJSPlugin)
-  .nativeSettings(scalaNativeConfigTest)
+  .jsSettings(scalaJsSettings).jsEnablePlugins(ScalaJSPlugin).nativeSettings(
+    scalaNativeConfigTest,
+    Test / logBuffered := false,
+    Test / testOptions += Tests.Argument(TestFrameworks.MUnit, "-v"),
+//    Test / javaOptions += "-Dscala.native.debug=true",
+  )
 
 lazy val sharedTestSettings = Seq(libraryDependencies += munit.value % Test)
 
