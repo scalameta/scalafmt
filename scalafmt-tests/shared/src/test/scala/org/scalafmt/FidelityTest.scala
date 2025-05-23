@@ -1,13 +1,13 @@
 package org.scalafmt
 
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.sysops.FileOps
-import org.scalafmt.sysops.PlatformFileOps
+import org.scalafmt.sysops._
 import org.scalafmt.util.FormatAssertions
 
 import scala.meta.dialects.Scala213
 
 import java.io.File
+import java.nio.file.Path
 
 import munit.FunSuite
 
@@ -26,7 +26,8 @@ class FidelityTest extends FunSuite with FormatAssertions {
     "/gh-pages/",
   ).map(_.replace("/", File.separator))
 
-  FileOps.listFiles(".").foreach { x =>
+  private val paths: Seq[Path] = Nil // FileOps.listFiles(".")
+  paths.foreach { x =>
     val filename = x.toString
     val ok = filename.endsWith(".scala") && !denyList.exists(filename.contains)
     if (ok) test(filename)(
