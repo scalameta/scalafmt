@@ -154,4 +154,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
       Report.heatmap(debugResults.result()),
     )
   }
+
+  override def beforeEach(context: BeforeEach): Unit = logger.debug(s"Starting: ${context.test.name}")
+  override def afterEach(context: AfterEach): Unit = logger.debug(s"Finished: ${context.test.name}")
 }
