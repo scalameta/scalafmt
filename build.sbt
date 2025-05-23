@@ -238,7 +238,7 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     scalaNativeConfigTest,
     Test / logBuffered := false,
     Test / testOptions += Tests.Argument(TestFrameworks.MUnit, "-v"),
-//    Test / javaOptions += "-Dscala.native.debug=true",
+    Test / javaOptions += "-Dscala.native.debug=true",
   )
 
 lazy val sharedTestSettings = Seq(libraryDependencies += munit.value % Test)
