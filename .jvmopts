@@ -1,7 +1,8 @@
 -Dfile.encoding=UTF8
 -Xms1G
--Xmx3G
+-Xmx6G
 -XX:ReservedCodeCacheSize=250M
 -XX:+TieredCompilation
 -XX:-UseGCOverheadLimit
 -Dsbt.server.autostart=false
+-XX:+UseG1GC
