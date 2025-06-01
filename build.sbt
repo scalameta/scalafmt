@@ -39,6 +39,8 @@ inThisBuild {
     scalaVersion := scala213,
     crossScalaVersions := List(scala213, scala212),
     resolvers += Resolver.sonatypeCentralSnapshots,
+    resolvers += "Central snapshots" at
+      "https://central.sonatype.com/repository/maven-snapshots",
     testFrameworks += new TestFramework("munit.Framework"),
     // causes native image issues
     dependencyOverrides += "org.jline" % "jline" % "3.30.5",
