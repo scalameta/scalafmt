@@ -38,6 +38,8 @@ inThisBuild {
     )),
     scalaVersion := scala213,
     crossScalaVersions := List(scala213, scala212),
+    resolvers += "Central snapshots" at
+      "https://central.sonatype.com/repository/maven-snapshots",
     resolvers ++= Resolver.sonatypeOssRepos("releases"),
     resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
     testFrameworks += new TestFramework("munit.Framework"),
