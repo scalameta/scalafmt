@@ -8,7 +8,6 @@ import org.scalafmt.util.FormatAssertions
 import scala.meta.dialects.Scala213
 
 import java.io.File
-import java.nio.file.Path
 
 import munit.FunSuite
 
@@ -18,36 +17,28 @@ import munit.FunSuite
   */
 class FidelityTest extends FunSuite with FormatAssertions {
 
-  case class TestCase(path: Path, code: String) {
-    def filename = path.toString
+  private val denyList = Set(
+    "ConfigReader.scala",
+    "BuildTime.scala",
+    "GitCommit.scala",
+    "/target/",
+    "/resources/",
+    "/gh-pages/",
+  ).map(_.replace("/", File.separator))
+
+  FileOps.listFiles(".").foreach { x =>
+    val filename = x.toString
+    val ok = filename.endsWith(".scala") && !denyList.exists(filename.contains)
+    if (ok) test(filename)(
+      PlatformFileOps.readFileAsync(x).map { code =>
+        val formatted = Scalafmt
+          .formatCode(code, ScalafmtConfig.default, filename = filename)
+        assertFormatPreservesAst(filename, code, formatted.get)(
+          scala.meta.parsers.Parse.parseSource,
+          Scala213,
+        )
+      }(munitExecutionContext),
+    )
   }
 
-  val examples = {
-    val denyList = Set(
-      "ConfigReader.scala",
-      "BuildTime.scala",
-      "GitCommit.scala",
-      "/target/",
-      "/resources/",
-      "/gh-pages/",
-    ).map(_.replace("/", File.separator))
-    FileOps.listFiles(".").filter { x =>
-      val filename = x.toString
-      filename.endsWith(".scala") && !denyList.exists(filename.contains)
-    }.map(x => TestCase(x, PlatformFileOps.readFile(x)))
-  }
-
-  examples.foreach(example =>
-    test(example.filename) {
-      val formatted = Scalafmt.formatCode(
-        example.code,
-        ScalafmtConfig.default,
-        filename = example.filename,
-      )
-      assertFormatPreservesAst(example.filename, example.code, formatted.get)(
-        scala.meta.parsers.Parse.parseSource,
-        Scala213,
-      )
-    },
-  )
 }
