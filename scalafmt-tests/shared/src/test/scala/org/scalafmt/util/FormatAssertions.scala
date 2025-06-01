@@ -44,11 +44,8 @@ trait FormatAssertions {
         throw FormatterOutputDoesNotParse(error, pos.startLine)
       case Parsed.Success(originalParsed) => toInput(obtained).parse[T] match {
           case Parsed.Success(obtainedParsed) =>
-            StructurallyEqual(originalParsed, obtainedParsed) match {
-              case Right(_) => // OK
-              case Left(diff) =>
-                throw FormatterChangedAST(diff.toString, obtained)
-            }
+            StructurallyEqual(originalParsed, obtainedParsed).left
+              .foreach(diff => throw FormatterChangedAST(diff.toString, obtained))
           case Parsed.Error(pos, _, details: ParseException) =>
             throw FormatterOutputDoesNotParse(
               parseException2Message(details, obtained),
