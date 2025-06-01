@@ -39,10 +39,6 @@ jobs:
       - name: Set git config for GitOps tests
         id: gitconfig
         run: git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
-      - run: sbt ++${{ matrix.scala }} test-jvm
-        if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
-      - run: sbt ++${{ matrix.scala }} test-js
-        if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
 #      - run: sbt -debug -DlogLevel=debug ++${{ matrix.scala }} test-native
       - run: sbt -DlogLevel=debug ++${{ matrix.scala }} test-native
         if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}

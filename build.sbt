@@ -69,7 +69,10 @@ addCommandAlias(
 )
 addCommandAlias("test-jvm", "tests/test;cli/test")
 addCommandAlias("test-js", "testsJS/test;cliJS/test")
-addCommandAlias("test-native", "testsNative/test;cliNative/test")
+addCommandAlias(
+  "test-native",
+  "testsNative/testOnly org.scalafmt.FidelityTest;cliNative/test",
+)
 
 lazy val dynamic = crossProject(JVMPlatform) // don't build for NativePlatform
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-dynamic")).settings(
