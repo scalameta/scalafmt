@@ -39,39 +39,10 @@ class GitOpsTest extends FunSuite {
         e.printStackTrace()
     }
 
-  private def touch(dir: AbsoluteFile): AbsoluteFile = touch(dir = Some(dir))
-
-  private def getTempFile(
-      dir: Option[AbsoluteFile],
-      name: String = Random.alphanumeric.take(10).mkString,
-  ): AbsoluteFile = dir.orElse(ops.rootDir).get.join(s"$name.ext")
-
-  private def touch(
-      name: String = Random.alphanumeric.take(10).mkString,
-      dir: Option[AbsoluteFile] = None,
-  ): AbsoluteFile = {
-    val file = getTempFile(dir, name)
-    file.writeFile("")
-    file
-  }
-
-  def modify(f: AbsoluteFile): Unit = {
-    val text = Random.alphanumeric.take(10).mkString
-    f.writeFile(text)(StandardCharsets.UTF_8)
-  }
-
-  def ls(implicit ops: GitOpsImpl) =
+  def ls(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
     // DESNOTE(2017-08-17, pjrt): Filter out the initial file since it will
     // just annoy us in the tests below
-    ops.lsTree(ops.workingDirectory).filterNot(_ == initFile)
-
-  def mkDir(
-      dirName: String = Random.alphanumeric.take(10).mkString,
-  ): AbsoluteFile = {
-    val file = ops.rootDir.getOrElse(ops.workingDirectory) / dirName
-    file.mkdir()
-    file
-  }
+    lsTree(ops).filterNot(_ == initFile)
 
   test("lsTree should not return files not added to the index") {
     touch()
@@ -121,7 +92,7 @@ class GitOpsTest extends FunSuite {
     add(f2)
 
     val innerGitOps = new GitOpsImpl(innerDir)
-    assertEquals(ls(innerGitOps).toSet, Set(f2))
+    assertEquals(lsTree(innerGitOps).toSet, Set(f2))
   }
 
   test("lsTree should return committed files that have been modified") {
@@ -131,16 +102,6 @@ class GitOpsTest extends FunSuite {
     modify(f)
     assertEquals(ls.toSet, Set(f))
   }
-
-  def diff(br: String, cwd: AbsoluteFile*)(implicit
-      ops: GitOpsImpl,
-  ): Seq[AbsoluteFile] = ops.diff(br, cwd: _*)
-
-  def diff(cwd: AbsoluteFile*)(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
-    diff("HEAD", cwd: _*)
-
-  def status(cwd: AbsoluteFile*)(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
-    ops.status(cwd: _*)
 
   // diff
   test("diff should return modified committed files") {
@@ -351,4 +312,49 @@ private object GitOpsTest {
       newBr: String,
   )(implicit ops: GitOpsImpl, loc: munit.Location): Unit =
     git("checkout", "-b", newBr)
+
+  def getTempFile(
+      dir: Option[AbsoluteFile],
+      name: String = Random.alphanumeric.take(10).mkString,
+  )(implicit ops: GitOpsImpl): AbsoluteFile = dir.orElse(ops.rootDir).get
+    .join(s"$name.ext")
+
+  def diff(br: String, cwd: AbsoluteFile*)(implicit
+      ops: GitOpsImpl,
+  ): Seq[AbsoluteFile] = ops.diff(br, cwd: _*)
+
+  def diff(cwd: AbsoluteFile*)(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
+    diff("HEAD", cwd: _*)
+
+  def status(cwd: AbsoluteFile*)(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
+    ops.status(cwd: _*)
+
+  def modify(f: AbsoluteFile): Unit = {
+    val text = Random.alphanumeric.take(10).mkString
+    f.writeFile(text)(StandardCharsets.UTF_8)
+  }
+
+  def mkDir(
+      dirName: String = Random.alphanumeric.take(10).mkString,
+  )(implicit ops: GitOpsImpl): AbsoluteFile = {
+    val file = ops.rootDir.getOrElse(ops.workingDirectory) / dirName
+    file.mkdir()
+    file
+  }
+
+  def touch(dir: AbsoluteFile)(implicit ops: GitOpsImpl): AbsoluteFile =
+    touch(dir = Some(dir))
+
+  def touch(
+      name: String = Random.alphanumeric.take(10).mkString,
+      dir: Option[AbsoluteFile] = None,
+  )(implicit ops: GitOpsImpl): AbsoluteFile = {
+    val file = getTempFile(dir, name)
+    file.writeFile("")
+    file
+  }
+
+  def lsTree(ops: GitOpsImpl): Seq[AbsoluteFile] = ops
+    .lsTree(ops.workingDirectory)
+
 }
