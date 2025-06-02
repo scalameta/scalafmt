@@ -44,6 +44,7 @@ private[scalafmt] object PlatformRunOps {
     val argv =
       if (PlatformCompat.isNativeOnWindows) cmd.map(arg => '"' + arg + '"')
       else cmd
+    Console.err.println(argv.mkString("run argv [", ", ", "]"))
     try {
       val proc = sys.process.Process(argv, cwd.map(_.toFile))
       Success(proc.!!(logger).trim)
