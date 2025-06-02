@@ -155,8 +155,8 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     )
   }
 
-  override def beforeEach(context: BeforeEach): Unit = logger
+  override def beforeEach(context: BeforeEach): Unit = LoggerOps.logger
     .debug(s"Starting: ${context.test.name}")
-  override def afterEach(context: AfterEach): Unit = logger
+  override def afterEach(context: AfterEach): Unit = LoggerOps.logger
     .debug(s"Finished: ${context.test.name}")
 }
