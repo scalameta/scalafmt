@@ -40,7 +40,16 @@ private[scalafmt] object PlatformRunOps {
 
   def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[String] = {
     val err = new StringBuilder()
-    val logger = ProcessLogger(_ => (), x => err.append("\n> ").append(x))
+    val logger = ProcessLogger(
+      x => {
+        Console.err.println(s"o > $x [$cmd]")
+        ()
+      },
+      x => {
+        Console.err.println(s"e > $x [$cmd]")
+        err.append("\n> ").append(x)
+      },
+    )
     val argv =
       if (PlatformCompat.isNativeOnWindows) cmd.map(arg => '"' + arg + '"')
       else cmd
