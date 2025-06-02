@@ -286,10 +286,11 @@ private object GitOpsTest {
   def git(cmd: String, args: String*)(implicit
       ops: GitOpsImpl,
       loc: Location,
-  ): Seq[String] = Try(ops.exec("git" +: cmd +: args)) match {
-    case Failure(f) => Assertions.fail(s"Failed git command. Got: $f")
-    case Success(s) => s
-  }
+  ): Seq[String] =
+    try ops.exec("git" +: cmd +: args)
+    catch {
+      case ex: Throwable => Assertions.fail(s"Failed git command. Got: $ex")
+    }
 
   def init(implicit ops: GitOpsImpl, loc: munit.Location): Unit =
     git("init", "-b", defaultBranch)
