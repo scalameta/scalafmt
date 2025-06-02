@@ -44,12 +44,14 @@ private[scalafmt] object PlatformRunOps {
     val argv =
       if (PlatformCompat.isNativeOnWindows) cmd.map(arg => '"' + arg + '"')
       else cmd
-    Try(sys.process.Process(argv, cwd.map(_.toFile)).!!(logger)) match {
-      case Failure(e) =>
+    try {
+      val proc = sys.process.Process(argv, cwd.map(_.toFile))
+      Success(proc.!!(logger).trim)
+    } catch {
+      case e: Throwable =>
         val msg =
           s"Failed to run '${cmd.mkString(" ")}'. Error:${err.result()}\n"
         Failure(new IllegalStateException(msg, e))
-      case Success(x) => Success(x.trim)
     }
   }
 

@@ -49,11 +49,14 @@ trait GitOps {
 
 private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
-  private[scalafmt] def exec(cmd: Seq[String]): Seq[String] = tryExec(cmd).get
-    .linesIterator.toSeq
-
-  private def tryExec(cmd: Seq[String]): Try[String] = PlatformRunOps
+  private[scalafmt] def tryExec(cmd: Seq[String]): Try[String] = PlatformRunOps
     .runArgv(cmd, Some(workingDirectory.path))
+
+  private[scalafmt] def tryExecLines(cmd: Seq[String]): Try[Seq[String]] =
+    tryExec(cmd).map(_.linesIterator.toSeq)
+
+  private[scalafmt] def exec(cmd: Seq[String]): Seq[String] = tryExecLines(cmd)
+    .get
 
   override def lsTree(dir: AbsoluteFile*): Seq[AbsoluteFile] = {
     val cmd = Seq("git", "ls-files", "--full-name") ++ dir.map(_.toString())
