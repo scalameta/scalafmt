@@ -365,12 +365,18 @@ private object GitOpsTest {
 
     // DESNOTE(2017-08-16, pjrt): Create a temporary git directory for each
     // test.
+    Console.err.println(s"git 0")
     val path: AbsoluteFile = AbsoluteFile(PlatformFileOps.mkdtemp("gitTestDir"))
+    Console.err.println(s"git 1 $path")
     implicit val ops: GitOpsImpl = new GitOpsImpl(path)
+    Console.err.println(s"git 2 $path")
     init
+    Console.err.println(s"git 3 $path")
     // initial commit is needed
     val initFile: AbsoluteFile = touch("initialfile")
+    Console.err.println(s"git 4 $path")
     add(initFile)
+    Console.err.println(s"git 5 $path")
     commit
     Console.err.println(s"git + $path")
 
