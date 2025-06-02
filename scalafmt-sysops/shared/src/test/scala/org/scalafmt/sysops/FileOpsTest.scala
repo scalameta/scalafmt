@@ -9,20 +9,18 @@ class FileOpsTest extends munit.FunSuite {
 
   import FileOpsTest._
 
-  private var path: Path = _
+  private val fixture = FunFixture[Path](
+    _ => PlatformFileOps.mkdtemp("FileOpsTestDir"),
+    path =>
+      try DeleteTree(path)
+      catch {
+        case e: Throwable =>
+          println(s"Unable to delete test files: $path")
+          e.printStackTrace()
+      },
+  )
 
-  override def beforeEach(context: BeforeEach): Unit =
-    path = PlatformFileOps.mkdtemp("FileOpsTestDir")
-
-  override def afterEach(context: AfterEach): Unit =
-    try DeleteTree(path)
-    catch {
-      case e: Throwable =>
-        println(s"Unable to delete test files: $path")
-        e.printStackTrace()
-    }
-
-  test("listFiles") {
+  fixture.test("listFiles") { path =>
     assertEquals(FileOps.listFiles(path), Nil)
 
     val subfile = subpath(path)
