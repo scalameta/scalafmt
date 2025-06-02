@@ -34,15 +34,15 @@ class EmptyFileTest extends FunSuite {
       cfg: ScalafmtConfig,
       label: String,
   ): Unit = {
+    val originalQuoted = DoubleQuotes(original)
     val expectedQuoted = DoubleQuotes(expected)
-    test(s"empty tree formats to newline [$label]: ${DoubleQuotes(
-        original,
-      )} -> $expectedQuoted") {
-      val obtained = Scalafmt.format(original, cfg).get
-      if (obtained != expected) fail(
-        s"values are not equal: ${DoubleQuotes(obtained)} != $expectedQuoted",
-      )
-    }
+    test(s"empty tree formats to newline [$label]: $originalQuoted -> $expectedQuoted")(
+      assertEquals(
+        Scalafmt.format(original, cfg).get,
+        expected,
+        s"values are not equal: $originalQuoted != $expectedQuoted",
+      ),
+    )
   }
 
 }
