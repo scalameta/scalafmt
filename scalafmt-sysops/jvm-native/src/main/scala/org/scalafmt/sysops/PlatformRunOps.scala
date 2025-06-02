@@ -51,7 +51,7 @@ private[scalafmt] object PlatformRunOps {
       },
     )
     val argv =
-      if (PlatformCompat.isNativeOnWindows) cmd.map(arg => '"' + arg + '"')
+      if (PlatformCompat.isNativeOnWindows && 0 != 0) cmd.map(arg => '"' + arg + '"')
       else cmd
     try Success(
         sys.process.Process(argv, cwd.map(_.toFile)).lineStream(logger)
