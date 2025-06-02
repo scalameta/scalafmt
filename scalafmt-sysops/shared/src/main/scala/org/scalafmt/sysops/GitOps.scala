@@ -49,11 +49,8 @@ trait GitOps {
 
 private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
-  private[scalafmt] def tryExec(cmd: Seq[String]): Try[String] = PlatformRunOps
-    .runArgv(cmd, Some(workingDirectory.path))
-
   private[scalafmt] def tryExecLines(cmd: Seq[String]): Try[Seq[String]] =
-    tryExec(cmd).map(_.linesIterator.toSeq)
+    PlatformRunOps.runArgv(cmd, Some(workingDirectory.path))
 
   private[scalafmt] def exec(cmd: Seq[String]): Seq[String] = tryExecLines(cmd)
     .get
@@ -67,11 +64,13 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
   private lazy val tryRoot: Try[AbsoluteFile] = {
     val cmd = Seq("git", "rev-parse", "--show-toplevel")
-    tryExec(cmd).flatMap { x =>
-      val file = AbsoluteFile(x)
-      if (file.isDirectory) Success(file)
-      else Failure(new GitOps.GitException(s"not a directory: $x"))
-    }
+    def failed(msg: String) = Failure(new GitOps.GitException(msg))
+    tryExecLines(cmd).flatMap(_.headOption match {
+      case Some(x) =>
+        val file = AbsoluteFile(x)
+        if (file.isDirectory) Success(file) else failed(s"not a directory: $x")
+      case _ => failed("unable to determine git root")
+    })
   }
 
   override def diff(branch: String, dir: AbsoluteFile*): Seq[AbsoluteFile] = {
@@ -88,7 +87,7 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
   override def getAutoCRLF: Option[String] = {
     val cmd = Seq("git", "config", "--get", "core.autocrlf")
-    tryExec(cmd).toOption
+    tryExecLines(cmd).toOption.flatMap(_.headOption)
   }
 
   private final val renameStatusCode = "R"

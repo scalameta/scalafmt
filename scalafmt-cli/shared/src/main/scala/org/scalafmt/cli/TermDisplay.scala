@@ -23,7 +23,7 @@ object Terminal {
     else if (!new File("/dev/tty").exists()) None
     else PlatformRunOps
       .runArgv(Seq("bash", "-c", s"$pathedTput $s 2> /dev/tty"), None)
-      .map(_.trim.toInt).toOption
+      .map(_.headOption.map(_.trim.toInt)).toOption.flatten
 
   implicit class Ansi(val output: Writer) extends AnyVal {
     private def control(n: Int, c: Char) = output.write("\u001b[" + n + c)
