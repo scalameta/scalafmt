@@ -12,58 +12,32 @@ class GitOpsTest extends FunSuite {
 
   import GitOpsTest._
 
-  val root = AbsoluteFile.userDir
-  val dirName = "gitTestDir"
+  private val F = FunFixture[Session](_ => new Session(), s => s.teardown())
 
-  // DESNOTE(2017-08-16, pjrt): Create a temporary git directory for each
-  // test.
-  private implicit var ops: GitOpsImpl = _
-  private var path: AbsoluteFile = _
-  private var initFile: AbsoluteFile = _
-
-  override def beforeEach(context: BeforeEach): Unit = {
-    path = AbsoluteFile(PlatformFileOps.mkdtemp(dirName))
-    ops = new GitOpsImpl(path)
-    init
-    // initial commit is needed
-    initFile = touch("initialfile")
-    add(initFile)
-    commit
-  }
-
-  override def afterEach(context: AfterEach): Unit =
-    try DeleteTree(path.path)
-    catch {
-      case e: Throwable =>
-        println(s"Unable to delete test files: $path")
-        e.printStackTrace()
-    }
-
-  def ls(implicit ops: GitOpsImpl): Seq[AbsoluteFile] =
-    // DESNOTE(2017-08-17, pjrt): Filter out the initial file since it will
-    // just annoy us in the tests below
-    lsTree(ops).filterNot(_ == initFile)
-
-  test("lsTree should not return files not added to the index") {
+  F.test("lsTree should not return files not added to the index") { s =>
+    import s._
     touch()
     assertEquals(ls, Seq.empty)
   }
 
-  test("#1010: lsTree should return staged files") {
+  F.test("#1010: lsTree should return staged files") { s =>
+    import s._
     val f = touch()
     add(f)
     val q = ls
     assertEquals(q.toSet, Set(f), q.mkString + " != " + f.toString())
   }
 
-  test("lsTree should return committed files") {
+  F.test("lsTree should return committed files") { s =>
+    import s._
     val f = touch()
     add(f)
     commit
     assertEquals(ls.toSet, Set(f))
   }
 
-  test("lsTree should exclude symbolic links") {
+  F.test("lsTree should exclude symbolic links") { s =>
+    import s._
     val f = touch()
     add(f)
 
@@ -75,7 +49,8 @@ class GitOpsTest extends FunSuite {
     assertEquals(ls.toSet, Set(f))
   }
 
-  test("lsTree should not return committed files that have been deleted") {
+  F.test("lsTree skips committed files that have been deleted") { s =>
+    import s._
     val f = touch()
     add(f)
     commit
@@ -83,7 +58,8 @@ class GitOpsTest extends FunSuite {
     assertEquals(ls, Seq.empty)
   }
 
-  test("lsTree should return files properly when the working directory is under the git root directory") {
+  F.test("lsTree shows files properly when CWD is under git root") { s =>
+    import s._
     val f1 = touch()
     add(f1)
 
@@ -95,7 +71,8 @@ class GitOpsTest extends FunSuite {
     assertEquals(lsTree(innerGitOps).toSet, Set(f2))
   }
 
-  test("lsTree should return committed files that have been modified") {
+  F.test("lsTree shows committed files that have been modified") { s =>
+    import s._
     val f = touch()
     add(f)
     commit
@@ -104,7 +81,8 @@ class GitOpsTest extends FunSuite {
   }
 
   // diff
-  test("diff should return modified committed files") {
+  F.test("diff shows modified committed files") { s =>
+    import s._
     val f = touch()
     add(f)
     commit
@@ -112,7 +90,8 @@ class GitOpsTest extends FunSuite {
     assertEquals(diff().toSet, Set(f))
   }
 
-  test("diff should return modified files from specific subdirs") {
+  F.test("diff shows modified files from specific subdirs") { s =>
+    import s._
     val d1 = mkDir()
     val d2 = mkDir()
     val d3 = mkDir()
@@ -128,7 +107,8 @@ class GitOpsTest extends FunSuite {
     assertEquals(diff(path).toSet, Set(f0, f1, f2, f3))
   }
 
-  test("#1000: diff should not return git deleted files") {
+  F.test("#1000: diff should not return git deleted files") { s =>
+    import s._
     val f = touch()
     add(f)
     commit
@@ -136,7 +116,8 @@ class GitOpsTest extends FunSuite {
     assertEquals(diff(), Seq.empty)
   }
 
-  test("#1000: diff should not return fs deleted files") {
+  F.test("#1000: diff should not return fs deleted files") { s =>
+    import s._
     val f = touch()
     add(f)
     commit
@@ -144,7 +125,8 @@ class GitOpsTest extends FunSuite {
     assertEquals(diff(), Seq.empty)
   }
 
-  test("diff should return added files against HEAD") {
+  F.test("diff should return added files against HEAD") { s =>
+    import s._
     val dir = mkDir("dir 1")
     val f1 = touch()
     val f2 = touch(dir = dir)
@@ -154,7 +136,8 @@ class GitOpsTest extends FunSuite {
     assertEquals(diff(cwd = dir).toSet, Set(f2))
   }
 
-  test("diff should return added files against a different branch") {
+  F.test("diff shows added files against a different branch") { s =>
+    import s._
     val f = touch()
     add(f)
     commit
@@ -169,7 +152,8 @@ class GitOpsTest extends FunSuite {
     assertEquals(diff(defaultBranch, dir).toSet, Set(f2))
   }
 
-  test("diff should return added files that are then modified against a different branch") {
+  F.test("diff shows added-then-modified files against another branch") { s =>
+    import s._
     val f = touch()
     add(f)
     commit
@@ -184,7 +168,8 @@ class GitOpsTest extends FunSuite {
     assertEquals(diff(defaultBranch, dir).toSet, Set(f2))
   }
 
-  test("diff should not return removed files against a different branch") {
+  F.test("diff skips removed files against a different branch") { s =>
+    import s._
     val f = touch()
     add(f)
     commit
@@ -198,7 +183,8 @@ class GitOpsTest extends FunSuite {
     assertEquals(diff(defaultBranch).toSet, Set(f2))
   }
 
-  test("status should return only modified files") {
+  F.test("status should return only modified files") { s =>
+    import s._
     val f = touch()
     add(f)
     commit
@@ -206,7 +192,8 @@ class GitOpsTest extends FunSuite {
     assertEquals(status().toSet, Set(f1))
   }
 
-  test("status should return modified files from specific subdirs") {
+  F.test("status should return modified files from specific subdirs") { s =>
+    import s._
     val d1 = mkDir()
     val d2 = mkDir()
     val d3 = mkDir()
@@ -222,7 +209,8 @@ class GitOpsTest extends FunSuite {
     assertEquals(status(path).toSet, Set(f0, f1, f2, f3))
   }
 
-  test("status should return moved") {
+  F.test("status should return moved") { s =>
+    import s._
     val f = touch()
     add(f)
     commit
@@ -236,7 +224,8 @@ class GitOpsTest extends FunSuite {
     assertEquals(status().toSet, Set(f1))
   }
 
-  test("status should not return deleted files") {
+  F.test("status should not return deleted files") { s =>
+    import s._
     val f = touch()
     modify(f)
     add(f)
@@ -248,14 +237,16 @@ class GitOpsTest extends FunSuite {
     assertEquals(status().toSet, Set(f1))
   }
 
-  test("status should return files with spaces in the path") {
+  F.test("status should return files with spaces in the path") { s =>
+    import s._
     val dir = mkDir("dir 1")
     val f = touch(dir = dir)
     add(f)
     assertEquals(status().toSet, Set(f))
   }
 
-  test("lsTree should return files from specific subdirs") {
+  F.test("lsTree should return files from specific subdirs") { s =>
+    import s._
     val d1 = mkDir()
     val d2 = mkDir()
     val d3 = mkDir()
@@ -356,5 +347,32 @@ private object GitOpsTest {
 
   def lsTree(ops: GitOpsImpl): Seq[AbsoluteFile] = ops
     .lsTree(ops.workingDirectory)
+
+  class Session {
+
+    // DESNOTE(2017-08-16, pjrt): Create a temporary git directory for each
+    // test.
+    val path: AbsoluteFile = AbsoluteFile(PlatformFileOps.mkdtemp("gitTestDir"))
+    implicit val ops: GitOpsImpl = new GitOpsImpl(path)
+    init
+    // initial commit is needed
+    val initFile: AbsoluteFile = touch("initialfile")
+    add(initFile)
+    commit
+
+    def teardown(): Unit =
+      try DeleteTree(path.path)
+      catch {
+        case e: Throwable =>
+          println(s"Unable to delete test files: $path")
+          e.printStackTrace()
+      }
+
+    def ls: Seq[AbsoluteFile] =
+      // DESNOTE(2017-08-17, pjrt): Filter out the initial file since it will
+      // just annoy us in the tests below
+      lsTree(ops).filterNot(_ == initFile)
+
+  }
 
 }
