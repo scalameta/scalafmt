@@ -38,7 +38,7 @@ private[scalafmt] object PlatformRunOps {
   implicit def parasiticExecutionContext: ExecutionContext =
     GranularDialectAsyncOps.parasiticExecutionContext
 
-  def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[String] = {
+  def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[Seq[String]] = {
     val err = new StringBuilder()
     val logger = ProcessLogger(
       x => {
@@ -53,7 +53,10 @@ private[scalafmt] object PlatformRunOps {
     val argv =
       if (PlatformCompat.isNativeOnWindows) cmd.map(arg => '"' + arg + '"')
       else cmd
-    try Success(sys.process.Process(argv, cwd.map(_.toFile)).!!(logger).trim)
+    try Success(
+        sys.process.Process(argv, cwd.map(_.toFile)).lineStream(logger)
+          .map(_.trim).toList,
+      )
     catch {
       case e: Throwable =>
         val msg =

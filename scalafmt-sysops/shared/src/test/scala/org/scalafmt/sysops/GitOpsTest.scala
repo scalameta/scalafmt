@@ -286,7 +286,7 @@ private object GitOpsTest {
   def git(cmd: String, args: String*)(implicit
       ops: GitOpsImpl,
       loc: Location,
-  ): Seq[String] = ops.tryExecLines("git" +: cmd +: args)
+  ): Seq[String] = ops.tryExec("git" +: cmd +: args)
     .fold(ex => Assertions.fail(s"Failed git command. Got: $ex"), identity)
 
   def init(implicit ops: GitOpsImpl, loc: munit.Location): Unit =
