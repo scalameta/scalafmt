@@ -27,7 +27,7 @@ Take a look at https://github.com/scalameta/scalafmt/blob/master/scalafmt-tests/
   from the project root directory.
 - **PRs for features should generally come with _something_ added to the
   [Documentation](https://scalameta.org/scalafmt)**, so people can discover that
-  it exists. The docs are written in `readme/Readme.scalatex`.
+  it exists. The docs are written in `docs/configuration.md`.
 - **Be prepared to discuss/argue-for your changes if you want them merged**! You
   will probably need to refactor so your changes fit into the larger codebase -
   **If your code is hard to unit test, and you don't want to unit test it,
