@@ -3985,7 +3985,7 @@ This section describes rules which are applied if the appropriate dialect (e.g.,
 ### `rewrite.scala3.convertToNewSyntax`
 
 If this flag is enabled, the following new syntax will be applied (also,
-**since 3.8.0**, if an appropriate flag under `rewrite.scala.newSyntax` is not
+**since 3.8.0**, if an appropriate flag under `rewrite.scala3.newSyntax` is not
 set to `false`, see below):
 
 - [control syntax](https://dotty.epfl.ch/docs/reference/other-new-features/control-syntax.html)
