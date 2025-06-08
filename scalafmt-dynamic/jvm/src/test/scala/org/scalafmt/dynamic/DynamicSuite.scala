@@ -193,7 +193,7 @@ class DynamicSuite extends FunSuite {
       val where = if (version >= "3.0.0") s"$name.scala" else "<input>"
       f.assertError(
         code,
-        s"""|$where:1: error:$dialectError ${bq}identifier$bq expected but ${bq}object$bq found
+        s"""|[$version] $where:1: error:$dialectError ${bq}identifier$bq expected but ${bq}object$bq found
             |$code
             |       ^""".stripMargin,
       )
@@ -345,7 +345,7 @@ class DynamicSuite extends FunSuite {
           .assertFormat("lazy   val   x =  project", "lazy val x = project\n")
         else f.assertError(
           "lazy   val   x =  project",
-          s"""|<input>:1: error:$dialectError classes cannot be lazy
+          s"""|[$version] <input>:1: error:$dialectError classes cannot be lazy
               |lazy   val   x =  project
               |^""".stripMargin,
         )
@@ -359,7 +359,7 @@ class DynamicSuite extends FunSuite {
           val where = if (usefilename) filename else "<input>"
           f.assertError(
             wrappedLiteral,
-            s"""|$where:1: error:$dialectError ${bq}identifier$bq expected but ${bq}integer constant$bq found
+            s"""|[$version] $where:1: error:$dialectError ${bq}identifier$bq expected but ${bq}integer constant$bq found
                 |$wrappedLiteral
                 |                           ^""".stripMargin,
             path,
