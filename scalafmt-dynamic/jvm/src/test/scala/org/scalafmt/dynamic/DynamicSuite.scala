@@ -78,8 +78,6 @@ class DynamicSuite extends FunSuite {
     }
     def relevant: String = out.toString
       .replace(config.toString, "path/.scalafmt.conf")
-    def errors: String = out.toString.linesIterator.filter(_.startsWith("error"))
-      .mkString("\n")
     def assertNotIgnored(filename: String)(implicit loc: Location): Unit =
       assertFormat("object A  {  }", "object A {}\n", Paths.get(filename))
     def assertIgnored(filename: String): Unit = {
@@ -98,9 +96,10 @@ class DynamicSuite extends FunSuite {
     ): Unit = {
       out.reset()
       val obtained = dynamic.format(config, file, original)
-      if (errors.nonEmpty)
-        assertNoDiff(out.toString(), "", "Reporter had errors")
       assertNoDiff(obtained, expected)
+      val outstr = out.toString.linesIterator.filter(!_.startsWith("Download"))
+        .mkString("\n")
+      assertEquals(outstr, "", "Reporter had messages")
     }
     def assertMissingVersion()(implicit loc: Location): Unit = {
       out.reset()
