@@ -261,6 +261,11 @@ class GitOpsTest extends FunSuite {
     assertEquals(ops.lsTree(path).toSet, Set(initFile, f1, f2, f3))
   }
 
+  override def beforeEach(context: BeforeEach): Unit = Console.err
+    .println(s"Starting: ${context.test.name}")
+  override def afterEach(context: AfterEach): Unit = Console.err
+    .println(s"Finished: ${context.test.name}")
+
 }
 
 private object GitOpsTest {
@@ -357,6 +362,7 @@ private object GitOpsTest {
     val initFile: AbsoluteFile = touch("initialfile")
     add(initFile)
     commit
+    Console.err.println(s"git + $path")
 
     def teardown(): Unit =
       try DeleteTree(path.path)
@@ -364,7 +370,7 @@ private object GitOpsTest {
         case e: Throwable =>
           println(s"Unable to delete test files: $path")
           e.printStackTrace()
-      }
+      } finally Console.err.println(s"git - $path")
 
     def ls: Seq[AbsoluteFile] =
       // DESNOTE(2017-08-17, pjrt): Filter out the initial file since it will
