@@ -40,16 +40,28 @@ private[scalafmt] object PlatformRunOps {
 
   def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[String] = {
     val err = new StringBuilder()
-    val logger = ProcessLogger(_ => (), x => err.append("\n> ").append(x))
+    val logger = ProcessLogger(
+      x => {
+        Console.err.println(s"o > $x [$cmd]")
+        ()
+      },
+      x => {
+        Console.err.println(s"e > $x [$cmd]")
+        err.append("\n> ").append(x)
+      },
+    )
     val argv =
       if (PlatformCompat.isNativeOnWindows) cmd.map(arg => '"' + arg + '"')
       else cmd
-    Try(sys.process.Process(argv, cwd.map(_.toFile)).!!(logger)) match {
-      case Failure(e) =>
+    Console.err.println(argv.mkString("run argv [", ", ", "]"))
+    try {
+      val proc = sys.process.Process(argv, cwd.map(_.toFile))
+      Success(proc.!!(logger).trim)
+    } catch {
+      case e: Throwable =>
         val msg =
           s"Failed to run '${cmd.mkString(" ")}'. Error:${err.result()}\n"
         Failure(new IllegalStateException(msg, e))
-      case Success(x) => Success(x.trim)
     }
   }
 

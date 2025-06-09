@@ -67,7 +67,7 @@ addCommandAlias(
 )
 addCommandAlias("test-jvm", "tests/test;cli/test")
 addCommandAlias("test-js", "testsJS/test;cliJS/test")
-addCommandAlias("test-native", "testsNative/test;cliNative/test")
+addCommandAlias("test-native", "sysopsNative/test;cliNative/test")
 
 lazy val dynamic = crossProject(JVMPlatform) // don't build for NativePlatform
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-dynamic")).settings(
@@ -232,7 +232,11 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     }),
   ).enablePlugins(BuildInfoPlugin).dependsOn(core).aggregate(core)
   .jvmSettings(javaOptions += "-Dfile.encoding=UTF8", parallelCollections)
-  .jsSettings(scalaJsSettings).jsEnablePlugins(ScalaJSPlugin)
+  .jsSettings(scalaJsSettings).jsEnablePlugins(ScalaJSPlugin).nativeSettings(
+    Test / logBuffered := false,
+    Test / testOptions += Tests.Argument(TestFrameworks.MUnit, "-v"),
+    Test / javaOptions += "-Dscala.native.debug=true",
+  )
 
 lazy val sharedTestSettings = Seq(libraryDependencies += munit.value % Test)
 

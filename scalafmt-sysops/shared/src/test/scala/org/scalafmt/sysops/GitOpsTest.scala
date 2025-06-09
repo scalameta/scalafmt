@@ -261,6 +261,11 @@ class GitOpsTest extends FunSuite {
     assertEquals(ops.lsTree(path).toSet, Set(initFile, f1, f2, f3))
   }
 
+  override def beforeEach(context: BeforeEach): Unit = Console.err
+    .println(s"Starting: ${context.test.name}")
+  override def afterEach(context: AfterEach): Unit = Console.err
+    .println(s"Finished: ${context.test.name}")
+
 }
 
 private object GitOpsTest {
@@ -274,10 +279,8 @@ private object GitOpsTest {
   def git(cmd: String, args: String*)(implicit
       ops: GitOpsImpl,
       loc: Location,
-  ): Seq[String] = Try(ops.exec("git" +: cmd +: args)) match {
-    case Failure(f) => Assertions.fail(s"Failed git command. Got: $f")
-    case Success(s) => s
-  }
+  ): Seq[String] = ops.tryExecLines("git" +: cmd +: args)
+    .fold(ex => Assertions.fail(s"Failed git command. Got: $ex"), identity)
 
   def init(implicit ops: GitOpsImpl, loc: munit.Location): Unit =
     git("init", "-b", defaultBranch)
@@ -352,13 +355,20 @@ private object GitOpsTest {
 
     // DESNOTE(2017-08-16, pjrt): Create a temporary git directory for each
     // test.
+    Console.err.println(s"git 0")
     val path: AbsoluteFile = AbsoluteFile(PlatformFileOps.mkdtemp("gitTestDir"))
+    Console.err.println(s"git 1 $path")
     implicit val ops: GitOpsImpl = new GitOpsImpl(path)
+    Console.err.println(s"git 2 $path")
     init
+    Console.err.println(s"git 3 $path")
     // initial commit is needed
     val initFile: AbsoluteFile = touch("initialfile")
+    Console.err.println(s"git 4 $path")
     add(initFile)
+    Console.err.println(s"git 5 $path")
     commit
+    Console.err.println(s"git + $path")
 
     def teardown(): Unit =
       try DeleteTree(path.path)
@@ -366,7 +376,7 @@ private object GitOpsTest {
         case e: Throwable =>
           println(s"Unable to delete test files: $path")
           e.printStackTrace()
-      }
+      } finally Console.err.println(s"git - $path")
 
     def ls: Seq[AbsoluteFile] =
       // DESNOTE(2017-08-17, pjrt): Filter out the initial file since it will
