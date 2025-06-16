@@ -56,8 +56,7 @@ case class DanglingParentheses(
       case t: Member.ParamClauseGroup => t.parent.collect {
           case _: Defn.ExtensionGroup => Exclude.`extension`
           case _: Decl.Def | _: Defn.Def | _: Defn.Macro => Exclude.`def`
-          case _: Decl.Given | _: Defn.Given | _: Defn.GivenAlias =>
-            Exclude.`given`
+          case _: meta.Stat.GivenLike => Exclude.`given`
         }
       case _ => None
     }.exists(excludes.contains)
