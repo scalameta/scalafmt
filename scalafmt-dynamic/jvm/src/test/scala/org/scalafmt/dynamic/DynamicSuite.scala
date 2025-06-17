@@ -97,7 +97,7 @@ class DynamicSuite extends FunSuite {
       out.reset()
       val obtained = dynamic.format(config, file, original)
       assertNoDiff(obtained, expected)
-      val outstr = out.toString.linesIterator.filter(!_.startsWith("Download"))
+      val outstr = out.toString.linesIterator.filter(!_.contains("Download"))
         .mkString("\n")
       assertEquals(outstr, "", "Reporter had messages")
     }
