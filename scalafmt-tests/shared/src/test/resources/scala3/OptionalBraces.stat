@@ -8547,3 +8547,43 @@ def foldStep(
       ({ type l[a] = B })#l
     ]
 ): B = ???
+<<< functions: context within polymorphic function
+newlines.beforeCurlyLambdaParams = never
+===
+object a {
+    def tupled[O1[_], O2[_]](
+          f1: ChildFunction0[O1],
+          f2: ChildFunction0[O2],
+      ): ChildFunction0.Tupled[O1, O2] = {
+        [b : Bound] => _ ?=> (child: Child[b]) => (f1[b](child), f2[b](child))
+      }
+}
+>>>
+object a {
+  def tupled[O1[_], O2[_]](
+      f1: ChildFunction0[O1],
+      f2: ChildFunction0[O2]
+  ): ChildFunction0.Tupled[O1, O2] = {
+    [b: Bound] => _ ?=> (child: Child[b]) => (f1[b](child), f2[b](child))
+  }
+}
+<<< functions: context within regular function
+newlines.beforeCurlyLambdaParams = never
+===
+object a {
+    def tupled[O1[_], O2[_]](
+          f1: ChildFunction0[O1],
+          f2: ChildFunction0[O2],
+      ): ChildFunction0.Tupled[O1, O2] = {
+        (b: Bound) => _ => (child: Child[b]) => (f1[b](child), f2[b](child))
+      }
+}
+>>>
+object a {
+  def tupled[O1[_], O2[_]](
+      f1: ChildFunction0[O1],
+      f2: ChildFunction0[O2]
+  ): ChildFunction0.Tupled[O1, O2] = { (b: Bound) => _ => (child: Child[b]) =>
+    (f1[b](child), f2[b](child))
+  }
+}
