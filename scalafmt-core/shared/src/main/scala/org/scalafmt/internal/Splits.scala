@@ -732,7 +732,7 @@ object SplitsBeforeLeftBrace extends Splits {
         else Split(Space, 0).onlyIf(useSpace).withSingleLine(close)
       val otherSplits = rightOwner match {
         case _: Term.PartialFunction | Term
-              .Block(List(_: Term.FunctionTerm | _: Term.PartialFunction)) =>
+              .Block(List(_: Member.Function | _: Term.PartialFunction)) =>
           Seq(Split(Newline, 0))
         case _ =>
           val breakAfter = getSlbEndOnLeft(nextAfterNonCommentSameLine(ft))
@@ -837,7 +837,7 @@ object SplitsAfterFunctionArrow extends Splits {
   ): Seq[Split] = {
     import fo._, tokens._, ft._
     val (endOfFunction, expiresOn) = leftOwner match {
-      case t: Term.FunctionTerm => functionExpire(t)
+      case t: Term.FunctionLike => functionExpire(t)
       case t => getLastNonTrivial(t) -> ExpiresOn.Before
     }
 
@@ -2078,8 +2078,8 @@ object SplitsAfterLeftParen extends Splits {
   @tailrec
   private def getSingleFunctionArg(
       values: List[Tree],
-  )(implicit ftoks: FormatTokens): Option[Term.FunctionTerm] = values match {
-    case (t: Term.FunctionTerm) :: Nil => Some(t)
+  )(implicit ftoks: FormatTokens): Option[Term.FunctionLike] = values match {
+    case (t: Term.FunctionLike) :: Nil => Some(t)
     case (t: Term.Block) :: Nil if !ftoks.isEnclosedInBraces(t) =>
       getSingleFunctionArg(t.stats)
     case _ => None
@@ -2675,7 +2675,7 @@ object SplitsBeforeDot extends Splits {
             val arrowPolicy = exclude.ranges.map { tr =>
               Policy.End <= tr.lt ==> Policy.onRight(tr.rt, "PNL+DOTARR") {
                 case Decision(FT(_: T.FunctionArrow, r, m), ss)
-                    if !r.is[T.Comment] && m.leftOwner.is[Term.FunctionTerm] &&
+                    if !r.is[T.Comment] && m.leftOwner.is[Member.Function] &&
                       findTreeWithParent(m.leftOwner) {
                         case _: Member.Apply => Some(true)
                         case p: Term.ArgClause if !isSeqSingle(p.values) =>

@@ -3660,12 +3660,14 @@ object a {
 }
 >>>
 object a {
-  foo([x] =>
+  foo([x] => {
     a +
-    b)
+      b
+  })
   foo([x] =>
     a
-      + b)
+      + b
+  )
   foo { [x] =>
     a +
       b

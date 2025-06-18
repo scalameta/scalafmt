@@ -71,7 +71,7 @@ object TreeOps {
   }
 
   @tailrec
-  def isBlockFunction(fun: Term)(implicit ftoks: FormatTokens): Boolean =
+  def isBlockFunction(fun: Tree)(implicit ftoks: FormatTokens): Boolean =
     fun.parent match {
       case Some(p: Term.FunctionLike) => isBlockFunction(p)
       case Some(p @ Term.Block(`fun` :: Nil)) => ftoks.getHead(p).left
@@ -357,7 +357,7 @@ object TreeOps {
       ac: Term.ArgClause,
       arg: Stat,
   ): Option[(Int, Int)] =
-    if (arg.is[Term.FunctionTerm]) Some((nestedApplies(ac), 2))
+    if (arg.is[Term.FunctionLike]) Some((nestedApplies(ac), 2))
     else ac.parent match {
       case Some(p: Term.Apply) => Some((nestedApplies(p), treeDepth(p.fun)))
       case _ => None

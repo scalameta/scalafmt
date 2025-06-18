@@ -543,7 +543,7 @@ class FormatOps(
               }
             case None => true
           })
-        case fun: Term.FunctionTerm => isBlockFunction(fun)
+        case fun: Member.Function => isBlockFunction(fun)
         case t: Case => t.pat.eq(child) || t.body.eq(child)
         case SingleArgInBraces(_, arg, _) => child eq arg
         case _ => false
@@ -556,7 +556,7 @@ class FormatOps(
         case p: Term.While => p.expr eq child
         case p: Term.Do => p.expr eq child
         case p: Term.Block => hasSingleElement(p, child)
-        case p: Term.FunctionTerm => isBlockFunction(p)
+        case p: Member.Function => isBlockFunction(p)
         case p @ Member.ArgClause(`child` :: Nil) => isEnclosedInMatching(p)
         case Member.Tuple(`child` :: Nil) => true
         case _ => false
@@ -1981,7 +1981,7 @@ class FormatOps(
             def owner = ac.parent
             def splits = Some {
               args match {
-                case (tf: Term.FunctionTerm) :: Nil
+                case (tf: Member.Function) :: Nil
                     if !style.newlines.alwaysBeforeCurlyLambdaParams &&
                       // https://dotty.epfl.ch/docs/internals/syntax.html
                       (tf.paramClause match { // LambdaStart
@@ -2577,7 +2577,7 @@ class FormatOps(
     private object RightArrowImpl extends Factory {
       def getBlocks(ft: FT, nft: FT, all: Boolean): Result =
         ft.meta.leftOwner match {
-          case t: Term.FunctionTerm =>
+          case t: Term.FunctionLike =>
             val skip = t.parent.exists(TreeOps.isExprWithParentInBraces(t))
             if (skip) None else Some((t.body, seq(all, t.paramClause.values)))
           case _ => None
@@ -3000,7 +3000,7 @@ class FormatOps(
         case Term.ArgClause(arg :: Nil, _) if style.newlines.fold => Some(arg)
         case _ => None
       }) match {
-        case Some(_: Term.FunctionTerm) => Some(TokenRanges.empty)
+        case Some(_: Term.FunctionLike) => Some(TokenRanges.empty)
         case Some(arg) if isTreeEndingInArgumentClause(arg) =>
           Some(parensTuple(arg))
         case _ => getTokenRanges

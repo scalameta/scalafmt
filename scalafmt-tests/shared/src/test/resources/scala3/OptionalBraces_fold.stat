@@ -3473,15 +3473,13 @@ object a {
 }
 >>>
 object a {
-  foo(
-    [x] =>
-      a +
+  foo([x] => {
+    a +
       b
-  )
-  foo(
-    [x] =>
-      a
-        + b
+  })
+  foo([x] =>
+    a
+      + b
   )
   foo { [x] =>
     a +
@@ -6078,8 +6076,8 @@ object a:
        .AnyRefMap[String, collection.mutable.ListBuffer[Path]]()
      val isJava12OrHigher = scala.util.Properties.isJavaAtLeast("12")
      rootsForRelease.foreach(root =>
-       Files.walk(root).iterator().asScala.filter(Files.isDirectory(_))
-         .foreach { [p] =>
+       Files.walk(root).iterator().asScala.filter(Files.isDirectory(_)).foreach {
+         [p] =>
             val moduleNamePathElementCount = if (isJava12OrHigher) 1 else 0
             if (
               p.getNameCount > root.getNameCount + moduleNamePathElementCount
@@ -6093,7 +6091,7 @@ object a:
                 new collection.mutable.ListBuffer
               ) += p
             }
-         }
+       }
      )
      index
    }
@@ -6138,8 +6136,8 @@ object a:
 >>>
 object a:
    rootsForRelease_foreach(root =>
-     Files.walkingIterator().useScalaFilter(Files__Is__Directory)
-       .foreach { [p] =>
+     Files.walkingIterator().useScalaFilter(Files__Is__Directory).foreach {
+       [p] =>
           val_moduleNamePathElementCount_е_0
           if (
             p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount
@@ -6149,7 +6147,7 @@ object a:
               packageDotted__new_collectionMutableListBuffer
             )
           }
-       }
+     }
    )
 <<< braces to parens in one-line apply: overflow with braces, fit with parens
 maxColumn = 32
