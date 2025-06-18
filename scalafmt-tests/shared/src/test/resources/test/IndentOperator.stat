@@ -3755,7 +3755,7 @@ object a {
 object a {
   foo { [x] =>
     a &&
-      b
+    b
   }
   foo { [x] =>
     val bar = qux
@@ -3764,7 +3764,8 @@ object a {
   }
   foo([x] =>
     a &&
-    b)
+      b
+  )
 }
 <<< aloneArgOrBody, right-assoc
 newlines.source = keep

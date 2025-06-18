@@ -11464,16 +11464,14 @@ val seqArgs = map3(newPs, oldPs, isRepeated)([param__oldParam__isRep] => {
 })
 >>>
 val seqArgs =
-  map3(newPs, oldPs, isRepeated)(
-    [param__oldParam__isRep] => {
-      if (!isRep)
-        Ident(param)
-      else {
-        val parTp = elementType(ArrayClass, param.tpe)
-        val wrap = gen.mkWrapArray(Ident(param), parTp)
-      }
+  map3(newPs, oldPs, isRepeated) { [param__oldParam__isRep] =>
+    if (!isRep)
+      Ident(param)
+    else {
+      val parTp = elementType(ArrayClass, param.tpe)
+      val wrap = gen.mkWrapArray(Ident(param), parTp)
     }
-  )
+  }
 <<< #4133 keep parens, remove braces, with function as argument
 maxColumn = 72
 rewrite.rules = [RedundantBraces]

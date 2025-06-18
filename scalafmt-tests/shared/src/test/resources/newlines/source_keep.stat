@@ -9710,22 +9710,12 @@ val finalProperties = properties.get(SupportsNamespaces.PROP_LOCATION).map { [lo
   properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(loc))
 }
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,6 +1,7 @@
--val finalProperties = properties.get(SupportsNamespaces.PROP_LOCATION).map {
--  [loc] =>
--    properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(
--      loc
--    ))
--}
-+val finalProperties =
-+  properties.get(SupportsNamespaces.PROP_LOCATION).map {
-+    [loc] =>
-+      properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(
-+        loc
-+      ))
-+  }
+val finalProperties =
+  properties.get(SupportsNamespaces.PROP_LOCATION).map { [loc] =>
+    properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(
+      loc
+    ))
+  }
 <<< #4133 lambda in parens rewritten to braces
 maxColumn = 80
 rewrite.rules = [RedundantBraces]
@@ -11057,14 +11047,14 @@ val seqArgs = map3(newPs, oldPs, isRepeated)([param__oldParam__isRep] => {
   }
 })
 >>>
-val seqArgs = map3(newPs, oldPs, isRepeated)([param__oldParam__isRep] =>
-  {
+val seqArgs = map3(newPs, oldPs, isRepeated) {
+  [param__oldParam__isRep] =>
     if (!isRep) Ident(param)
     else {
       val parTp = elementType(ArrayClass, param.tpe)
       val wrap = gen.mkWrapArray(Ident(param), parTp)
     }
-})
+}
 <<< #4133 keep parens, remove braces, with function as argument
 maxColumn = 72
 rewrite.rules = [RedundantBraces]

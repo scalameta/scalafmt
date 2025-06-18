@@ -1894,10 +1894,9 @@ foo
   .mtd1 { [x] =>
     x + 1
   }
-  .mtd2:
-     [x] =>
-        x + 1
-        x + 2
+  .mtd2: [x] =>
+     x + 1
+     x + 2
   .mtd3 { [x] =>
      x + 1
      x + 2
@@ -2014,21 +2013,18 @@ foo
   )
 >>>
 foo
-  .mtd1(
-    [x] =>
-      x + 1
+  .mtd1([x] =>
+    x + 1
   )
-  .mtd2(
-    [x] =>
-       x + 1
-       x + 2
-  )
-  .mtd3(
+  .mtd2: [x] =>
+     x + 1
+     x + 2
+  .mtd3 {
     [x] =>
        x + 1
        x + 2
        x + 3
-  )
+  }
 <<< rewrite to fewer braces: func in parens, trailing comma, allowFolding
 rewrite.rules = [RedundantBraces]
 rewrite.trailingCommas.style = keep
@@ -2146,23 +2142,18 @@ foo
   )
 >>>
 foo
-  .mtd1(
-    [x] =>
-      x + 1,
+  .mtd1([x] =>
+    x + 1,
   )
-  .mtd2(
-    [x] =>
-       x + 1
-       x + 2
-    ,
-  )
-  .mtd3(
+  .mtd2: [x] =>
+     x + 1
+     x + 2
+  .mtd3 {
     [x] =>
        x + 1
        x + 2
        x + 3
-    ,
-  )
+  }
 <<< rewrite to fewer braces: func in parens, trailing comma, !allowFolding
 rewrite.rules = [RedundantBraces]
 rewrite.trailingCommas.style = keep
@@ -2286,19 +2277,15 @@ foo
     [x] =>
       x + 1,
   )
-  .mtd2(
-    [x] =>
-       x + 1
-       x + 2
-    ,
-  )
-  .mtd3(
+  .mtd2: [x] =>
+     x + 1
+     x + 2
+  .mtd3 {
     [x] =>
        x + 1
        x + 2
        x + 3
-    ,
-  )
+  }
 <<< rewrite to fewer braces: func in parens, infix after
 rewrite.rules = [RedundantBraces]
 rewrite.scala3.removeOptionalBraces = {
@@ -2405,19 +2392,17 @@ object a {
 }
 >>>
 object a:
-   mtd1(
-     [x] =>
-       x + 1
-   ) + mtd2(
-     [x] =>
-        x + 1
-        x + 2
-   ) + mtd3(
+   mtd1([x] =>
+     x + 1
+   ) + mtd2: [x] =>
+      x + 1
+      x + 2
+   + mtd3 {
      [x] =>
         x + 1
         x + 2
         x + 3
-   )
+   }
 <<< rewrite to fewer braces: func in parens and braces
 rewrite.rules = [RedundantBraces, RedundantParens]
 rewrite.scala3.removeOptionalBraces = {
@@ -2527,14 +2512,12 @@ foo
   )
 >>>
 foo
-  .mtd1(
-    [x] =>
-      x + 1
+  .mtd1([x] =>
+    x + 1
   )
-  .mtd2:
-     [x] =>
-        x + 1
-        x + 2
+  .mtd2: [x] =>
+     x + 1
+     x + 2
   .mtd3 { [x] =>
      x + 1
      x + 2
@@ -2644,13 +2627,11 @@ object a {
 }
 >>>
 object a:
-   mtd1(
-     [x] =>
-       x + 1
-   ) + mtd2:
-      [x] =>
-         x + 1
-         x + 2
+   mtd1([x] =>
+     x + 1
+   ) + mtd2: [x] =>
+      x + 1
+      x + 2
    + mtd3 { [x] =>
       x + 1
       x + 2

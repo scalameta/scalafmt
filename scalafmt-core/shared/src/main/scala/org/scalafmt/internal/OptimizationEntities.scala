@@ -191,7 +191,7 @@ object OptimizationEntities {
 
   private def skipBlockSingleStat(t: Tree, isInArgClause: => Boolean): Boolean =
     t match {
-      case _: Term.FunctionTerm => true
+      case _: Term.FunctionLike => true
       case _ if !isInArgClause => false
       case _: Term.Apply => true
       case x: Term.AnonymousFunction => x.body.is[Term.Apply]

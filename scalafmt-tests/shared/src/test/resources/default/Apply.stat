@@ -1735,11 +1735,10 @@ cache.getOrElseUpdate(
     { x =>
       y
       z
-    }, {
-      [
-          x] =>
-        y
-        z
+    },
+    { [x] =>
+      y
+      z
     },
     foo,
     bar
