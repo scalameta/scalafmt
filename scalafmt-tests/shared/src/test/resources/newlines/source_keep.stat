@@ -9688,6 +9688,44 @@ val finalProperties =
       loc
     ))
   }
+<<< #4133 contextual lambda in braces, overflow after brace 2
+maxColumn = 74
+runner.dialect = scala3
+===
+val finalProperties = properties.get(SupportsNamespaces.PROP_LOCATION).map { loc ?=>
+  properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(loc))
+}
+>>>
+val finalProperties =
+  properties.get(SupportsNamespaces.PROP_LOCATION).map { loc ?=>
+    properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(
+      loc
+    ))
+  }
+<<< #4133 poly lambda in braces, overflow after brace 2
+maxColumn = 74
+runner.dialect = scala3
+===
+val finalProperties = properties.get(SupportsNamespaces.PROP_LOCATION).map { [loc] =>
+  properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(loc))
+}
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,6 +1,7 @@
+-val finalProperties = properties.get(SupportsNamespaces.PROP_LOCATION).map {
+-  [loc] =>
+-    properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(
+-      loc
+-    ))
+-}
++val finalProperties =
++  properties.get(SupportsNamespaces.PROP_LOCATION).map {
++    [loc] =>
++      properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(
++        loc
++      ))
++  }
 <<< #4133 lambda in parens rewritten to braces
 maxColumn = 80
 rewrite.rules = [RedundantBraces]
@@ -10845,6 +10883,44 @@ val offsets = Utils.tryWithResource {
   dis.readFully(buffer.array)
   buffer.asLongBuffer
 }
+<<< #4133 braces to parens with two curried params, second contextual func
+maxColumn = 76
+runner.dialect = scala3
+newlines.avoidForSimpleOverflow = all
+rewrite.rules = [RedundantBraces]
+===
+val offsets = Utils.tryWithResource {
+  new DataInputStream(Files.newInputStream(indexFile.toPath))
+} { dis ?=>
+  dis.readFully(buffer.array)
+  buffer.asLongBuffer
+}
+>>>
+val offsets = Utils.tryWithResource {
+  new DataInputStream(Files.newInputStream(indexFile.toPath))
+} { dis ?=>
+  dis.readFully(buffer.array)
+  buffer.asLongBuffer
+}
+<<< #4133 braces to parens with two curried params, second poly func
+maxColumn = 76
+runner.dialect = scala3
+newlines.avoidForSimpleOverflow = all
+rewrite.rules = [RedundantBraces]
+===
+val offsets = Utils.tryWithResource {
+  new DataInputStream(Files.newInputStream(indexFile.toPath))
+} { [dis] =>
+  dis.readFully(buffer.array)
+  buffer.asLongBuffer
+}
+>>>
+val offsets = Utils.tryWithResource {
+  new DataInputStream(Files.newInputStream(indexFile.toPath))
+} { [dis] =>
+  dis.readFully(buffer.array)
+  buffer.asLongBuffer
+}
 <<< #4133 braces to parens with two curried params, second func and comment
 maxColumn = 76
 newlines.avoidForSimpleOverflow = all
@@ -10945,6 +11021,50 @@ val seqArgs = map3(newPs, oldPs, isRepeated) {
       val wrap = gen.mkWrapArray(Ident(param), parTp)
     }
 }
+<<< #4133 parens to braces, with contextual function as argument
+maxColumn = 72
+runner.dialect = scala3
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.maxBreaks = 3 
+===
+val seqArgs = map3(newPs, oldPs, isRepeated)((param, oldParam, isRep) ?=> {
+  if (!isRep) Ident(param)
+  else {
+    val parTp = elementType(ArrayClass, param.tpe)
+    val wrap = gen.mkWrapArray(Ident(param), parTp)
+  }
+})
+>>>
+val seqArgs = map3(newPs, oldPs, isRepeated) {
+  (param, oldParam, isRep) ?=>
+    if (!isRep) Ident(param)
+    else {
+      val parTp = elementType(ArrayClass, param.tpe)
+      val wrap = gen.mkWrapArray(Ident(param), parTp)
+    }
+}
+<<< #4133 parens to braces, with poly function as argument
+maxColumn = 72
+runner.dialect = scala3
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.maxBreaks = 3 
+===
+val seqArgs = map3(newPs, oldPs, isRepeated)([param__oldParam__isRep] => {
+  if (!isRep) Ident(param)
+  else {
+    val parTp = elementType(ArrayClass, param.tpe)
+    val wrap = gen.mkWrapArray(Ident(param), parTp)
+  }
+})
+>>>
+val seqArgs = map3(newPs, oldPs, isRepeated)([param__oldParam__isRep] =>
+  {
+    if (!isRep) Ident(param)
+    else {
+      val parTp = elementType(ArrayClass, param.tpe)
+      val wrap = gen.mkWrapArray(Ident(param), parTp)
+    }
+})
 <<< #4133 keep parens, remove braces, with function as argument
 maxColumn = 72
 rewrite.rules = [RedundantBraces]

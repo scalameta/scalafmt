@@ -3731,6 +3731,41 @@ object a {
       b
   )
 }
+<<< oldTopLevel, lambda, poly
+newlines.source = keep
+runner.dialect = scala3
+indentOperator.exemptScope = oldTopLevel
+===
+object a {
+  foo { [x] =>
+    a &&
+      b
+  }
+  foo { [x] =>
+    val bar = qux
+    a &&
+      b
+  }
+  foo ( [x] =>
+    a &&
+      b
+  )
+}
+>>>
+object a {
+  foo { [x] =>
+    a &&
+      b
+  }
+  foo { [x] =>
+    val bar = qux
+    a &&
+    b
+  }
+  foo([x] =>
+    a &&
+    b)
+}
 <<< aloneArgOrBody, right-assoc
 newlines.source = keep
 indentOperator.exemptScope = aloneArgOrBody

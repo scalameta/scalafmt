@@ -3681,6 +3681,110 @@ object a {
       b
   }
 }
+<<< #2019 function with param in parens
+maxColumn = 14
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  foo((x) =>
+    a +
+      b
+  )
+  foo((x) =>
+    a
+      + b
+  )
+  foo { (x) =>
+    a +
+      b
+  }
+}
+>>>
+object a {
+  foo((x) => {
+    a +
+      b
+  })
+  foo((x) =>
+    a
+      + b
+  )
+  foo { (x) =>
+    a +
+      b
+  }
+}
+<<< #2019 contextual function
+maxColumn = 13
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  foo(x ?=>
+    a +
+      b
+  )
+  foo(x ?=>
+    a
+      + b
+  )
+  foo { x ?=>
+    a +
+      b
+  }
+}
+>>>
+object a {
+  foo(x ?=>
+    a +
+      b
+  )
+  foo(x ?=>
+    a
+      + b
+  )
+  foo { x ?=>
+    a +
+      b
+  }
+}
+<<< #2019 poly function
+maxColumn = 14
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  foo([x] =>
+    a +
+      b
+  )
+  foo([x] =>
+    a
+      + b
+  )
+  foo { [x] =>
+    a +
+      b
+  }
+}
+>>>
+object a {
+  foo(
+    [x] =>
+      a +
+      b
+  )
+  foo(
+    [x] =>
+      a
+        + b
+  )
+  foo { [x] =>
+    a +
+      b
+  }
+}
 <<< #2019 partial function
 maxColumn = 25
 newlines.afterInfix = keep
@@ -6431,6 +6535,61 @@ object a:
      )
      index
    }
+<<< complex code with selects and brace lambda 1, poly
+maxColumn = 81
+===
+object a:
+  private val packageIndex: scala.collection.Map[String, scala.collection.Seq[Path]] = {
+    val index = collection.mutable.AnyRefMap[String, collection.mutable.ListBuffer[Path]]()
+    val isJava12OrHigher = scala.util.Properties.isJavaAtLeast("12")
+    rootsForRelease.foreach(root => Files.walk(root).iterator().asScala.filter(Files.isDirectory(_)).foreach { [p] =>
+      val moduleNamePathElementCount = if (isJava12OrHigher) 1 else 0
+      if (p.getNameCount > root.getNameCount + moduleNamePathElementCount) {
+        val packageDotted = p.subpath(moduleNamePathElementCount + root.getNameCount, p.getNameCount).toString.replace('/', '.')
+        index.getOrElseUpdate(packageDotted, new collection.mutable.ListBuffer) += p
+      }
+    }) 
+    index
+  }
+>>> { stateVisits = 986, stateVisits2 = 986 }
+object a:
+   private val packageIndex
+       : scala.collection.Map[String, scala.collection.Seq[Path]] = {
+     val index = collection
+       .mutable
+       .AnyRefMap[String, collection.mutable.ListBuffer[Path]]()
+     val isJava12OrHigher = scala.util.Properties.isJavaAtLeast("12")
+     rootsForRelease.foreach(root =>
+       Files
+         .walk(root)
+         .iterator()
+         .asScala
+         .filter(Files.isDirectory(_))
+         .foreach { [p] =>
+            val moduleNamePathElementCount =
+              if (isJava12OrHigher)
+                1
+              else
+                0
+            if (
+              p.getNameCount > root.getNameCount + moduleNamePathElementCount
+            ) {
+              val packageDotted = p
+                .subpath(
+                  moduleNamePathElementCount + root.getNameCount,
+                  p.getNameCount
+                )
+                .toString
+                .replace('/', '.')
+              index.getOrElseUpdate(
+                packageDotted,
+                new collection.mutable.ListBuffer
+              ) += p
+            }
+         }
+     )
+     index
+   }
 <<< complex code with selects and brace lambda 2
 maxColumn = 79
 ===
@@ -6449,6 +6608,35 @@ object a:
        .walkingIterator()
        .useScalaFilter(Files__Is__Directory)
        .foreach { p =>
+          val_moduleNamePathElementCount_е_0
+          if (
+            p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount
+          ) {
+            val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
+            index_getOrElseUpdate(
+              packageDotted__new_collectionMutableListBuffer
+            )
+          }
+       }
+   )
+<<< complex code with selects and brace lambda 2, poly
+maxColumn = 79
+===
+object a:
+  rootsForRelease_foreach(root => Files.walkingIterator().useScalaFilter(Files__Is__Directory).foreach { [p] =>
+    val_moduleNamePathElementCount_е_0
+    if (p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount) {
+      val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
+      index_getOrElseUpdate(packageDotted__new_collectionMutableListBuffer)
+    }
+  })
+>>>
+object a:
+   rootsForRelease_foreach(root =>
+     Files
+       .walkingIterator()
+       .useScalaFilter(Files__Is__Directory)
+       .foreach { [p] =>
           val_moduleNamePathElementCount_е_0
           if (
             p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount

@@ -1720,9 +1720,12 @@ cache.getOrElseUpdate(
 )
 <<< #2633 binPack one arg per line with braces, config style 2
 binPack.preset = true
+runner.dialect = scala3
 ===
 cache.getOrElseUpdate(
   name, { x =>
+    y
+    z }, { [x] =>
     y
     z }, foo, bar
 )
@@ -1732,6 +1735,11 @@ cache.getOrElseUpdate(
     { x =>
       y
       z
+    }, {
+      [
+          x] =>
+        y
+        z
     },
     foo,
     bar
