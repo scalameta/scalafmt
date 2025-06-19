@@ -1271,12 +1271,6 @@ class FormatWriter(formatOps: FormatOps) {
     }
 
     object AlignContainer {
-      def unapply(tree: Tree): Option[Tree] = tree match {
-        case _: Tree.Block | _: Term.FunctionTerm | _: Term.PartialFunction =>
-          Some(tree)
-        case _ => None
-      }
-
       object WithBody {
         def unapply(tree: Tree): Option[(List[meta.Mod], Tree)] = tree match {
           case wm: Stat.WithMods => tree match {
@@ -1296,7 +1290,7 @@ class FormatWriter(formatOps: FormatOps) {
         maybeParent: Option[Tree] = None,
     )(implicit fl: FormatLocation): (Tree, Int) =
       maybeParent.orElse(child.parent) match {
-        case Some(AlignContainer(p)) => (p, depth)
+        case Some(p: Tree.Block) => (p, depth)
         case Some(
               p @ (_: Term.Select | _: Pat.Var | _: Term.ApplyInfix |
               _: Template | _: Member.ParamClauseGroup),
@@ -1343,7 +1337,7 @@ class FormatWriter(formatOps: FormatOps) {
     private def getAlignContainer(t: Tree, depth: Int = 0)(implicit
         fl: FormatLocation,
     ): (Tree, Int) = t match {
-      case AlignContainer(x) if fl.formatToken.right.is[T.Comment] => (x, depth)
+      case x: Tree.Block if fl.formatToken.right.is[T.Comment] => (x, depth)
 
       case _: Defn | _: Case | _: Term.Apply | _: Init | _: Ctor.Primary =>
         getAlignContainerParent(t, depth, Some(t))
