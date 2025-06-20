@@ -855,7 +855,7 @@ class FormatOps(
     maxPrecedence
   }
 
-  def functionExpire(function: Term.FunctionTerm): (FT, ExpiresOn) =
+  def functionExpire(function: Member.Function): (FT, ExpiresOn) =
     function.parent match {
       case Some(SingleArgInBraces.OrBlock(_, _, e)) => e -> ExpiresOn.Before
       case _ => getLastExceptParen(function) -> ExpiresOn.After
@@ -1246,7 +1246,7 @@ class FormatOps(
   }
 
   // look for arrow before body, if any, else after params
-  def getFuncArrow(term: Term.FunctionTerm): Option[FT] = tokens
+  def getFuncArrow(term: Member.Function): Option[FT] = tokens
     .tokenBeforeOpt(term.body)
     .orElse(tokenAfterOpt(term.paramClause).map(getArrowAfter[T.FunctionArrow]))
 
@@ -1952,7 +1952,7 @@ class FormatOps(
           style: ScalafmtConfig,
           ft: FT,
       ): Option[OptionalBracesRegion] = {
-        def funcSplit(arg: Term.FunctionTerm)(implicit fl: FileLine) = {
+        def funcSplit(arg: Member.Function)(implicit fl: FileLine) = {
           val end = getLast(arg)
           val opt = nextNonCommentSameLine(getFuncArrow(arg).getOrElse(end))
           Split(Space, 0).withSingleLine(opt)
