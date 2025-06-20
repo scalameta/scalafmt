@@ -303,7 +303,7 @@ object SplitsAfterLeftBrace extends Splits {
           case _ => None
         }
         (arrow, 0, nlOnly)
-      case (t: Term.FunctionTerm) :: Nil =>
+      case (t: Term.FunctionLike) :: Nil =>
         val arrow = lastLambda(t).flatMap(getFuncArrow).getOrElse(getLast(t))
         val nlOnly = cfg.newlines.beforeCurlyLambdaParams match {
           case Newlines.BeforeCurlyLambdaParams.always => Some(true)
@@ -821,10 +821,10 @@ object SplitsAfterFunctionArrow extends Splits {
   ): Seq[Split] = {
     import fo._, ft._
     leftOwner match {
-      case leftFunc: Term.FunctionTerm
-          if !right.is[T.Comment] && !tokens.isEmpty(leftFunc.body) &&
-            isBlockFunction(leftFunc) => blockFunctionTerm(leftFunc)
-      case _: Term.FunctionTerm | _: Term.PolyFunction => functionOrSelf
+      case leftFunc: Term.FunctionLike =>
+        val isBlockFunc = !right.is[T.Comment] &&
+          !tokens.isEmpty(leftFunc.body) && isBlockFunction(leftFunc)
+        if (isBlockFunc) blockFunctionTerm(leftFunc) else functionOrSelf
       case t: Self if t.ancestor(2).is[Term.NewAnonymous] => functionOrSelf
       case _ => Seq.empty
     }
