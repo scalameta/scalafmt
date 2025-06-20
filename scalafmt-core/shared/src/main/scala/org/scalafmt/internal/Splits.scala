@@ -899,7 +899,7 @@ object SplitsAfterFunctionArrow extends Splits {
   }
 
   private def blockFunctionTerm(
-      leftFunc: Term.FunctionTerm,
+      leftFunc: Member.Function,
   )(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig): Seq[Split] = {
     import fo._, tokens._, ft._
     def spaceSplitBase(implicit line: FileLine): Split = Split(Space, 0)
@@ -907,8 +907,8 @@ object SplitsAfterFunctionArrow extends Splits {
       val (afterCurlySpace, afterCurlyNewlines) =
         getSpaceAndNewlineAfterCurlyLambda(newlinesBetween)
       val spaceSplit = leftFunc.body match {
-        case _: Term.FunctionTerm => spaceSplitBase
-        case Term.Block((_: Term.FunctionTerm) :: Nil)
+        case _: Member.Function => spaceSplitBase
+        case Term.Block((_: Member.Function) :: Nil)
             if !nextNonComment(ft).right.is[T.LeftBrace] => spaceSplitBase
         case _ if afterCurlySpace && {
               cfg.newlines.fold || !rightOwner.is[Defn]
