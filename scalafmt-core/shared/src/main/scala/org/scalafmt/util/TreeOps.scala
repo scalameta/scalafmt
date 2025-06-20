@@ -73,7 +73,7 @@ object TreeOps {
   @tailrec
   def isBlockFunction(fun: Term)(implicit ftoks: FormatTokens): Boolean =
     fun.parent match {
-      case Some(p: Term.FunctionTerm) => isBlockFunction(p)
+      case Some(p: Term.FunctionLike) => isBlockFunction(p)
       case Some(p @ Term.Block(`fun` :: Nil)) => ftoks.getHead(p).left
           .is[T.LeftBrace] || isBlockFunction(p)
       case Some(SingleArgInBraces(_, `fun`, _)) => true
