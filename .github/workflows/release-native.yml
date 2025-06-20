@@ -27,7 +27,7 @@ jobs:
           { os: macOS-14, name: scalafmt-aarch64-apple-darwin.zip },
           { os: ubuntu-22.04, name: scalafmt-x86_64-pc-linux.zip },
           { os: ubuntu-24.04-arm, name: scalafmt-aarch64-pc-linux.zip },
-          { os: windows-2022, name: scalafmt-x86_64-pc-win32.zip }
+          { os: windows-2025, name: scalafmt-x86_64-pc-win32.zip }
         ]
     runs-on: ${{ matrix.deploy.os }}
     steps:
