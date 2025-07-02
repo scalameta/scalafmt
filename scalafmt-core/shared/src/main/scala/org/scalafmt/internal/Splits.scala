@@ -3099,13 +3099,7 @@ object SplitsAfterDo extends Splits {
   ): Seq[Split] = {
     import fo._, tokens._, ft._
     leftOwner match {
-      case t: Term.Do =>
-        val eft = getLast(t.body)
-        if (
-          t.body.is[Tree.Block] && right.is[T.LeftBrace] &&
-          matchingOptRight(ft).exists(_.idx >= eft.idx)
-        ) Seq(Split(Space, 0))
-        else {
+      case t: Term.Do => getWithBody(t) { eft =>
           val indent = Indent(cfg.indent.main, eft, ExpiresOn.After)
           val kwWhile = nextAfterNonComment(eft)
           val noSplit =
@@ -3121,8 +3115,24 @@ object SplitsAfterDo extends Splits {
               .withIndents(indent)
           Seq(noSplit, nlSplit)
         }
+      case t: Tree.WithBody if cfg.newlines.keepBreak =>
+        getWithBody(t)(eft =>
+          Seq(Split(Newline, 1).withIndent(cfg.indent.main, eft, ExpiresOn.After)),
+        )
       case _ => Seq.empty
     }
+  }
+
+  private def getWithBody(t: Tree.WithBody)(
+      ifNotBlock: FT => Seq[Split],
+  )(implicit ft: FT, fo: FormatOps): Seq[Split] = {
+    import fo._, tokens._, ft._
+    val eft = getLast(t.body)
+    if (
+      t.body.is[Tree.Block] && right.is[T.LeftBrace] &&
+      matchingOptRight(ft).exists(_.idx >= eft.idx)
+    ) Seq(Split(Space, 0))
+    else ifNotBlock(eft)
   }
 }
 
@@ -3388,7 +3398,7 @@ object SplitsAfterYield extends Splits {
           Seq(Split(Space, 0).withIndent(indent, noIndent))
         } else Seq(
           // Either everything fits in one line or break on =>
-          Split(Space, 0).withSingleLine(lastToken),
+          Split(cfg.newlines.keepBreak, 0)(Space).withSingleLine(lastToken),
           Split(Newline, 1).withIndent(indent),
         )
     }
