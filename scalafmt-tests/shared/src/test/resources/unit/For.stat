@@ -333,7 +333,8 @@ for {
 for {
   a <- getA
   b <- getB
-} do (a, b)
+} do
+  (a, b)
 <<< #4941 keep after do, scala3
 runner.dialect = scala3
 newlines.source = keep
@@ -397,4 +398,5 @@ for {
 for {
   a <- getA
   b <- getB
-} yield (a, b)
+} yield
+  (a, b)
