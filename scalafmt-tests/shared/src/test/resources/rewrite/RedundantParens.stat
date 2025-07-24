@@ -1866,3 +1866,35 @@ val foo =
         Return(x)
       )
     }
+<<< #4948 named tuple in assignment, scala2
+runner.dialect = scala213
+===
+object a {
+  val _ = (age = 2)
+  val _ = ((age = 2))
+  val _ = (((age = 2)))
+  val (age, gender, zip) = (age = 2, (gender = m), ((zip = 123)))
+}
+>>>
+object a {
+  val _ = age = 2
+  val _ = age = 2
+  val _ = age = 2
+  val (age, gender, zip) = (age = 2, (gender = m), (zip = 123))
+}
+<<< #4948 named tuple in assignment, scala3
+runner.dialect = scala3
+===
+object a {
+  val _ = (age = 2)
+  val _ = ((age = 2))
+  val _ = (((age = 2)))
+  val (age, gender, zip) = (age = 2, (gender = m), ((zip = 123)))
+}
+>>>
+object a {
+  val _ = age = 2
+  val _ = age = 2
+  val _ = age = 2
+  val (age, gender, zip) = (age = 2, (gender = m), (zip = 123))
+}
