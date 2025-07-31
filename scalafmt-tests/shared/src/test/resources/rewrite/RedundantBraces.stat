@@ -464,10 +464,32 @@ object a {
   val b  = c(d => e)(d => e)              // comment1
   val bb = cc(dd => { ee })(dd => { ee }) // comment2
 }
-<<< #1631
+<<< #1631 no break before block
 class Test extends AnyWordSpec {
   "SUT" when {
     "statement about test" should {
+      "some test" in {
+        val s = 1
+      }
+    }
+  }
+}
+>>>
+class Test extends AnyWordSpec {
+  "SUT" when {
+    "statement about test" should {
+      "some test" in {
+        val s = 1
+      }
+    }
+  }
+}
+<<< #1631 break before block
+class Test extends AnyWordSpec {
+  "SUT" when
+  {
+    "statement about test" should
+    {
       "some test" in {
         val s = 1
       }
@@ -2458,9 +2480,15 @@ object a {
 >>>
 object a {
   do foo
-  while (true)
+  while (
+    true
+  )
   do a + b
-  while (true)
+  while (
+    true
+  )
   do a + b
-  while (true)
+  while (
+    true
+  )
 }

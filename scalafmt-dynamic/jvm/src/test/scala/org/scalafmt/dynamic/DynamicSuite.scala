@@ -14,9 +14,7 @@ import java.nio.file.attribute.FileTime
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
-import scala.{meta => m}
 
-import PositionSyntax._
 import munit.FunSuite
 import munit.Location
 
@@ -36,17 +34,8 @@ class DynamicSuite extends FunSuite {
         override def downloadWriter(): PrintWriter = new PrintWriter(download)
 
         override def error(file: Path, e: Throwable): Unit = e match {
-          case p: PositionException =>
-            val input = m.Input.VirtualFile(file.toString, p.code)
-            val pos = m.Position.Range(
-              input,
-              p.startLine,
-              p.startCharacter,
-              p.endLine,
-              p.endCharacter,
-            )
-            val formattedMessage = pos.formatMessage("error", p.shortMessage)
-            out.write(formattedMessage.getBytes(StandardCharsets.UTF_8))
+          case p: PositionException => out
+              .write(p.getMessage.getBytes(StandardCharsets.UTF_8))
           case _ => super.error(file, e)
         }
         override def missingVersion(
@@ -89,8 +78,6 @@ class DynamicSuite extends FunSuite {
     }
     def relevant: String = out.toString
       .replace(config.toString, "path/.scalafmt.conf")
-    def errors: String = out.toString.linesIterator.filter(_.startsWith("error"))
-      .mkString("\n")
     def assertNotIgnored(filename: String)(implicit loc: Location): Unit =
       assertFormat("object A  {  }", "object A {}\n", Paths.get(filename))
     def assertIgnored(filename: String): Unit = {
@@ -109,9 +96,10 @@ class DynamicSuite extends FunSuite {
     ): Unit = {
       out.reset()
       val obtained = dynamic.format(config, file, original)
-      if (errors.nonEmpty)
-        assertNoDiff(out.toString(), "", "Reporter had errors")
       assertNoDiff(obtained, expected)
+      val outstr = out.toString.linesIterator.filter(!_.contains("Download"))
+        .mkString("\n")
+      assertEquals(outstr, "", "Reporter had messages")
     }
     def assertMissingVersion()(implicit loc: Location): Unit = {
       out.reset()
@@ -202,11 +190,12 @@ class DynamicSuite extends FunSuite {
       val dialectError = getDialectError(version, dialect)
       val code = s"""object object A { val version = "$version" }"""
       val bq = getBackQuote(version)
+      val where = if (version >= "3.0.0") s"$name.scala" else "<input>"
       f.assertError(
         code,
-        s"""|$name.scala:1:8: error:$dialectError ${bq}identifier$bq expected but ${bq}object$bq found
+        s"""|[$version] $where:1: error:$dialectError ${bq}identifier$bq expected but ${bq}object$bq found
             |$code
-            |       ^^^^^^""".stripMargin,
+            |       ^""".stripMargin,
       )
     }
   }
@@ -356,19 +345,23 @@ class DynamicSuite extends FunSuite {
           .assertFormat("lazy   val   x =  project", "lazy val x = project\n")
         else f.assertError(
           "lazy   val   x =  project",
-          s"""|$name.scala:1:1: error:$dialectError classes cannot be lazy
+          s"""|[$version] <input>:1: error:$dialectError classes cannot be lazy
               |lazy   val   x =  project
-              |^^^^""".stripMargin,
+              |^""".stripMargin,
         )
         // check wrapped literals, supported in sbt using scala 2.13+
         val wrappedLiteral = "object a { val  x:  Option[0]  =  Some(0) }"
         def assertIsWrappedLiteralFailure(): Unit = {
           val bq = getBackQuote(version)
+          val usefilename = scalaVersion >= "213" ||
+            sbtTreatedDifferently(version) ||
+            version > "3.0.0" && filename.endsWith(".sbt")
+          val where = if (usefilename) filename else "<input>"
           f.assertError(
             wrappedLiteral,
-            s"""$filename:1:28: error:$dialectError ${bq}identifier$bq expected but ${bq}integer constant$bq found
-               |$wrappedLiteral
-               |                           ^""".stripMargin,
+            s"""|[$version] $where:1: error:$dialectError ${bq}identifier$bq expected but ${bq}integer constant$bq found
+                |$wrappedLiteral
+                |                           ^""".stripMargin,
             path,
           )
         }

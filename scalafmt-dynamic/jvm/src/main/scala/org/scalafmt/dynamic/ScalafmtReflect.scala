@@ -130,7 +130,7 @@ case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
           fileOpt.orNull,
           code,
           shortMessage,
-          e.getMessage,
+          s"[$version] ${e.getMessage}",
           range,
           e,
         )

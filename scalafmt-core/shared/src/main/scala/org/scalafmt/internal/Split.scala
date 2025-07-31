@@ -55,6 +55,7 @@ case class Split(
     policy: Policy = NoPolicy,
     optimalAt: Option[OptimalToken] = None,
     penalty: Int = 0,
+    rank: Int = 0,
 )(implicit val fileLineStack: FileLineStack) {
   import PolicyOps._
 
@@ -65,7 +66,10 @@ case class Split(
   }
 
   @inline
-  def costWithPenalty: Int = cost + penalty
+  def costWithPenalty: Int = cost + penalty.max(0)
+
+  @inline
+  def noCost: Boolean = cost <= 0 && penalty <= 0
 
   @inline
   def fileLine: FileLine = fileLineStack.fileLineLast
@@ -251,8 +255,7 @@ case class Split(
     else copy(policy = newPolicy & policy)
 
   def withPenalty(penalty: Int): Split =
-    if (isIgnored || penalty <= 0) this
-    else copy(penalty = this.penalty + penalty)
+    if (isIgnored) this else copy(penalty = this.penalty + penalty)
 
   def withIndent(length: => Length, expire: => FT, when: ExpiresOn): Split =
     withIndent(length, expire, when, ignore = false)
@@ -326,9 +329,9 @@ object Split {
       fileLineStack: FileLineStack,
   ): Split = if (ignore) ignored else Split(modExt, cost)
 
-  def opt(mod: Modification, cost: Int)(implicit
-      fileLineStack: FileLineStack,
-  ): Split = if (mod eq null) ignored else Split(mod, cost)
+  def opt(mod: Modification, cost: Int, policy: Policy = Policy.NoPolicy)(
+      implicit fileLineStack: FileLineStack,
+  ): Split = if (mod eq null) ignored else Split(mod, cost, policy = policy)
 
   implicit class ImplicitSeqSplit(private val obj: Seq[Split]) extends AnyVal {
     def penalize(penalty: Int): Seq[Split] = obj.map(_.withPenalty(penalty))

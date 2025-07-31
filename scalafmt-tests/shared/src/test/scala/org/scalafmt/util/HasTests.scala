@@ -207,7 +207,9 @@ trait HasTests extends FormatAssertions {
 
 object HasTests {
 
-  private val defaultDialect = NamedDialect("scala213", NamedDialect.scala213)
+  import scala.meta.dialects
+
+  private val defaultDialect = NamedDialect("scala213", dialects.Scala213)
 
   private def withoutSlowStates(cfg: ScalafmtConfig): ScalafmtConfig = cfg
     .copy(runner =
@@ -219,8 +221,7 @@ object HasTests {
 
   private val defaultConfig =
     withoutSlowStates(ScalafmtConfig.default.withDialect(defaultDialect))
-  private val scala3Config = defaultConfig
-    .withDialect(NamedDialect.scala3, "scala3")
+  private val scala3Config = defaultConfig.withDialect(dialects.Scala3, "scala3")
   private val scalaJsConfig = defaultConfig.forScalaJs.copy(maxColumn = 79)
 
   private val testing = defaultConfig.copy(

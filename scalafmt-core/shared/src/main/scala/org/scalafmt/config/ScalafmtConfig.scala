@@ -134,12 +134,11 @@ case class ScalafmtConfig(
       k -> v.getMatcher
     }
 
-  private[scalafmt] def withDialect(dialect: NamedDialect): ScalafmtConfig =
-    copy(runner = runner.withDialect(dialect))
+  def withDialect(nd: NamedDialect): ScalafmtConfig =
+    copy(runner = runner.withDialect(nd))
 
-  private[scalafmt] def withDialect(
-      dialect: Option[NamedDialect],
-  ): ScalafmtConfig = dialect.fold(this)(withDialect)
+  def withDialect(nd: Option[NamedDialect]): ScalafmtConfig = nd
+    .fold(this)(withDialect)
 
   def withDialect(dialect: Dialect, name: String): ScalafmtConfig =
     withDialect(NamedDialect(name, dialect))
@@ -386,9 +385,8 @@ object ScalafmtConfig {
       }
       if (!dialect.allowSignificantIndentation) addIf(newlines.beforeOpenParenCallSite.nonEmpty, errDialect)
       addIfDirect( // can't use addIf on multiline conditions
-        !(binPack.callSite == BinPack.Site.Never && binPack.defnSite == BinPack.Site.Never) && {
-          newlines.implicitParamListModifierForce.nonEmpty || newlines.implicitParamListModifierPrefer.nonEmpty
-        },
+        !(binPack.callSite == BinPack.Site.Never && binPack.defnSite == BinPack.Site.Never) &&
+          { newlines.implicitParamListModifierForce.nonEmpty || newlines.implicitParamListModifierPrefer.nonEmpty },
         "binPack.xxxSite && newlines.implicitParamListModifierXXX (not implemented)",
       )
       checkPositive(indent.main, indent.callSite, indent.defnSite, indent.commaSiteRelativeToExtends)

@@ -68,7 +68,7 @@ object Scalafmt {
       if (isSbt) {
         val sbtStyle = style.forSbt
         if (sbtStyle.dialect ne baseStyle.dialect) sbtStyle
-        else sbtStyle.withDialect(NamedDialect(dialects.Sbt))
+        else sbtStyle.withDialect(dialects.Sbt, "sbt")
       } else style
     }
     val styleTry =

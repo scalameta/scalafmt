@@ -23,15 +23,13 @@ jobs:
       fail-fast: false
       matrix:
         deploy: [
-          { os: macOS-13, name: scalafmt-x86_64-apple-darwin },
-          { os: macOS-14, name: scalafmt-aarch64-apple-darwin },
-          { os: ubuntu-latest, name: scalafmt-x86_64-pc-linux },
-          { os: ubuntu-24.04-arm, name: scalafmt-aarch64-pc-linux },
-          { os: windows-latest, name: scalafmt-x86_64-pc-win32 }
+          { os: macOS-13, name: scalafmt-x86_64-apple-darwin.zip },
+          { os: macOS-14, name: scalafmt-aarch64-apple-darwin.zip },
+          { os: ubuntu-22.04, name: scalafmt-x86_64-pc-linux.zip },
+          { os: ubuntu-24.04-arm, name: scalafmt-aarch64-pc-linux.zip },
+          { os: windows-2025, name: scalafmt-x86_64-pc-win32.zip }
         ]
     runs-on: ${{ matrix.deploy.os }}
-    env:
-      BINARY_NAME: ${{ (startsWith(matrix.deploy.os, 'windows') && 'scalafmt.exe') || 'scalafmt' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,17 +43,23 @@ jobs:
       - run: sbt scala-native
         env:
           CI: true
+      - name: Zip artifact for deployment
+        if:  ${{ !startsWith(matrix.deploy.os, 'windows') }}
+        run: zip ${{ matrix.deploy.name }} scalafmt
+      - name: Zip artifact for deployment
+        if:  ${{ startsWith(matrix.deploy.os, 'windows') }}
+        run: 7z a ${{ matrix.deploy.name }} scalafmt.exe
       - uses: actions/upload-artifact@master
         with:
           name: ${{ matrix.deploy.name }}
-          path: ${{ env.BINARY_NAME }}
+          path: ${{ matrix.deploy.name }}
       - name: Upload release to Github
         uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ${{ env.BINARY_NAME }}
+          asset_path: ${{ matrix.deploy.name }}
           asset_name: ${{ matrix.deploy.name }}
           asset_content_type: application/zip
   dockerize:
@@ -71,10 +75,12 @@ jobs:
       - name: Downloading scalafmt for Docker Build
         uses: actions/download-artifact@v4
         with:
-          name: scalafmt-${{ matrix.platform == 'linux/arm64' && 'aarch64' || 'x86_64' }}-pc-linux
+          name: scalafmt-${{ matrix.platform == 'linux/arm64' && 'aarch64' || 'x86_64' }}-pc-linux.zip
           path: tmp/scalafmt-docker-build # Dockerfile uses this
           github-token: ${{ secrets.GITHUB_TOKEN }}
           run-id: ${{ github.event_name == 'release' && github.run_id || github.event.inputs.run_id }}
+      - name: Decompress scalafmt artifact
+        run: unzip tmp/scalafmt-docker-build/scalafmt-x86_64-pc-linux.zip -d tmp/scalafmt-docker-build
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:

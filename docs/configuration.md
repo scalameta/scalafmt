@@ -16,6 +16,10 @@ using [HOCON](https://github.com/lightbend/config) syntax.
 Here is an example `.scalafmt.conf`:
 
 ```scala config
+version = @STABLE_VERSION@    // mandatory
+runner.dialect = scala213    // mandatory, see below for available dialects
+
+// here are some examples of optional settings
 align.preset = more    // For pretty alignment.
 maxColumn = 1234
 ```
@@ -1469,8 +1473,11 @@ was disabled since the parameter's introduction in v2.5.0.
 
 ### `align.multiline`
 
-If this flag is set, when alignment is applied, multiline statements will not be
-excluded from search of tokens to align.
+This flag controls whether to include multiline statements in the search for
+tokens to align, with the following values:
+
+- `false`: align tokens only on adjacent lines
+- `true`: align consecutive statements even if tokens to align are not on adjacent lines
 
 > Since v2.5.0.
 
@@ -3978,7 +3985,7 @@ This section describes rules which are applied if the appropriate dialect (e.g.,
 ### `rewrite.scala3.convertToNewSyntax`
 
 If this flag is enabled, the following new syntax will be applied (also,
-**since 3.8.0**, if an appropriate flag under `rewrite.scala.newSyntax` is not
+**since 3.8.0**, if an appropriate flag under `rewrite.scala3.newSyntax` is not
 set to `false`, see below):
 
 - [control syntax](https://dotty.epfl.ch/docs/reference/other-new-features/control-syntax.html)

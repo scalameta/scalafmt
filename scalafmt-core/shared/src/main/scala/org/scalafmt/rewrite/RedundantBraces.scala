@@ -24,7 +24,7 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       style: ScalafmtConfig,
   ): RedundantBracesSettings = style.rewrite.redundantBraces
 
-  private def needParensAroundParams(f: Term.FunctionTerm): Boolean =
+  private def needParensAroundParams(f: Term.FunctionLike): Boolean =
     /* either we have parens or no type; multiple params or
      * no params guarantee parens, so we look for type and
      * parens only for a single param */
@@ -47,7 +47,7 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
        * "foo { x => y; z }" can't become "foo(x => y; z)"
        * "foo { x1 => x2 => y; z }" can't become "foo(x1 => x2 => y; z)"
        */
-      case t: Term.FunctionTerm =>
+      case t: Term.FunctionLike =>
         if (needParensAroundParams(t)) None else stripTopBlock(t.body)
       case _ => Some(tree)
     }
@@ -60,7 +60,7 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
             if (ss.isEmpty) iter(s :: rest)
             else ftoks.isEnclosedInBraces(b) && iter(rest)
           case t: Term.If => iter(t.thenp :: t.elsep :: rest)
-          case t: Term.FunctionTerm if needParensAroundParams(t) => false
+          case t: Term.FunctionLike if needParensAroundParams(t) => false
           case t: Tree.WithBody => iter(t.body :: rest)
           case t: Term.AnonymousFunction => iter(t.body :: rest)
           case _ => iter(rest)
@@ -81,7 +81,7 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
     (rb.meta.leftOwner match { // look for "foo { bar }"
       case b: Term.Block => checkApply(b) && canRewriteStatWithParens(b) &&
         b.parent.exists(ftoks.getLast(_) eq rb)
-      case f: Term.FunctionTerm => checkApply(f) && canRewriteStatWithParens(f)
+      case f: Term.FunctionLike => checkApply(f) && canRewriteStatWithParens(f)
       case t @ Term.ArgClause(arg :: Nil, _) => isParentAnApply(t) &&
         ftoks.getDelimsIfEnclosed(t).exists(_._2 eq rb) &&
         canRewriteStatWithParens(arg)
@@ -194,7 +194,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
               else replaceWithBrace(owner = Some(m.rightOwner), claim = claim)
             case _ => replaceWithBrace(owner = Some(arg), claim = claimToo)
           }
-        def rewriteFunction(f: Term.FunctionTerm)(shouldMoveBrace: => Boolean) =
+        def rewriteFunction(f: Term.FunctionLike)(shouldMoveBrace: => Boolean) =
           getBlockToReplaceAsFuncBodyInSingleArgApply(ta, f).fold(
             if (!shouldMoveBrace) null
             else if (f eq arg) replaceWithBrace()
@@ -229,12 +229,12 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
                   case _ => blockCantBeStripped || blockWontBeStripped
                 })
             getTreeSingleExpr(b) match {
-              case Some(f: Term.FunctionTerm) =>
+              case Some(f: Term.FunctionLike) =>
                 rewriteFunction(f)(shouldMoveBrace(f))
               case Some(s: Term) if !shouldMoveBrace(s) => null
               case _ => replaceWithNextBrace()
             }
-          case f: Term.FunctionTerm =>
+          case f: Term.FunctionLike =>
             rewriteFunction(f)(shouldReplaceWithBrace(f.body))
           case _: Term.Assign | _: Term.Repeated | _: Term.Ascribe => null
           case _ if ta.parent.is[Term.ApplyInfix] => null
@@ -342,7 +342,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       else null
 
     owner match {
-      case t: Term.FunctionTerm if t.tokens.last.is[T.RightBrace] =>
+      case t: Term.FunctionLike if t.tokens.last.is[T.RightBrace] =>
         if (!okToRemoveFunctionInApplyOrInit(t)) null else removeToken
       case t: Term.PartialFunction =>
         val pft = ftoks.prevNonComment(ft)
@@ -373,7 +373,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
               new T.LeftParen(x.input, x.dialect, x.start),
             )
             else null
-          case Some(f: Term.FunctionTerm)
+          case Some(f: Term.FunctionLike)
               if getBlockToReplaceAsFuncBodyIfInSingleArgApply(f).exists {
                 case (_, xft) => xft.idx <= ft.idx + 1
               } => removeToken
@@ -490,7 +490,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
 
   private def getBlockToReplaceAsFuncBodyInSingleArgApply(
       ta: Term.ArgClause,
-      func: Term.FunctionTerm,
+      func: Term.FunctionLike,
   )(implicit
       style: ScalafmtConfig,
       ftoks: FormatTokens,
@@ -509,7 +509,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
               case _ => None
             }
         }
-      case f: Term.FunctionTerm if !needParensAroundParams(f) => iter(f.body)
+      case f: Term.FunctionLike if !needParensAroundParams(f) => iter(f.body)
       case _ => None
     }
 
@@ -518,18 +518,18 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   }
 
   private def getBlockToReplaceAsFuncBodyIfInSingleArgApply(
-      func: Term.FunctionTerm,
+      func: Term.FunctionLike,
   )(implicit
       style: ScalafmtConfig,
       ftoks: FormatTokens,
   ): Option[(Term.Block, FT)] = {
     @tailrec
-    def iter(t: Tree, f: Term.FunctionTerm): Option[(Term.Block, FT)] =
+    def iter(t: Tree, f: Term.FunctionLike): Option[(Term.Block, FT)] =
       t.parent match {
         case Some(p @ Term.ArgClause(_ :: Nil, _)) =>
           getBlockToReplaceAsFuncBodyInSingleArgApply(p, f)
         case Some(p: Term.Block) => iter(p, f)
-        case Some(p: Term.FunctionTerm) => iter(p, p)
+        case Some(p: Term.FunctionLike) => iter(p, p)
         case _ => None
       }
     iter(func, func)
@@ -540,7 +540,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   // a single-stat lambda with braces can be converted to one without braces,
   // but the reverse conversion isn't always possible
   private def okToRemoveFunctionInApplyOrInit(
-      t: Term.FunctionTerm,
+      t: Term.FunctionLike,
   )(implicit style: ScalafmtConfig): Boolean = t.parent match {
     case Some(p: Term.ArgClause) => p.parent match {
         case Some(_: Init) => okToRemoveAroundFunctionBody(t.body, false)
@@ -636,7 +636,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       case d: Defn.GivenAlias =>
         checkBlockAsBody(b, d.body, noParams = d.paramClauseGroup.isEmpty)
 
-      case p: Term.FunctionTerm if isFunctionWithBraces(p) =>
+      case p: Term.FunctionLike if isFunctionWithBraces(p) =>
         okToRemoveAroundFunctionBody(b, okIfMultipleStats = true)
 
       case _: Term.If => settings.ifElseExpressions &&
@@ -655,7 +655,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
     isDefnBodiesEnabled(noParams)
 
   private def innerOk(b: Term.Block)(s: Stat): Boolean = s match {
-    case _: Term.FunctionTerm | _: Term.Xml => false
+    case _: Term.FunctionLike | _: Term.Xml => false
     case t: Term.NewAnonymous =>
       // can't allow: new A with B .foo
       // can allow if: no ".foo", no "with B", or has braces
@@ -667,7 +667,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   private def okToRemoveBlockWithinApply(b: Term.Block)(implicit
       style: ScalafmtConfig,
   ): Boolean = getSingleStatIfLineSpanOk(b).exists {
-    case f: Term.FunctionTerm => !needParensAroundParams(f) && {
+    case f: Term.FunctionLike => !needParensAroundParams(f) && {
         val fb = f.body
         !fb.is[Term.Block] ||
         // don't rewrite block if the inner block will be rewritten, too

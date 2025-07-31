@@ -20,7 +20,7 @@ class DeleteTree extends FileVisitor[Path] {
       file: Path,
       attrs: attribute.BasicFileAttributes,
   ): FileVisitResult = {
-    Files.delete(file)
+    util.Try(Files.delete(file))
     FileVisitResult.CONTINUE
   }
 
@@ -31,7 +31,7 @@ class DeleteTree extends FileVisitor[Path] {
       dir: Path,
       exc: IOException,
   ): FileVisitResult = {
-    Files.delete(dir)
+    util.Try(Files.delete(dir))
     FileVisitResult.CONTINUE
   }
 }

@@ -83,7 +83,7 @@ class StandardProjectLayoutTest extends munit.FunSuite {
     (s3, "scala-2", s213),
     (s213, "scala-3", s3),
     (s3, "scala-3", None),
-    (nd(dialects.Scala3Future), "scala-3", None),
+    (opt(dialects.Scala3Future), "scala-3", None),
   ).foreach { case (curDialectOpt, lang, expDialectOpt) =>
     val curName = curDialectOpt.map(_.name).orNull
     val expName = expDialectOpt.map(_.name).orNull

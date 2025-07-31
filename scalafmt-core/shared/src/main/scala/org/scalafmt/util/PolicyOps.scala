@@ -201,9 +201,10 @@ object PolicyOps {
       fileLine: FileLine,
   ): Policy = decideNewlinesOnlyBeforeClose(0)(close)
 
-  def decideNewlinesOnlyBeforeClose(rank: Int)(close: FT)(implicit
-      fileLine: FileLine,
-  ): Policy = decideNewlinesOnlyBeforeClose(Split(Newline, 0), rank)(close)
+  def decideNewlinesOnlyBeforeClose(
+      rank: Int,
+  )(close: FT)(implicit fileLine: FileLine): Policy =
+    decideNewlinesOnlyBeforeClose(Split(Newline, 0, rank = -1), rank)(close)
 
   def decideNewlinesOnlyBeforeClose(split: Split, rank: Int = 0)(close: FT)(
       implicit fileLine: FileLine,
@@ -230,9 +231,10 @@ object PolicyOps {
       fileLine: FileLine,
   ): Policy = decideNewlinesOnlyAfterClose(0)(close)
 
-  def decideNewlinesOnlyAfterClose(rank: Int)(close: FT)(implicit
-      fileLine: FileLine,
-  ): Policy = decideNewlinesOnlyAfterClose(Split(Newline, 0), rank)(close)
+  def decideNewlinesOnlyAfterClose(
+      rank: Int,
+  )(close: FT)(implicit fileLine: FileLine): Policy =
+    decideNewlinesOnlyAfterClose(Split(Newline, 0, rank = -1), rank)(close)
 
   def decideNewlinesOnlyAfterClose(split: Split, rank: Int = 0)(close: FT)(
       implicit fileLine: FileLine,

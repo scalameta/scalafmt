@@ -42,7 +42,7 @@ inThisBuild {
     resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
     testFrameworks += new TestFramework("munit.Framework"),
     // causes native image issues
-    dependencyOverrides += "org.jline" % "jline" % "3.29.0",
+    dependencyOverrides += "org.jline" % "jline" % "3.30.4",
   )
 }
 
@@ -113,8 +113,7 @@ lazy val sysops = crossProject(JVMPlatform, NativePlatform, JSPlatform)
       else Seq("com.github.bigwheel" %% "util-backports" % "2.1")
     },
     sharedTestSettings,
-  ).platformsSettings(JVMPlatform, NativePlatform)(parallelCollections)
-  .jsEnablePlugins(ScalaJSPlugin).jsSettings(
+  ).jsEnablePlugins(ScalaJSPlugin).jsSettings(
     libraryDependencies += "org.scalameta" %%% "io" % scalametaV,
     scalaJsSettings,
   )
@@ -185,7 +184,6 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     },
     libraryDependencies ++= Seq(
       "org.scalameta" %%% "munit-diff" % munitV,
-      "com.martiansoftware" % "nailgun-server" % "0.9.1",
       "com.github.scopt" %%% "scopt" % "4.1.0",
     ),
     scalacOptions ++= scalacJvmOptions.value,
@@ -197,6 +195,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
       case x => (assembly / assemblyMergeStrategy).value(x)
     },
   ).jvmSettings(
+    libraryDependencies += "com.facebook" % "nailgun-server" % "1.0.1",
     nativeImageInstalled := isCI,
     nativeImageOptions += "-march=compatibility",
     nativeImageOptions ++= {
@@ -231,9 +230,9 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
       (Test / resourceDirectories).value.find(_.toPath.startsWith(sharedTests))
         .get
     }),
-  ).enablePlugins(BuildInfoPlugin)
-  .jvmSettings(javaOptions += "-Dfile.encoding=UTF8").dependsOn(core)
-  .aggregate(core).jsSettings(scalaJsSettings).jsEnablePlugins(ScalaJSPlugin)
+  ).enablePlugins(BuildInfoPlugin).dependsOn(core).aggregate(core)
+  .jvmSettings(javaOptions += "-Dfile.encoding=UTF8", parallelCollections)
+  .jsSettings(scalaJsSettings).jsEnablePlugins(ScalaJSPlugin)
 
 lazy val sharedTestSettings = Seq(libraryDependencies += munit.value % Test)
 

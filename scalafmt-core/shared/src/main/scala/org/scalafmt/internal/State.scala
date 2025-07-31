@@ -396,9 +396,13 @@ object State {
     private def compareSplitOrigin(s1: State, s2: State): Int = {
       // We assume the same number of splits, see compareSplitsLength
       // Break ties by the last split's line origin.
-      val r = s1.split.fileLineStack.compare(s2.split.fileLineStack)
-      if (r != 0 || s1.prev.depth == 0) r
-      else compareSplitOrigin(s1.prev, s2.prev)
+      val r = s1.split.rank.compare(s2.split.rank)
+      if (r != 0) r
+      else {
+        val r = s1.split.fileLineStack.compare(s2.split.fileLineStack)
+        if (r != 0 || s1.prev.depth == 0) r
+        else compareSplitOrigin(s1.prev, s2.prev)
+      }
     }
   }
 

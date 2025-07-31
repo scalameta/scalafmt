@@ -133,9 +133,7 @@ object OptimizationEntities {
       case t: Decl.Def => addDefn[T.KwDef](t.mods, t)
       case t: Defn.Def => addDefn[T.KwDef](t.mods, t)
       case t: Defn.Macro => addDefn[T.KwDef](t.mods, t)
-      case t: Decl.Given => addDefn[T.KwGiven](t.mods, t)
-      case t: Defn.Given => addDefn[T.KwGiven](t.mods, t)
-      case t: Defn.GivenAlias => addDefn[T.KwGiven](t.mods, t)
+      case t: meta.Stat.GivenLike => addDefn[T.KwGiven](t.mods, t)
       case t: Defn.Enum => addDefn[T.KwEnum](t.mods, t)
       case t: Defn.ExtensionGroup =>
         addDefnTokens(Nil, t, "extension", soft.KwExtension.unapply)
@@ -193,7 +191,7 @@ object OptimizationEntities {
 
   private def skipBlockSingleStat(t: Tree, isInArgClause: => Boolean): Boolean =
     t match {
-      case _: Term.FunctionTerm => true
+      case _: Term.FunctionLike => true
       case _ if !isInArgClause => false
       case _: Term.Apply => true
       case x: Term.AnonymousFunction => x.body.is[Term.Apply]

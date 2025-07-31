@@ -125,13 +125,12 @@ object ProjectFiles {
         dialect.allowSignificantIndentation
 
       @inline
-      private[config] def nd(text: sourcecode.Text[Dialect]) =
-        Some(NamedDialect(text))
-      private[config] val s210 = nd(dialects.Scala210)
-      private[config] val s211 = nd(dialects.Scala211)
-      private[config] val s212 = nd(NamedDialect.scala212)
-      private[config] val s213 = nd(NamedDialect.scala213)
-      private[config] val s3 = nd(NamedDialect.scala3)
+      private[config] def opt(nd: NamedDialect) = Some(nd)
+      private[config] val s210 = opt(dialects.Scala210)
+      private[config] val s211 = opt(dialects.Scala211)
+      private[config] val s212 = opt(dialects.Scala212)
+      private[config] val s213 = opt(dialects.Scala213)
+      private[config] val s3 = opt(dialects.Scala3)
 
       override protected[config] def getDialectByLang(
           lang: String,

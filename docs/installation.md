@@ -5,6 +5,12 @@ title: Installation
 
 You can use Scalafmt from your editor, build tool or terminal.
 
+## Configuration
+
+You'll need a `.scalafmt.conf` file to use Scalafmt.
+[The Configuration documentation](configuration.md) includes detailed
+documentation on the available options.
+
 ## IntelliJ
 
 The _Scala_ plugin compatible with recent versions of IntelliJ IDEA has

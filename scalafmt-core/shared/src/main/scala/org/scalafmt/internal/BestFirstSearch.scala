@@ -26,7 +26,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   /** Precomputed table of splits for each token.
     */
   val routes: Array[Seq[Split]] = {
-    val router = new Router(formatOps)
+    val router = new Router
     val result = Array.newBuilder[Seq[Split]]
     tokens.foreach(t => result += router.getSplits(t))
     result.result()
@@ -38,7 +38,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
   private def getBlockCloseToRecurse(ft: FT)(implicit
       style: ScalafmtConfig,
-  ): Option[Int] = getEndOfBlock(ft, parensToo = true).collect {
+  ): Option[Int] = getEndOfBlock(ft, parens = true).collect {
     // Block must span at least 3 lines to be worth recursing.
     case close if tokens.width(ft, close) > style.maxColumn * 3 => close.idx
   }
@@ -87,8 +87,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     var preForkState: State = start
     var preFork = !isKillOnFail
     val activeSplitsFilter: Split => Boolean =
-      if (isOpt)
-        s => if (s.costWithPenalty <= 0) true else { preFork = false; false }
+      if (isOpt) s => if (s.noCost) true else { preFork = false; false }
       else _ => true
 
     var curr: State = null

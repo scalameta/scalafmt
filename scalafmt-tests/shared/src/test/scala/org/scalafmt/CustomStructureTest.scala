@@ -9,7 +9,7 @@ class CustomStructureTest extends FunSuite {
 
   private def check(original: String, expected: Tree, dialect: Dialect)(implicit
       loc: munit.Location,
-  ): Unit = {
+  ): Unit = test(original) {
     val parser = new ScalametaParser(Input.String(original))(dialect)
     assertNoDiff(parser.parseStat().structure, expected.structure)
   }

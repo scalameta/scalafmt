@@ -146,16 +146,4 @@ object FormatToken {
     }
   }
 
-  class ExtractFromMeta[A](f: FT.Meta => Option[A]) {
-    def unapply(meta: FT.Meta): Option[A] = f(meta)
-  }
-
-  val LeftOwner = new ExtractFromMeta(x => Some(x.leftOwner))
-  val RightOwner = new ExtractFromMeta(x => Some(x.rightOwner))
-
-  val LeftOwnerParent =
-    new ExtractFromMeta(x => Some((x.leftOwner, x.leftOwner.parent)))
-  val RightOwnerParent =
-    new ExtractFromMeta(x => Some((x.rightOwner, x.rightOwner.parent)))
-
 }

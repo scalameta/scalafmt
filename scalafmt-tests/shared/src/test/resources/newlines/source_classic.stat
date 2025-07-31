@@ -191,13 +191,27 @@ object a {
   the[Exception] thrownBy { SizeUtils.calculate(segments, "user") } should
     have message """Cannot resolve column name "user" among (segment_id);"""
 }
-<<< 1.c.3: block followed by an infix, overflowing if no break
+<<< 1.c.3: block followed by an infix, break before, overflowing if no break
 newlines.afterInfix = keep
 maxColumn = 80
 ===
 object a {
     the[Exception] thrownBy
        { SizeUtils.calculate(segments, "user") } should
+       have message """Cannot resolve column name "user" among (segment_id);"""
+}
+>>>
+object a {
+  the[Exception] thrownBy
+    { SizeUtils.calculate(segments, "user") } should
+    have message """Cannot resolve column name "user" among (segment_id);"""
+}
+<<< 1.c.4: block followed by an infix, no break before, overflowing if no break
+newlines.afterInfix = keep
+maxColumn = 80
+===
+object a {
+    the[Exception] thrownBy { SizeUtils.calculate(segments, "user") } should
        have message """Cannot resolve column name "user" among (segment_id);"""
 }
 >>>
@@ -2569,11 +2583,25 @@ def insertAndDelete(eventClient: LEvents) = {
     (deleteStatus must beEqualTo(true)) and
     (resultAfter must beEqualTo(None))
 }
-<<< 8.28
+<<< 8.28 break before block
 object a {
   val b = qual1 op1 { 1 + 2 + 3 + 4 + 5 } op2
     111 * 222 * 333 * 444 * 555 op3
     { "1 / 2 / 3 / 4 / 5 / 6 / 7" }
+}
+>>>
+object a {
+  val b = qual1 op1 {
+    1 + 2 + 3 + 4 + 5
+  } op2
+    111 * 222 * 333 * 444 * 555 op3
+    { "1 / 2 / 3 / 4 / 5 / 6 / 7" }
+}
+<<< 8.28 no break before block
+object a {
+  val b = qual1 op1 { 1 + 2 + 3 + 4 + 5 } op2
+    111 * 222 * 333 * 444 * 555 op3 {
+      "1 / 2 / 3 / 4 / 5 / 6 / 7" }
 }
 >>>
 object a {
@@ -3475,10 +3503,11 @@ object a {
 }
 >>>
 object a {
-  def validate(d: DirectoryProxy, step: Int): Unit = if (step != 0) /* c1 */
-    { /* c2 */
-      d.name should be("dir" + step)
-    }
+  def validate(d: DirectoryProxy, step: Int): Unit = if (
+    step != 0
+  ) /* c1 */ { /* c2 */
+    d.name should be("dir" + step)
+  }
 }
 <<< #2113 case 1
 object a {
@@ -9173,9 +9202,8 @@ object a {
   def fn(): Boolean =
     try
       in.readYesOrNo(
-        explain + replayQuestionMessage, {
-          echo("\nYou must enter y or n."); fn()
-        }
+        explain + replayQuestionMessage,
+        { echo("\nYou must enter y or n."); fn() }
       )
     catch { case _: RuntimeException => false }
 }
@@ -9198,6 +9226,73 @@ object a {
         )
         .transpose
     catch { case _: IllegalArgumentException => }
+}
+<<< single-line block as arg in one-arg-per-line, solo expression
+object a {
+  new EntrySpliterator[K, V](
+    tab,
+    baseSize,
+    { baseLimit = h; h },
+    f,
+    { est >>>= 1; est },
+    map
+  )
+}
+>>>
+object a {
+  new EntrySpliterator[K, V](
+    tab,
+    baseSize,
+    { baseLimit = h; h },
+    f,
+    { est >>>= 1; est },
+    map
+  )
+}
+<<< single-line block as arg in one-arg-per-line, `else` expression
+object a {
+  if (foo) null
+  else
+    new EntrySpliterator[K, V](
+      tab,
+      baseSize,
+      { baseLimit = h; h },
+      f,
+      { est >>>= 1; est },
+      map
+    )
+}
+>>>
+object a {
+  if (foo) null
+  else
+    new EntrySpliterator[K, V](
+      tab,
+      baseSize,
+      { baseLimit = h; h },
+      f,
+      { est >>>= 1; est },
+      map
+    )
+}
+<<< single-line block as infix arg
+maxColumn = 80
+===
+object a {
+  if ({ rs = counterCells; rs } != null &&
+    { m = rs.length; m } > 0 && rs({ j = (m - 1) & h; j }
+  ) == null) {
+    rs(j) = r
+  }
+}
+>>>
+object a {
+  if (
+    { rs = counterCells; rs } != null &&
+    { m = rs.length; m } > 0 && rs({ j = (m - 1) & h; j }) == null
+  ) {
+    rs(j) = r
+  }
 }
 <<< #4133 case body enclosed, no break before lparen, no break after lparen
 object a {
@@ -9787,6 +9882,34 @@ val finalProperties = properties.get(SupportsNamespaces.PROP_LOCATION).map { loc
 >>>
 val finalProperties =
   properties.get(SupportsNamespaces.PROP_LOCATION).map { loc =>
+    properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(
+      loc
+    ))
+  }
+<<< #4133 contextual lambda in braces, overflow after brace 2
+maxColumn = 74
+runner.dialect = scala3
+===
+val finalProperties = properties.get(SupportsNamespaces.PROP_LOCATION).map { loc ?=>
+  properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(loc))
+}
+>>>
+val finalProperties =
+  properties.get(SupportsNamespaces.PROP_LOCATION).map { loc ?=>
+    properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(
+      loc
+    ))
+  }
+<<< #4133 poly lambda in braces, overflow after brace 2
+maxColumn = 74
+runner.dialect = scala3
+===
+val finalProperties = properties.get(SupportsNamespaces.PROP_LOCATION).map { [loc] =>
+  properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(loc))
+}
+>>>
+val finalProperties =
+  properties.get(SupportsNamespaces.PROP_LOCATION).map { [loc] =>
     properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(
       loc
     ))
@@ -10983,6 +11106,44 @@ val offsets = Utils.tryWithResource {
   dis.readFully(buffer.array)
   buffer.asLongBuffer
 }
+<<< #4133 braces to parens with two curried params, second contextual func
+maxColumn = 76
+runner.dialect = scala3
+newlines.avoidForSimpleOverflow = all
+rewrite.rules = [RedundantBraces]
+===
+val offsets = Utils.tryWithResource {
+  new DataInputStream(Files.newInputStream(indexFile.toPath))
+} { dis ?=>
+  dis.readFully(buffer.array)
+  buffer.asLongBuffer
+}
+>>>
+val offsets = Utils.tryWithResource {
+  new DataInputStream(Files.newInputStream(indexFile.toPath))
+} { dis ?=>
+  dis.readFully(buffer.array)
+  buffer.asLongBuffer
+}
+<<< #4133 braces to parens with two curried params, second poly func
+maxColumn = 76
+runner.dialect = scala3
+newlines.avoidForSimpleOverflow = all
+rewrite.rules = [RedundantBraces]
+===
+val offsets = Utils.tryWithResource {
+  new DataInputStream(Files.newInputStream(indexFile.toPath))
+} { [dis] =>
+  dis.readFully(buffer.array)
+  buffer.asLongBuffer
+}
+>>>
+val offsets = Utils.tryWithResource {
+  new DataInputStream(Files.newInputStream(indexFile.toPath))
+} { [dis] =>
+  dis.readFully(buffer.array)
+  buffer.asLongBuffer
+}
 <<< #4133 braces to parens with two curried params, second func and comment
 maxColumn = 76
 newlines.avoidForSimpleOverflow = all
@@ -11077,6 +11238,50 @@ val seqArgs = map3(newPs, oldPs, isRepeated)((param, oldParam, isRep) => {
 >>>
 val seqArgs =
   map3(newPs, oldPs, isRepeated) { (param, oldParam, isRep) =>
+    if (!isRep) Ident(param)
+    else {
+      val parTp = elementType(ArrayClass, param.tpe)
+      val wrap = gen.mkWrapArray(Ident(param), parTp)
+    }
+  }
+<<< #4133 parens to braces, with contextual function as argument
+maxColumn = 72
+runner.dialect = scala3
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.maxBreaks = 3 
+===
+val seqArgs = map3(newPs, oldPs, isRepeated)((param, oldParam, isRep) ?=> {
+  if (!isRep) Ident(param)
+  else {
+    val parTp = elementType(ArrayClass, param.tpe)
+    val wrap = gen.mkWrapArray(Ident(param), parTp)
+  }
+})
+>>>
+val seqArgs =
+  map3(newPs, oldPs, isRepeated) { (param, oldParam, isRep) ?=>
+    if (!isRep) Ident(param)
+    else {
+      val parTp = elementType(ArrayClass, param.tpe)
+      val wrap = gen.mkWrapArray(Ident(param), parTp)
+    }
+  }
+<<< #4133 parens to braces, with poly function as argument
+maxColumn = 72
+runner.dialect = scala3
+rewrite.rules = [RedundantBraces]
+rewrite.redundantBraces.maxBreaks = 3 
+===
+val seqArgs = map3(newPs, oldPs, isRepeated)([param__oldParam__isRep] => {
+  if (!isRep) Ident(param)
+  else {
+    val parTp = elementType(ArrayClass, param.tpe)
+    val wrap = gen.mkWrapArray(Ident(param), parTp)
+  }
+})
+>>>
+val seqArgs =
+  map3(newPs, oldPs, isRepeated) { [param__oldParam__isRep] =>
     if (!isRep) Ident(param)
     else {
       val parTp = elementType(ArrayClass, param.tpe)
@@ -11986,4 +12191,394 @@ object a {
     |qux""".stripMargin + """|bar
     |baz
     |qux""".stripMargin
+}
+<<< `do` starts a new statement, narrow, danglingParentheses.ctrlSite
+danglingParentheses.ctrlSite = true
+===
+def foo = {
+    next.offset = begCharOffset
+    do putCharAndNext()
+    while (ch != CR && ch != LF && ch != FF && ch != SU)
+}
+>>>
+def foo = {
+  next.offset = begCharOffset
+  do putCharAndNext()
+  while (
+    ch != CR && ch != LF && ch != FF && ch != SU
+  )
+}
+<<< `do` starts a new statement, wide, danglingParentheses.ctrlSite
+maxColumn = 60
+danglingParentheses.ctrlSite = true
+===
+def foo = {
+    next.offset = begCharOffset
+    do putCharAndNext()
+    while (ch != CR && ch != LF && ch != FF && ch != SU)
+}
+>>>
+def foo = {
+  next.offset = begCharOffset
+  do putCharAndNext()
+  while (ch != CR && ch != LF && ch != FF && ch != SU)
+}
+<<< `do` starts a new statement, narrow, !danglingParentheses.ctrlSite
+danglingParentheses.ctrlSite = false
+===
+def foo = {
+    next.offset = begCharOffset
+    do putCharAndNext()
+    while (ch != CR && ch != LF && ch != FF && ch != SU)
+}
+>>>
+def foo = {
+  next.offset = begCharOffset
+  do putCharAndNext()
+  while (ch != CR && ch != LF && ch != FF && ch != SU)
+}
+<<< `do` starts a new statement, wide, !danglingParentheses.ctrlSite
+maxColumn = 60
+danglingParentheses.ctrlSite = false
+===
+def foo = {
+    next.offset = begCharOffset
+    do putCharAndNext()
+    while (ch != CR && ch != LF && ch != FF && ch != SU)
+}
+>>>
+def foo = {
+  next.offset = begCharOffset
+  do putCharAndNext()
+  while (ch != CR && ch != LF && ch != FF && ch != SU)
+}
+<<< splits: `after equals` or `before statement` 1
+maxColumn = 80
+===
+ object ScriptRunner {
+   def apply(settings: GenericRunnerSettings): ScriptRunner =
+     settings.Yscriptrunner.value match {
+       case custom =>
+         val loader =
+           new ClassLoader(getClass.getClassLoader) with ScalaClassLoader
+         loader.create[ScriptRunner](custom, settings.errorFn)(settings)
+     }
+ }
+>>>
+object ScriptRunner {
+  def apply(settings: GenericRunnerSettings): ScriptRunner =
+    settings.Yscriptrunner.value match {
+      case custom =>
+        val loader =
+          new ClassLoader(getClass.getClassLoader) with ScalaClassLoader
+        loader.create[ScriptRunner](custom, settings.errorFn)(settings)
+    }
+}
+<<< splits: `after right paren` or `before statement` 1
+maxColumn = 80
+===
+ object a {
+    override def safeToString =
+      if (sym.isOmittablePrefix)
+        s"${if (sym.isPackageObjectOrClass || sym.isJavaDefined)
+            sym.fullNameString
+          else sym.nameString}.type"
+      else s"${prefixString}type"
+ }
+>>>
+object a {
+  override def safeToString =
+    if (sym.isOmittablePrefix)
+      s"${if (sym.isPackageObjectOrClass || sym.isJavaDefined)
+          sym.fullNameString
+        else sym.nameString}.type"
+    else s"${prefixString}type"
+}
+<<< splits: `after right paren` or `before statement` 2
+maxColumn = 80
+===
+ object a {
+    def foo =
+        if (args.size == params.size)
+          if (untouchable) new AppliedTypeVar(origin, constr, params, args)
+            with UntouchableTypeVar
+          else new AppliedTypeVar(origin, constr, params, args)
+        else if (args.isEmpty)
+          if (untouchable)
+            new HKTypeVar(origin, constr, params) with UntouchableTypeVar
+          else new HKTypeVar(origin, constr, params)
+        else throw new Error(
+          "Invalid TypeVar construction: " + ((origin, constr, args, params))
+        )
+ }
+>>>
+object a {
+  def foo =
+    if (args.size == params.size)
+      if (untouchable)
+        new AppliedTypeVar(origin, constr, params, args) with UntouchableTypeVar
+      else new AppliedTypeVar(origin, constr, params, args)
+    else if (args.isEmpty)
+      if (untouchable)
+        new HKTypeVar(origin, constr, params) with UntouchableTypeVar
+      else new HKTypeVar(origin, constr, params)
+    else
+      throw new Error(
+        "Invalid TypeVar construction: " + ((origin, constr, args, params))
+      )
+}
+<<< splits: `after right paren` or `before statement` 3
+maxColumn = 80
+===
+ object a {
+    while (it.hasNext) it.next() match {
+      case vi: VarInsnNode if isNull(vi, vi.`var`) =>
+        if (vi.getOpcode == ALOAD) toReplace(vi) = List(new InsnNode(ACONST_NULL))
+        else if (vi.getOpcode == ASTORE)
+          for (frame <- frameAt(vi) if frame.peekStack(0) == NullValue)
+            toReplace(vi) = List(getPop(1))
+
+      case ji: JumpInsnNode =>
+        val isIfNull = ji.getOpcode == IFNULL
+    }
+ }
+>>>
+object a {
+  while (it.hasNext) it.next() match {
+    case vi: VarInsnNode if isNull(vi, vi.`var`) =>
+      if (vi.getOpcode == ALOAD) toReplace(vi) = List(new InsnNode(ACONST_NULL))
+      else if (vi.getOpcode == ASTORE)
+        for (frame <- frameAt(vi) if frame.peekStack(0) == NullValue)
+          toReplace(vi) = List(getPop(1))
+
+    case ji: JumpInsnNode =>
+      val isIfNull = ji.getOpcode == IFNULL
+  }
+}
+<<< splits: `after ident` or `before brace` in infix
+maxColumn = 80
+===
+object a {
+  Example[{
+    val foo: Int
+  } :+: { val bar: String } :+: { val baz: Boolean } :+:
+    { val buzz: Double } :+: { val booze: Float } :+: End].apply(_.foo)
+}
+>>>
+object a {
+  Example[{
+    val foo: Int
+  } :+: { val bar: String } :+: { val baz: Boolean } :+:
+    { val buzz: Double } :+: { val booze: Float } :+: End].apply(_.foo)
+}
+<<< splits: `after ident` or `before brace` in infix 2
+maxColumn = 78
+===
+object a {
+    val totalSize = headerBuffer.length + lengthWithLength(nameBuffer) +
+      {
+        for ((nameRef, buf) <- sections) yield natSize(nameRef.index) +
+          lengthWithLength(buf)
+      }.sum
+}
+>>>
+object a {
+  val totalSize = headerBuffer.length + lengthWithLength(nameBuffer) +
+    {
+      for ((nameRef, buf) <- sections)
+        yield natSize(nameRef.index) +
+          lengthWithLength(buf)
+    }.sum
+}
+<<< splits: `after right paren` or `before for`
+maxColumn = 70
+===
+object a {
+  if (sym.isPrimaryConstructor) for (
+    cpa <- sym.owner.constrParamAccessors if cpa.isPrivateLocal
+  ) params += cpa
+  else if (sym.isSynthetic && sym.isImplicit) return
+}
+>>>
+object a {
+  if (sym.isPrimaryConstructor)
+    for (cpa <- sym.owner.constrParamAccessors if cpa.isPrivateLocal)
+      params += cpa
+  else if (sym.isSynthetic && sym.isImplicit) return
+}
+<<< lambda with implicit parameter, scala213
+maxColumn = 80
+runner.dialect = scala213
+===
+Zone.acquire { implicit z: Zone =>
+    import scalanative.libc.string
+    assertEquals("case 2", 0, string.strcmp(buf2, c"1"))
+}
+>>>
+Zone.acquire { implicit z: Zone =>
+  import scalanative.libc.string
+  assertEquals("case 2", 0, string.strcmp(buf2, c"1"))
+}
+<<< lambda with implicit parameter, scala3
+maxColumn = 80
+runner.dialect = scala3
+===
+Zone.acquire { implicit z: Zone =>
+    import scalanative.libc.string
+    assertEquals("case 2", 0, string.strcmp(buf2, c"1"))
+}
+>>>
+Zone.acquire { implicit z: Zone =>
+  import scalanative.libc.string
+  assertEquals("case 2", 0, string.strcmp(buf2, c"1"))
+}
+<<< if cond in braces, danglingParentheses.ctrlSite
+maxColumn = 80
+danglingParentheses.ctrlSite = true
+===
+if ({
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
+>>>
+if ({
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
+<<< if cond in braces, !danglingParentheses.ctrlSite
+maxColumn = 80
+danglingParentheses.ctrlSite = false
+===
+if ({
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
+>>>
+if ({
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
+<<< while cond in braces, danglingParentheses.ctrlSite
+maxColumn = 80
+danglingParentheses.ctrlSite = true
+===
+while ({
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
+>>>
+while ({
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
+<<< while cond in braces, !danglingParentheses.ctrlSite
+maxColumn = 80
+danglingParentheses.ctrlSite = false
+===
+while ({
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
+>>>
+while ({
+  nread = is.read(buffer, 0, buffer.length)
+  nread != -1
+}) baos.write(buffer, 0, nread)
+<<< binpack type args
+maxColumn = 70
+binPack.defnSite = always
+binPack.callSite = always
+newlines.configStyle.fallBack.prefer = false
+===
+object a {
+  builder
+    .add[T.Interpolation.Id, T.Interpolation.Part, T.Interpolation.SpliceStart,
+      T.Xml.Part, T.MacroSplice, T.MacroQuote,
+    ](SplitsNoSplit)
+  builder.add[T.Interpolation.Id, T.Interpolation.Part, T.Interpolation.SpliceStart,
+      T.Xml.Part, T.MacroSplice, T.MacroQuote,
+    ](SplitsNoSplit)
+}
+>>>
+object a {
+  builder
+    .add[T.Interpolation.Id, T.Interpolation.Part,
+      T.Interpolation.SpliceStart, T.Xml.Part, T.MacroSplice,
+      T.MacroQuote](SplitsNoSplit)
+  builder.add[T.Interpolation.Id, T.Interpolation.Part,
+    T.Interpolation.SpliceStart, T.Xml.Part, T.MacroSplice,
+    T.MacroQuote](SplitsNoSplit)
+}
+<<< binpack term args
+maxColumn = 70
+binPack.defnSite = always
+binPack.callSite = always
+newlines.configStyle.fallBack.prefer = false
+===
+object a {
+  builder
+    .add(T.Interpolation.Id, T.Interpolation.Part, T.Interpolation.SpliceStart,
+      T.Xml.Part, T.MacroSplice, T.MacroQuote,
+    )(SplitsNoSplit)
+  builder.add(T.Interpolation.Id, T.Interpolation.Part, T.Interpolation.SpliceStart,
+      T.Xml.Part, T.MacroSplice, T.MacroQuote,
+    )(SplitsNoSplit)
+}
+>>>
+object a {
+  builder
+    .add(T.Interpolation.Id, T.Interpolation.Part,
+      T.Interpolation.SpliceStart, T.Xml.Part, T.MacroSplice,
+      T.MacroQuote)(SplitsNoSplit)
+  builder.add(T.Interpolation.Id, T.Interpolation.Part,
+    T.Interpolation.SpliceStart, T.Xml.Part, T.MacroSplice,
+    T.MacroQuote)(SplitsNoSplit)
+}
+<<< #4887
+maxColumn = 100
+binPack.callSite = onelinesjs
+newlines.configStyleCallSite.prefer = false
+===
+object a {
+  Seq(
+    (1, 2),
+    (3, 4),
+    (5, 6)
+  )
+
+  Seq(
+    1 -> 2,
+    3 -> 4,
+    5 -> 6
+  )
+
+  Seq(
+    Seq(1, 2),
+    Seq(3, 4),
+    Seq(5, 6)
+  )
+
+  Seq(
+    1,
+    2,
+    3
+  )
+}
+>>>
+object a {
+  Seq(
+    (1, 2), (3, 4), (5, 6)
+  )
+
+  Seq(
+    1 -> 2, 3 -> 4, 5 -> 6
+  )
+
+  Seq(
+    Seq(1, 2), Seq(3, 4), Seq(5, 6)
+  )
+
+  Seq(
+    1, 2, 3
+  )
 }

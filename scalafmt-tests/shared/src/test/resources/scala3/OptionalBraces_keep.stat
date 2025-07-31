@@ -697,7 +697,7 @@ object a:
 object a:
    (xs match
         case xs: TupleXXL => xs
-        case xs =>
+        case xs           =>
           TupleXXL.fromIArray(xs) // TODO use Iterator.toIArray
    ).asInstanceOf[Tuple]
 <<< try/finally, single
@@ -3571,6 +3571,108 @@ object a {
       b
   }
 }
+<<< #2019 function with param in parens
+maxColumn = 14
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  foo((x) =>
+    a +
+      b
+  )
+  foo((x) =>
+    a
+      + b
+  )
+  foo { (x) =>
+    a +
+      b
+  }
+}
+>>>
+object a {
+  foo((x) => {
+    a +
+      b
+  })
+  foo((x) =>
+    a
+      + b
+  )
+  foo { (x) =>
+    a +
+      b
+  }
+}
+<<< #2019 contextual function
+maxColumn = 13
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  foo(x ?=>
+    a +
+      b
+  )
+  foo(x ?=>
+    a
+      + b
+  )
+  foo { x ?=>
+    a +
+      b
+  }
+}
+>>>
+object a {
+  foo(x ?=>
+    a +
+      b
+  )
+  foo(x ?=>
+    a
+      + b
+  )
+  foo { x ?=>
+    a +
+      b
+  }
+}
+<<< #2019 poly function
+maxColumn = 14
+newlines.afterInfix = keep
+rewrite.insertBraces.minLines = 2
+===
+object a {
+  foo([x] =>
+    a +
+      b
+  )
+  foo([x] =>
+    a
+      + b
+  )
+  foo { [x] =>
+    a +
+      b
+  }
+}
+>>>
+object a {
+  foo([x] => {
+    a +
+      b
+  })
+  foo([x] =>
+    a
+      + b
+  )
+  foo { [x] =>
+    a +
+      b
+  }
+}
 <<< #2019 partial function
 maxColumn = 25
 newlines.afterInfix = keep
@@ -6254,6 +6356,51 @@ object a:
      )
      index
    }
+<<< complex code with selects and brace lambda 1, poly
+maxColumn = 81
+===
+object a:
+  private val packageIndex: scala.collection.Map[String, scala.collection.Seq[Path]] = {
+    val index = collection.mutable.AnyRefMap[String, collection.mutable.ListBuffer[Path]]()
+    val isJava12OrHigher = scala.util.Properties.isJavaAtLeast("12")
+    rootsForRelease.foreach(root => Files.walk(root).iterator().asScala.filter(Files.isDirectory(_)).foreach { [p] =>
+      val moduleNamePathElementCount = if (isJava12OrHigher) 1 else 0
+      if (p.getNameCount > root.getNameCount + moduleNamePathElementCount) {
+        val packageDotted = p.subpath(moduleNamePathElementCount + root.getNameCount, p.getNameCount).toString.replace('/', '.')
+        index.getOrElseUpdate(packageDotted, new collection.mutable.ListBuffer) += p
+      }
+    }) 
+    index
+  }
+>>> { stateVisits = 986, stateVisits2 = 986 }
+object a:
+   private val packageIndex
+       : scala.collection.Map[String, scala.collection.Seq[Path]] = {
+     val index = collection.mutable.AnyRefMap[
+       String,
+       collection.mutable.ListBuffer[Path]
+     ]()
+     val isJava12OrHigher = scala.util.Properties.isJavaAtLeast("12")
+     rootsForRelease.foreach(root =>
+       Files.walk(root).iterator().asScala.filter(Files.isDirectory(_)).foreach {
+         [p] =>
+            val moduleNamePathElementCount = if (isJava12OrHigher) 1 else 0
+            if (
+              p.getNameCount > root.getNameCount + moduleNamePathElementCount
+            ) {
+              val packageDotted = p.subpath(
+                moduleNamePathElementCount + root.getNameCount,
+                p.getNameCount
+              ).toString.replace('/', '.')
+              index.getOrElseUpdate(
+                packageDotted,
+                new collection.mutable.ListBuffer
+              ) += p
+            }
+       }
+     )
+     index
+   }
 <<< complex code with selects and brace lambda 2
 maxColumn = 79
 ===
@@ -6270,6 +6417,33 @@ object a:
    rootsForRelease_foreach(root =>
      Files.walkingIterator().useScalaFilter(Files__Is__Directory).foreach {
        p =>
+          val_moduleNamePathElementCount_е_0
+          if (
+            p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount
+          ) {
+            val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
+            index_getOrElseUpdate(
+              packageDotted__new_collectionMutableListBuffer
+            )
+          }
+     }
+   )
+<<< complex code with selects and brace lambda 2, poly
+maxColumn = 79
+===
+object a:
+  rootsForRelease_foreach(root => Files.walkingIterator().useScalaFilter(Files__Is__Directory).foreach { [p] =>
+    val_moduleNamePathElementCount_е_0
+    if (p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount) {
+      val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
+      index_getOrElseUpdate(packageDotted__new_collectionMutableListBuffer)
+    }
+  })
+>>>
+object a:
+   rootsForRelease_foreach(root =>
+     Files.walkingIterator().useScalaFilter(Files__Is__Directory).foreach {
+       [p] =>
           val_moduleNamePathElementCount_е_0
           if (
             p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount
@@ -8548,4 +8722,65 @@ object a {
   val _ = println( //
     x = "string"
   )
+}
+<<< #4857
+for
+  foo <- Some(42)
+yield
+  case Some(x) => foo
+>>>
+for
+   foo <- Some(42)
+yield
+   case Some(x) => foo
+<<< scalaz nested refined types
+def foldStep(
+  onGosub: ~>[({type l[a] = (S[a], a => Free[S, A])})#l, ({type l[a] = B})#l]
+): B = ???
+>>>
+def foldStep(
+    onGosub: ~>[
+      ({ type l[a] = (S[a], a => Free[S, A]) })#l,
+      ({ type l[a] = B })#l
+    ]
+): B = ???
+<<< functions: context within polymorphic function
+newlines.beforeCurlyLambdaParams = never
+===
+object a {
+    def tupled[O1[_], O2[_]](
+          f1: ChildFunction0[O1],
+          f2: ChildFunction0[O2],
+      ): ChildFunction0.Tupled[O1, O2] = {
+        [b : Bound] => _ ?=> (child: Child[b]) => (f1[b](child), f2[b](child))
+      }
+}
+>>>
+object a {
+  def tupled[O1[_], O2[_]](
+      f1: ChildFunction0[O1],
+      f2: ChildFunction0[O2]
+  ): ChildFunction0.Tupled[O1, O2] = {
+    [b: Bound] => _ ?=> (child: Child[b]) => (f1[b](child), f2[b](child))
+  }
+}
+<<< functions: context within regular function
+newlines.beforeCurlyLambdaParams = never
+===
+object a {
+    def tupled[O1[_], O2[_]](
+          f1: ChildFunction0[O1],
+          f2: ChildFunction0[O2],
+      ): ChildFunction0.Tupled[O1, O2] = {
+        (b: Bound) => _ => (child: Child[b]) => (f1[b](child), f2[b](child))
+      }
+}
+>>>
+object a {
+  def tupled[O1[_], O2[_]](
+      f1: ChildFunction0[O1],
+      f2: ChildFunction0[O2]
+  ): ChildFunction0.Tupled[O1, O2] = {
+    (b: Bound) => _ => (child: Child[b]) => (f1[b](child), f2[b](child))
+  }
 }

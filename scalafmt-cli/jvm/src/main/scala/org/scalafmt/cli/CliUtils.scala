@@ -5,7 +5,7 @@ import org.scalafmt.sysops.PlatformRunOps
 
 import scala.io.Source
 
-import com.martiansoftware.nailgun.NGContext
+import com.facebook.nailgun.NGContext
 
 private[scalafmt] trait CliUtils {
   def nailMain(nGContext: NGContext): Unit = {

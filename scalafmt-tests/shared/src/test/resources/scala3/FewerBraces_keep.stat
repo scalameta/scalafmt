@@ -1807,7 +1807,7 @@ foo
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
   fewerBracesMinSpan = 9
-  fewerBracesMaxSpan = 9
+  fewerBracesMaxSpan = 11
 }
 ===
 foo
@@ -1836,12 +1836,78 @@ foo
      x + 2
      x + 3
   }
+<<< rewrite to fewer braces: context func
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 11
+}
+===
+foo
+  .mtd1 { x ?=>
+    x + 1
+  }
+  .mtd2 { x ?=>
+    x + 1
+    x + 2
+  }
+  .mtd3 { x ?=>
+    x + 1
+    x + 2
+    x + 3
+  }
+>>>
+foo
+  .mtd1 { x ?=>
+    x + 1
+  }
+  .mtd2: x ?=>
+     x + 1
+     x + 2
+  .mtd3 { x ?=>
+     x + 1
+     x + 2
+     x + 3
+  }
+<<< rewrite to fewer braces: poly func
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 11
+}
+===
+foo
+  .mtd1 { [x] =>
+    x + 1
+  }
+  .mtd2 { [x] =>
+    x + 1
+    x + 2
+  }
+  .mtd3 { [x] =>
+    x + 1
+    x + 2
+    x + 3
+  }
+>>>
+foo
+  .mtd1 { [x] =>
+    x + 1
+  }
+  .mtd2: [x] =>
+     x + 1
+     x + 2
+  .mtd3 { [x] =>
+     x + 1
+     x + 2
+     x + 3
+  }
 <<< rewrite to fewer braces: func in parens
 rewrite.rules = [RedundantBraces]
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
   fewerBracesMinSpan = 9
-  fewerBracesMaxSpan = 9
+  fewerBracesMaxSpan = 11
 }
 ===
 foo
@@ -1877,6 +1943,88 @@ foo
        x + 2
        x + 3
   }
+<<< rewrite to fewer braces: context func in parens
+rewrite.rules = [RedundantBraces]
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 11
+}
+===
+foo
+  .mtd1(
+    x ?=> {
+      x + 1
+    }
+  )
+  .mtd2(
+    x ?=> {
+      x + 1
+      x + 2
+    }
+  )
+  .mtd3(
+    x ?=> {
+      x + 1
+      x + 2
+      x + 3
+    }
+  )
+>>>
+foo
+  .mtd1(x ?=>
+    x + 1
+  )
+  .mtd2: x ?=>
+     x + 1
+     x + 2
+  .mtd3 {
+    x ?=>
+       x + 1
+       x + 2
+       x + 3
+  }
+<<< rewrite to fewer braces: poly func in parens
+rewrite.rules = [RedundantBraces]
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 11
+}
+===
+foo
+  .mtd1(
+    [x] => {
+      x + 1
+    }
+  )
+  .mtd2(
+    [x] => {
+      x + 1
+      x + 2
+    }
+  )
+  .mtd3(
+    [x] => {
+      x + 1
+      x + 2
+      x + 3
+    }
+  )
+>>>
+foo
+  .mtd1([x] =>
+    x + 1
+  )
+  .mtd2: [x] =>
+     x + 1
+     x + 2
+  .mtd3 {
+    [x] =>
+       x + 1
+       x + 2
+       x + 3
+  }
 <<< rewrite to fewer braces: func in parens, trailing comma, allowFolding
 rewrite.rules = [RedundantBraces]
 rewrite.trailingCommas.style = keep
@@ -1884,7 +2032,7 @@ rewrite.trailingCommas.allowFolding = true
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
   fewerBracesMinSpan = 9
-  fewerBracesMaxSpan = 9
+  fewerBracesMaxSpan = 11
 }
 ===
 foo
@@ -1920,6 +2068,92 @@ foo
        x + 2
        x + 3
   }
+<<< rewrite to fewer braces: context func in parens, trailing comma, allowFolding
+rewrite.rules = [RedundantBraces]
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = true
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 11
+}
+===
+foo
+  .mtd1(
+    x ?=> {
+      x + 1
+    },
+  )
+  .mtd2(
+    x ?=> {
+      x + 1
+      x + 2
+    },
+  )
+  .mtd3(
+    x ?=> {
+      x + 1
+      x + 2
+      x + 3
+    },
+  )
+>>>
+foo
+  .mtd1(x ?=>
+    x + 1,
+  )
+  .mtd2: x ?=>
+     x + 1
+     x + 2
+  .mtd3 {
+    x ?=>
+       x + 1
+       x + 2
+       x + 3
+  }
+<<< rewrite to fewer braces: poly func in parens, trailing comma, allowFolding
+rewrite.rules = [RedundantBraces]
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = true
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 11
+}
+===
+foo
+  .mtd1(
+    [x] => {
+      x + 1
+    },
+  )
+  .mtd2(
+    [x] => {
+      x + 1
+      x + 2
+    },
+  )
+  .mtd3(
+    [x] => {
+      x + 1
+      x + 2
+      x + 3
+    },
+  )
+>>>
+foo
+  .mtd1([x] =>
+    x + 1,
+  )
+  .mtd2: [x] =>
+     x + 1
+     x + 2
+  .mtd3 {
+    [x] =>
+       x + 1
+       x + 2
+       x + 3
+  }
 <<< rewrite to fewer braces: func in parens, trailing comma, !allowFolding
 rewrite.rules = [RedundantBraces]
 rewrite.trailingCommas.style = keep
@@ -1927,7 +2161,7 @@ rewrite.trailingCommas.allowFolding = false
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
   fewerBracesMinSpan = 9
-  fewerBracesMaxSpan = 9
+  fewerBracesMaxSpan = 11
 }
 ===
 foo
@@ -1964,12 +2198,100 @@ foo
        x + 2
        x + 3
   }
+<<< rewrite to fewer braces: context func in parens, trailing comma, !allowFolding
+rewrite.rules = [RedundantBraces]
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = false
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 11
+}
+===
+foo
+  .mtd1(
+    x ?=> {
+      x + 1
+    },
+  )
+  .mtd2(
+    x ?=> {
+      x + 1
+      x + 2
+    },
+  )
+  .mtd3(
+    x ?=> {
+      x + 1
+      x + 2
+      x + 3
+    },
+  )
+>>>
+foo
+  .mtd1(
+    x ?=>
+      x + 1,
+  )
+  .mtd2: x ?=>
+     x + 1
+     x + 2
+  .mtd3 {
+    x ?=>
+       x + 1
+       x + 2
+       x + 3
+  }
+<<< rewrite to fewer braces: poly func in parens, trailing comma, !allowFolding
+rewrite.rules = [RedundantBraces]
+rewrite.trailingCommas.style = keep
+rewrite.trailingCommas.allowFolding = false
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 11
+}
+===
+foo
+  .mtd1(
+    [x] => {
+      x + 1
+    },
+  )
+  .mtd2(
+    [x] => {
+      x + 1
+      x + 2
+    },
+  )
+  .mtd3(
+    [x] => {
+      x + 1
+      x + 2
+      x + 3
+    },
+  )
+>>>
+foo
+  .mtd1(
+    [x] =>
+      x + 1,
+  )
+  .mtd2: [x] =>
+     x + 1
+     x + 2
+  .mtd3 {
+    [x] =>
+       x + 1
+       x + 2
+       x + 3
+  }
 <<< rewrite to fewer braces: func in parens, infix after
 rewrite.rules = [RedundantBraces]
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
   fewerBracesMinSpan = 9
-  fewerBracesMaxSpan = 9
+  fewerBracesMaxSpan = 11
 }
 ===
 object a {
@@ -2003,12 +2325,90 @@ object a:
         x + 2
         x + 3
    }
+<<< rewrite to fewer braces: context func in parens, infix after
+rewrite.rules = [RedundantBraces]
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 11
+}
+===
+object a {
+  mtd1(
+    x ?=> {
+      x + 1
+    },
+  ) + mtd2(
+    x ?=> {
+      x + 1
+      x + 2
+    },
+  ) + mtd3(
+    x ?=> {
+      x + 1
+      x + 2
+      x + 3
+    },
+  )
+}
+>>>
+object a:
+   mtd1(x ?=>
+     x + 1
+   ) + mtd2: x ?=>
+      x + 1
+      x + 2
+   + mtd3 {
+     x ?=>
+        x + 1
+        x + 2
+        x + 3
+   }
+<<< rewrite to fewer braces: poly func in parens, infix after
+rewrite.rules = [RedundantBraces]
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 11
+}
+===
+object a {
+  mtd1(
+    [x] => {
+      x + 1
+    },
+  ) + mtd2(
+    [x] => {
+      x + 1
+      x + 2
+    },
+  ) + mtd3(
+    [x] => {
+      x + 1
+      x + 2
+      x + 3
+    },
+  )
+}
+>>>
+object a:
+   mtd1([x] =>
+     x + 1
+   ) + mtd2: [x] =>
+      x + 1
+      x + 2
+   + mtd3 {
+     [x] =>
+        x + 1
+        x + 2
+        x + 3
+   }
 <<< rewrite to fewer braces: func in parens and braces
 rewrite.rules = [RedundantBraces, RedundantParens]
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
   fewerBracesMinSpan = 9
-  fewerBracesMaxSpan = 9
+  fewerBracesMaxSpan = 11
 }
 ===
 foo
@@ -2043,12 +2443,92 @@ foo
      x + 2
      x + 3
   }
+<<< rewrite to fewer braces: context func in parens and braces
+rewrite.rules = [RedundantBraces, RedundantParens]
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 11
+}
+===
+foo
+  .mtd1(
+    { x ?=>
+      x + 1
+    }
+  )
+  .mtd2(
+    { x ?=>
+      x + 1
+      x + 2
+    }
+  )
+  .mtd3(
+    { x ?=>
+      x + 1
+      x + 2
+      x + 3
+    }
+  )
+>>>
+foo
+  .mtd1(x ?=>
+    x + 1
+  )
+  .mtd2: x ?=>
+     x + 1
+     x + 2
+  .mtd3 { x ?=>
+     x + 1
+     x + 2
+     x + 3
+  }
+<<< rewrite to fewer braces: poly func in parens and braces
+rewrite.rules = [RedundantBraces, RedundantParens]
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 11
+}
+===
+foo
+  .mtd1(
+    { [x] =>
+      x + 1
+    }
+  )
+  .mtd2(
+    { [x] =>
+      x + 1
+      x + 2
+    }
+  )
+  .mtd3(
+    { [x] =>
+      x + 1
+      x + 2
+      x + 3
+    }
+  )
+>>>
+foo
+  .mtd1([x] =>
+    x + 1
+  )
+  .mtd2: [x] =>
+     x + 1
+     x + 2
+  .mtd3 { [x] =>
+     x + 1
+     x + 2
+     x + 3
+  }
 <<< rewrite to fewer braces: func in parens and braces, infix after
 rewrite.rules = [RedundantBraces, RedundantParens]
 rewrite.scala3.removeOptionalBraces = {
   enabled = yes
   fewerBracesMinSpan = 9
-  fewerBracesMaxSpan = 9
+  fewerBracesMaxSpan = 11
 }
 ===
 object a {
@@ -2077,6 +2557,82 @@ object a:
       x + 1
       x + 2
    + mtd3 { x =>
+      x + 1
+      x + 2
+      x + 3
+   }
+<<< rewrite to fewer braces: context func in parens and braces, infix after
+rewrite.rules = [RedundantBraces, RedundantParens]
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 11
+}
+===
+object a {
+  mtd1(
+    { x ?=>
+      x + 1
+    }
+  ) + mtd2(
+    { x ?=>
+      x + 1
+      x + 2
+    }
+  ) + mtd3(
+    { x ?=>
+      x + 1
+      x + 2
+      x + 3
+    }
+  )
+}
+>>>
+object a:
+   mtd1(x ?=>
+     x + 1
+   ) + mtd2: x ?=>
+      x + 1
+      x + 2
+   + mtd3 { x ?=>
+      x + 1
+      x + 2
+      x + 3
+   }
+<<< rewrite to fewer braces: poly func in parens and braces, infix after
+rewrite.rules = [RedundantBraces, RedundantParens]
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+  fewerBracesMinSpan = 9
+  fewerBracesMaxSpan = 11
+}
+===
+object a {
+  mtd1(
+    { [x] =>
+      x + 1
+    }
+  ) + mtd2(
+    { [x] =>
+      x + 1
+      x + 2
+    }
+  ) + mtd3(
+    { [x] =>
+      x + 1
+      x + 2
+      x + 3
+    }
+  )
+}
+>>>
+object a:
+   mtd1([x] =>
+     x + 1
+   ) + mtd2: [x] =>
+      x + 1
+      x + 2
+   + mtd3 { [x] =>
       x + 1
       x + 2
       x + 3
@@ -2720,3 +3276,45 @@ indent.fewerBraces = beforeSelect
      .map(_ * 2)
      .last
    println(first)
+<<< empty case body
+object a:
+  foo
+    .bar:
+      case 1 => one
+      case _ =>
+    .qux
+>>>
+object a:
+   foo
+     .bar:
+        case 1 => one
+        case _ =>
+     .qux
+<<< empty case body, only a comment
+object a:
+  foo
+    .bar:
+      case 1 => one
+      case _ => // two
+    .qux
+>>>
+object a:
+   foo
+     .bar:
+        case 1 => one
+        case _ => // two
+     .qux
+<<< non-empty case body
+object a:
+  foo
+    .bar:
+      case 1 => one
+      case _ => two
+    .qux
+>>>
+object a:
+   foo
+     .bar:
+        case 1 => one
+        case _ => two
+     .qux

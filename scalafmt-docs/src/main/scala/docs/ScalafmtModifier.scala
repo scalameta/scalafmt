@@ -1,7 +1,6 @@
 package docs
 
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.NamedDialect
 import org.scalafmt.config.ScalafmtConfig
 
 import scala.meta.inputs.Input
@@ -67,7 +66,7 @@ class ScalafmtModifier extends StringModifier {
 object ScalafmtModifier {
 
   private val defaultConfig = ScalafmtConfig.default.copy(maxColumn = 40)
-    .withDialect(NamedDialect.scala213, "scala213")
+    .withDialect(scala.meta.dialects.Scala213, "scala213")
 
   private val defaultSbtConfig = defaultConfig.forSbt
 

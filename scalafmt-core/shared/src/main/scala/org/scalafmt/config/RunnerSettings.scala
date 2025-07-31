@@ -31,24 +31,23 @@ case class RunnerSettings(
     fatalWarnings: Boolean = false,
 ) {
   @inline
-  private[scalafmt] def getDialect = dialect.dialect
+  private[scalafmt] def getDialect = dialect.value
   private[scalafmt] lazy val getDialectForParser: Dialect = getDialect
     .withAllowToplevelTerms(true).withAllowToplevelStatements(true)
   @inline
   private[scalafmt] def dialectName = {
-    val name = dialect.name
+    val source = dialect.source
+    val name = source.substring(source.lastIndexOf('.') + 1).toLowerCase
     if (dialectOverride.values.isEmpty) name else s"$name [with overrides]"
   }
   @inline
   private[scalafmt] def getParser = parser.parse
 
   @inline
-  private[scalafmt] def withDialect(dialect: NamedDialect) =
-    copy(dialect = dialect)
+  def withDialect(nd: NamedDialect): RunnerSettings = copy(dialect = nd)
 
   @inline
-  private[scalafmt] def withParser(parser: ScalafmtParser) =
-    copy(parser = parser)
+  def withParser(parser: ScalafmtParser): RunnerSettings = copy(parser = parser)
 
   private[scalafmt] def forCodeBlock =
     copy(debug = false, eventCallback = null, parser = ScalafmtParser.Source)
@@ -66,7 +65,7 @@ case class RunnerSettings(
     getParser(input, getDialectForParser)
 
   @inline
-  def isDefaultDialect = dialect.name == NamedDialect.defaultName
+  def isDefaultDialect = dialect.source == NamedDialect.defaultName
 
   private[scalafmt] def conservative = copy(optimizer = optimizer.conservative)
 
@@ -86,7 +85,9 @@ object RunnerSettings {
     */
   val default = RunnerSettings()
 
-  val sbt = default.withDialect(NamedDialect(meta.dialects.Sbt))
+  val sbt = default.withDialect(meta.dialects.Sbt)
+
+  import NamedDialect.codec
 
   implicit val encoder: ConfEncoder[RunnerSettings] = generic.deriveEncoder
 
@@ -112,7 +113,7 @@ object RunnerSettings {
           case (cur, _) => cur // other config types are unsupported
         }
         if (dialect.isEquivalentTo(srcDialect)) runner
-        else runner.withDialect(runner.dialect.copy(dialect = dialect))
+        else runner.withDialect(runner.dialect.copy(value = dialect))
       }
     }
 

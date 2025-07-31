@@ -321,3 +321,82 @@ for {
     else doOtherThing
   }
 } yield x
+<<< #4941 keep after do, scala2
+newlines.source = keep
+===
+for {
+  a <- getA
+  b <- getB
+} do
+  (a, b)
+>>>
+for {
+  a <- getA
+  b <- getB
+} do
+  (a, b)
+<<< #4941 keep after do, scala3
+runner.dialect = scala3
+newlines.source = keep
+indent.significant = 3
+===
+for {
+  a <- getA
+  b <- getB
+} do
+  a
+  b
+>>>
+for {
+  a <- getA
+  b <- getB
+} do
+   a
+   b
+<<< #4941 keep after yield, scala3
+runner.dialect = scala3
+newlines.source = keep
+indent.significant = 3
+===
+for {
+  a <- getA
+  b <- getB
+} yield
+  a
+  b
+>>>
+for {
+  a <- getA
+  b <- getB
+} yield
+   a
+   b
+<<< #4941 keep after yield, avoid
+newlines.source = keep
+newlines.avoidAfterYield = true
+===
+for {
+  a <- getA
+  b <- getB
+} yield
+  (a, b)
+>>>
+for {
+  a <- getA
+  b <- getB
+} yield (a, b)
+<<< #4941 keep after yield, !avoid
+newlines.source = keep
+newlines.avoidAfterYield = false
+===
+for {
+  a <- getA
+  b <- getB
+} yield
+  (a, b)
+>>>
+for {
+  a <- getA
+  b <- getB
+} yield
+  (a, b)
