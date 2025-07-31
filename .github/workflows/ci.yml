@@ -55,7 +55,7 @@ jobs:
       fail-fast: false
       matrix:
         java: [ '11' ]
-        os: [ windows-latest, ubuntu-latest, ubuntu-24.04-arm ]
+        os: [ windows-latest, ubuntu-latest ]
         group: [ Scala2, Scala3, Spark, Intellij, Other ]
     runs-on: ${{ matrix.os }}
     steps:

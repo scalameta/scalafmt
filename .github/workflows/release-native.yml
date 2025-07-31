@@ -65,7 +65,7 @@ jobs:
   dockerize:
     needs: [ scala-native ]
     if: ${{ github.event_name == 'release' == success() }}
-    runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.platform == 'linux/arm64' && 'ubuntu-22.04-arm' || 'ubuntu-22.04' }}
     strategy:
       matrix:
         platform: [linux/amd64, linux/arm64]
