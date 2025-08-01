@@ -217,9 +217,9 @@ object a {
 >>>
 object a {
   val a: (String, String) = ("abcde", "idfa")
-  val a: ((String, String)) = (("abcde", "idfa"))
-  val a = (("abcde", "idfa"))
-  val a = (("abcde", "idfa"))
+  val a: (String, String) = ("abcde", "idfa")
+  val a = ("abcde", "idfa")
+  val a = ("abcde", "idfa")
   val (a, b) = ("abcde", "idfa")
 }
 <<< #1895 5
@@ -232,9 +232,9 @@ object a {
 >>>
 object a {
   def a: (String, String) = ("abcde", "idfa")
-  def a: ((String, String)) = (("abcde", "idfa"))
-  def a = (("abcde", "idfa"))
-  def a = (("abcde", "idfa"))
+  def a: (String, String) = ("abcde", "idfa")
+  def a = ("abcde", "idfa")
+  def a = ("abcde", "idfa")
 }
 <<< #1895 6
 object a {
