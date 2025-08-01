@@ -13,8 +13,6 @@ import scala.annotation.tailrec
 
 object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
 
-  private type Enclosed = (Int, Tree)
-
   override def enabled(implicit style: ScalafmtConfig): Boolean = true
 
   override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
@@ -95,9 +93,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
       session: Session,
       style: ScalafmtConfig,
   ): Option[Replacement] = ft.right match {
-    case _: T.LeftParen => findEnclosed.flatMap { case (cnt, tree) =>
-        if (okToReplaceWithCount(cnt, tree)) Some(removeToken) else None
-      }
+    case _: T.LeftParen if okToReplace => Some(removeToken)
     case _ => None
   }
 
@@ -212,11 +208,11 @@ class RedundantParens(implicit val ftoks: FormatTokens)
     case _ => true
   }
 
-  private def findEnclosed(implicit ft: FT): Option[Enclosed] = {
-    // counts consecutive parent pairs starting with the given one as the innermost
+  private def okToReplace(implicit ft: FT, style: ScalafmtConfig): Boolean = {
+    // counts consecutive paren pairs starting with the given one as the innermost
     // the parens could belong to tree they are enclosing, or its parent
     @tailrec
-    def iter(lt: FT, rt: FT, cnt: Int): Option[Enclosed] =
+    def iter(lt: FT, rt: FT, cnt: Int): Boolean =
       (ftoks.prevNonComment(lt), ftoks.nextNonComment(rt)) match {
         case (
               prev @ FT(_: T.LeftParen, _, _),
@@ -224,10 +220,10 @@ class RedundantParens(implicit val ftoks: FormatTokens)
             ) => iter(ftoks.prev(prev), ftoks.next(next), cnt + 1)
         case _ => TreeOps
             .findEnclosedBetweenParens(lt.right, rt.left, ft.meta.rightOwner)
-            .map((cnt, _))
+            .exists(okToReplaceWithCount(cnt, _))
       }
 
-    ftoks.matchingOptRight(ft).flatMap(rt => iter(ft, rt, 1))
+    ftoks.matchingOptRight(ft).exists(rt => iter(ft, rt, 1))
   }
 
 }
