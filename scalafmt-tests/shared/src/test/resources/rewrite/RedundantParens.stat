@@ -1893,8 +1893,8 @@ object a {
 }
 >>>
 object a {
-  val _ = age = 2
-  val _ = age = 2
-  val _ = age = 2
+  val _ = (age = 2)
+  val _ = (age = 2)
+  val _ = (age = 2)
   val (age, gender, zip) = (age = 2, (gender = m), (zip = 123))
 }
