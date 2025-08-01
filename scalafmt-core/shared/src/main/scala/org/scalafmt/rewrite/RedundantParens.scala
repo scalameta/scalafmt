@@ -106,10 +106,12 @@ class RedundantParens(implicit val ftoks: FormatTokens)
       Some((left, removeToken))
     else None
 
-  private def okToReplaceWithCount(numParens: Int, tree: Tree)(implicit
-      style: ScalafmtConfig,
+  private def okToReplaceWithCount(numParens: Int, tree: Tree, lpOuter: FT)(
+      implicit style: ScalafmtConfig,
   ): Boolean = tree match {
-    case _: Lit.Unit | _: Member.Tuple => numParens >= 3
+    case _: Lit.Unit => numParens >= 3
+    case _: Member.Tuple => numParens >=
+        (if (lpOuter.rightOwner.is[Member.SyntaxValuesClause]) 3 else 2)
     case _ if numParens >= 2 => true
 
     case _: Term.AnonymousFunction | _: Term.Param => false
@@ -220,7 +222,7 @@ class RedundantParens(implicit val ftoks: FormatTokens)
             ) => iter(ftoks.prev(prev), ftoks.next(next), cnt + 1)
         case _ => TreeOps
             .findEnclosedBetweenParens(lt.right, rt.left, ft.meta.rightOwner)
-            .exists(okToReplaceWithCount(cnt, _))
+            .exists(okToReplaceWithCount(cnt, _, lt))
       }
 
     ftoks.matchingOptRight(ft).exists(rt => iter(ft, rt, 1))
