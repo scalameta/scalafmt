@@ -107,7 +107,7 @@ a match {
 }
 >>>
 a match {
-  case a if { a > b } =>
+  case a if a > b =>
 }
 <<< if with match, scala2
 runner.dialect = scala213
@@ -127,5 +127,5 @@ a match {
 }
 >>>
 a match {
-  case a if { a match { case b => true } } =>
+  case a if a match { case b => true } =>
 }
