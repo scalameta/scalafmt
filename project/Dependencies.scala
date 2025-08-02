@@ -15,7 +15,7 @@ object Dependencies {
 
   private def smorg(pkg: => String, v: String) = Def.setting("org.scalameta" %%% pkg % v)
 
-  val munit = smorg("munit", munitV)
+  val munit     = smorg("munit", munitV)
   val scalameta = Def.setting(
     smorg("scalameta", scalametaV).value
       .excludeAll("com.thesamet.scalapb" % s"scalapb-runtime_${scalaBinaryVersion.value}"),
