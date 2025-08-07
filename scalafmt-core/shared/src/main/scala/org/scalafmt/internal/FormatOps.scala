@@ -125,10 +125,9 @@ class FormatOps(
                 (style.newlines.getSelectChains eq Newlines.keep) => null
           case _ => start
         }
-      case _: T.Colon if {
-            !style.newlines.sometimesBeforeColonInMethodReturnType &&
-            colonDeclType(start.rightOwner).isDefined
-          } => tokens(start, 2) // can't break after colon either
+      case _: T.Colon
+          if !style.newlines.sometimesBeforeColonInMethodReturnType &&
+            colonDeclType(start.rightOwner).isDefined => tokens(start, 2) // can't break after colon either
       case _: T.Comment if start.noBreak =>
         val nft = nextNonCommentSameLineAfter(start)
         if (!start.left.is[T.LeftParen] || nft.hasBreakOrEOF) return nft // RETURN!!!

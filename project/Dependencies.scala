@@ -7,7 +7,7 @@ import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 
 object Dependencies {
   val metaconfigV = "0.15.0"
-  val scalametaV  = "4.13.8"
+  val scalametaV  = "4.13.9"
   val scalacheckV = "1.18.1"
   val coursier    = "2.1.24"
   val munitV      = "1.1.0"
@@ -15,7 +15,7 @@ object Dependencies {
 
   private def smorg(pkg: => String, v: String) = Def.setting("org.scalameta" %%% pkg % v)
 
-  val munit = smorg("munit", munitV)
+  val munit     = smorg("munit", munitV)
   val scalameta = Def.setting(
     smorg("scalameta", scalametaV).value
       .excludeAll("com.thesamet.scalapb" % s"scalapb-runtime_${scalaBinaryVersion.value}"),

@@ -101,3 +101,31 @@ object a {
     case a if a =>
   }
 }
+<<< if with infix
+a match {
+  case a if {a > b} =>
+}
+>>>
+a match {
+  case a if a > b =>
+}
+<<< if with match, scala2
+runner.dialect = scala213
+===
+a match {
+  case a if {a match { case b => true } } =>
+}
+>>>
+a match {
+  case a if { a match { case b => true } } =>
+}
+<<< if with match, scala3
+runner.dialect = scala3
+===
+a match {
+  case a if {a match { case b => true } } =>
+}
+>>>
+a match {
+  case a if a match { case b => true } =>
+}

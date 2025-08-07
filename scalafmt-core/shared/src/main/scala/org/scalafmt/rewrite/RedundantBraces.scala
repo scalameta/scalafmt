@@ -717,6 +717,8 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
             case _ => true
           }
 
+        case _: Case => !RewriteCtx.isPostfixExpr(stat)
+
         // can't do it for try until 2.13.3
         case _ if RewriteCtx.isPrefixExpr(stat) => false
 
