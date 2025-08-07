@@ -1,6 +1,6 @@
 FROM alpine
 
-ARG VERSION=v3.9.9
+ARG VERSION
 ARG TARGETARCH
 
 RUN apk add --no-cache --virtual build-deps curl unzip \
