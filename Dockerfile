@@ -4,7 +4,7 @@ ARG VERSION
 ARG TARGETARCH
 
 RUN apk add --no-cache --virtual build-deps curl unzip \
-  && if [ "${VERSION}" != "v"* ]; then VERSION="v${VERSION}"; fi \
+  && VERSION=${VERSION#"v"} \
   && echo "Installing scalafmt version ${VERSION} for architecture ${TARGETARCH}" \
   && if [ "${TARGETARCH}" = "amd64" ]; then ARCH=x86_64; \
   elif [ "${TARGETARCH}" = "arm64" ]; then ARCH=aarch64; \
@@ -12,7 +12,8 @@ RUN apk add --no-cache --virtual build-deps curl unzip \
   echo "Unsupported architecture: ${TARGETARCH}"; \
   exit 1; \
   fi \
-  && curl -L "https://github.com/scalameta/scalafmt/releases/download/${VERSION}/scalafmt-${ARCH}-pc-linux.zip" -o /tmp/scalafmt.zip \
+  && echo "downloading https://github.com/scalameta/scalafmt/releases/download/${VERSION}/scalafmt-${ARCH}-pc-linux.zip for ${ARCH}" \
+  && curl -L "https://github.com/scalameta/scalafmt/releases/download/v${VERSION}/scalafmt-${ARCH}-pc-linux.zip" -o /tmp/scalafmt.zip \
   && unzip /tmp/scalafmt.zip -d /bin \
   && rm -rf /tmp/* \
   && apk del build-deps \
