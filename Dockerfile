@@ -4,6 +4,8 @@ ARG VERSION
 ARG TARGETARCH
 
 RUN apk add --no-cache --virtual build-deps curl unzip \
+  && if [ "${VERSION}" != "v"* ]; then VERSION="v${VERSION}"; fi \
+  && echo "Installing scalafmt version ${VERSION} for architecture ${TARGETARCH}" \
   && if [ "${TARGETARCH}" = "amd64" ]; then ARCH=x86_64; \
   elif [ "${TARGETARCH}" = "arm64" ]; then ARCH=aarch64; \
   else \
