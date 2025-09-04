@@ -74,7 +74,7 @@ lazy val dynamic = crossProject(JVMPlatform) // don't build for NativePlatform
     description := "Implementation of scalafmt-interfaces",
     buildInfoSettings("org.scalafmt.dynamic", "BuildInfo"),
     libraryDependencies ++= List(
-      "io.get-coursier" % "interface" % "1.0.28",
+      "io.get-coursier" %% "coursier" % coursier,
       "com.typesafe" % "config" % "1.4.4",
     ),
     sharedTestSettings,
