@@ -12,7 +12,7 @@ import coursierapi.{Dependency => CoursierDependency, _}
 
 private class CoursierDependencyDownloader(
     downloadProgressWriter: OutputStreamWriter,
-    customRepositories: Seq[Repository],
+    repositories: Seq[Repository],
 ) extends DependencyDownloader {
 
   override def download(dependencies: Seq[Dependency]): Try[Seq[URL]] = Try {
@@ -22,17 +22,10 @@ private class CoursierDependencyDownloader(
     val cache = Cache.create()
       .withLogger(Logger.progressBars(downloadProgressWriter))
     val settings = Fetch.create().withCache(cache)
-      .withRepositories(repositories: _*)
+      .addRepositories(repositories: _*)
       .withDependencies(coursierDependencies: _*)
     settings.fetch().asScala.map(_.toURI.toURL).toList
   }
-
-  private def repositories: Seq[Repository] =
-    // Default repositories are ivy2local, central and also anything in COURSIER_REPOSITORIES overrides
-    customRepositories ++ Repository.defaults().asScala ++ Seq(
-      "https://oss.sonatype.org/content/repositories/snapshots",
-      "https://oss.sonatype.org/content/repositories/public",
-    ).map(MavenRepository.of)
 
 }
 
