@@ -39,8 +39,8 @@ private[scalafmt] object PlatformRunOps {
     GranularDialectAsyncOps.parasiticExecutionContext
 
   def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[String] = {
-    val err = new StringBuilder()
     val out = new StringBuilder()
+    val err = new StringBuilder()
     val logger = ProcessLogger(
       x => {
         Console.err.println(s"o > $x [$cmd]")
@@ -57,9 +57,9 @@ private[scalafmt] object PlatformRunOps {
       else cmd
     Console.err.println(argv.mkString("run argv [", ", ", "]"))
     def failed(e: Throwable) = {
-      val msg = new StringBuilder()
-      cmd.addString(msg, "Failed to run '", " ", "'. Error:")
-      msg.append(err.result()).append('\n')
+      val msg = cmd
+        .addString(new StringBuilder(), "Failed to run '", " ", "'. Error: ")
+        .append(err).append('\n')
       Failure(new IllegalStateException(msg.toString(), e))
     }
     try {
