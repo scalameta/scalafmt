@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutorService
-import scala.sys.process.ProcessLogger
+import scala.sys.process._
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
@@ -44,7 +44,6 @@ private[scalafmt] object PlatformRunOps {
     val logger = ProcessLogger(
       x => {
         Console.err.println(s"o > $x [$cmd]")
-        out.append(x)
         ()
       },
       x => {
@@ -56,17 +55,17 @@ private[scalafmt] object PlatformRunOps {
       if (PlatformCompat.isNativeOnWindows) cmd.map(arg => '"' + arg + '"')
       else cmd
     Console.err.println(argv.mkString("run argv [", ", ", "]"))
-    def failed(e: Throwable) = {
-      val msg = cmd
-        .addString(new StringBuilder(), "Failed to run '", " ", "'. Error: ")
-        .append(err).append('\n')
-      Failure(new IllegalStateException(msg.toString(), e))
-    }
     try {
-      val res = sys.process.Process(argv, cwd.map(_.toFile)).!(logger)
-      if (res != 0) failed(new RuntimeException("exit code " + res))
-      else Success(out.result().trim)
-    } catch { case e: Throwable => failed(e) }
+      CompatRunOps.runProcessLines(Process(argv, cwd.map(_.toFile)), logger)
+        .foreach(line => out.append(line).append('\n'))
+      Success(out.result().trim)
+    } catch {
+      case e: Throwable =>
+        val msg = cmd
+          .addString(new StringBuilder(), "Failed to run '", " ", "'. Error: ")
+          .append(err).append('\n')
+        Failure(new IllegalStateException(msg.toString(), e))
+    }
   }
 
   def exit(code: Int): Nothing = sys.exit(code)
