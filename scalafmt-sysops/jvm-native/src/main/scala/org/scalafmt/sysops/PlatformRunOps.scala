@@ -1,5 +1,8 @@
 package org.scalafmt.sysops
 
+import org.scalafmt.CompatCollections.JavaConverters._
+
+import java.lang.{StringBuilder => JStringBuilder}
 import java.nio.file.Path
 import java.util.concurrent.Executors
 import java.util.concurrent.SynchronousQueue
@@ -8,7 +11,6 @@ import java.util.concurrent.TimeUnit
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutorService
-import scala.sys.process._
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
@@ -38,21 +40,35 @@ private[scalafmt] object PlatformRunOps {
   implicit def parasiticExecutionContext: ExecutionContext =
     GranularDialectAsyncOps.parasiticExecutionContext
 
+  private def readerThread(
+      in: java.io.InputStream,
+      out: JStringBuilder,
+  ): Thread = {
+    val t = new Thread(() => {
+      val br = new java.io.BufferedReader(new java.io.InputStreamReader(in))
+      while ({
+        val line = br.readLine()
+        val ok = line != null
+        if (ok) out.append(line).append('\n')
+        ok
+      }) {}
+    })
+    t.start()
+    t
+  }
+
   def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[String] = {
-    val out = new java.lang.StringBuilder()
-    val err = new java.lang.StringBuilder()
+    val out = new JStringBuilder()
+    val err = new JStringBuilder()
     val argv =
       if (PlatformCompat.isNativeOnWindows) cmd.map(arg => '"' + arg + '"')
       else cmd
     Console.err.println(argv.mkString("run argv [", ", ", "]"))
-    val processIO = new ProcessIO(
-      BasicIO.input(false),
-      BasicIO.processFully(out),
-      BasicIO.processFully { line =>
-        Console.err.println(s"e > $line [$cmd]")
-        err.append("\n> ").append(line)
-      },
-    )
+
+    val pb = new ProcessBuilder(argv.asJava)
+    cwd.foreach(cwd => pb.directory(cwd.toFile))
+    pb.redirectInput(ProcessBuilder.Redirect.PIPE) // no stdin
+
     def failed(e: Throwable) = {
       val msg = cmd
         .addString(new StringBuilder(), "Failed to run '", " ", "'. Error: ")
@@ -60,9 +76,14 @@ private[scalafmt] object PlatformRunOps {
       Failure(new IllegalStateException(msg.toString(), e))
     }
     try {
-      val exit = Process(argv, cwd.map(_.toFile)).run(processIO).exitValue()
+      val process = pb.start()
+      val outT = readerThread(process.getInputStream, out)
+      val errT = readerThread(process.getErrorStream, err)
+      val exit = process.waitFor()
+      outT.join()
+      errT.join()
       if (exit != 0) failed(new RuntimeException("exit code " + exit))
-      else Success(out.toString)
+      else Success(out.toString.trim)
     } catch {
       case e: Throwable =>
         Console.err.println(s"Failed: $e")
