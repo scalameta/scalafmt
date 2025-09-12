@@ -39,38 +39,34 @@ private[scalafmt] object PlatformRunOps {
     GranularDialectAsyncOps.parasiticExecutionContext
 
   def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[String] = {
-    val err = new StringBuilder()
-    val logger = ProcessLogger(
-      x => {
-        Console.err.println(s"o > $x [$cmd]")
-        ()
-      },
-      x => {
-        Console.err.println(s"e > $x [$cmd]")
-        err.append("\n> ").append(x)
-      },
-    )
+    val out = new java.lang.StringBuilder()
+    val err = new java.lang.StringBuilder()
     val argv =
       if (PlatformCompat.isNativeOnWindows) cmd.map(arg => '"' + arg + '"')
       else cmd
     Console.err.println(argv.mkString("run argv [", ", ", "]"))
+    val processIO = new ProcessIO(
+      BasicIO.input(false),
+      BasicIO.processFully(out),
+      BasicIO.processFully { line =>
+        Console.err.println(s"e > $line [$cmd]")
+        err.append("\n> ").append(line)
+      },
+    )
+    def failed(e: Throwable) = {
+      val msg = cmd
+        .addString(new StringBuilder(), "Failed to run '", " ", "'. Error: ")
+        .append(err).append('\n')
+      Failure(new IllegalStateException(msg.toString(), e))
+    }
     try {
-      var cnt = 0
-      val out = new StringBuilder()
-      CompatRunOps.runProcessLines(Process(argv, cwd.map(_.toFile)), logger)
-        .foreach { line =>
-          cnt += 1
-          Console.err.println(s"Got line #$cnt: $line")
-          out.append(line).append('\n')
-        }
-      Success(out.toString())
+      val exit = Process(argv, cwd.map(_.toFile)).run(processIO).exitValue()
+      if (exit != 0) failed(new RuntimeException("exit code " + exit))
+      else Success(out.toString)
     } catch {
       case e: Throwable =>
         Console.err.println(s"Failed: $e")
-        val msg = cmd
-          .addString(new StringBuilder(), "Failed to run '", " ", "'. Error: ")
-          .append(err).append('\n')
-        Failure(new IllegalStateException(msg.toString(), e))
+        failed(e)
     }
   }
 
