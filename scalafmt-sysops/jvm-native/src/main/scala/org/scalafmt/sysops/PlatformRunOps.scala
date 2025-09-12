@@ -39,7 +39,6 @@ private[scalafmt] object PlatformRunOps {
     GranularDialectAsyncOps.parasiticExecutionContext
 
   def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[String] = {
-    val out = new StringBuilder()
     val err = new StringBuilder()
     val logger = ProcessLogger(
       x => {
@@ -56,9 +55,15 @@ private[scalafmt] object PlatformRunOps {
       else cmd
     Console.err.println(argv.mkString("run argv [", ", ", "]"))
     try {
+      var cnt = 0
+      val out = new StringBuilder()
       CompatRunOps.runProcessLines(Process(argv, cwd.map(_.toFile)), logger)
-        .foreach(line => out.append(line).append('\n'))
-      Success(out.result().trim)
+        .foreach { line =>
+          cnt += 1
+          Console.err.println(s"Got line #$cnt: $line")
+          out.append(line.stripTrailing()).append('\n')
+        }
+      Success(out.toString())
     } catch {
       case e: Throwable =>
         val msg = cmd
