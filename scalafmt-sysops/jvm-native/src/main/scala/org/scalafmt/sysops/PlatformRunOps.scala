@@ -61,7 +61,7 @@ private[scalafmt] object PlatformRunOps {
         .foreach { line =>
           cnt += 1
           Console.err.println(s"Got line #$cnt: $line")
-          out.append(line.stripTrailing()).append('\n')
+          out.append(line).append('\n')
         }
       Success(out.toString())
     } catch {
