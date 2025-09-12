@@ -40,9 +40,11 @@ private[scalafmt] object PlatformRunOps {
 
   def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[String] = {
     val err = new StringBuilder()
+    val out = new StringBuilder()
     val logger = ProcessLogger(
       x => {
         Console.err.println(s"o > $x [$cmd]")
+        out.append(x)
         ()
       },
       x => {
@@ -54,15 +56,15 @@ private[scalafmt] object PlatformRunOps {
       if (PlatformCompat.isNativeOnWindows) cmd.map(arg => '"' + arg + '"')
       else cmd
     Console.err.println(argv.mkString("run argv [", ", ", "]"))
-    try {
-      val proc = sys.process.Process(argv, cwd.map(_.toFile))
-      Success(proc.!!(logger).trim)
-    } catch {
-      case e: Throwable =>
-        val msg =
-          s"Failed to run '${cmd.mkString(" ")}'. Error:${err.result()}\n"
-        Failure(new IllegalStateException(msg, e))
+    def failed(e: Throwable) = {
+      val msg = s"Failed to run '${cmd.mkString(" ")}'. Error:${err.result()}\n"
+      Failure(new IllegalStateException(msg, e))
     }
+    try {
+      val res = sys.process.Process(argv, cwd.map(_.toFile)).!(logger)
+      if (res != 0) failed(new RuntimeException("exit code " + res))
+      else Success(out.result().trim)
+    } catch { case e: Throwable => failed(e) }
   }
 
   def exit(code: Int): Nothing = sys.exit(code)
