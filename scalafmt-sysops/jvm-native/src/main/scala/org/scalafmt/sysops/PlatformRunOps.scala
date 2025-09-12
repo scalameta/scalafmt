@@ -66,6 +66,7 @@ private[scalafmt] object PlatformRunOps {
       Success(out.toString())
     } catch {
       case e: Throwable =>
+        Console.err.println(s"Failed: $e")
         val msg = cmd
           .addString(new StringBuilder(), "Failed to run '", " ", "'. Error: ")
           .append(err).append('\n')
