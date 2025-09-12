@@ -57,8 +57,10 @@ private[scalafmt] object PlatformRunOps {
       else cmd
     Console.err.println(argv.mkString("run argv [", ", ", "]"))
     def failed(e: Throwable) = {
-      val msg = s"Failed to run '${cmd.mkString(" ")}'. Error:${err.result()}\n"
-      Failure(new IllegalStateException(msg, e))
+      val msg = new StringBuilder()
+      cmd.addString(msg, "Failed to run '", " ", "'. Error:")
+      msg.append(err.result()).append('\n')
+      Failure(new IllegalStateException(msg.toString(), e))
     }
     try {
       val res = sys.process.Process(argv, cwd.map(_.toFile)).!(logger)
