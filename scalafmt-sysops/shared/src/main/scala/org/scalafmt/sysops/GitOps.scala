@@ -49,23 +49,26 @@ trait GitOps {
 
 private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
-  private[scalafmt] def tryExecLines(cmd: Seq[String]): Try[Seq[String]] =
-    PlatformRunOps.runArgv(cmd, Some(workingDirectory.path))
-
-  private[scalafmt] def exec(cmd: Seq[String]): Seq[String] = tryExecLines(cmd)
-    .get
-
-  override def lsTree(dir: AbsoluteFile*): Seq[AbsoluteFile] = {
-    val cmd = Seq("git", "ls-files", "--full-name") ++ dir.map(_.toString())
-    withRoot(exec(cmd)).filter(_.isRegularFileNoLinks)
+  private[scalafmt] def tryExec(args: Any*): Try[Seq[String]] = {
+    val argv = Seq.newBuilder[String]
+    argv += "git"
+    args.foreach {
+      case x: Seq[_] => x.foreach(argv += _.toString)
+      case x => argv += x.toString
+    }
+    PlatformRunOps.runArgv(argv.result(), Some(workingDirectory.path))
   }
+
+  private[scalafmt] def exec(args: Any*): Seq[String] = tryExec(args: _*).get
+
+  override def lsTree(dir: AbsoluteFile*): Seq[AbsoluteFile] =
+    withRoot(exec("ls-files", "--full-name", dir)).filter(_.isRegularFileNoLinks)
 
   override def rootDir: Option[AbsoluteFile] = tryRoot.toOption
 
   private lazy val tryRoot: Try[AbsoluteFile] = {
-    val cmd = Seq("git", "rev-parse", "--show-toplevel")
     def failed(msg: String) = Failure(new GitOps.GitException(msg))
-    tryExecLines(cmd).flatMap(_.headOption match {
+    tryExec("rev-parse", "--show-toplevel").flatMap(_.headOption match {
       case Some(x) =>
         val file = AbsoluteFile(x)
         if (file.isDirectory) Success(file) else failed(s"not a directory: $x")
@@ -73,22 +76,22 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
     })
   }
 
-  override def diff(branch: String, dir: AbsoluteFile*): Seq[AbsoluteFile] = {
-    val cmd = Seq("git", "diff", "--name-only", "--diff-filter=d", branch) ++
-      (if (dir.isEmpty) Seq.empty else "--" +: dir.map(_.toString()))
-    withRoot(exec(cmd))
-  }
+  override def diff(branch: String, dir: AbsoluteFile*): Seq[AbsoluteFile] =
+    withRoot(exec(
+      "diff",
+      "--name-only",
+      "--diff-filter=d",
+      branch,
+      if (dir.isEmpty) Seq.empty else "--" +: dir,
+    ))
 
-  override def status(dir: AbsoluteFile*): Seq[AbsoluteFile] = {
-    val cmd = Seq("git", "status", "--porcelain") ++
-      (if (dir.isEmpty) Seq.empty else "--" +: dir.map(_.toString()))
-    withRoot(exec(cmd).map(getFileFromGitStatusLine)).filter(_.exists)
-  }
+  override def status(dir: AbsoluteFile*): Seq[AbsoluteFile] = withRoot(
+    exec("status", "--porcelain", if (dir.isEmpty) Seq.empty else "--" +: dir)
+      .map(getFileFromGitStatusLine),
+  ).filter(_.exists)
 
-  override def getAutoCRLF: Option[String] = {
-    val cmd = Seq("git", "config", "--get", "core.autocrlf")
-    tryExecLines(cmd).toOption.flatMap(_.headOption)
-  }
+  override def getAutoCRLF: Option[String] =
+    tryExec("config", "--get", "core.autocrlf").toOption.flatMap(_.headOption)
 
   private final val renameStatusCode = "R"
   private final val renameStatusArrowDelimiter = "-> "
