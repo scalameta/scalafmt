@@ -38,13 +38,16 @@ private[scalafmt] object PlatformRunOps {
   implicit def parasiticExecutionContext: ExecutionContext =
     GranularDialectAsyncOps.parasiticExecutionContext
 
-  def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[String] = {
-    val out = new java.lang.StringBuilder()
+  def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[Seq[String]] = {
+    val out = Seq.newBuilder[String]
     val err = new java.lang.StringBuilder()
     Console.err.println(cmd.mkString("run argv [", ", ", "]"))
     val processIO = new ProcessIO(
       BasicIO.input(false),
-      BasicIO.processFully(out),
+      BasicIO.processFully { line =>
+        Console.err.println(s"o > $line [$cmd]")
+        out += line
+      },
       BasicIO.processFully { line =>
         Console.err.println(s"e > $line [$cmd]")
         err.append("\n> ").append(line)
@@ -59,7 +62,7 @@ private[scalafmt] object PlatformRunOps {
     try {
       val exit = Process(cmd, cwd.map(_.toFile)).run(processIO).exitValue()
       if (exit != 0) failed(new RuntimeException("exit code " + exit))
-      else Success(out.toString)
+      else Success(out.result())
     } catch {
       case e: Throwable =>
         Console.err.println(s"Failed: $e")

@@ -49,11 +49,11 @@ trait GitOps {
 
 private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
-  private[scalafmt] def tryExec(cmd: Seq[String]): Try[String] = PlatformRunOps
-    .runArgv(cmd, Some(workingDirectory.path))
+  private[scalafmt] def tryExec(cmd: Seq[String]): Try[String] =
+    tryExecLines(cmd).map(_.head)
 
   private[scalafmt] def tryExecLines(cmd: Seq[String]): Try[Seq[String]] =
-    tryExec(cmd).map(_.linesIterator.toSeq)
+    PlatformRunOps.runArgv(cmd, Some(workingDirectory.path))
 
   private[scalafmt] def exec(cmd: Seq[String]): Seq[String] = tryExecLines(cmd)
     .get
