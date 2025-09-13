@@ -22,13 +22,13 @@ private[scalafmt] object PlatformRunOps {
   implicit def parasiticExecutionContext: ExecutionContext =
     GranularDialectAsyncOps.parasiticExecutionContext
 
-  def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[String] = {
+  def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[Seq[String]] = {
     val options = cwd.fold(js.Dictionary[js.Any]())(cwd =>
       js.Dictionary[js.Any]("cwd" -> cwd.toString),
     )
     val result = SpawnSync(cmd.head, cmd.tail.toJSArray, options)
     if (result.status.asInstanceOf[Int] == 0)
-      Success(result.stdout.toString.trim)
+      Success(result.stdout.toString.trim.linesIterator.toSeq)
     else {
       val msg =
         s"Failed to run '${cmd.mkString(" ")}'. Error:\n${result.stderr}\n"

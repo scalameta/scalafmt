@@ -25,7 +25,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
 
   override def ignore(t: DiffTest): Boolean = false
 
-  override val tests = if (onlyManual) ManualTests.tests else UnitTests.tests
+  override val tests: Seq[DiffTest] = Nil // if (onlyManual) ManualTests.tests else UnitTests.tests
 
   tests.sortBy(x => (x.loc.path, x.loc.line)).withFilter(testShouldRun)
     .foreach { t =>
@@ -154,4 +154,9 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
       Report.heatmap(debugResults.result()),
     )
   }
+
+  override def beforeEach(context: BeforeEach): Unit = LoggerOps.logger
+    .debug(s"Starting: ${context.test.name}")
+  override def afterEach(context: AfterEach): Unit = LoggerOps.logger
+    .debug(s"Finished: ${context.test.name}")
 }

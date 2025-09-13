@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutorService
-import scala.sys.process.ProcessLogger
+import scala.sys.process._
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
@@ -38,20 +38,35 @@ private[scalafmt] object PlatformRunOps {
   implicit def parasiticExecutionContext: ExecutionContext =
     GranularDialectAsyncOps.parasiticExecutionContext
 
-  def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[String] = {
-    val err = new StringBuilder()
-    val logger = ProcessLogger(_ => (), x => err.append("\n> ").append(x))
-    val argv =
-      if (PlatformCompat.isNativeOnWindows) cmd.map(arg => '"' + arg + '"')
-      else cmd
+  def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[Seq[String]] = {
+    val out = Seq.newBuilder[String]
+    val err = new java.lang.StringBuilder()
+    Console.err.println(cmd.mkString("run argv [", ", ", "]"))
+    val processIO = new ProcessIO(
+      BasicIO.input(false),
+      BasicIO.processFully { line =>
+        Console.err.println(s"o > $line [$cmd]")
+        out += line
+      },
+      BasicIO.processFully { line =>
+        Console.err.println(s"e > $line [$cmd]")
+        err.append("\n> ").append(line)
+      },
+    )
+    def failed(e: Throwable) = {
+      val msg = cmd
+        .addString(new StringBuilder(), "Failed to run '", " ", "'. Error: ")
+        .append(err).append('\n')
+      Failure(new IllegalStateException(msg.toString(), e))
+    }
     try {
-      val proc = sys.process.Process(argv, cwd.map(_.toFile))
-      Success(proc.!!(logger).trim)
+      val exit = Process(cmd, cwd.map(_.toFile)).run(processIO).exitValue()
+      if (exit != 0) failed(new RuntimeException("exit code " + exit))
+      else Success(out.result())
     } catch {
       case e: Throwable =>
-        val msg =
-          s"Failed to run '${cmd.mkString(" ")}'. Error:${err.result()}\n"
-        Failure(new IllegalStateException(msg, e))
+        Console.err.println(s"Failed: $e")
+        failed(e)
     }
   }
 
