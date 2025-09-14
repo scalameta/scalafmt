@@ -439,25 +439,26 @@ class FormatWriter(formatOps: FormatOps) {
           sb: StringBuilder,
       ): Int = {
         val mod = state.mod
-        def currentAlign = tokenAligns.get(i).fold(0)(_ + alignOffset)
-        val ws = mod match {
+        def align = tokenAligns.get(i).fold(0)(_ + alignOffset) + delayedAlign
+        mod match {
           case nl: NewlineT =>
             val extraBlanks =
               if (i == locations.length - 1) 0
               else extraBlankTokens.getOrElse(i, if (nl.isDouble) 1 else 0)
-            val newlines = getNewlines(extraBlanks)
-            if (nl.noIndent) newlines
-            else newlines + getIndentation(state.indentation)
+            sb.append(getNewlines(extraBlanks))
+            if (!nl.noIndent) sb.append(getIndentation(state.indentation))
+            0
 
-          case p: Provided => p.betweenText
+          case p: Provided =>
+            sb.append(p.betweenText)
+            0
 
-          case NoSplit if style.align.delayUntilSpace =>
-            return delayedAlign + currentAlign // RETURNING!
+          case NoSplit if style.align.delayUntilSpace => align // delay
 
-          case _ => getIndentation(mod.length + currentAlign + delayedAlign)
+          case _ =>
+            sb.append(getIndentation(mod.length + align))
+            0
         }
-        sb.append(ws)
-        0
       }
 
       def formatWhitespace(delayedAlign: Int)(implicit sb: StringBuilder): Int = {
