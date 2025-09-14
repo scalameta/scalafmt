@@ -37,6 +37,7 @@ class FormatWriter(formatOps: FormatOps) {
     styleMap.init.runner.event(FormatEvent.Written(locations))
 
     var delayedAlign = 0
+    var totalAlignShift = 0
     locations.foreach { entry =>
       val location = entry.curr
       implicit val style: ScalafmtConfig = location.style
@@ -47,8 +48,8 @@ class FormatWriter(formatOps: FormatOps) {
       ft.left match {
         case _ if entry.previous.formatToken.meta.formatOff => sb.append(ltext) // checked the state for left
         case _: T.Comment => entry.formatComment
-        case _: T.Interpolation.Part | _: T.Constant.String =>
-          entry.formatMarginized
+        case _: T.Interpolation.Part | _: T.Constant.String => entry
+            .formatMarginized(totalAlignShift)
         case _: T.Constant.Int => LiteralOps.prettyPrintInteger(ltext)
         case _: T.Constant.Long => LiteralOps.prettyPrintInteger(ltext)
         case _: T.Constant.Float => LiteralOps.prettyPrintFloat(ltext)
@@ -85,7 +86,16 @@ class FormatWriter(formatOps: FormatOps) {
         } else if (ft.right.is[T.RightParen]) skipWs = true
       } else if (location.missingBracesOpenOrTuck) sb.append(" {")
 
-      if (!skipWs) delayedAlign = entry.formatWhitespace(delayedAlign)
+      if (!skipWs) {
+        val alignShift = entry.formatWhitespace(delayedAlign)
+        if (location.state.mod.isNL) {
+          delayedAlign = 0
+          totalAlignShift = 0
+        } else if (alignShift > 0) {
+          delayedAlign = 0
+          totalAlignShift += alignShift
+        } else delayedAlign = -alignShift
+      }
     }
 
     sb.toString()
@@ -453,11 +463,12 @@ class FormatWriter(formatOps: FormatOps) {
             sb.append(p.betweenText)
             0
 
-          case NoSplit if style.align.delayUntilSpace => align // delay
+          case NoSplit if style.align.delayUntilSpace => -align // delay
 
           case _ =>
-            sb.append(getIndentation(mod.length + align))
-            0
+            val alignShift = align
+            sb.append(getIndentation(mod.length + alignShift))
+            alignShift
         }
       }
 
@@ -533,7 +544,9 @@ class FormatWriter(formatOps: FormatOps) {
         }
       }
 
-      def formatMarginized(implicit sb: StringBuilder): Unit = {
+      def formatMarginized(
+          alignShift: Int,
+      )(implicit sb: StringBuilder): Unit = {
         val text = tok.meta.left.text
         val tupleOpt = tok.left match {
           case _ if !style.assumeStandardLibraryStripMargin => None
@@ -559,7 +572,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
         tupleOpt match {
           case Some((pipe, indent)) =>
-            val spaces = getIndentation(indent)
+            val spaces = getIndentation(indent + alignShift)
             val matcher = RegexCompat.getStripMarginPattern(pipe).matcher(text)
             var pos = 0
             while (matcher.find()) {

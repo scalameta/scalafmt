@@ -2325,7 +2325,7 @@ val y = y && y && s"""|y
 object a {
   val xy = xy && xy && xy
   val x  = x  && x  && """|x
-                       |x""".stripMargin
+                          |x""".stripMargin
   val y  = y  && y  && s"""|y
-                        |y""".stripMargin
+                           |y""".stripMargin
 }
