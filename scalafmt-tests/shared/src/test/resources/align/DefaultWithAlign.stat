@@ -2308,3 +2308,24 @@ object a {
     ddd    %% dd    %% d
   e       %%% eeeeee % eee
 }
+<<< align with trailing multiline string
+align.multiline = true
+align.stripMargin = true
+align.tokens."+" = [ { code = "&&" } ]
+assumeStandardLibraryStripMargin = true
+===
+object a {
+val xy = xy && xy && xy
+val x = x && x && """|x
+            |x""".stripMargin
+val y = y && y && s"""|y
+            |y""".stripMargin
+}
+>>>
+object a {
+  val xy = xy && xy && xy
+  val x  = x  && x  && """|x
+                       |x""".stripMargin
+  val y  = y  && y  && s"""|y
+                        |y""".stripMargin
+}
