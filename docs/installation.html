@@ -323,10 +323,10 @@ provides instant startup without Nailgun.</p>
 scalafmt --version // should be 3.9.10
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="--help"></a><a href="#--help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
-<pre><code class="hljs">build commit: f95850d438503c990c7c068e531096a10faa3669
-build time: Mon Sep <span class="hljs-number">15</span> <span class="hljs-number">19</span>:<span class="hljs-number">05</span>:<span class="hljs-number">33</span> UTC <span class="hljs-number">2025</span>
+<pre><code class="hljs">build commit: b78a999c191d5afc955170e087bf7c8b7d1df7a0
+build time: Mon Sep <span class="hljs-number">15</span> <span class="hljs-number">20</span>:<span class="hljs-number">09</span>:<span class="hljs-number">16</span> UTC <span class="hljs-number">2025</span>
 </code></pre>
-<pre><code class="hljs">scalafmt 3.9.10
+<pre><code class="hljs">scalafmt 3.9.10+1-b78a999c-SNAPSHOT
 Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
 
   -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text
@@ -392,7 +392,12 @@ Please <span class="hljs-keyword">file</span> bugs to https:<span class="hljs-co
 <p>By default, coursier will download from a few standard repositories (including
 sonatype, both public and snapshot). However, if you'd like to use instead some
 custom repositories within your environment, please specify them using the
-<code>COURSIER_REPOSITORIES</code> environment variable.</p>
+<a href="https://get-coursier.io/docs/other-repositories"><code>COURSIER_REPOSITORIES</code></a> environment variable.</p>
+<blockquote>
+<p>If you are using <code>sbt-scalafmt</code>, it will also automatically provide to coursier
+<a href="https://www.scala-sbt.org/1.x/docs/Resolvers.html">sbt resolvers</a> and
+<a href="https://www.scala-sbt.org/1.x/docs/Publishing.html#Credentials">sbt credentials</a>.</p>
+</blockquote>
 <h4><a class="anchor" aria-hidden="true" id="repository-credentials"></a><a href="#repository-credentials" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Repository credentials</h4>
 <p>Additionally, if your repositories require credentials, please specify them
 in the <a href="https://get-coursier.io/docs/other-credentials"><code>COURSIER_CREDENTIALS</code></a>
