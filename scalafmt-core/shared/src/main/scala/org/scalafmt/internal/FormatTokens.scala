@@ -76,9 +76,9 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
   def next(ft: FT): FT = apply(ft, 1)
 
   @inline
-  private def matching(idx: Int, token: T): FT = matchingParentheses.getOrElse(
+  private def matching(idx: Int, tok: => T): FT = matchingParentheses.getOrElse(
     idx,
-    FormatTokens.throwNoToken(token, "Missing matching token index"),
+    FormatTokens.throwNoToken(tok, "Missing matching token index"),
   )
   @inline
   def matchingLeft(ft: FT): FT = matching(ft.idx, ft.left)
