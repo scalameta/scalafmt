@@ -11800,3 +11800,12 @@ object a {
 
   Seq(1, 2, 3)
 }
+<<< #4976
+danglingParentheses.callSite = false
+===
+a(A(
+  b = B,
+  c = C
+))
+>>>
+a(A(b = B, c = C))
