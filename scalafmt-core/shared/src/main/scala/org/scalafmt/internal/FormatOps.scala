@@ -83,7 +83,8 @@ class FormatOps(
           implicit val clauseSiteFlags: ClauseSiteFlags =
             ClauseSiteFlags(owner, isDefnSite)
           val bpFlags = getBinpackSiteFlags(matchingRight(start), start, false)
-          if (bpFlags.scalaJsStyle) scalaJsOptCloseOnRight(start, bpFlags)
+          if (bpFlags.scalaJsStyle)
+            if (start.hasBreak) start else scalaJsOptCloseOnRight(start, bpFlags)
           else if (
             !start.left.is[T.RightParen] ||
             !style.newlines.fold && clauseSiteFlags.dangleCloseDelim
