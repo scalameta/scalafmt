@@ -45,28 +45,48 @@ object PlatformFileOps {
   def isRegularFileNoLinks(file: Path): Boolean =
     getFileStat(file, followLinks = false).exists(_.isRegularFile)
 
-  def getFileStat(file: String, followLinks: Boolean): Option[FileStat] =
-    Try(if (followLinks) JSFs.statSync(file) else JSFs.lstatSync(file)).toOption
+  private def tryGetFileStat(
+      file: String,
+      followLinks: Boolean,
+  ): Try[FileStat] =
+    Try(if (followLinks) JSFs.statSync(file) else JSFs.lstatSync(file))
       .map(new JSFileStat(_))
 
+  def tryGetFileStat(file: Path, followLinks: Boolean): Try[FileStat] =
+    tryGetFileStat(file.toString, followLinks)
+
   def getFileStat(file: Path, followLinks: Boolean): Option[FileStat] =
-    getFileStat(file.toString, followLinks)
+    tryGetFileStat(file.toString, followLinks).toOption
 
   def listFiles(
       basePath: Path,
       matches: (Path, FileStat) => Boolean,
-  ): Seq[Path] = {
+  ): Seq[Path] = walkFiles(new FileOps.WalkVisitor {
+    override def onFile(file: Path, fileStat: FileStat): FileOps.WalkVisit =
+      if (matches(file, fileStat)) FileOps.WalkVisit.Good
+      else FileOps.WalkVisit.Skip
+  })(basePath)
+
+  def walkFiles(visitor: FileOps.WalkVisitor)(basePath: Path): Seq[Path] = {
     import scala.collection.mutable.ListBuffer
     val res = Seq.newBuilder[Path]
     val paths = new ListBuffer[Path]()
     paths.append(basePath)
     while (paths.nonEmpty) {
       val path = paths.remove(paths.length - 1)
-      getFileStat(path.toString, followLinks = false).foreach(fileStat =>
-        if (fileStat.isDirectory) JSFs.readdirSync(path.toString)
-          .foreach(entry => paths.append(path.resolve(entry)))
-        else if (matches(path, fileStat)) res += path,
-      )
+      tryGetFileStat(path, followLinks = false).map { fileStat =>
+        if (fileStat.isDirectory) visitor.onTree(path, fileStat) match {
+          case FileOps.WalkVisit.Stop => paths.clear()
+          case FileOps.WalkVisit.Skip => // do nothing
+          case FileOps.WalkVisit.Good => JSFs.readdirSync(path.toString)
+              .foreach(entry => paths.append(path.resolve(entry)))
+        }
+        else visitor.onFile(path, fileStat) match {
+          case FileOps.WalkVisit.Stop => paths.clear()
+          case FileOps.WalkVisit.Skip => // do nothing
+          case FileOps.WalkVisit.Good => res += path
+        }
+      }.failed.foreach(exc => if (visitor.onFailStop(path, exc)) paths.clear())
     }
     res.result()
   }
