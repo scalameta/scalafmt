@@ -824,21 +824,13 @@ def atEndOfId(): Boolean = {
 <<< keep if a semicolon before closing brace
 class C extends A({ log("one"); }, { log("two"); }) with B
 >>>
-test does not parse: [dialect scala213] `)` expected but `;` found
-class C extends A(log("one");, log("two");) with B
-                            ^
-====== full result: ======
-class C extends A(log("one");, log("two");) with B
+class C extends A({ log("one"); }, { log("two"); }) with B
 <<< keep if a semicolon before closing brace, scala3, no breaks
 runner.dialect = scala3
 ===
 class C extends A({ log("one"); }, { log("two"); }) with B
 >>>
-test does not parse: [dialect scala3] `)` expected but `;` found
-class C extends A(log("one");, log("two");) with B
-                            ^
-====== full result: ======
-class C extends A(log("one");, log("two");) with B
+class C extends A({ log("one"); }, { log("two"); }) with B
 <<< keep if a semicolon before closing brace, scala3, with breaks
 runner.dialect = scala3
 ===
@@ -850,18 +842,12 @@ class C extends A(
   }
 ) with B
 >>>
-test does not parse: [dialect scala3] `)` expected but `;` found
 class C
     extends A(
-      log("one");,
-                ^
-      log("two");
-    )
-    with B
-====== full result: ======
-class C
-    extends A(
-      log("one");,
-      log("two");
+      {
+        log("one");
+      }, {
+        log("two");
+      }
     )
     with B
