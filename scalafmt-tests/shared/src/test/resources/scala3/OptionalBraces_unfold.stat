@@ -7418,6 +7418,44 @@ object a:
    end writeTo
    def withConstant(__v: dotty.tools.dotc.semanticdb.Constant): ConstantType =
      copy(constant = __v)
+<<< optional block within block, inner semicolon-terminated, no redundant braces
+rewrite {
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 5
+    removeOptionalBraces = yes
+  }
+}
+===
+object a:
+    def writeTo(`_output__`: SemanticdbOutputStream): _root_.scala.Unit = {
+      {
+        val __v = dotty.tools.dotc.semanticdb.ConstantType._typemapper_constant.toBase(constant)
+        if (__v.serializedSize != 0) {
+          _output__.writeTag(1, 2)
+          _output__.writeUInt32NoTag(__v.serializedSize)
+          __v.writeTo(_output__)
+        };
+      }
+    }
+    def withConstant(__v: dotty.tools.dotc.semanticdb.Constant): ConstantType = copy(constant = __v)
+>>>
+object a:
+   def writeTo(`_output__`: SemanticdbOutputStream): _root_.scala.Unit =
+      val __v = dotty
+        .tools
+        .dotc
+        .semanticdb
+        .ConstantType
+        ._typemapper_constant
+        .toBase(constant)
+      if __v.serializedSize != 0 then
+         _output__.writeTag(1, 2)
+         _output__.writeUInt32NoTag(__v.serializedSize)
+         __v.writeTo(_output__);
+   end writeTo
+   def withConstant(__v: dotty.tools.dotc.semanticdb.Constant): ConstantType =
+     copy(constant = __v)
 <<< #4133 binpack overflow assignment tupled, !dangling
 indent.callSite = 4
 binPack.preset = always
