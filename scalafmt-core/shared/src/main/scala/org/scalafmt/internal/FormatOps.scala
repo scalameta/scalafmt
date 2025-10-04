@@ -550,22 +550,34 @@ class FormatOps(
       }
       def isOldTopLevel(child: Tree) = child.parent
         .exists(isOldTopLevelWithParent(child))
-      def isAloneEnclosed(child: Tree) = child.parent.exists {
+      @tailrec
+      def isAloneEnclosed(child: Tree): Boolean = child.parent.orNull match {
         case p: Case => p.pat eq child
         case p: Term.If => p.cond eq child
         case p: Term.While => p.expr eq child
         case p: Term.Do => p.expr eq child
-        case p: Term.Block => hasSingleElement(p, child)
+        case p: Term.Block => hasSingleElement(p, child) &&
+          (p.tokens.head match {
+            case head: T.LeftBrace => // check brace was not rewritten
+              (tokens.before(head).left eq head) || isAloneEnclosed(p)
+            case _ => true
+          })
         case p: Member.Function => isBlockFunction(p)
         case p @ Member.ArgClause(`child` :: Nil) => isEnclosedInMatching(p)
         case Member.Tuple(`child` :: Nil) => true
         case _ => false
       }
-      def isAloneArgOrBody(child: Tree) = child.parent.exists {
+      @tailrec
+      def isAloneArgOrBody(child: Tree): Boolean = child.parent.orNull match {
         case t: Case => t.pat.eq(child) || t.body.eq(child)
         case _: Term.If | _: Term.While | _: Term.Do => true
         case _: Member.ArgClause => true
-        case p: Term.Block => hasSingleElement(p, child)
+        case p: Term.Block => hasSingleElement(p, child) &&
+          (p.tokens.head match {
+            case head: T.LeftBrace => // check brace was not rewritten
+              (tokens.before(head).left eq head) || isAloneArgOrBody(p)
+            case _ => true
+          })
         case _: Init | _: Term.Super | _: Member.Tuple => true
         case t: Tree.WithBody => t.body eq child
         case t: Term.Param => t.default.contains(child)
