@@ -1265,42 +1265,6 @@ class FormatOps(
   }
 
   @tailrec
-  final def findPrevSelectAndApply(
-      tree: Tree,
-      enclosed: Boolean,
-      applyTree: Option[Member.Apply] = None,
-  ): (Option[SelectLike], Option[Member.Apply]) = {
-    @inline
-    def isEnclosed: Boolean = enclosed && isEnclosedWithinParens(tree)
-    tree match {
-      case GetSelectLike(t) if !isEnclosed => (Some(t), applyTree)
-      case t: Member.Apply if !isEnclosed =>
-        findPrevSelectAndApply(t.fun, enclosed, applyTree.orElse(Some(t)))
-      case t: Term.AnonymousFunction if !enclosed =>
-        findPrevSelectAndApply(t.body, false, applyTree)
-      case Term.Block(t :: Nil) if !isEnclosedInBraces(tree) =>
-        findPrevSelectAndApply(t, false, applyTree)
-      case _ => (None, applyTree)
-    }
-  }
-
-  def findPrevSelect(
-      tree: SelectLike,
-      enclosed: Boolean = true,
-  ): Option[SelectLike] = findPrevSelectAndApply(tree.qual, enclosed)._1
-
-  @tailrec
-  final def findFirstSelect(
-      tree: Tree,
-      enclosed: Boolean,
-      select: Option[SelectLike] = None,
-  ): Option[SelectLike] = findPrevSelectAndApply(tree, enclosed) match {
-    case (x @ Some(prevSelect), _) =>
-      findFirstSelect(prevSelect.qual, enclosed, x)
-    case _ => select
-  }
-
-  @tailrec
   private def findLastApplyAndNextSelectEnclosed(
       tree: Tree,
       select: Option[SelectLike] = None,
@@ -1308,7 +1272,7 @@ class FormatOps(
   ): (Tree, Option[SelectLike]) =
     if (isEnclosedWithinParens(tree)) (prevApply.getOrElse(tree), select)
     else tree.parent match {
-      case Some(GetSelectLike(p)) =>
+      case Some(SelectLike(p)) =>
         findLastApplyAndNextSelectEnclosed(p.tree, select.orElse(Some(p)))
       case Some(p: Member.Apply) if p.fun eq tree =>
         findLastApplyAndNextSelectEnclosed(p, select)
@@ -1324,7 +1288,7 @@ class FormatOps(
       prevEnclosed: Option[Tree] = None,
       prevApply: Option[Tree] = None,
   ): (Tree, Option[SelectLike]) = tree.parent match {
-    case Some(GetSelectLike(p)) =>
+    case Some(SelectLike(p)) =>
       findLastApplyAndNextSelectPastEnclosed(p.tree, select.orElse(Some(p)))
     case Some(p: Member.Apply) if p.fun eq tree =>
       prevEnclosed match {
@@ -1385,9 +1349,7 @@ class FormatOps(
   )(implicit style: ScalafmtConfig): Boolean = prevSelect match {
     case None => false
     case Some(p) if canStartSelectChain(p, Some(thisSelect), lastApply) => true
-    case Some(p) =>
-      val prevPrevSelect = findPrevSelect(p, style.newlines.encloseSelectChains)
-      inSelectChain(prevPrevSelect, p, lastApply)
+    case Some(p) => inSelectChain(SelectLike.findPrev(p), p, lastApply)
   }
 
   @tailrec
@@ -1764,25 +1726,6 @@ class FormatOps(
 
   def isBodyEnclosedAsBlock(body: Tree): Boolean =
     getClosingIfBodyEnclosedAsBlock(body).isDefined
-
-  object GetSelectLike {
-
-    private def get(
-        ro: Tree,
-    )(onMatch: Term.SelectMatch => Option[FT]): Option[SelectLike] = ro match {
-      case x: Term.Select => Some(SelectLike(x))
-      case x: Term.SelectMatch => onMatch(x).map(ft => SelectLike(x, ft))
-      case _ => None
-    }
-
-    def onRightOpt(ft: FT): Option[SelectLike] = get(ft.rightOwner) { _ =>
-      val nft = nextNonCommentAfter(ft)
-      if (nft.right.is[T.KwMatch]) Some(next(nft)) else None
-    }
-
-    def unapply(tree: Tree): Option[SelectLike] =
-      get(tree)(x => Some(tokenBefore(x.casesBlock)))
-  }
 
   def getSplitsForTypeBounds(
       noNLMod: => Modification,
@@ -2369,8 +2312,8 @@ class FormatOps(
 
     private def getMaybeFewerBracesSelectSplits(body: Tree)(implicit
         ft: FT,
-        style: ScalafmtConfig,
-    ) = findFirstSelect(body, enclosed = true).filter(_.qual match {
+        style: ScalafmtConfig, // FormatTokens, too
+    ) = SelectLike.findFirst(body, enclosed = true).filter(_.qual match {
       case q @ (_: Term.ForClause | _: Term.ApplyInfix |
           _: Term.SelectPostfix) => !isEnclosedInMatching(q)
       case _ => false
@@ -2919,7 +2862,7 @@ class FormatOps(
 
       (afterDelims.right match {
         case _: T.Dot => // check if Dot rule includes a break option
-          afterDelims -> GetSelectLike.onRightOpt(afterDelims).map { x =>
+          afterDelims -> SelectLike.onRightOpt(afterDelims).map { x =>
             implicit val cfg = styleMap.at(afterDelims)
             cfg.newlines.getSelectChains match {
               case Newlines.classic =>
@@ -3032,14 +2975,6 @@ class FormatOps(
 }
 
 object FormatOps {
-  class SelectLike(val tree: Term, val qual: Term, val nameFt: FT) {}
-
-  object SelectLike {
-    def apply(tree: Term.Select)(implicit ftoks: FormatTokens): SelectLike =
-      new SelectLike(tree, tree.qual, ftoks.getHead(tree.name))
-    def apply(tree: Term.SelectMatch, kw: FT): SelectLike =
-      new SelectLike(tree, tree.expr, kw)
-  }
 
   case class TemplateSupertypeGroup(
       superType: Tree,
