@@ -4138,16 +4138,11 @@ object a {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,8 +1,8 @@
- object a {
-   try
-     getSecurityDescriptor() &&
--    setupNewAclEntry() &&
--    assignNewSecurityInfo()
-+      setupNewAclEntry() &&
-+      assignNewSecurityInfo()
-   finally
-     FreeSid(!usersGroupSid)
- }
+object a {
+  try
+    getSecurityDescriptor() &&
+      setupNewAclEntry() &&
+      assignNewSecurityInfo()
+  finally
+    FreeSid(!usersGroupSid)
+}
