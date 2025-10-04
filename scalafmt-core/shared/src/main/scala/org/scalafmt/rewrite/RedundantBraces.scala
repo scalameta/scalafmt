@@ -20,6 +20,8 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
 
   override def create(implicit ftoks: FormatTokens): Rule = new RedundantBraces
 
+  override def priority: Int = RemoveScala3OptionalBraces.priority + 1
+
   private def settings(implicit
       style: ScalafmtConfig,
   ): RedundantBracesSettings = style.rewrite.redundantBraces

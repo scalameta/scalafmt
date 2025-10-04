@@ -15,6 +15,8 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
 
   override def enabled(implicit style: ScalafmtConfig): Boolean = true
 
+  override def priority: Int = RedundantBraces.priority
+
   override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new RedundantParens
 
