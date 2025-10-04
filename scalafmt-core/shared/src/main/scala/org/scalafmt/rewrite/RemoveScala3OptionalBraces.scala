@@ -19,8 +19,6 @@ object RemoveScala3OptionalBraces extends FormatTokensRewrite.RuleFactory {
   override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new RemoveScala3OptionalBraces
 
-  override def priority: Int = 1
-
 }
 
 private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
