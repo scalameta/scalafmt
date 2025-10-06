@@ -2469,7 +2469,7 @@ object SplitsBeforeDot extends Splits {
       ft: FT,
       fo: FormatOps,
       cfg: ScalafmtConfig,
-  ): Seq[Split] = fo.GetSelectLike.onRightOpt(ft) match {
+  ): Seq[Split] = SelectLike.onRightOpt(ft)(fo.tokens) match {
     case Some(x)
         if cfg.newlines.keep || !x.tree.is[Term.Select] ||
           findTreeWithParent(x.tree) {
@@ -2488,8 +2488,8 @@ object SplitsBeforeDot extends Splits {
     val enclosed = cfg.newlines.encloseSelectChains
     val (expireTree, nextSelect) =
       findLastApplyAndNextSelect(rightOwner, enclosed)
-    val (prevSelect, prevApply) =
-      findPrevSelectAndApply(thisSelect.qual, enclosed)
+    val (prevSelect, prevApply) = SelectLike
+      .findPrevAndApply(thisSelect.qual, enclosed)
     val afterComment = left.is[T.Comment]
 
     // includes other optional-braces-like trees
@@ -3452,14 +3452,14 @@ object SplitsBeforeCommentLowPriority extends Splits {
       .withIndent(cfg.indent.main, nft, ExpiresOn.After)
 
     val selectLikeOpt =
-      if (nft.right.is[T.Dot]) GetSelectLike.onRightOpt(nft)
+      if (nft.right.is[T.Dot]) SelectLike.onRightOpt(nft)
       else {
         val pft = prevBeforeNonComment(ft)
-        if (pft.right.is[T.Dot]) GetSelectLike.onRightOpt(pft) else None
+        if (pft.right.is[T.Dot]) SelectLike.onRightOpt(pft) else None
       }
 
     selectLikeOpt.fold(Seq(baseSplit))(t =>
-      if (findPrevSelect(t, cfg.newlines.encloseSelectChains).isEmpty) Seq(split)
+      if (SelectLike.findPrev(t).isEmpty) Seq(split)
       else Seq(baseSplit, split.onlyFor(SplitTag.SelectChainFirstNL)),
     )
   }
@@ -3572,7 +3572,9 @@ object SplitsAfterOptionalBracesKeyword extends Splits {
       ft: FT,
       fo: FormatOps,
       cfg: ScalafmtConfig,
-  ): Seq[Split] = fo.OptionalBraces.get(ft)(cfg).flatMap(_.splits)
-    .getOrElse(Seq.empty)
+  ): Seq[Split] = {
+    import fo.tokens
+    OptionalBraces.get(ft).flatMap(_.splits).getOrElse(Seq.empty)
+  }
 
 }

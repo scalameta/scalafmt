@@ -48,7 +48,7 @@ class FidelityTest extends FunSuite with FormatAssertions {
     FileOps.walkFiles(visitor)(FileOps.getPath("."))
 
     test("count of files") {
-      val expected = 271
+      val expected = 273
       assertEquals(cnt, expected, s"Expected $expected files to test, got $cnt")
     }
 
