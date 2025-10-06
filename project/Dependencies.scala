@@ -10,7 +10,7 @@ object Dependencies {
   val scalametaV  = "4.13.10"
   val scalacheckV = "1.18.1"
   val coursier    = "2.1.24"
-  val munitV      = "1.1.0"
+  val munitV      = "1.1.2"
   val mdocV       = mdoc.BuildInfo.version
 
   private def smorg(pkg: => String, v: String) = Def.setting("org.scalameta" %%% pkg % v)
