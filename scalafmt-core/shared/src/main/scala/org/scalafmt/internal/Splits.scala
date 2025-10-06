@@ -3458,7 +3458,17 @@ object SplitsBeforeCommentLowPriority extends Splits {
         if (pft.right.is[T.Dot]) GetSelectLike.onRightOpt(pft) else None
       }
 
-    selectLikeOpt.fold(Seq(baseSplit))(t =>
+    selectLikeOpt.fold {
+      val infixSplits = nft.rightOwner match {
+        case t: Name if nft.right.is[T.Ident] =>
+          t.parent match {
+            case Some(p: Member.Infix) if p.op eq t => insideInfixSplit(p)
+            case _ => Seq.empty
+          }
+        case _ => Seq.empty
+      }
+      if (infixSplits.isEmpty) Seq(baseSplit) else infixSplits
+    }(t =>
       if (findPrevSelect(t, cfg.newlines.encloseSelectChains).isEmpty) Seq(split)
       else Seq(baseSplit, split.onlyFor(SplitTag.SelectChainFirstNL)),
     )

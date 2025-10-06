@@ -8833,7 +8833,7 @@ object Foo {
   // some comment
   val foo: Boolean =
     "foo".nonEmpty
-    // another comment
+      // another comment
       && "foo".nonEmpty
       // and another
       && "foo".nonEmpty
@@ -8850,7 +8850,7 @@ object Foo {
 object Foo {
   val foo =
     bar
-    // c1
+      // c1
       && baz
       // c2
       && qux
