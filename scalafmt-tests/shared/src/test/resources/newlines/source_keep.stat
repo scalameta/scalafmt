@@ -2425,7 +2425,7 @@ object a {
 >>>
 object a {
   (people.map(p => (p.name, p.age))
-  // c1
+    // c1
     returning people.map(_.id)
     // c2
     into ((nameAge, id) => Person(id, nameAge._1, nameAge._2)))

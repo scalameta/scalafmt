@@ -504,7 +504,7 @@ class FormatOps(
     private val isLeftInfix = leftInfix eq app
     private val isAfterOp = ft.meta.leftOwner eq app.op
     private val beforeLhs = !isAfterOp && ft.left.start < app.pos.start
-    private val isFirstOp = beforeLhs || isLeftInfix
+    private val isFirstOp = beforeLhs || isLeftInfix && isAfterOp
     private val fullExpire = getLastExceptParen(fullInfix)
 
     private val assignBodyExpire = {
@@ -614,8 +614,13 @@ class FormatOps(
     val (nlIndent, nlPolicy) = {
       def policy(triggers: T*) = Policy ? triggers.isEmpty ||
         Policy.onLeft(fullExpire, prefix = "INF") {
-          case Decision(t: FT, s)
-              if isInfixOp(t.meta.leftOwner) || AsInfixOp(t.meta.rightOwner)
+          case Decision(FT(_: T.Ident, _, m), s) if isInfixOp(m.leftOwner) =>
+            InfixSplits.switch(s, triggers: _*)
+          case Decision(FT(_, _: T.Ident, m), s)
+              if AsInfixOp(m.rightOwner).exists(style.newlines.infix.keep) =>
+            InfixSplits.switch(s, triggers: _*)
+          case Decision(xft @ FT(_, _: T.Comment, _), s)
+              if AsInfixOp(nextNonCommentAfter(xft).rightOwner)
                 .exists(style.newlines.infix.keep) =>
             InfixSplits.switch(s, triggers: _*)
         }
