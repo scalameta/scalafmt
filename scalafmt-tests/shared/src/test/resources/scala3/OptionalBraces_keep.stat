@@ -8819,3 +8819,82 @@ object a {
     (b: Bound) => _ => (child: Child[b]) => (f1[b](child), f2[b](child))
   }
 }
+<<< #4981 1
+object Foo {
+  // some comment
+  val foo: Boolean = "foo".nonEmpty
+    // another comment
+    && "foo".nonEmpty
+    // and another
+    && "foo".nonEmpty
+}
+>>>
+object Foo {
+  // some comment
+  val foo: Boolean =
+    "foo".nonEmpty
+    // another comment
+      && "foo".nonEmpty
+      // and another
+      && "foo".nonEmpty
+}
+<<< #4981 2
+object Foo {
+  val foo = bar
+    // c1
+    && baz
+    // c2
+    && qux
+}
+>>>
+object Foo {
+  val foo =
+    bar
+    // c1
+      && baz
+      // c2
+      && qux
+}
+<<< #4981 3
+object Foo {
+  val foo = bar &&
+    // c1
+    baz
+    && // c2
+    qux
+}
+>>>
+object Foo {
+  val foo = bar &&
+    // c1
+    baz
+    && // c2
+    qux
+}
+<<< #4981 4
+object Foo {
+  val foo = bar
+    && baz
+    && qux
+}
+>>>
+object Foo {
+  val foo =
+    bar
+      && baz
+      && qux
+}
+<<< #4981 5
+object Foo {
+  val foo = bar &&
+    baz
+    &&
+    qux
+}
+>>>
+object Foo {
+  val foo = bar &&
+    baz
+    &&
+    qux
+}
