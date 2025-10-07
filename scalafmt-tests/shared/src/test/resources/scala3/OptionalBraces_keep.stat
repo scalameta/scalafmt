@@ -6339,19 +6339,17 @@ object a:
      rootsForRelease.foreach(root =>
        Files.walk(root).iterator().asScala.filter(Files.isDirectory(_)).foreach {
          p =>
-            val moduleNamePathElementCount = if (isJava12OrHigher) 1 else 0
-            if (
-              p.getNameCount > root.getNameCount + moduleNamePathElementCount
-            ) {
-              val packageDotted = p.subpath(
-                moduleNamePathElementCount + root.getNameCount,
-                p.getNameCount
-              ).toString.replace('/', '.')
-              index.getOrElseUpdate(
-                packageDotted,
-                new collection.mutable.ListBuffer
-              ) += p
-            }
+           val moduleNamePathElementCount = if (isJava12OrHigher) 1 else 0
+           if (p.getNameCount > root.getNameCount + moduleNamePathElementCount) {
+             val packageDotted = p.subpath(
+               moduleNamePathElementCount + root.getNameCount,
+               p.getNameCount
+             ).toString.replace('/', '.')
+             index.getOrElseUpdate(
+               packageDotted,
+               new collection.mutable.ListBuffer
+             ) += p
+           }
        }
      )
      index
@@ -6384,19 +6382,17 @@ object a:
      rootsForRelease.foreach(root =>
        Files.walk(root).iterator().asScala.filter(Files.isDirectory(_)).foreach {
          [p] =>
-            val moduleNamePathElementCount = if (isJava12OrHigher) 1 else 0
-            if (
-              p.getNameCount > root.getNameCount + moduleNamePathElementCount
-            ) {
-              val packageDotted = p.subpath(
-                moduleNamePathElementCount + root.getNameCount,
-                p.getNameCount
-              ).toString.replace('/', '.')
-              index.getOrElseUpdate(
-                packageDotted,
-                new collection.mutable.ListBuffer
-              ) += p
-            }
+           val moduleNamePathElementCount = if (isJava12OrHigher) 1 else 0
+           if (p.getNameCount > root.getNameCount + moduleNamePathElementCount) {
+             val packageDotted = p.subpath(
+               moduleNamePathElementCount + root.getNameCount,
+               p.getNameCount
+             ).toString.replace('/', '.')
+             index.getOrElseUpdate(
+               packageDotted,
+               new collection.mutable.ListBuffer
+             ) += p
+           }
        }
      )
      index
@@ -6417,15 +6413,13 @@ object a:
    rootsForRelease_foreach(root =>
      Files.walkingIterator().useScalaFilter(Files__Is__Directory).foreach {
        p =>
-          val_moduleNamePathElementCount_е_0
-          if (
-            p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount
-          ) {
-            val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
-            index_getOrElseUpdate(
-              packageDotted__new_collectionMutableListBuffer
-            )
-          }
+         val_moduleNamePathElementCount_е_0
+         if (p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount) {
+           val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
+           index_getOrElseUpdate(
+             packageDotted__new_collectionMutableListBuffer
+           )
+         }
      }
    )
 <<< complex code with selects and brace lambda 2, poly
@@ -6444,15 +6438,13 @@ object a:
    rootsForRelease_foreach(root =>
      Files.walkingIterator().useScalaFilter(Files__Is__Directory).foreach {
        [p] =>
-          val_moduleNamePathElementCount_е_0
-          if (
-            p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount
-          ) {
-            val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
-            index_getOrElseUpdate(
-              packageDotted__new_collectionMutableListBuffer
-            )
-          }
+         val_moduleNamePathElementCount_е_0
+         if (p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount) {
+           val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
+           index_getOrElseUpdate(
+             packageDotted__new_collectionMutableListBuffer
+           )
+         }
      }
    )
 <<< braces to parens in one-line apply: overflow with braces, fit with parens
@@ -7379,9 +7371,9 @@ object a:
 >>>
 object a:
    val foo = map { postFile =>
-      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(
-        year
-      ).resolve(month).resolve(day).resolve(name)
+     val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year).resolve(
+       month
+     ).resolve(day).resolve(name)
    }
 <<< #4133 overflow select with binpack, !dangling
 binPack.preset = always
@@ -7394,8 +7386,8 @@ object a:
 >>>
 object a:
    val foo = map { postFile =>
-      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(
-        year).resolve(month).resolve(day).resolve(name)
+     val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year).resolve(
+       month).resolve(day).resolve(name)
    }
 <<< #4133 overflow selects/applies, nobreak-dot-break, binpack + !dangling
 maxColumn = 70
@@ -8551,15 +8543,14 @@ object a {
 object a {
   val resultIterator = Iterator.continually(
     transformers.foldLeft(false) { (hadApply, transformer) =>
-       val elementIterator =
-         range.map(elementsIn(file, _)).getOrElse(file.depthFirst())
-       val hasApply = elementIterator.foldLeft(false) { (hadApply, element) =>
-          val (result, marker) =
-            applyTransformer(element, transformer, document)
-          marker.foreach(markers ::= _)
-          hadApply || result
-       }
-       hadApply || hasApply
+      val elementIterator =
+        range.map(elementsIn(file, _)).getOrElse(file.depthFirst())
+      val hasApply = elementIterator.foldLeft(false) { (hadApply, element) =>
+        val (result, marker) = applyTransformer(element, transformer, document)
+        marker.foreach(markers ::= _)
+        hadApply || result
+      }
+      hadApply || hasApply
     }
   )
 }
