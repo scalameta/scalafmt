@@ -1631,9 +1631,9 @@ foo.mtd1 { x => x + 1 }.mtd2: x =>
    x + 1
    x + 2
 .mtd3 { x =>
-   x + 1
-   x + 2
-   x + 3
+  x + 1
+  x + 2
+  x + 3
 }
 <<< rewrite to fewer braces: context func
 rewrite.scala3.removeOptionalBraces = {
@@ -1660,9 +1660,9 @@ foo.mtd1 { x ?=> x + 1 }.mtd2: x ?=>
    x + 1
    x + 2
 .mtd3 { x ?=>
-   x + 1
-   x + 2
-   x + 3
+  x + 1
+  x + 2
+  x + 3
 }
 <<< rewrite to fewer braces: poly func
 rewrite.scala3.removeOptionalBraces = {
@@ -1689,9 +1689,9 @@ foo.mtd1 { [x] => x + 1 }.mtd2: [x] =>
    x + 1
    x + 2
 .mtd3 { [x] =>
-   x + 1
-   x + 2
-   x + 3
+  x + 1
+  x + 2
+  x + 3
 }
 <<< rewrite to fewer braces: func in parens
 rewrite.rules = [RedundantBraces]
@@ -1725,9 +1725,9 @@ foo.mtd1(x => x + 1).mtd2: x =>
    x + 1
    x + 2
 .mtd3 { x =>
-   x + 1
-   x + 2
-   x + 3
+  x + 1
+  x + 2
+  x + 3
 }
 <<< rewrite to fewer braces: context func in parens
 rewrite.rules = [RedundantBraces]
@@ -1761,9 +1761,9 @@ foo.mtd1(x ?=> x + 1).mtd2: x ?=>
    x + 1
    x + 2
 .mtd3 { x ?=>
-   x + 1
-   x + 2
-   x + 3
+  x + 1
+  x + 2
+  x + 3
 }
 <<< rewrite to fewer braces: poly func in parens
 rewrite.rules = [RedundantBraces]
@@ -1797,9 +1797,9 @@ foo.mtd1([x] => x + 1).mtd2: [x] =>
    x + 1
    x + 2
 .mtd3 { [x] =>
-   x + 1
-   x + 2
-   x + 3
+  x + 1
+  x + 2
+  x + 3
 }
 <<< rewrite to fewer braces: func in parens, trailing comma, allowFolding
 rewrite.rules = [RedundantBraces]
@@ -1835,9 +1835,9 @@ foo.mtd1(x => x + 1).mtd2: x =>
    x + 1
    x + 2
 .mtd3 { x =>
-   x + 1
-   x + 2
-   x + 3
+  x + 1
+  x + 2
+  x + 3
 }
 <<< rewrite to fewer braces: context func in parens, trailing comma, allowFolding
 rewrite.rules = [RedundantBraces]
@@ -1873,9 +1873,9 @@ foo.mtd1(x ?=> x + 1).mtd2: x ?=>
    x + 1
    x + 2
 .mtd3 { x ?=>
-   x + 1
-   x + 2
-   x + 3
+  x + 1
+  x + 2
+  x + 3
 }
 <<< rewrite to fewer braces: poly func in parens, trailing comma, allowFolding
 rewrite.rules = [RedundantBraces]
@@ -1911,9 +1911,9 @@ foo.mtd1([x] => x + 1).mtd2: [x] =>
    x + 1
    x + 2
 .mtd3 { [x] =>
-   x + 1
-   x + 2
-   x + 3
+  x + 1
+  x + 2
+  x + 3
 }
 <<< rewrite to fewer braces: func in parens, trailing comma, !allowFolding
 rewrite.rules = [RedundantBraces]
@@ -1951,9 +1951,9 @@ foo.mtd1(
    x + 1
    x + 2
 .mtd3 { x =>
-   x + 1
-   x + 2
-   x + 3
+  x + 1
+  x + 2
+  x + 3
 }
 <<< rewrite to fewer braces: context func in parens, trailing comma, !allowFolding
 rewrite.rules = [RedundantBraces]
@@ -1991,9 +1991,9 @@ foo.mtd1(
    x + 1
    x + 2
 .mtd3 { x ?=>
-   x + 1
-   x + 2
-   x + 3
+  x + 1
+  x + 2
+  x + 3
 }
 <<< rewrite to fewer braces: poly func in parens, trailing comma, !allowFolding
 rewrite.rules = [RedundantBraces]
@@ -2039,9 +2039,9 @@ foo.mtd1(
   [
       x,
   ] =>
-     x + 1
-     x + 2
-     x + 3
+    x + 1
+    x + 2
+    x + 3
 }
 <<< rewrite to fewer braces: func in parens, infix after
 rewrite.rules = [RedundantBraces]
@@ -2075,9 +2075,9 @@ object a:
       x + 1
       x + 2
    + mtd3 { x =>
-      x + 1
-      x + 2
-      x + 3
+     x + 1
+     x + 2
+     x + 3
    }
 <<< rewrite to fewer braces: context func in parens, infix after
 rewrite.rules = [RedundantBraces]
@@ -2111,9 +2111,9 @@ object a:
       x + 1
       x + 2
    + mtd3 { x ?=>
-      x + 1
-      x + 2
-      x + 3
+     x + 1
+     x + 2
+     x + 3
    }
 <<< rewrite to fewer braces: poly func in parens, infix after
 rewrite.rules = [RedundantBraces]
@@ -2147,9 +2147,9 @@ object a:
       x + 1
       x + 2
    + mtd3 { [x] =>
-      x + 1
-      x + 2
-      x + 3
+     x + 1
+     x + 2
+     x + 3
    }
 <<< rewrite to fewer braces: func in parens and braces
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -2183,9 +2183,9 @@ foo.mtd1(x => x + 1).mtd2: x =>
    x + 1
    x + 2
 .mtd3 { x =>
-   x + 1
-   x + 2
-   x + 3
+  x + 1
+  x + 2
+  x + 3
 }
 <<< rewrite to fewer braces: context func in parens and braces
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -2219,9 +2219,9 @@ foo.mtd1(x ?=> x + 1).mtd2: x ?=>
    x + 1
    x + 2
 .mtd3 { x ?=>
-   x + 1
-   x + 2
-   x + 3
+  x + 1
+  x + 2
+  x + 3
 }
 <<< rewrite to fewer braces: poly func in parens and braces
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -2255,9 +2255,9 @@ foo.mtd1([x] => x + 1).mtd2: [x] =>
    x + 1
    x + 2
 .mtd3 { [x] =>
-   x + 1
-   x + 2
-   x + 3
+  x + 1
+  x + 2
+  x + 3
 }
 <<< rewrite to fewer braces: func in parens and braces, infix after
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -2291,9 +2291,9 @@ object a:
       x + 1
       x + 2
    + mtd3 { x =>
-      x + 1
-      x + 2
-      x + 3
+     x + 1
+     x + 2
+     x + 3
    }
 <<< rewrite to fewer braces: context func in parens and braces, infix after
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -2327,9 +2327,9 @@ object a:
       x + 1
       x + 2
    + mtd3 { x ?=>
-      x + 1
-      x + 2
-      x + 3
+     x + 1
+     x + 2
+     x + 3
    }
 <<< rewrite to fewer braces: poly func in parens and braces, infix after
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -2363,9 +2363,9 @@ object a:
       x + 1
       x + 2
    + mtd3 { [x] =>
-      x + 1
-      x + 2
-      x + 3
+     x + 1
+     x + 2
+     x + 3
    }
 <<< rewrite to fewer braces: partial func
 rewrite.scala3.removeOptionalBraces = {
@@ -2536,9 +2536,9 @@ object a:
       x + 1
       x + 2
    + mtd3 { x =>
-      x + 1
-      x + 2
-      x + 3
+     x + 1
+     x + 2
+     x + 3
    }
 <<< single arg with parens
 rewrite.scala3.removeOptionalBraces {

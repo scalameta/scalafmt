@@ -10374,12 +10374,12 @@ val offsets = Utils.tryWithResource {
   buffer.asLongBuffer
 }
 >>>
-val offsets = Utils
-  .tryWithResource(new DataInputStream(Files.newInputStream(indexFile.toPath))) {
-    dis ?=>
-      dis.readFully(buffer.array)
-      buffer.asLongBuffer
-  }
+val offsets = Utils.tryWithResource {
+  new DataInputStream(Files.newInputStream(indexFile.toPath))
+} { dis ?=>
+  dis.readFully(buffer.array)
+  buffer.asLongBuffer
+}
 <<< #4133 braces to parens with two curried params, second poly func
 maxColumn = 76
 runner.dialect = scala3

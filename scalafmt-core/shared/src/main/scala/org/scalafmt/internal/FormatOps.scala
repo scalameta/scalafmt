@@ -1860,6 +1860,7 @@ class FormatOps(
           case _: T.Colon => ColonEolImpl
           case _: T.KwWith => WithImpl
           case _: T.RightArrow => RightArrowImpl
+          case _: T.ContextArrow => ContextArrowImpl
           case _: T.RightParen => RightParenImpl
           case _: T.KwFor => ForImpl
           case _: T.KwWhile => WhileImpl
@@ -2124,8 +2125,30 @@ class FormatOps(
               def splits = Some(getSplits(b, forceNL = true))
               def rightBrace = treeLast(b)
             })
+          case t: Term.FunctionLike => FunctionArrowImpl.get(t, nft)
           case _ => BlockImpl.create(nft)
         }
+    }
+
+    private object ContextArrowImpl extends Factory {
+      def create(
+          nft: FT,
+      )(implicit style: ScalafmtConfig, ft: FT): Option[OptionalBracesRegion] =
+        ft.leftOwner match {
+          case t: Term.FunctionLike => FunctionArrowImpl.get(t, nft)
+          case _ => BlockImpl.create(nft)
+        }
+    }
+
+    private object FunctionArrowImpl {
+      def get(t: Term.FunctionLike, nft: FT)(implicit
+          style: ScalafmtConfig,
+          ft: FT,
+      ): Option[OptionalBracesRegion] = {
+        val skip = isTreeSingleExpr(t.body) || isBlockFunction(t)
+        if (skip) None // not really optional braces
+        else BlockImpl.create(nft)
+      }
     }
 
     private object ForImpl extends Factory {
