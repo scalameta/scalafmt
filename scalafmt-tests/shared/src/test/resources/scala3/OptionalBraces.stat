@@ -8871,3 +8871,79 @@ object Foo {
     &&
     qux
 }
+<<< from scala-native: newlines.afterCurlyLambdaParams=never
+newlines.afterCurlyLambdaParams = never
+===
+object a {
+  foo { implicit z =>
+
+    /* Requirement:
+     */
+     bar
+     baz
+  }
+}
+>>>
+object a {
+  foo { implicit z =>
+    /* Requirement:
+     */
+    bar
+    baz
+  }
+}
+<<< from scala-native: newlines.afterCurlyLambdaParams=squash
+newlines.afterCurlyLambdaParams = squash
+===
+object a {
+  foo { implicit z =>
+
+    /* Requirement:
+     */
+     bar
+     baz
+  }
+}
+>>>
+object a {
+  foo { implicit z =>
+    /* Requirement:
+     */
+    bar
+    baz
+  }
+}
+<<< from scala-native: newlines.afterCurlyLambdaParams=always
+newlines.afterCurlyLambdaParams = always
+===
+object a {
+  foo { implicit z =>
+
+    /* Requirement:
+     */
+     bar
+     baz
+  }
+}
+>>>
+object a {
+  foo { implicit z =>
+    /* Requirement:
+     */
+    bar
+    baz
+  }
+}
+<<< remove optional braces in multi-stat function body
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a {
+  transformAfter(phase, sd => { sd.setFlag(flags); sd })
+}
+>>>
+object a:
+   transformAfter(
+     phase,
+     sd =>
+        sd.setFlag(flags); sd
+   )
