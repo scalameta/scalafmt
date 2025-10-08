@@ -1893,6 +1893,7 @@ class FormatOps(
         danglingKeyword: Boolean = true,
         indentOpt: Option[Int] = None,
         forceNLIfTrailingStandaloneComments: Boolean = true,
+        nlModOpt: Option[NewlineT] = None,
     )(implicit
         fileLine: FileLine,
         style: ScalafmtConfig,
@@ -1920,13 +1921,12 @@ class FormatOps(
       val indent = Indent(indentLen, close, ExpiresOn.After)
       def nlOnly = forceNLIfTrailingStandaloneComments &&
         slbExpire.right.is[T.Comment] && slbExpire.idx < close.idx
-      if (ft.hasBlankLine)
-        Seq(Split(Newline2x, 0).withIndent(indent).withPolicy(nlPolicy))
-      else if (forceNL || nlOnly)
-        Seq(Split(Newline, 0).withIndent(indent).withPolicy(nlPolicy))
+      val nlMod = nlModOpt.getOrElse(Newline2x(ft))
+      if (forceNL || nlMod.isDouble || nlOnly)
+        Seq(Split(nlMod, 0).withIndent(indent).withPolicy(nlPolicy))
       else Seq(
         Split(Space, 0).withSingleLine(slbExpire).withIndent(indent),
-        Split(Newline, 1).withIndent(indent).withPolicy(nlPolicy),
+        Split(nlMod, 1).withIndent(indent).withPolicy(nlPolicy),
       )
     }
 
@@ -2147,7 +2147,19 @@ class FormatOps(
       ): Option[OptionalBracesRegion] = {
         val skip = isTreeSingleExpr(t.body) || isBlockFunction(t)
         if (skip) None // not really optional braces
-        else BlockImpl.create(nft)
+        else Some(new OptionalBracesRegion {
+          def owner = Some(t)
+          def splits = {
+            val (afterCurlySpace, afterCurlyNewlines) =
+              getSpaceAndNewlineAfterCurlyLambda(ft.newlinesBetween)
+            Some(getSplits(
+              t.body,
+              forceNL = !afterCurlySpace || isTreeMultiStatBlock(t.body),
+              nlModOpt = Some(afterCurlyNewlines),
+            ))
+          }
+          def rightBrace = treeLast(t.body)
+        })
       }
     }
 

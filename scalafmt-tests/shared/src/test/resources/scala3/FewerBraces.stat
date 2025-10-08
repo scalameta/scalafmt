@@ -3319,7 +3319,6 @@ object a {
 >>>
 object a {
   Foo.foo: z =>
-
      /* Requirement:
       */
      bar
@@ -3339,7 +3338,6 @@ object a {
 >>>
 object a {
   Foo.foo: z =>
-
      /* Requirement:
       */
      bar
