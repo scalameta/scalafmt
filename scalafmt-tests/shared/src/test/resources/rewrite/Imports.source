@@ -1037,21 +1037,14 @@ package a
 >>>
 package a
 
-import a.{b, c}, h.{k, l}
-import d.e.{a, b}
-export d.e.{f, g}
-
 // comment
-import a.{f, g}
-
+import a.{b, c, f, g}
+import h.{k, l, a, b}
+import d.e.{a, b, d, f => g, g => _, _}
+export d.e.{f, g}
 //package b
 export h.{f, g}
-import h.{a, b}
-import d.e.{d, f => g, g => _, _}
-
-import x.y
-import x._
-
+import x.{y, _}
 import z._
 <<< folding, no sort, no groups, lots of comments
 rewrite.imports {
@@ -1082,24 +1075,23 @@ package a
 >>>
 package a
 
-import a.{ // a1
+import a.{f, g} // a0
+import a.{
+// a1
   b, // a2
   c // a3
-}, h.{ // h1
-  k,
-  l // h2
 }
-import d.e.{a, b}
-import d.e.{f, g} // d0
-
-import a.{f, g} // a0
 import h.{f, g} // h0
-import h.{a, b}
-import d.e.{d, f => g, g => _, _}
-
-import x.y
-import x._
-
+import h.{
+// h1
+  k,
+  l, // h2
+  a,
+  b
+}
+import d.e.{f, g} // d0
+import d.e.{a, b, d, f => g, g => _, _}
+import x.{y, _}
 import z._
 <<< folding, sort ascii, no groups
 rewrite.imports {
@@ -1134,21 +1126,14 @@ package a
 >>>
 package a
 
-import a.{b, c}, h.{k, l}
-import d.e.{a, b}
-export d.e.{f, g}
-
 // comment
-import a.{f, g}
-
+import a.{b, c, f, g}
+import d.e.{a, b, d, f => g, g => _, _}
+export d.e.{f, g}
+import h.{a, b, k, l}
 //package b
 export h.{f, g}
-import h.{a, b}
-import d.e.{d, f => g, g => _, _}
-
-import x.y
-import x._
-
+import x.{y, _}
 import z._
 <<< folding, no sort
 rewrite.imports {
@@ -1187,19 +1172,15 @@ package a
 >>>
 package a
 
-import a.{b, c}
 // comment
-import a.{f, g}
+import a.{b, c, f, g}
 
-import h.{k, l}
-import d.e.{a, b}
+import h.{k, l, a, b}
+import d.e.{a, b, d, f => g, g => _, _}
 export d.e.{f, g}
 //package b
 export h.{f, g}
-import h.{a, b}
-import d.e.{d, f => g, g => _, _}
-import x.y
-import x._
+import x.{y, _}
 import z._
 <<< folding, sort ascii
 rewrite.imports {
@@ -1239,17 +1220,13 @@ package a
 >>>
 package a
 
-import a.{b, c}
 // comment
-import a.{f, g}
+import a.{b, c, f, g}
 
-import d.e.{a, b}
-import d.e.{d, f => g, g => _, _}
+import d.e.{a, b, d, f => g, g => _, _}
 export d.e.{f, g}
-import h.{a, b}
+import h.{a, b, k, l}
 //package b
 export h.{f, g}
-import h.{k, l}
-import x._
-import x.y
+import x.{y, _}
 import z._
