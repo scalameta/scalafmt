@@ -3305,3 +3305,63 @@ object a:
         case 1 => one
         case _ => two
      .qux
+<<< from scala-native: newlines.afterCurlyLambdaParams=never
+newlines.afterCurlyLambdaParams = never
+===
+object a {
+  Foo.foo: z =>
+
+    /* Requirement:
+     */
+     bar
+     baz
+}
+>>>
+object a {
+  Foo.foo: z =>
+
+     /* Requirement:
+      */
+     bar
+     baz
+}
+<<< from scala-native: newlines.afterCurlyLambdaParams=squash
+newlines.afterCurlyLambdaParams = squash
+===
+object a {
+  Foo.foo: z =>
+
+    /* Requirement:
+     */
+     bar
+     baz
+}
+>>>
+object a {
+  Foo.foo: z =>
+
+     /* Requirement:
+      */
+     bar
+     baz
+}
+<<< from scala-native: newlines.afterCurlyLambdaParams=always
+newlines.afterCurlyLambdaParams = always
+===
+object a {
+  Foo.foo: z =>
+
+    /* Requirement:
+     */
+     bar
+     baz
+}
+>>>
+object a {
+  Foo.foo: z =>
+
+     /* Requirement:
+      */
+     bar
+     baz
+}
