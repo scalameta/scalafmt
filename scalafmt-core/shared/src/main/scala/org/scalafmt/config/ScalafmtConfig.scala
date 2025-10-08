@@ -408,6 +408,10 @@ object ScalafmtConfig {
         addIf(rewrite.scala3.removeOptionalBraces.fewerBracesMaxSpan < 0)
         addIf(rewrite.scala3.removeOptionalBraces.fewerBracesMinSpan > rewrite.scala3.removeOptionalBraces.fewerBracesMaxSpan)
       }
+      addIfDirect( // if we fold but not bin pack, we might end up with very long lines
+        rewrite.imports.selectors.contains(Newlines.fold) && (binPack.importSelectors eq ImportSelectors.singleLine),
+        "rewrite.imports.selectors == fold && binPack.importSelectors == singleLine",
+      )
     }
     // scalafmt: {}
     if (allErrors.isEmpty) Configured.ok(cfg)

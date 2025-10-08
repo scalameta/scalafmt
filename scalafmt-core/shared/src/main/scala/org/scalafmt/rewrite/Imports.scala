@@ -20,7 +20,7 @@ object Imports extends RewriteFactory {
 
   case class Settings(
       sort: Sort = Sort.none,
-      expand: Boolean = false,
+      selectors: Option[Newlines.SourceHints] = None,
       contiguousGroups: ContiguousGroups = ContiguousGroups.only,
       private val groups: Seq[Seq[String]] = Nil,
   ) {
@@ -29,7 +29,7 @@ object Imports extends RewriteFactory {
       .sortBy(_._1)(Ordering.String.reverse) // longest pattern first
       .map { case (pattern, index) => Pattern.compile(pattern) -> index }
 
-    private[Imports] val numGroups = groups.length
+    private[scalafmt] val numGroups = groups.length
 
     def noGroups: Boolean = sort.eq(Sort.none) && numGroups == 0
 
@@ -41,6 +41,12 @@ object Imports extends RewriteFactory {
     implicit val surface: generic.Surface[Settings] = generic.deriveSurface
     implicit val codec: ConfCodecEx[Settings] = generic
       .deriveCodecEx(new Settings).noTypos
+      .withSectionRenames(annotation.SectionRename(
+        "expand",
+        "selectors",
+        { case Conf.Bool(value) => if (value) Conf.Str("unfold") else Conf.Null() },
+      ))
+
   }
 
   sealed abstract class ContiguousGroups
@@ -57,10 +63,10 @@ object Imports extends RewriteFactory {
 
   override def create(implicit ctx: RewriteCtx): RewriteSession = {
     val settings = ctx.style.rewrite.imports
-    if (settings.expand) new ExpandFull
+    if (settings.selectors.contains(Newlines.unfold)) new ExpandFull
     else if (settings.numGroups != 0) new ExpandPart
     else if (settings.sort ne Sort.none) new ExpandNone
-    else new RewriteSession.None()
+    else new RewriteSession.None
   }
 
   private val allImportRules: Set[Rewrite] =
@@ -70,24 +76,43 @@ object Imports extends RewriteFactory {
     val (importRules, nonImportRules) = obj.rules
       .partition(allImportRules.contains)
 
+    val errBuf = Seq.newBuilder[String]
+
     val sortOriginal = importRules.contains(SortImports)
     val sortAscii = importRules.contains(AsciiSortImports)
-    if (sortAscii && sortOriginal) {
-      val err = "Incompatible rewrites: SortImports and AsciiSortImports"
-      Configured.error(err)
-    } else {
-      val expand = obj.imports.expand ||
-        importRules.contains(ExpandImportSelectors)
-      val sort =
-        if (obj.imports.sort ne Sort.none) obj.imports.sort
+    if (sortAscii && sortOriginal) errBuf += "SortImports and AsciiSortImports"
+
+    val sortIn = obj.imports.sort
+    if (sortIn ne Sort.none)
+      if (sortOriginal && (sortIn ne Sort.original)) errBuf +=
+        s"SortImports and Imports with `sort=$sortIn"
+      else if (sortAscii && (sortIn ne Sort.ascii)) errBuf +=
+        s"AsciiSortImports and Imports with `sort=$sortIn"
+
+    val expandRule = importRules.contains(ExpandImportSelectors)
+    val selectorsIn = obj.imports.selectors
+    selectorsIn.foreach(x =>
+      if (expandRule && (x ne Newlines.unfold)) errBuf +=
+        s"ExpandImportSelectors and Imports with `selectors=$x`",
+    )
+
+    val errors = errBuf.result()
+    if (errors.nonEmpty) Configured.error(
+      if (errors.lengthCompare(1) == 0) s"Incompatible rewrites: ${errors.head}"
+      else errors.mkString("Incompatible rewrites:\n  ", "\n  ", ""),
+    )
+    else {
+      val selectorsOut = selectorsIn
+        .orElse(if (expandRule) Some(Newlines.unfold) else None)
+      val sortOut =
+        if (sortIn ne Sort.none) sortIn
         else if (sortAscii) Sort.ascii
         else if (sortOriginal) Sort.original
         else Sort.none
-      val validated = obj.copy(
+      Configured.Ok(obj.copy(
         rules = Imports +: nonImportRules,
-        imports = obj.imports.copy(expand = expand, sort = sort),
-      )
-      Configured.Ok(validated)
+        imports = obj.imports.copy(selectors = selectorsOut, sort = sortOut),
+      ))
     }
   }
 
@@ -137,7 +162,7 @@ object Imports extends RewriteFactory {
       (tree, tree.toString)
   }
 
-  private object Sort {
+  private[scalafmt] object Sort {
 
     implicit val reader: ConfCodecEx[Sort] = ReaderUtil
       .oneOf[Sort](none, ascii, original, scalastyle)
