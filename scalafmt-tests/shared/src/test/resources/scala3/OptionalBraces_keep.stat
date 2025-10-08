@@ -8946,6 +8946,7 @@ object a {
 >>>
 object a {
   foo { implicit z =>
+
     /* Requirement:
      */
     bar

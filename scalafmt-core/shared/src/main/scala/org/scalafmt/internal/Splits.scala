@@ -822,7 +822,7 @@ object SplitsAfterFunctionArrow extends Splits {
     import fo._, ft._
     leftOwner match {
       case leftFunc: Term.FunctionLike =>
-        val isBlockFunc = !right.is[T.Comment] &&
+        val isBlockFunc = (!right.is[T.Comment] || ft.hasBreak) &&
           !tokens.isEmpty(leftFunc.body) && isBlockFunction(leftFunc)
         if (isBlockFunc) blockFunctionTerm(leftFunc) else functionOrSelf
       case t: Self if t.ancestor(2).is[Term.NewAnonymous] => functionOrSelf
