@@ -1230,3 +1230,46 @@ import h.{a, b, k, l}
 export h.{f, g}
 import x.{y, _}
 import z._
+<<< remove duplicates, fold
+runner.dialect = scala3
+rewrite.imports {
+  selectors = fold
+  removeRedundantSelectors = true
+}
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.{x, y => z, x, given Z, given, *, given, given}
+<<< remove duplicates, unfold
+runner.dialect = scala3
+rewrite.imports {
+  selectors = unfold
+  removeRedundantSelectors = true
+}
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.x
+import a.{y => z, given}
+import a.{*, given}
+import a.x
+import a.given
+import a.given Z
+<<< remove duplicates, sort
+runner.dialect = scala3
+rewrite.imports {
+  sort = ascii
+  removeRedundantSelectors = true
+}
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given Z, given}

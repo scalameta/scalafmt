@@ -24,6 +24,7 @@ object Imports extends RewriteFactory {
       selectors: Option[Newlines.SourceHints] = None,
       contiguousGroups: ContiguousGroups = ContiguousGroups.only,
       private val groups: Seq[Seq[String]] = Nil,
+      removeRedundantSelectors: Boolean = false,
   ) {
     private lazy val regex = groups.zipWithIndex
       .flatMap { case (patterns, index) => patterns.map((_, index)) }

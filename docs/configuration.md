@@ -3630,7 +3630,7 @@ Let's define some terminology: an import statement consists of several parts:
 #### Imports: `selectors`
 
 This parameter controls handling of import selectors within a `{...}`. Added in
-v3.9.11, it replaces the boolean parameter `expand` (which, in turn, replaced
+v3.10.0, it replaces the boolean parameter `expand` (which, in turn, replaced
 the deprecated rule `ExpandImportSelectors`).
 
 It takes the following values:
@@ -3799,6 +3799,28 @@ import qux.bar.{Random, bar, ~>, `symbol`}
 import foo.Baz.{bar => xyz, _}
 import bar.`qux`.{Random, bar, ~>, `symbol`}
 import baz._
+```
+
+#### Imports: `removeRedundantSelectors`
+
+> Since v3.10.0.
+
+If `rewrite.imports.removeRedundantSelectors` is enabled, will remove those
+selectors which are identical to another or are superseded by an appropriate
+wildcard. This deduplication happens at the group level if
+[groups](#imports-groups) are enabled, or at the statement level otherwise.
+
+Regardless of this setting, the rule will de-duplicate identical import statements.
+
+```scala mdoc:scalafmt
+runner.dialect = scala3
+rewrite.rules = [Imports]
+rewrite.imports.removeRedundantSelectors = true
+---
+import foo.{bar, baz}
+import foo.bar
+import foo.{baz => qux, given A, _}
+import foo.given
 ```
 
 ### Trailing commas
