@@ -506,17 +506,17 @@ object Imports extends RewriteFactory {
       }
       val folding = settings.selectors.contains(Newlines.fold)
       val foldMap = LinkedHashMap.empty[(String, String), ListBuffer[Importer]]
-      def addToGroup(kw: String, ref: String, importers: Importer*): Unit =
+      def addToGroup(kw: String, ref: String, importers: Seq[Importer]): Unit =
         addClausesToGroup(groups(settings.group(ref)), kw, ref, importers)
       stats.foreach { s =>
         val kw = s.tokens.head.toString
         s.importers.foreach { i =>
           val ref = getRef(i)
-          if (!folding) addToGroup(kw, ref, i)
+          if (!folding) addToGroup(kw, ref, i :: Nil)
           else foldMap.getOrElseUpdate((kw, ref), ListBuffer.empty).append(i)
         }
       }
-      foldMap.foreach { case ((kw, ref), v) => addToGroup(kw, ref, v.toList: _*) }
+      foldMap.foreach { case ((kw, ref), v) => addToGroup(kw, ref, v.toList) }
 
       val seenImports = HashMap.empty[Importer, Int]
       val sb = new StringBuilder()
@@ -659,9 +659,9 @@ object Imports extends RewriteFactory {
       val importees = importer.importees
       if (importees.dropWhile(notWildcardOrRename).drop(1).exists(isWildcard)) {
         val filtered = importees.filter { x =>
-          val buffering = !notWildcardOrRename(x)
-          if (!buffering) addSelectorToGroup(x, importer)
-          buffering
+          val expanding = notWildcardOrRename(x)
+          if (expanding) addSelectorToGroup(x, importer)
+          !expanding
         }
         addSelectorsToGroup(group, kw, ref, importer :: Nil, filtered)
       } else // expand all
