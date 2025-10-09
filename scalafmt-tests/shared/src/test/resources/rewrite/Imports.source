@@ -1241,7 +1241,7 @@ import a.{x, y => z, given}
 import a.{*, given}
 import a.{x, given, given Z}
 >>>
-import a.{x, y => z, x, given Z, given, *, given, given}
+import a.{y => z, given, *}
 <<< remove duplicates, unfold
 runner.dialect = scala3
 rewrite.imports {
@@ -1253,12 +1253,8 @@ import a.{x, y => z, given}
 import a.{*, given}
 import a.{x, given, given Z}
 >>>
-import a.x
 import a.{y => z, given}
-import a.{*, given}
-import a.x
-import a.given
-import a.given Z
+import a.*
 <<< remove duplicates, sort
 runner.dialect = scala3
 rewrite.imports {
@@ -1272,4 +1268,4 @@ import a.{x, given, given Z}
 >>>
 import a.{x, y => z, given}
 import a.{*, given}
-import a.{x, given Z, given}
+import a.{x, given}
