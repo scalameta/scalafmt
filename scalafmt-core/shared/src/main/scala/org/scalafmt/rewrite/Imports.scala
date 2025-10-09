@@ -112,6 +112,7 @@ object Imports extends RewriteFactory {
         else if (sortAscii) Sort.ascii
         else if (sortOriginal) Sort.original
         else if (selectorsIn.contains(Newlines.fold)) Sort.fold
+        else if (obj.imports.removeRedundantSelectors) Sort.fold
         else Sort.none
       Configured.Ok(obj.copy(
         rules = Imports +: nonImportRules,
@@ -308,6 +309,36 @@ object Imports extends RewriteFactory {
   private final def notWildcardOrRename(importee: Importee): Boolean =
     !isWildcard(importee) && !isRename(importee)
 
+  private final def getImporteesToKeep(
+      importees: => Iterable[Importee],
+  )(implicit ctx: RewriteCtx): Set[Importee] =
+    if (!ctx.style.rewrite.imports.removeRedundantSelectors) Set.empty
+    else {
+      val res = Set.newBuilder[Importee]
+      var hadWildcard = false
+      var hadGivenAll = false
+      val names = HashMap.empty[String, Importee.Name]
+      val givens = HashMap.empty[String, Importee.Given]
+      importees.foreach {
+        case x: Importee.Wildcard =>
+          if (!hadWildcard) { res += x; hadWildcard = true }
+        case x: Importee.GivenAll =>
+          if (!hadGivenAll) { res += x; hadGivenAll = true }
+        case x: Importee.Name => if (!hadWildcard) names.update(x.name.value, x)
+        case x: Importee.Given => if (!hadGivenAll) givens.update(x.text, x)
+        case x => res += x
+      }
+      if (!hadWildcard) res ++= names.values
+      if (!hadGivenAll) res ++= givens.values
+      res.result()
+    }
+
+  private final def filterWithAllowedImportees(
+      allowedImportees: Set[Importee],
+  )(someImportees: Seq[Importee]): Seq[Importee] =
+    if (allowedImportees.isEmpty) someImportees
+    else someImportees.filter(allowedImportees.contains)
+
   private abstract class Base(implicit ctx: RewriteCtx) extends RewriteSession {
 
     protected val settings = ctx.style.rewrite.imports
@@ -376,9 +407,11 @@ object Imports extends RewriteFactory {
     }
 
     protected final def getSelectors(
-        selectors: Seq[Importee],
+        importees: Seq[Importee],
         needRaw: Boolean = true,
     ): Selectors = {
+      val selectorsToKeep = getImporteesToKeep(importees)
+      val selectors = filterWithAllowedImportees(selectorsToKeep)(importees)
       val selectorCount = selectors.length
       if (selectorCount == 1) getSelector(selectors.head, needRaw = needRaw)
       else {
@@ -505,7 +538,8 @@ object Imports extends RewriteFactory {
         val head = stats.head.tokens.head
         iter(ctx.tokenTraverser.getIndex(head), head)
       }
-      val folding = settings.selectors.contains(Newlines.fold)
+      val folding = settings.removeRedundantSelectors ||
+        settings.selectors.contains(Newlines.fold)
       val foldMap = LinkedHashMap.empty[(String, String), ListBuffer[Importer]]
       def addToGroup(kw: String, ref: String, importers: Seq[Importer]): Unit =
         addClausesToGroup(groups(settings.group(ref)), kw, ref, importers)
@@ -653,20 +687,24 @@ object Imports extends RewriteFactory {
         kw: String,
         ref: String,
         importers: Seq[Importer],
-    ): Unit = importers.foreach { importer =>
-      def addSelectorToGroup(selector: Importee, importer: Importer): Unit =
-        group.add(kw, ref, getSelector(selector), importer :: Nil)
-      // if there's a wildcard, unimports and renames must come with it, cannot be expanded
-      val importees = importer.importees
-      if (importees.dropWhile(notWildcardOrRename).drop(1).exists(isWildcard)) {
-        val filtered = importees.filter { x =>
-          val expanding = notWildcardOrRename(x)
-          if (expanding) addSelectorToGroup(x, importer)
-          !expanding
-        }
-        addSelectorsToGroup(group, kw, ref, importer :: Nil, filtered)
-      } else // expand all
-        importees.foreach(addSelectorToGroup(_, importer))
+    ): Unit = {
+      val selectorsToKeep = getImporteesToKeep(importers.flatMap(_.importees))
+      importers.foreach { importer =>
+        def addSelectorToGroup(selector: Importee, importer: Importer): Unit =
+          group.add(kw, ref, getSelector(selector), importer :: Nil)
+        // if there's a wildcard, unimports and renames must come with it, cannot be expanded
+        val importees =
+          filterWithAllowedImportees(selectorsToKeep)(importer.importees)
+        if (importees.dropWhile(notWildcardOrRename).drop(1).exists(isWildcard)) {
+          val filtered = importees.filter { x =>
+            val expanding = notWildcardOrRename(x)
+            if (expanding) addSelectorToGroup(x, importer)
+            !expanding
+          }
+          addSelectorsToGroup(group, kw, ref, importer :: Nil, filtered)
+        } else // expand all
+          importees.foreach(addSelectorToGroup(_, importer))
+      }
     }
   }
 
