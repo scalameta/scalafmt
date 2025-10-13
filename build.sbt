@@ -15,7 +15,7 @@ def localSnapshotVersion: String = s"$parseTagVersion-SNAPSHOT"
 def isCI = System.getenv("CI") != null
 
 def scala212 = "2.12.20"
-def scala213 = "2.13.16"
+def scala213 = "2.13.17"
 
 def isScalaVer(ver: String) = Def.setting(scalaBinaryVersion.value == ver)
 def isScala212 = isScalaVer("2.12")
