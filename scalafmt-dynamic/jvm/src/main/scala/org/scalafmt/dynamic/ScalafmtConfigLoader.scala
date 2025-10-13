@@ -4,16 +4,12 @@ import org.scalafmt.dynamic.ScalafmtDynamicError._
 import org.scalafmt.dynamic.utils.ReentrantCache
 
 import java.io.FileNotFoundException
-import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.attribute.FileTime
+import java.nio.file.{Files, Path}
 
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
-import com.typesafe.config.ConfigException
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{ConfigException, ConfigFactory}
 
 trait ScalafmtConfigLoader {
 

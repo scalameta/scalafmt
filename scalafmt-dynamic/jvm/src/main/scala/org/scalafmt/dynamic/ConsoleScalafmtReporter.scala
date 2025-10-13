@@ -2,9 +2,7 @@ package org.scalafmt.dynamic
 
 import org.scalafmt.interfaces.ScalafmtReporter
 
-import java.io.OutputStreamWriter
-import java.io.PrintStream
-import java.io.PrintWriter
+import java.io.{OutputStreamWriter, PrintStream, PrintWriter}
 import java.nio.file.Path
 
 object ConsoleScalafmtReporter extends ConsoleScalafmtReporter(System.err)

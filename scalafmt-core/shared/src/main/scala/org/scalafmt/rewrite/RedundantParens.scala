@@ -1,7 +1,6 @@
 package org.scalafmt.rewrite
 
-import org.scalafmt.config.RedundantParensSettings
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.{RedundantParensSettings, ScalafmtConfig}
 import org.scalafmt.internal._
 import org.scalafmt.util.InfixApp._
 import org.scalafmt.util.TreeOps

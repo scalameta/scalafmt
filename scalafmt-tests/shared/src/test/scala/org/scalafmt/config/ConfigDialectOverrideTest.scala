@@ -3,8 +3,7 @@ package org.scalafmt.config
 import scala.meta.Dialect
 import scala.meta.dialects.Scala213
 
-import metaconfig.ConfError
-import metaconfig.Configured
+import metaconfig.{ConfError, Configured}
 import munit.FunSuite
 
 class ConfigDialectOverrideTest extends FunSuite {

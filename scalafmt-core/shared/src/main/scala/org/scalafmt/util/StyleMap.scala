@@ -1,12 +1,9 @@
 package org.scalafmt.util
 
-import org.scalafmt.config.BinPack
-import org.scalafmt.config.FilterMatcher
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.{BinPack, FilterMatcher, ScalafmtConfig}
 import org.scalafmt.internal._
 
-import org.scalameta.FileLine
-import org.scalameta.logger
+import org.scalameta.{FileLine, logger}
 import scala.meta._
 import scala.meta.tokens.{Token => T}
 

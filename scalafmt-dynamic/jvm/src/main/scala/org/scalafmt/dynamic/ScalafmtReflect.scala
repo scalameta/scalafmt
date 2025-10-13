@@ -6,8 +6,7 @@ import org.scalafmt.dynamic.utils.ReflectUtils._
 import java.io.Closeable
 import java.nio.file.Path
 
-import scala.util.Failure
-import scala.util.Try
+import scala.util.{Failure, Try}
 
 import com.typesafe.config.ConfigFactory
 

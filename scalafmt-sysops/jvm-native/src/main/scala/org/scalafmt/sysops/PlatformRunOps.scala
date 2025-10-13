@@ -1,18 +1,13 @@
 package org.scalafmt.sysops
 
 import java.nio.file.Path
-import java.util.concurrent.Executors
-import java.util.concurrent.SynchronousQueue
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{
+  Executors, SynchronousQueue, ThreadPoolExecutor, TimeUnit,
+}
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContextExecutorService
-import scala.sys.process.Process
-import scala.sys.process.ProcessLogger
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
+import scala.sys.process.{Process, ProcessLogger}
+import scala.util.{Failure, Success, Try}
 
 private[scalafmt] object PlatformRunOps {
 

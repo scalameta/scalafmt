@@ -1,7 +1,6 @@
 package org.scalafmt.cli
 
-import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.PlatformRunOps
+import org.scalafmt.sysops.{AbsoluteFile, PlatformRunOps}
 
 import scala.io.Source
 

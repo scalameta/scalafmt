@@ -1,7 +1,6 @@
 package org.scalafmt
 
-import org.scalafmt.config.LineEndings
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.{LineEndings, ScalafmtConfig}
 
 import scala.meta.internal.prettyprinters.DoubleQuotes
 

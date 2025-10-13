@@ -2,11 +2,7 @@ package org.scalafmt.internal
 
 import org.scalafmt.internal.{SyntacticGroup => g}
 
-import scala.meta.Lit
-import scala.meta.Pat
-import scala.meta.Term
-import scala.meta.Tree
-import scala.meta.Type
+import scala.meta.{Lit, Pat, Term, Tree, Type}
 
 object TreeSyntacticGroup {
   def apply(tree: Tree): SyntacticGroup = tree match {

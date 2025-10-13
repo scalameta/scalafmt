@@ -1,7 +1,6 @@
 package org.scalafmt.util
 
-import org.scalafmt.Formatted
-import org.scalafmt.Scalafmt
+import org.scalafmt.{Formatted, Scalafmt}
 
 import munit.FunSuite
 

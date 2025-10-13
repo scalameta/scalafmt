@@ -1,7 +1,6 @@
 package org.scalafmt
 
-import org.scalafmt.config.Docstrings
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.{Docstrings, ScalafmtConfig}
 
 import munit.FunSuite
 

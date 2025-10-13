@@ -3,8 +3,7 @@ package org.scalafmt.cli
 import org.scalafmt.Versions
 import org.scalafmt.sysops.PlatformRunOps
 
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 import java.util.Date
 
 import scopt.OptionParser

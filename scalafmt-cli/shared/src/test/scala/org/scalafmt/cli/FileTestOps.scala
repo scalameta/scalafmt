@@ -4,8 +4,7 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.RegexCompat
 import org.scalafmt.sysops._
 
-import java.io.File
-import java.io.PrintStream
+import java.io.{File, PrintStream}
 
 object FileTestOps {
 

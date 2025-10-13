@@ -3,10 +3,8 @@ package org.scalafmt.internal
 import org.scalafmt.internal.{SyntacticGroup => g}
 import org.scalafmt.util.InfixApp
 
-import scala.meta.Lit
-import scala.meta.Term
-import scala.meta.Tree
 import scala.meta.internal.trees._
+import scala.meta.{Lit, Term, Tree}
 
 import scala.annotation.tailrec
 

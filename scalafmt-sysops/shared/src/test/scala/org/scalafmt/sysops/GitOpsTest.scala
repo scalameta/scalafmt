@@ -4,9 +4,7 @@ import java.nio.charset.StandardCharsets
 
 import scala.util._
 
-import munit.Assertions
-import munit.FunSuite
-import munit.Location
+import munit.{Assertions, FunSuite, Location}
 
 class GitOpsTest extends FunSuite {
 

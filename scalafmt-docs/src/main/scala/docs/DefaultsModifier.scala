@@ -2,8 +2,7 @@ package docs
 
 import org.scalafmt.config.ScalafmtConfig
 
-import scala.meta.inputs.Input
-import scala.meta.inputs.Position
+import scala.meta.inputs.{Input, Position}
 
 import mdoc._
 import metaconfig._

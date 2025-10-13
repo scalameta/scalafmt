@@ -1,11 +1,7 @@
 package org.scalafmt.rewrite
 
-import org.scalafmt.config.ReaderUtil
-import org.scalafmt.config.RewriteSettings
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.util.TokenOps
-import org.scalafmt.util.TokenTraverser
-import org.scalafmt.util.TreeOps
+import org.scalafmt.config.{ReaderUtil, RewriteSettings, ScalafmtConfig}
+import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps}
 
 import scala.meta.tokens.{Token => T}
 import scala.meta.transversers.SimpleTraverser

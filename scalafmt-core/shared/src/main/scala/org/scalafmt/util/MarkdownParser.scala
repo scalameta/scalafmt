@@ -1,7 +1,6 @@
 package org.scalafmt.util
 
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Success, Try}
 
 import mdoc.parser._
 

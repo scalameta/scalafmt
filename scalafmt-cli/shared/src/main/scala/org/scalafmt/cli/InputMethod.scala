@@ -1,14 +1,11 @@
 package org.scalafmt.cli
 
-import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.FileOps
-import org.scalafmt.sysops.PlatformCompat
-import org.scalafmt.sysops.PlatformFileOps
-import org.scalafmt.sysops.PlatformRunOps
+import org.scalafmt.sysops.{
+  AbsoluteFile, FileOps, PlatformCompat, PlatformFileOps, PlatformRunOps,
+}
 
 import java.io.InputStream
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 
 import scala.concurrent.Future
 

@@ -1,13 +1,9 @@
 package org.scalafmt.sysops
 
-import java.io.ByteArrayOutputStream
-import java.io.InputStream
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.io.{ByteArrayOutputStream, InputStream}
+import java.nio.file.{Path, Paths}
 
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 object FileOps {
 

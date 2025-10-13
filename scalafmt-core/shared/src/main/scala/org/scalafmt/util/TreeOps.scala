@@ -9,8 +9,7 @@ import org.scalafmt.util.LoggerOps._
 import scala.meta._
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.Token.{Space => _, _}
-import scala.meta.tokens.Tokens
-import scala.meta.tokens.{Token => T}
+import scala.meta.tokens.{Token => T, Tokens}
 
 import scala.annotation.tailrec
 import scala.collection.immutable.HashMap

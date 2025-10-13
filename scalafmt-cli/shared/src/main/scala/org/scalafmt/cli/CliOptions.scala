@@ -7,9 +7,8 @@ import java.io._
 import java.nio.file.Path
 
 import scala.io.Codec
-import scala.util.Random
-import scala.util.Try
 import scala.util.matching.Regex
+import scala.util.{Random, Try}
 
 import metaconfig.Configured
 

@@ -11,8 +11,7 @@ import scala.meta.testkit._
 
 import scala.collection.mutable
 
-import munit.FailException
-import munit.FunSuite
+import munit.{FailException, FunSuite}
 
 class ScalafmtProps extends FunSuite with FormatAssertions {
   import ScalafmtProps._

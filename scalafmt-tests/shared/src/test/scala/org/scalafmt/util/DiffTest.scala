@@ -1,8 +1,7 @@
 package org.scalafmt.util
 
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.PlatformCompat
+import org.scalafmt.sysops.{AbsoluteFile, PlatformCompat}
 import org.scalafmt.tests.BuildInfo
 
 import munit.Location

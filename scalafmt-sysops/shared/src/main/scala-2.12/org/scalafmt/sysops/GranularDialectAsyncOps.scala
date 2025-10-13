@@ -1,7 +1,6 @@
 package org.scalafmt.sysops
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContextExecutor
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor}
 
 private[sysops] object GranularDialectAsyncOps {
 

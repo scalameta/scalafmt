@@ -1,11 +1,9 @@
 package org.scalafmt
 
-import org.scalafmt.Error.Incomplete
-import org.scalafmt.Error.SearchStateExploded
+import org.scalafmt.Error.{Incomplete, SearchStateExploded}
 import org.scalafmt.config.LineEndings
 import org.scalafmt.rewrite.FormatTokensRewrite
-import org.scalafmt.sysops.FileOps
-import org.scalafmt.sysops.PlatformFileOps
+import org.scalafmt.sysops.{FileOps, PlatformFileOps}
 import org.scalafmt.util._
 
 import scala.meta.parsers.ParseException
