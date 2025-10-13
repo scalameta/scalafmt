@@ -6,12 +6,6 @@ import org.scalajs.linker.interface.ESVersion
 import Dependencies._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
-def parseTagVersion: String = {
-  import scala.sys.process._
-  // drop `v` prefix
-  "git describe --abbrev=0 --tags".!!.drop(1).trim
-}
-def localSnapshotVersion: String = s"$parseTagVersion-SNAPSHOT"
 def isCI = System.getenv("CI") != null
 
 def scala212 = "2.12.20"
@@ -23,8 +17,13 @@ def isScala213 = isScalaVer("2.13")
 
 inThisBuild {
   List(
-    version ~= { dynVer =>
-      if (isCI) dynVer else localSnapshotVersion // only for local publishing
+    // version is set dynamically by sbt-dynver, but let's adjust it
+    version := {
+      val curVersion = version.value
+      def dynVer(out: sbtdynver.GitDescribeOutput): String =
+        if (out.isCleanAfterTag || isCI) curVersion
+        else s"${out.ref.dropPrefix}-next-SNAPSHOT" // modified for local builds
+      dynverGitDescribeOutput.value.mkVersion(dynVer, curVersion)
     },
     organization := "org.scalameta",
     homepage := Some(url("https://github.com/scalameta/scalafmt")),
