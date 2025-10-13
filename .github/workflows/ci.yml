@@ -23,7 +23,7 @@ jobs:
           - ubuntu-22.04
         scala:
           - '2.12.20'
-          - '2.13.16'
+          - '2.13.17'
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
