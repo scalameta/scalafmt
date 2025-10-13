@@ -7,8 +7,7 @@ import scala.meta.Tree
 import scala.meta.inputs.Position
 import scala.meta.internal.inputs._
 
-import scala.reflect.ClassTag
-import scala.reflect.classTag
+import scala.reflect.{ClassTag, classTag}
 import scala.util.control.NoStackTrace
 
 sealed abstract class Error(msg: String) extends Exception(msg)

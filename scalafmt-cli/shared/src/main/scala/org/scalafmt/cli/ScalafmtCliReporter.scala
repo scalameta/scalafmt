@@ -2,8 +2,7 @@ package org.scalafmt.cli
 
 import org.scalafmt.interfaces._
 
-import java.io.OutputStreamWriter
-import java.io.PrintWriter
+import java.io.{OutputStreamWriter, PrintWriter}
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicReference

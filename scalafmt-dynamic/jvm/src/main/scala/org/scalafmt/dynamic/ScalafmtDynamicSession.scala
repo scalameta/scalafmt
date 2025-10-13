@@ -2,8 +2,7 @@ package org.scalafmt.dynamic
 
 import org.scalafmt.dynamic.exceptions._
 import org.scalafmt.interfaces._
-import org.scalafmt.sysops.AbsoluteFile
-import org.scalafmt.sysops.GitOps
+import org.scalafmt.sysops.{AbsoluteFile, GitOps}
 
 import java.nio.file.Path
 

@@ -9,8 +9,7 @@ package org.scalafmt.cli
 
 import org.scalafmt.sysops.PlatformRunOps
 
-import java.io.File
-import java.io.Writer
+import java.io.{File, Writer}
 import java.util.concurrent.atomic
 
 object Terminal {

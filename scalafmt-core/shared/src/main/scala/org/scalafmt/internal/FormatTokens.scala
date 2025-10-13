@@ -5,8 +5,7 @@ import org.scalafmt.rewrite.FormatTokensRewrite
 import org.scalafmt.util._
 
 import scala.meta._
-import scala.meta.tokens.Tokens
-import scala.meta.tokens.{Token => T}
+import scala.meta.tokens.{Token => T, Tokens}
 
 import scala.annotation.tailrec
 

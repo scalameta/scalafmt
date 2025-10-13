@@ -1,11 +1,8 @@
 import org.scalafmt.Scalafmt
-import org.scalafmt.config.RunnerSettings
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.{RunnerSettings, ScalafmtConfig}
 
 import java.io.PrintStream
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.StandardOpenOption
+import java.nio.file.{Files, Paths, StandardOpenOption}
 
 package object website {
   def replaceMargin(s: String): String = {

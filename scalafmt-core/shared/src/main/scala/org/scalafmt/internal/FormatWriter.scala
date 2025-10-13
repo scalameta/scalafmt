@@ -1,14 +1,11 @@
 package org.scalafmt.internal
 
-import org.scalafmt.Error
-import org.scalafmt.Formatted
-import org.scalafmt.Scalafmt
 import org.scalafmt.config._
 import org.scalafmt.internal.RegexCompat._
 import org.scalafmt.rewrite.RedundantBraces
-import org.scalafmt.util.LiteralOps
 import org.scalafmt.util.TokenOps._
-import org.scalafmt.util.TreeOps
+import org.scalafmt.util.{LiteralOps, TreeOps}
+import org.scalafmt.{Error, Formatted, Scalafmt}
 
 import scala.meta.internal.Scaladoc
 import scala.meta.internal.parsers.ScaladocParser
@@ -20,8 +17,7 @@ import java.nio.CharBuffer
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
-import scala.collection.AbstractIterator
-import scala.collection.mutable
+import scala.collection.{AbstractIterator, mutable}
 import scala.util.Try
 
 /** Produces formatted output from sequence of splits.

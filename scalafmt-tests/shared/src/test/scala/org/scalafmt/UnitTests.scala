@@ -1,8 +1,7 @@
 package org.scalafmt
 
 import org.scalafmt.sysops.FileOps
-import org.scalafmt.util.DiffTest
-import org.scalafmt.util.HasTests
+import org.scalafmt.util.{DiffTest, HasTests}
 
 import java.nio.file.Path
 

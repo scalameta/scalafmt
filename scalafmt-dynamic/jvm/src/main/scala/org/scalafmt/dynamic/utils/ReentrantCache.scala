@@ -1,10 +1,8 @@
 package org.scalafmt.dynamic.utils
 
 import scala.annotation.tailrec
-import scala.concurrent.Await
-import scala.concurrent.Future
-import scala.concurrent.Promise
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future, Promise}
 import scala.util.Try
 
 class ReentrantCache[K, V] {

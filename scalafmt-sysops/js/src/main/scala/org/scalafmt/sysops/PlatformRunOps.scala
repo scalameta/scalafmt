@@ -6,9 +6,7 @@ import scala.concurrent._
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters._
 import scala.scalajs.js.annotation._
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 private[scalafmt] object PlatformRunOps {
 

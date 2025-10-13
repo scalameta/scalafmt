@@ -1,13 +1,10 @@
 package org.scalafmt.cli
 
 import org.scalafmt.Versions.{stable => stableVersion}
-import org.scalafmt.sysops.FileOps
-import org.scalafmt.sysops.PlatformFileOps
-import org.scalafmt.sysops.PlatformRunOps
+import org.scalafmt.sysops.{FileOps, PlatformFileOps, PlatformRunOps}
 
 import scala.concurrent.Future
-import scala.util.Failure
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 object Cli extends CliUtils {
 

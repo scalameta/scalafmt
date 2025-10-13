@@ -9,11 +9,9 @@ import scala.meta.tokens.{Token => T}
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.HashMap
-import scala.collection.mutable.HashSet
-import scala.collection.mutable.LinkedHashMap
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.{
+  ArrayBuffer, HashMap, HashSet, LinkedHashMap, ListBuffer,
+}
 
 import metaconfig._
 

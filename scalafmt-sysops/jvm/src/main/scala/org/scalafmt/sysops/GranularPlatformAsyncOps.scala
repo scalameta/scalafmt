@@ -2,14 +2,11 @@ package org.scalafmt.sysops
 
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
-import java.nio.channels.AsynchronousFileChannel
-import java.nio.channels.CompletionHandler
-import java.nio.file.Path
-import java.nio.file.StandardOpenOption
+import java.nio.channels.{AsynchronousFileChannel, CompletionHandler}
+import java.nio.file.{Path, StandardOpenOption}
 import java.{util => ju}
 
-import scala.concurrent.Future
-import scala.concurrent.Promise
+import scala.concurrent.{Future, Promise}
 import scala.io.Codec
 
 private[sysops] object GranularPlatformAsyncOps {

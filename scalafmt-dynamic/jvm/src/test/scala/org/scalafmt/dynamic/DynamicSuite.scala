@@ -2,21 +2,16 @@ package org.scalafmt.dynamic
 
 import org.scalafmt.interfaces._
 
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
-import java.io.PrintWriter
+import java.io.{ByteArrayOutputStream, PrintStream, PrintWriter}
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
 import java.nio.file.attribute.FileTime
+import java.nio.file.{Files, Path, Paths}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 
-import munit.FunSuite
-import munit.Location
+import munit.{FunSuite, Location}
 
 class DynamicSuite extends FunSuite {
 

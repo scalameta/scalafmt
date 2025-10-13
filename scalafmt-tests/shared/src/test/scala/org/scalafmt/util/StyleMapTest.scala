@@ -1,8 +1,6 @@
 package org.scalafmt.util
 
-import org.scalafmt.config.BinPack
-import org.scalafmt.config.Newlines
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.{BinPack, Newlines, ScalafmtConfig}
 import org.scalafmt.internal.FormatOps
 
 import scala.meta._

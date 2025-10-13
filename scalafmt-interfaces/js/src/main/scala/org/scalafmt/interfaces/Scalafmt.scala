@@ -2,8 +2,7 @@ package org.scalafmt.interfaces
 
 import java.nio.file.Path
 import java.util
-import java.util.NoSuchElementException
-import java.util.ServiceLoader
+import java.util.{NoSuchElementException, ServiceLoader}
 
 /** A stable public interface to run Scalafmt.
   *

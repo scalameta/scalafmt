@@ -1,9 +1,6 @@
 package org.scalafmt.internal
 
-import org.scalafmt.config.Comments
-import org.scalafmt.config.Indents
-import org.scalafmt.config.Newlines
-import org.scalafmt.config.ScalafmtConfig
+import org.scalafmt.config.{Comments, Indents, Newlines, ScalafmtConfig}
 import org.scalafmt.util.PolicyOps
 import org.scalafmt.util.TreeOps._
 

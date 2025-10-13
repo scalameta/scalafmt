@@ -6,8 +6,7 @@ import org.scalameta.FileLine
 import scala.meta.Tree
 import scala.meta.inputs.InputRange
 import scala.meta.prettyprinters.Structure
-import scala.meta.tokens.Tokens
-import scala.meta.tokens.{Token => T}
+import scala.meta.tokens.{Token => T, Tokens}
 
 import scala.annotation.tailrec
 import scala.collection.mutable

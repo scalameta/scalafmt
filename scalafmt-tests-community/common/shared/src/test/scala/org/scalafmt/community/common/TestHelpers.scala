@@ -1,11 +1,10 @@
 package org.scalafmt.community.common
 
 import org.scalafmt.CompatCollections.JavaConverters._
-import org.scalafmt.Formatted
-import org.scalafmt.Scalafmt
 import org.scalafmt.config._
 import org.scalafmt.sysops.PlatformFileOps
 import org.scalafmt.sysops.PlatformRunOps.executionContext
+import org.scalafmt.{Formatted, Scalafmt}
 
 import java.io._
 import java.nio.file._

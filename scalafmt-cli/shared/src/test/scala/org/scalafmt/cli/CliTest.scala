@@ -3,24 +3,17 @@ package org.scalafmt.cli
 import org.scalafmt.Error.NoMatchingFiles
 import org.scalafmt.Versions.{stable => stableVersion}
 import org.scalafmt.cli.FileTestOps._
-import org.scalafmt.config.ProjectFiles
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.sysops.AbsoluteFile
+import org.scalafmt.config.{ProjectFiles, ScalafmtConfig}
 import org.scalafmt.sysops.OsSpecific._
-import org.scalafmt.sysops.PlatformCompat
-import org.scalafmt.sysops.PlatformFileOps
 import org.scalafmt.sysops.PlatformRunOps.executionContext
+import org.scalafmt.sysops.{AbsoluteFile, PlatformCompat, PlatformFileOps}
 
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream, PrintStream}
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
 import scala.concurrent.Future
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 import munit.FunSuite
 

@@ -1,7 +1,6 @@
 package org.scalafmt.cli
 
-import java.io.PrintWriter
-import java.io.Writer
+import java.io.{PrintWriter, Writer}
 
 private[scalafmt] trait CliOptionsUtils {
   def getConsoleWriter(): Option[PrintWriter] = TermUtils.getJSConsole

@@ -2,9 +2,7 @@ package org.scalafmt.sysops
 
 import java.nio.file.Path
 
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 object GitOps {
 

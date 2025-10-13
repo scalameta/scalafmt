@@ -1,8 +1,7 @@
 package org.scalafmt.cli
 
 import org.scalafmt.dynamic.ScalafmtDynamicError
-import org.scalafmt.interfaces.Scalafmt
-import org.scalafmt.interfaces.ScalafmtSession
+import org.scalafmt.interfaces.{Scalafmt, ScalafmtSession}
 import org.scalafmt.sysops.PlatformFileOps
 
 import java.nio.file.Path

@@ -1,8 +1,7 @@
 package org.scalafmt.benchmarks
 
 import org.scalafmt.Scalafmt
-import org.scalafmt.sysops.FileOps
-import org.scalafmt.sysops.PlatformFileOps
+import org.scalafmt.sysops.{FileOps, PlatformFileOps}
 
 import java.nio.file.Path
 import java.util.concurrent.TimeUnit
