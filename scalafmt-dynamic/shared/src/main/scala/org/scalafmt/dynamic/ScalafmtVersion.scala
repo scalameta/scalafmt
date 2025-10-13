@@ -16,8 +16,10 @@ case class ScalafmtVersion(
   }
 
   def <(other: ScalafmtVersion): Boolean = compareTo(other) < 0
+  def <=(other: ScalafmtVersion): Boolean = !(other < this)
 
   def >(other: ScalafmtVersion): Boolean = other < this
+  def >=(other: ScalafmtVersion): Boolean = !(this < other)
 
   override def toString: String = s"$major.$minor.$patch" +
     (if (rc > 0) s"-RC$rc" else "") + snapshot
@@ -26,6 +28,9 @@ case class ScalafmtVersion(
     val cmp = Integer.compare(integerRepr, o.integerRepr)
     if (cmp != 0) cmp else snapshot.compareTo(o.snapshot)
   }
+
+  def cmp(major: Int, minor: Int, patch: Int, rc: Int = 0): Int =
+    compareTo(ScalafmtVersion(major, minor, patch, rc))
 }
 
 object ScalafmtVersion {
