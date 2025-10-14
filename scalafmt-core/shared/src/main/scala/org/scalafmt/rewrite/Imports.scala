@@ -381,10 +381,9 @@ object Imports extends RewriteFactory {
     }
 
     protected final def getSelectors(
-        importees: Seq[Importee],
+        selectors: Seq[Importee],
         needRaw: Boolean = true,
     ): Selectors = {
-      val selectors = filterImportees(importees)
       val selectorCount = selectors.length
       if (selectorCount == 1) getSelector(selectors.head, needRaw = needRaw)
       else {
@@ -443,10 +442,10 @@ object Imports extends RewriteFactory {
         res.result()
       }
 
-    protected final def filterImportees(
-        importees: Seq[Importee],
-    ): Seq[Importee] =
+    protected final def filterImportees(importers: Importer*): Seq[Importee] = {
+      val importees = importers.flatMap(_.importees)
       filterWithImporteesToKeep(getImporteesToKeep(importees))(importees)
+    }
 
     private final def mustUseBraces(tree: Importee): Boolean = (tree match {
       case t: Importee.Rename => Some(t.name)
@@ -512,18 +511,24 @@ object Imports extends RewriteFactory {
 
     protected val groups = Array.fill(settings.numGroups + 1)(new Grouping)
 
+    protected final def addImportersToGroup(
+        group: Grouping,
+        kw: String,
+        ref: String,
+        importers: Seq[Importer],
+    ): Unit = {
+      val importees = filterImportees(importers: _*)
+      addSelectorsToGroup(group, kw, ref, importers, importees)
+    }
+
     protected final def addSelectorsToGroup(
         group: Grouping,
         kw: String,
         ref: String,
         importers: Seq[Importer],
-        importees: Seq[Importee] = Nil,
-    ): Unit = {
-      val selectors =
-        if (importees.isEmpty) importers.flatMap(_.importees) else importees
-      if (selectors.nonEmpty) group
-        .add(kw, ref, getSelectors(selectors), importers)
-    }
+        importees: Seq[Importee],
+    ): Unit = if (importees.nonEmpty) group
+      .add(kw, ref, getSelectors(importees), importers)
 
     private def processImports(stats: Iterable[ImportExportStat]): String = {
       val indent = {
@@ -729,7 +734,7 @@ object Imports extends RewriteFactory {
         ref: String,
         importers: Seq[Importer],
     ): Unit = importers
-      .foreach(importer => addSelectorsToGroup(group, kw, ref, importer :: Nil))
+      .foreach(importer => addImportersToGroup(group, kw, ref, importer :: Nil))
   }
 
   /** convert
@@ -754,10 +759,10 @@ object Imports extends RewriteFactory {
       val folding = importers.filter { importer =>
         val ok = importer.importees.lengthCompare(1) == 0 ||
           getCommentAfter(importer.tokens).isEmpty
-        if (!ok) addSelectorsToGroup(group, kw, ref, importer :: Nil)
+        if (!ok) addImportersToGroup(group, kw, ref, importer :: Nil)
         ok
       }
-      addSelectorsToGroup(group, kw, ref, folding)
+      addImportersToGroup(group, kw, ref, folding)
     }
   }
 
@@ -776,8 +781,9 @@ object Imports extends RewriteFactory {
     ): Unit = stats.flatten.foreach { t =>
       val patchBuilder = Seq.newBuilder[TokenPatch]
       t.importers.foreach { importer =>
+        val importees = filterImportees(importer)
         val replacement = getRef(importer) +
-          getSelectors(importer.importees, needRaw = false).pretty
+          getSelectors(importees, needRaw = false).pretty
         val tokens: Iterator[T] = importer.tokens.iterator
         // replace the first token
         patchBuilder += TokenPatch.Replace(tokens.next(), replacement)
