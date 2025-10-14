@@ -307,30 +307,6 @@ object Imports extends RewriteFactory {
   private final def notWildcardOrRename(importee: Importee): Boolean =
     !isWildcard(importee) && !isRename(importee)
 
-  private final def getImporteesToKeep(
-      importees: => Iterable[Importee],
-  )(implicit ctx: RewriteCtx): Set[Importee] =
-    if (!ctx.style.rewrite.imports.removeRedundantSelectors) Set.empty
-    else {
-      val res = Set.newBuilder[Importee]
-      var hadWildcard = false
-      var hadGivenAll = false
-      val names = HashMap.empty[String, Importee.Name]
-      val givens = HashMap.empty[String, Importee.Given]
-      importees.foreach {
-        case x: Importee.Wildcard =>
-          if (!hadWildcard) { res += x; hadWildcard = true }
-        case x: Importee.GivenAll =>
-          if (!hadGivenAll) { res += x; hadGivenAll = true }
-        case x: Importee.Name => if (!hadWildcard) names.update(x.name.value, x)
-        case x: Importee.Given => if (!hadGivenAll) givens.update(x.text, x)
-        case x => res += x
-      }
-      if (!hadWildcard) res ++= names.values
-      if (!hadGivenAll) res ++= givens.values
-      res.result()
-    }
-
   private final def filterWithAllowedImportees(
       allowedImportees: Set[Importee],
   )(someImportees: Seq[Importee]): Seq[Importee] =
@@ -442,6 +418,31 @@ object Imports extends RewriteFactory {
         )
       }
     }
+
+    protected final def getImporteesToKeep(
+        importees: => Iterable[Importee],
+    ): Set[Importee] =
+      if (!settings.removeRedundantSelectors) Set.empty
+      else {
+        val res = Set.newBuilder[Importee]
+        var hadWildcard = false
+        var hadGivenAll = false
+        val names = HashMap.empty[String, Importee.Name]
+        val givens = HashMap.empty[String, Importee.Given]
+        importees.foreach {
+          case x: Importee.Wildcard =>
+            if (!hadWildcard) { res += x; hadWildcard = true }
+          case x: Importee.GivenAll =>
+            if (!hadGivenAll) { res += x; hadGivenAll = true }
+          case x: Importee.Name =>
+            if (!hadWildcard) names.update(x.name.value, x)
+          case x: Importee.Given => if (!hadGivenAll) givens.update(x.text, x)
+          case x => res += x
+        }
+        if (!hadWildcard) res ++= names.values
+        if (!hadGivenAll) res ++= givens.values
+        res.result()
+      }
 
     private final def mustUseBraces(tree: Importee): Boolean = (tree match {
       case t: Importee.Rename => Some(t.name)
