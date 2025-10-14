@@ -755,14 +755,125 @@ object Imports extends RewriteFactory {
         ref: String,
         importers: Seq[Importer],
     ): Unit = {
-      // we can't fold if there is a comment after `ref.{...}`
-      val folding = importers.filter { importer =>
-        val ok = importer.importees.lengthCompare(1) == 0 ||
-          getCommentAfter(importer.tokens).isEmpty
-        if (!ok) addImportersToGroup(group, kw, ref, importer :: Nil)
-        ok
+      var hasGlobalWildcard = false
+      val renamesNoWildcards = Seq.newBuilder[Importer]
+      val wildcardsNoRenames = Seq.newBuilder[Importer]
+      val renamesAndWildcards = Seq.newBuilder[Importer]
+      val noRenamesNorWildcards = new java.util.LinkedList[Importer]
+      importers.foreach { importer =>
+        val importees = importer.importees
+        val cantFold = importees.lengthCompare(1) > 0 &&
+          // we can't fold if there is a comment after `ref.{...}`
+          getCommentAfter(importer.tokens).nonEmpty
+        if (cantFold) addImportersToGroup(group, kw, ref, importer :: Nil)
+        else {
+          var hasRename = false
+          var hasWildcard = false
+          val hasBoth = importees.exists { // stop if has both
+            case _: Importee.Wildcard => hasWildcard = true; hasRename
+            case _: Importee.Rename | _: Importee.Unimport =>
+              hasRename = true; hasWildcard
+            case _ => false
+          }
+          if (hasBoth) renamesAndWildcards += importer
+          else if (hasRename) renamesNoWildcards += importer
+          else if (hasWildcard) {
+            hasGlobalWildcard = true
+            wildcardsNoRenames += importer
+          } else noRenamesNorWildcards.add(importer)
+        }
       }
-      addImportersToGroup(group, kw, ref, folding)
+
+      val buffer = ListBuffer.empty[Importer]
+      def flushBuffer(hasWildcard: Boolean = false): Unit = if (buffer.nonEmpty) {
+        val importers = buffer.toList
+        buffer.clear()
+        val importees = {
+          val filtered = filterImportees(importers: _*)
+          val keepNames = !(hasWildcard || hasGlobalWildcard) ||
+            !settings.removeRedundantSelectors
+          val names = HashSet.empty[String]
+          filtered.filter {
+            case x: Importee.Name => keepNames && names.add(x.name.value)
+            case _: Importee.Wildcard => names.add("_")
+            case x => names.add(x.text)
+          }
+        }
+        addSelectorsToGroup(group, kw, ref, importers, importees)
+      }
+
+      // we can't fold if there are multiple names or renames
+      val foldedNames = HashMap.empty[String, Importee]
+      def flushRenames(hasWildcard: Boolean = false): Unit = {
+        if (foldedNames.nonEmpty) {
+          val iter = noRenamesNorWildcards.listIterator()
+          while (iter.hasNext) {
+            val importer = iter.next()
+            val names = Seq.newBuilder[(String, Importee)]
+            val ok = importer.importees.forall {
+              case x: Importee.Name =>
+                val name = x.name.value
+                names += name -> x
+                foldedNames.get(name).forall {
+                  case _: Importee.Name => settings.removeRedundantSelectors
+                  case _ => false
+                }
+              case _ => true
+            }
+            if (ok) {
+              buffer.prepend(importer)
+              foldedNames ++= names.result()
+              iter.remove()
+            }
+          }
+          foldedNames.clear()
+        }
+        flushBuffer(hasWildcard = hasWildcard)
+      }
+
+      renamesAndWildcards.result().foreach { importer =>
+        if (!noRenamesNorWildcards.isEmpty) importer.importees.foreach {
+          case x: Importee.Name => foldedNames += x.name.value -> x
+          case x: Importee.Unimport => foldedNames += x.name.value -> x
+          case x: Importee.Rename => foldedNames += x.name.value -> x
+          case _ =>
+        }
+        buffer += importer // and flush immediately
+        flushRenames(hasWildcard = true)
+      }
+
+      renamesNoWildcards.result().foreach { importer =>
+        val names = Seq.newBuilder[(String, Importee)]
+        def checkDuplicates(name: String)(f: Importee => Boolean): Unit =
+          if (foldedNames.nonEmpty && foldedNames.get(name).exists(f))
+            flushRenames()
+        importer.importees.foreach {
+          case x: Importee.Name =>
+            val name = x.name.value
+            checkDuplicates(name)(!_.is[Importee.Name])
+            names += name -> x
+          case x: Importee.Unimport =>
+            val name = x.name.value
+            checkDuplicates(name)(!_.is[Importee.Unimport])
+            names += name -> x
+          case x: Importee.Rename =>
+            val name = x.name.value
+            checkDuplicates(name) {
+              case y: Importee.Rename => y.rename.value != name
+              case _ => true
+            }
+            names += name -> x
+          case _ =>
+        }
+
+        buffer += importer
+        foldedNames ++= names.result()
+      }
+      flushRenames()
+
+      buffer ++= wildcardsNoRenames.result()
+      noRenamesNorWildcards.forEach(x => buffer += x)
+      flushBuffer()
     }
   }
 

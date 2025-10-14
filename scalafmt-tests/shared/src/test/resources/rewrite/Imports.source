@@ -1241,7 +1241,8 @@ import a.{x, y => z, given}
 import a.{*, given}
 import a.{x, given, given Z}
 >>>
-import a.{y => z, given, *}
+import a.{y => z, given}
+import a.{*, given}
 <<< remove duplicates, unfold
 runner.dialect = scala3
 rewrite.imports {
@@ -1283,14 +1284,10 @@ import c.universe.{Tree => ReflectTree}
 >>>
 import c.universe.{
   Position => ReflectPosition,
-  Position => _,
   Symbol => ReflectSymbol,
-  Symbol => _,
-  Tree => ReflectTree,
-  Tree => _,
-  Type => _,
-  _
+  Tree => ReflectTree
 }
+import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
 <<< dedup consistent names when folding, removeRedundantSelectors
 rewrite.imports {
   sort = ascii
@@ -1304,7 +1301,8 @@ import c.universe.{Symbol => ReflectSymbol}
 import c.universe.{Symbol => ReflectSymbol}
 import c.universe._
 >>>
-import c.universe.{Symbol => ReflectSymbol, Symbol => ReflectSymbol, _}
+import c.universe._
+import c.universe.{Symbol => ReflectSymbol}
 <<< dedup consistent names when folding, !removeRedundantSelectors
 rewrite.imports {
   sort = ascii
@@ -1318,10 +1316,5 @@ import c.universe.{Symbol => ReflectSymbol}
 import c.universe.{Symbol => ReflectSymbol}
 import c.universe._
 >>>
-import c.universe.{
-  Position,
-  Position,
-  Symbol => ReflectSymbol,
-  Symbol => ReflectSymbol,
-  _
-}
+import c.universe._
+import c.universe.{Position, Symbol => ReflectSymbol}
