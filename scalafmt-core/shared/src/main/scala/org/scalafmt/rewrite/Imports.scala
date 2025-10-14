@@ -307,11 +307,11 @@ object Imports extends RewriteFactory {
   private final def notWildcardOrRename(importee: Importee): Boolean =
     !isWildcard(importee) && !isRename(importee)
 
-  private final def filterWithAllowedImportees(
-      allowedImportees: Set[Importee],
+  private final def filterWithImporteesToKeep(
+      importeesToKeep: Set[Importee],
   )(someImportees: Seq[Importee]): Seq[Importee] =
-    if (allowedImportees.isEmpty) someImportees
-    else someImportees.filter(allowedImportees.contains)
+    if (importeesToKeep.isEmpty) someImportees
+    else someImportees.filter(importeesToKeep.contains)
 
   private abstract class Base(implicit ctx: RewriteCtx) extends RewriteSession {
 
@@ -384,8 +384,7 @@ object Imports extends RewriteFactory {
         importees: Seq[Importee],
         needRaw: Boolean = true,
     ): Selectors = {
-      val selectorsToKeep = getImporteesToKeep(importees)
-      val selectors = filterWithAllowedImportees(selectorsToKeep)(importees)
+      val selectors = filterImportees(importees)
       val selectorCount = selectors.length
       if (selectorCount == 1) getSelector(selectors.head, needRaw = needRaw)
       else {
@@ -443,6 +442,11 @@ object Imports extends RewriteFactory {
         if (!hadGivenAll) res ++= givens.values
         res.result()
       }
+
+    protected final def filterImportees(
+        importees: Seq[Importee],
+    ): Seq[Importee] =
+      filterWithImporteesToKeep(getImporteesToKeep(importees))(importees)
 
     private final def mustUseBraces(tree: Importee): Boolean = (tree match {
       case t: Importee.Rename => Some(t.name)
@@ -693,7 +697,7 @@ object Imports extends RewriteFactory {
           group.add(kw, ref, getSelector(selector), importer :: Nil)
         // if there's a wildcard, unimports and renames must come with it, cannot be expanded
         val importees =
-          filterWithAllowedImportees(selectorsToKeep)(importer.importees)
+          filterWithImporteesToKeep(selectorsToKeep)(importer.importees)
         if (importees.dropWhile(notWildcardOrRename).drop(1).exists(isWildcard)) {
           val filtered = importees.filter { x =>
             val expanding = notWildcardOrRename(x)
