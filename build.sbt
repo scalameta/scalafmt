@@ -96,7 +96,9 @@ lazy val interfaces = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     },
   ).jvmSettings(
     javacOptions ++= Seq("-source", "8", "-target", "8"),
-    Compile / doc / javacOptions := Seq(),
+    Compile / doc / javacOptions := Seq("-Xdoclint:none", "-quiet"),
+    Compile / doc / scalacOptions ++=
+      Seq("-no-link-warnings", "-Wconf:cat=doc:silent"),
     crossVersion := CrossVersion.disabled,
     autoScalaLibrary := false,
   )
