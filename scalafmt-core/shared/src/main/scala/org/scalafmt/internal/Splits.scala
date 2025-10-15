@@ -687,15 +687,22 @@ object SplitsAfterEqualsLeftArrow {
     if (body.is[Term.Block] && isEnclosedInBraces(body)) Seq(Split(Space, 0))
     else maybeGetInfixSplitsBeforeLhs() {
       val endFt = getLastNonTrivial(body)
+      val noSpace = !cfg.align.arrowEnumeratorGenerator ||
+        (body match {
+          case t: Term.TryClause => Some(getHead(t))
+          case t: Term.ForClause => Some(getHead(t))
+          case t: Term.If => Some(tokenBefore(t.thenp))
+          case _ => None
+        }).exists(OptionalBraces.at)
       val spaceIndents =
-        if (!cfg.align.arrowEnumeratorGenerator) Seq.empty
-        else Seq(Indent(StateColumn, endFt, After))
+        if (noSpace) Seq.empty else Seq(Indent(StateColumn, endFt, After))
       SplitsAfterEquals.getSplitsDefValEquals(body, endFt, spaceIndents) {
         CtrlBodySplits.get(body, spaceIndents)(
           if (spaceIndents.nonEmpty) Split(Space, 0).withIndents(spaceIndents)
           else {
             val noSlb = body match {
               case _: Term.TryClause => false
+              case _: Term.ForClause => false
               case t: Term.If => ifWithoutElse(t)
               case _ => true
             }
