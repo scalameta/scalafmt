@@ -9314,3 +9314,111 @@ object a:
         sd.setFlag(flags);
         sd
    )
+<<< #5009 RemoveSemicolons block
+rewrite.rules = [RemoveSemicolons]
+===
+def main =
+  if true then bar += 1
+  else bar = 2; shouldBeFalse = true
+>>>
+def main =
+   if true then
+      bar += 1
+   else
+      bar = 2
+   ;
+   shouldBeFalse = true
+<<< #5009 RemoveSemicolons template
+rewrite.rules = [RemoveSemicolons]
+===
+object foo:
+  if true then bar += 1
+  else bar = 2; shouldBeFalse = true
+>>>
+object foo:
+   if true then
+      bar += 1
+   else
+      bar = 2
+   ;
+   shouldBeFalse = true
+<<< #5009 RemoveSemicolons for-clause 1
+rewrite.rules = [RemoveSemicolons]
+===
+for
+  a <-
+  as1 ++ as2; b <-
+  bs1 ++ b2; if a < b; c <- cs
+yield a + b + c
+>>>
+for
+   a <- as1 ++ as2;
+   b <- bs1 ++ b2;
+   if a < b;
+   c <- cs
+yield a + b + c
+<<< #5009 RemoveSemicolons for-clause 2
+rewrite.rules = [RemoveSemicolons]
+===
+for
+  a <- as1 ++
+  as2; b <-
+  bs1 ++ b2; if a < b; c <- cs
+yield a + b + c
+>>>
+for
+   a <- as1 ++ as2;
+   b <- bs1 ++ b2;
+   if a < b;
+   c <- cs
+yield a + b + c
+<<< #5009 !RemoveSemicolons block
+def main =
+  if true then bar += 1
+  else bar = 2; shouldBeFalse = true
+>>>
+def main =
+   if true then
+      bar += 1
+   else
+      bar = 2
+   ;
+   shouldBeFalse = true
+<<< #5009 !RemoveSemicolons template
+object foo:
+  if true then bar += 1
+  else bar = 2; shouldBeFalse = true
+>>>
+object foo:
+   if true then
+      bar += 1
+   else
+      bar = 2
+   ;
+   shouldBeFalse = true
+<<< #5009 !RemoveSemicolons for-clause 1
+for
+  a <-
+  as1 ++ as2; b <-
+  bs1 ++ b2; if a < b; c <- cs
+yield a + b + c
+>>>
+for
+   a <- as1 ++ as2;
+   b <- bs1 ++ b2;
+   if a < b;
+   c <- cs
+yield a + b + c
+<<< #5009 !RemoveSemicolons for-clause 2
+for
+  a <- as1 ++
+  as2; b <-
+  bs1 ++ b2; if a < b; c <- cs
+yield a + b + c
+>>>
+for
+   a <- as1 ++ as2;
+   b <- bs1 ++ b2;
+   if a < b;
+   c <- cs
+yield a + b + c

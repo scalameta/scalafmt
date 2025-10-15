@@ -111,6 +111,7 @@ object Rewrite {
     ExpandImportSelectors,
     AvoidInfix,
     SortModifiers,
+    RemoveSemicolons,
   )
 
   implicit val reader: ConfCodecEx[Rewrite] = ReaderUtil.oneOf(rewrites: _*)

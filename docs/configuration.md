@@ -3600,6 +3600,7 @@ This rule accepts the following settings:
 - `rewrite.preferCurlyFors.removeTrailingSemicolonsOnly` (default: `false`):
   - if `false` (default), replaces all semicolons with a newline
   - if `true`, keeps semicolons unless followed by a newline or single-line comment
+    - see also [RemoveSemicolons](#removesemicolons)
 
 ### `Imports`
 
@@ -4025,6 +4026,14 @@ for {
   b ← Option(2)
 } yield a + b
 ```
+
+### RemoveSemicolons
+
+> Since v3.10.1.
+
+This rule removes semicolons unless required by the Scala syntax (such
+as those used in for-clause enumerators enclosed in parentheses).
+See also [PreferCurlyFors](#prefercurlyfors).
 
 ## Scala3 rewrites
 
