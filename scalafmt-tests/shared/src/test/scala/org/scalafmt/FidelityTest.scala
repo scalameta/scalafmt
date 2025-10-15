@@ -17,6 +17,8 @@ import munit.FunSuite
   */
 class FidelityTest extends FunSuite with FormatAssertions {
 
+  private val numFiles = 272
+
   private val denyList = Set(
     "ConfigReader.scala",
     "BuildTime.scala",
@@ -47,10 +49,9 @@ class FidelityTest extends FunSuite with FormatAssertions {
     }
     FileOps.walkFiles(visitor)(FileOps.getPath("."))
 
-    test("count of files") {
-      val expected = 271
-      assertEquals(cnt, expected, s"Expected $expected files to test, got $cnt")
-    }
+    test("count of files")(
+      assertEquals(cnt, numFiles, s"Expected $numFiles files to test, got $cnt"),
+    )
 
     super.munitTests()
   }
