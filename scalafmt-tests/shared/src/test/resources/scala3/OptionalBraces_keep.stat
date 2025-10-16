@@ -9029,7 +9029,8 @@ def main =
 >>>
 def main =
    if true then bar += 1
-   else bar = 2; shouldBeFalse = true
+   else bar = 2;
+   shouldBeFalse = true
 <<< #5009 !RemoveSemicolons template
 object foo:
   if true then bar += 1
@@ -9037,7 +9038,8 @@ object foo:
 >>>
 object foo:
    if true then bar += 1
-   else bar = 2; shouldBeFalse = true
+   else bar = 2;
+   shouldBeFalse = true
 <<< #5009 !RemoveSemicolons for-clause 1
 for
   a <-

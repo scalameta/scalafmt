@@ -22,7 +22,7 @@ class Router(implicit formatOps: FormatOps) {
   def getSplits(implicit ft: FT): Seq[Split] = {
     implicit val style = styleMap.at(ft)
     import ft._, SplitsBuilder._
-    val splits = lookupAfter.get(left.getClass).flatMap(_.getOpt)
+    val splitsRaw = lookupAfter.get(left.getClass).flatMap(_.getOpt)
       .orElse(lookupBefore.get(right.getClass).flatMap(_.getOpt))
       .orElse(SplitsBeforeStatement.getOpt)
       .orElse(lookupAfterLowPriority.get(left.getClass).flatMap(_.getOpt))
@@ -38,6 +38,12 @@ class Router(implicit formatOps: FormatOps) {
           if (penalize) Some(s.withPenalty(1)) else Some(s)
         },
       )
+    val splits = optimizationEntities.semicolonAfterStatement(idx)
+      .fold(splitsRaw) { xft =>
+        import PolicyOps._
+        val policy = delayedBreakPolicyFor(xft)(decideNewlinesOnlyAfterToken)
+        splitsRaw.map(_.andPolicy(policy))
+      }
     require(
       splits.nonEmpty,
       s"""|

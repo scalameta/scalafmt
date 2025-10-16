@@ -13,10 +13,12 @@ class OptimizationEntities(
     argumentStarts: Map[Int, Tree],
     optionalNewlines: Set[Int],
     val statementStarts: Map[Int, Tree],
+    val semicolons: Map[Int, FT],
 ) {
   def argumentAt(idx: Int): Option[Tree] = argumentStarts.get(idx)
   def argument(implicit ft: FT): Option[Tree] = argumentAt(ft.meta.idx)
   def optionalNL(implicit ft: FT): Boolean = optionalNewlines(ft.meta.idx)
+  def semicolonAfterStatement(idx: Int): Option[FT] = semicolons.get(idx)
 }
 
 object OptimizationEntities {
@@ -33,6 +35,7 @@ object OptimizationEntities {
     private val arguments = mutable.Map.empty[Int, Tree]
     private val optional = Set.newBuilder[Int]
     private val statements = Map.newBuilder[Int, Tree]
+    private val semicolons = Map.newBuilder[Int, FT]
 
     def build(): OptimizationEntities = {
       val queue = new mutable.ListBuffer[Seq[Tree]]
@@ -46,6 +49,7 @@ object OptimizationEntities {
         arguments.toMap,
         optional.result(),
         statements.result(),
+        semicolons.result(),
       )
     }
 
@@ -85,17 +89,29 @@ object OptimizationEntities {
       case _ =>
     }
 
-    private def addStmtFT(stmt: Tree)(ft: FT): Unit = {
-      val isComment = ft.left.is[T.Comment]
-      val nft = if (isComment) ftoks.nextAfterNonComment(ft) else ft
-      statements += nft.meta.idx -> stmt
+    private def addStmtFT(stmt: Tree, prev: Option[FT] = None)(ft: FT): Unit = {
+      if (stmt ne null) {
+        val isComment = ft.left.is[T.Comment]
+        val nft = if (isComment) ftoks.nextAfterNonComment(ft) else ft
+        statements += nft.meta.idx -> stmt
+      }
+      prev.foreach { prev =>
+        val pft = ftoks.prevNonCommentBefore(ft)
+        if (pft.left.is[T.Semicolon]) semicolons += prev.idx ->
+          ftoks.nextNonCommentSameLine(pft)
+      }
     }
     private def addStmtTok(stmt: Tree)(token: T) =
       addStmtFT(stmt)(ftoks.after(token))
-    private def addStmtTree(t: Tree, stmt: Tree) = ftoks.getHeadOpt(t)
-      .foreach(addStmtFT(stmt))
-    private def addOneStmt(t: Tree) = addStmtTree(t, t)
-    private def addAllStmts(trees: Seq[Tree]) = trees.foreach(addOneStmt)
+    private def addStmtTree(t: Tree, stmt: Tree, prev: Option[FT] = None) = {
+      val ft = ftoks.getHeadOpt(t)
+      ft.foreach(addStmtFT(stmt, prev))
+      ft
+    }
+    private def addOneStmt(t: Tree, prev: Option[FT] = None) =
+      addStmtTree(t, t, prev)
+    private def addAllStmts(trees: Seq[Tree]) = trees
+      .foldLeft(Option.empty[FT])((prev, t) => addOneStmt(t, prev))
 
     private def addDefnTokens(
         mods: Seq[Mod],
@@ -156,11 +172,16 @@ object OptimizationEntities {
           ) =>
       case t: Term.EnumeratorsBlock =>
         var wasGuard = false
-        t.enums.tail.foreach { x =>
-          val isGuard = x.is[Enumerator.Guard]
+        def iter(prev: Option[FT], curr: Enumerator): Option[FT] = {
+          val isGuard = curr.is[Enumerator.Guard]
           // Only guard that follows another guard starts a statement.
-          if (wasGuard || !isGuard) addOneStmt(x)
+          val ok = wasGuard || !isGuard
           wasGuard = isGuard
+          addStmtTree(curr, if (ok) curr else null, prev)
+        }
+        t.enums match {
+          case head :: tail => tail.foldLeft(ftoks.getHeadOpt(head))(iter)
+          case _ =>
         }
       case t: Term.PartialFunction => t.cases match {
           case _ :: Nil =>
