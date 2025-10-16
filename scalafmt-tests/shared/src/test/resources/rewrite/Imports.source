@@ -1093,6 +1093,54 @@ import d.e.{f, g} // d0
 import d.e.{a, b, d, f => g, g => _, _}
 import x.{y, _}
 import z._
+<<< folding, sort ascii, no groups, lots of comments
+rewrite.imports {
+  selectors = fold
+  sort = ascii
+}
+===
+package a
+
+  import a.{ // a1
+    b, // a2
+    c // a3
+  }, h.{ // h1
+    k, l // h2
+  }
+  import d.e.{a, b}
+  import d.e.{f, g} // d0
+
+
+  import a.{f, g} // a0
+  import h.{f, g} // h0
+  import h.{a, b}
+  import d.e.{d, f => g, g => _, _}
+
+  import x.y
+  import x._
+
+  import z._
+>>>
+package a
+
+import a.{
+// a1
+  b, // a2
+  c // a3
+}
+import a.{f, g} // a0
+import d.e.{a, b, d, f => g, g => _, _}
+import d.e.{f, g} // d0
+import h.{
+  a,
+  b,
+// h1
+  k,
+  l // h2
+}
+import h.{f, g} // h0
+import x.{y, _}
+import z._
 <<< folding, sort ascii, no groups
 rewrite.imports {
   selectors = fold
