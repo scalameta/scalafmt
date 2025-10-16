@@ -12669,7 +12669,8 @@ def main = {
 >>>
 def main = {
   if (true) bar += 1
-  else bar = 2; shouldBeFalse = true
+  else bar = 2
+  shouldBeFalse = true
 }
 <<< #5009 RemoveSemicolons template
 rewrite.rules = [RemoveSemicolons]
@@ -12681,7 +12682,8 @@ object foo {
 >>>
 object foo {
   if (true) bar += 1
-  else bar = 2; shouldBeFalse = true
+  else bar = 2
+  shouldBeFalse = true
 }
 <<< #5009 RemoveSemicolons for-clause 1
 rewrite.rules = [RemoveSemicolons]
@@ -12694,10 +12696,11 @@ for {
 >>>
 for {
   a <-
-    as1 ++ as2;
+    as1 ++ as2
   b <-
-    bs1 ++ bs2;
-  if a < b; c <- cs
+    bs1 ++ bs2
+  if a < b
+  c <- cs
 } yield a + b + c
 <<< #5009 RemoveSemicolons for-clause 2
 rewrite.rules = [RemoveSemicolons]
@@ -12710,9 +12713,10 @@ for {
 >>>
 for {
   a <- as1 ++
-    as2;
+    as2
   b <- bs1 ++
-    bs2; if a < b; c <- cs
+    bs2 if a < b
+  c <- cs
 } yield a + b + c
 <<< #5009 !RemoveSemicolons block
 def main = {
