@@ -64,8 +64,9 @@ object Imports extends RewriteFactory {
 
   override def create(implicit ctx: RewriteCtx): RewriteSession = {
     val settings = ctx.style.rewrite.imports
-    if (settings.selectors.contains(Newlines.unfold)) new ExpandFull
-    else if (settings.selectors.contains(Newlines.fold)) new Fold
+    val selectors = ctx.style.importSelectorsRewrite
+    if (selectors eq Newlines.unfold) new ExpandFull
+    else if (selectors eq Newlines.fold) new Fold
     else if (settings.numGroups != 0) new ExpandPart
     else if (settings.sort ne Sort.none) new ExpandNone
     else new RewriteSession.None
@@ -533,7 +534,7 @@ object Imports extends RewriteFactory {
         iter(ctx.tokenTraverser.getIndex(head), head)
       }
       val folding = settings.removeRedundantSelectors ||
-        settings.selectors.contains(Newlines.fold)
+        (ctx.style.importSelectorsRewrite eq Newlines.fold)
       val foldMap = LinkedHashMap.empty[(String, String), ListBuffer[Importer]]
       def addToGroup(kw: String, ref: String, importers: Seq[Importer]): Unit =
         addClausesToGroup(groups(settings.group(ref)), kw, ref, importers)

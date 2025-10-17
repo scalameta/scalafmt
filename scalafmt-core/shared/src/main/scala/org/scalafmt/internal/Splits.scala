@@ -194,15 +194,14 @@ object SplitsAfterLeftBrace extends Splits {
     import fo._, tokens._, ft._
     val close = matchingLeft(ft)
     val beforeClose = prev(close)
-    val policy = SingleLineBlock(
-      close,
-      okSLC = cfg.binPack.importSelectors eq ImportSelectors.singleLine,
-    )
+    val binPack = cfg.importSelectorsBinPack
+    val policy =
+      SingleLineBlock(close, okSLC = binPack eq ImportSelectors.singleLine)
     val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
 
     val mustDangleForTrailingCommas = getMustDangleForTrailingCommas(beforeClose)
     val mustUseNL = hasBreak && isRightCommentThenBreak(ft)
-    val newlinePolicy = cfg.binPack.importSelectors match {
+    val newlinePolicy = binPack match {
       case ImportSelectors.singleLine if mustUseNL => policy
       case ImportSelectors.singleLine if !mustDangleForTrailingCommas =>
         NoPolicy
