@@ -4861,7 +4861,15 @@ as it might result in a very long line</li>
 </ul></li>
 <li><code>unfold</code>: will attempt to create a separate line for each selector (was: <code>expand = true</code>)</li>
 </ul>
-<p>Default: <code>rewrite.imports.selectors = null</code></p>
+<p>By default, the parameter is set to:</p>
+<ul>
+<li><code>unfold</code> if <a href="#newlinessource"><code>newlines.source = unfold</code></a></li>
+<li><code>fold</code> if <a href="#newlinessource"><code>newlines.source = fold</code></a></li>
+<li><code>keep</code> otherwise
+<ul>
+<li>this used to be the default behavior prior to v3.10.1</li>
+</ul></li>
+</ul>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">import</span> a.b
 <span class="hljs-keyword">import</span> a.c
 <span class="hljs-keyword">import</span> h.k
@@ -7209,13 +7217,14 @@ instead of the respective <a href="#binpackxxxsite"><code>binPack.xxxSite</code>
 line if they fit without exceeding <code>maxColumn</code>. This parameter controls how they
 will be handled <em>if</em> they overflow.
 (Prior to v3.8.4, it was called <code>importSelectors</code>.)</p>
-<p>Default: <code>binPack.importSelectors = &quot;unfold&quot;</code></p>
 <p>Takes the following parameters:</p>
 <ul>
 <li><code>unfold</code>: format one per line (prior to v3.8.4, called <code>noBinPack</code>)</li>
 <li><code>fold</code>: fit as many as possible on each line (prior to v3.8.4, called <code>binPack</code>)</li>
 <li><code>singleLine</code>: format all on one line</li>
 </ul>
+<p>By default, the parameter is set to <code>fold</code> if <a href="#newlinessource"><code>newlines.source = fold</code></a>,
+and <code>unfold</code> otherwise (prior to v3.10.1, it would always be <code>unfold</code>).</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">import</span> a.b.{
   c,
   d,
@@ -7797,7 +7806,7 @@ binPack.<span class="hljs-attr">literalsExclude</span> = [
   String
   <span class="hljs-string">"Term.Name"</span>
 ]
-binPack.<span class="hljs-attr">importSelectors</span> = unfold
+binPack.<span class="hljs-attr">importSelectors</span> = <span class="hljs-literal">null</span>
 indent.<span class="hljs-attr">main</span> = <span class="hljs-number">2</span>
 indent.<span class="hljs-attr">significant</span> = <span class="hljs-literal">null</span>
 indent.<span class="hljs-attr">callSite</span> = <span class="hljs-number">2</span>
