@@ -564,6 +564,7 @@ package a
 
 // c1
 import a.b // c2
+// c4
 import a.c // c3
 
 import d.e
@@ -1075,22 +1076,24 @@ package a
 >>>
 package a
 
-import a.{f, g} // a0
 import a.{
 // a1
   b, // a2
-  c // a3
-}
-import h.{f, g} // h0
+  c, // a3
+  f,
+  g
+} // a0
 import h.{
 // h1
   k,
   l, // h2
+  f,
+  g,
   a,
   b
-}
-import d.e.{f, g} // d0
+} // h0
 import d.e.{a, b, d, f => g, g => _, _}
+import d.e.{f, g} // d0
 import x.{y, _}
 import z._
 <<< folding, sort ascii, no groups, lots of comments
@@ -1126,19 +1129,21 @@ package a
 import a.{
 // a1
   b, // a2
-  c // a3
-}
-import a.{f, g} // a0
+  c, // a3
+  f,
+  g
+} // a0
 import d.e.{a, b, d, f => g, g => _, _}
 import d.e.{f, g} // d0
 import h.{
   a,
   b,
+  f,
+  g,
 // h1
   k,
   l // h2
-}
-import h.{f, g} // h0
+} // h0
 import x.{y, _}
 import z._
 <<< folding, sort ascii, no groups
