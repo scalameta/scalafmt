@@ -1041,7 +1041,7 @@ package a
 // comment
 import a.{b, c, f, g}
 import h.{k, l, a, b}
-import d.e.{a, b, d, f => g, g => _, _}
+import d.e.{d, f => g, g => _, a, b, _}
 export d.e.{f, g}
 //package b
 export h.{f, g}
@@ -1092,7 +1092,7 @@ import h.{
   a,
   b
 } // h0
-import d.e.{a, b, d, f => g, g => _, _}
+import d.e.{d, f => g, g => _, a, b, _}
 import d.e.{f, g} // d0
 import x.{y, _}
 import z._
@@ -1229,7 +1229,7 @@ package a
 import a.{b, c, f, g}
 
 import h.{k, l, a, b}
-import d.e.{a, b, d, f => g, g => _, _}
+import d.e.{d, f => g, g => _, a, b, _}
 export d.e.{f, g}
 //package b
 export h.{f, g}
@@ -1338,9 +1338,10 @@ import c.universe.{Tree => ReflectTree}
 import c.universe.{
   Position => ReflectPosition,
   Symbol => ReflectSymbol,
-  Tree => ReflectTree
+  Tree => ReflectTree,
+  Type => _,
+  _
 }
-import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
 <<< dedup consistent names when folding, removeRedundantSelectors
 rewrite.imports {
   sort = ascii
@@ -1386,9 +1387,10 @@ import c.universe.{Tree => ReflectTree}
 import c.universe.{
   Position => ReflectPosition,
   Symbol => ReflectSymbol,
-  Tree => ReflectTree
+  Tree => ReflectTree,
+  Type => _,
+  _
 }
-import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
 <<< fold with matching unimports and renames, !removeRedundantSelectors
 rewrite.imports {
   sort = ascii
