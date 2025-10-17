@@ -6,6 +6,7 @@ import org.scalafmt.util._
 import scala.meta._
 import scala.meta.tokens.{Token => T}
 
+import java.util.LinkedList
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
@@ -735,10 +736,11 @@ object Imports extends RewriteFactory {
         importers: Seq[Importer],
     ): Unit = {
       var hasGlobalWildcard = false
-      val renamesNoWildcards = Seq.newBuilder[Importer]
-      val wildcardsNoRenames = Seq.newBuilder[Importer]
-      val renamesAndWildcards = Seq.newBuilder[Importer]
-      val noRenamesNorWildcards = new java.util.LinkedList[Importer]
+      // below: variable names refer to presence of renames and wildcards
+      val neither = new LinkedList[Importer]
+      val both = Seq.newBuilder[Importer]
+      val renamesOnly = Seq.newBuilder[Importer]
+      val wildcardsOnly = Seq.newBuilder[Importer]
       importers.foreach { importer =>
         var hasRename = false
         var hasWildcard = false
@@ -748,21 +750,21 @@ object Imports extends RewriteFactory {
             hasRename = true; hasWildcard
           case _ => false
         }
-        if (hasBoth) renamesAndWildcards += importer
-        else if (hasRename) renamesNoWildcards += importer
+        if (hasBoth) both += importer
+        else if (hasRename) renamesOnly += importer
         else if (hasWildcard) {
           hasGlobalWildcard = true
-          wildcardsNoRenames += importer
-        } else noRenamesNorWildcards.add(importer)
+          wildcardsOnly += importer
+        } else neither.add(importer)
       }
 
       val buffer = ListBuffer.empty[Importer]
-      def flushBuffer(hasWildcard: Boolean = false): Unit = if (buffer.nonEmpty) {
+      def flushFolded(hasBoth: Boolean = false): Unit = if (buffer.nonEmpty) {
         val importers = buffer.toList
         buffer.clear()
         val importees = {
           val filtered = filterImportees(importers.flatMap(_.importees))
-          val keepNames = !(hasWildcard || hasGlobalWildcard) ||
+          val keepNames = !(hasBoth || hasGlobalWildcard) ||
             !settings.removeRedundantSelectors
           val names = HashSet.empty[String]
           filtered.filter {
@@ -776,9 +778,9 @@ object Imports extends RewriteFactory {
 
       // we can't fold if there are multiple names or renames
       val foldedNames = HashMap.empty[String, Importee]
-      def flushRenames(hasWildcard: Boolean = false): Unit = {
+      def flushWithNeither(hasBoth: Boolean = false): Unit = {
         if (foldedNames.nonEmpty) {
-          val iter = noRenamesNorWildcards.listIterator()
+          val iter = neither.listIterator()
           while (iter.hasNext) {
             val importer = iter.next()
             val names = Seq.newBuilder[(String, Importee)]
@@ -800,25 +802,25 @@ object Imports extends RewriteFactory {
           }
           foldedNames.clear()
         }
-        flushBuffer(hasWildcard = hasWildcard)
+        flushFolded(hasBoth = hasBoth)
       }
 
-      renamesAndWildcards.result().foreach { importer =>
-        if (!noRenamesNorWildcards.isEmpty) importer.importees.foreach {
+      both.result().foreach { importer =>
+        if (!neither.isEmpty) importer.importees.foreach {
           case x: Importee.Name => foldedNames += x.name.value -> x
           case x: Importee.Unimport => foldedNames += x.name.value -> x
           case x: Importee.Rename => foldedNames += x.name.value -> x
           case _ =>
         }
         buffer += importer // and flush immediately
-        flushRenames(hasWildcard = true)
+        flushWithNeither(hasBoth = true)
       }
 
-      renamesNoWildcards.result().foreach { importer =>
+      renamesOnly.result().foreach { importer =>
         val names = Seq.newBuilder[(String, Importee)]
         def checkDuplicates(name: String)(f: Importee => Boolean): Unit =
           if (foldedNames.nonEmpty && foldedNames.get(name).exists(f))
-            flushRenames()
+            flushWithNeither()
         importer.importees.foreach {
           case x: Importee.Name =>
             val name = x.name.value
@@ -841,11 +843,11 @@ object Imports extends RewriteFactory {
         buffer += importer
         foldedNames ++= names.result()
       }
-      flushRenames()
+      flushWithNeither()
 
-      buffer ++= wildcardsNoRenames.result()
-      noRenamesNorWildcards.forEach(x => buffer += x)
-      flushBuffer()
+      buffer ++= wildcardsOnly.result()
+      neither.forEach(x => buffer += x)
+      flushFolded()
     }
   }
 
