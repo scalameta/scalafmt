@@ -292,6 +292,14 @@ case class ScalafmtConfig(
   @inline
   def isFormatOff(token: T): Boolean = isFormatIn(token, formatOff)
 
+  def importSelectorsBinPack: ImportSelectors = binPack.importSelectors
+    .getOrElse(
+      if (newlines.source eq Newlines.fold) ImportSelectors.fold
+      else ImportSelectors.unfold,
+    )
+
+  def importSelectorsRewrite: Newlines.SourceHints = rewrite.imports.selectors
+    .getOrElse(newlines.source)
 }
 
 object ScalafmtConfig {
@@ -409,7 +417,7 @@ object ScalafmtConfig {
         addIf(rewrite.scala3.removeOptionalBraces.fewerBracesMinSpan > rewrite.scala3.removeOptionalBraces.fewerBracesMaxSpan)
       }
       addIfDirect( // if we fold but not bin pack, we might end up with very long lines
-        rewrite.imports.selectors.contains(Newlines.fold) && (binPack.importSelectors eq ImportSelectors.singleLine),
+        (importSelectorsRewrite eq Newlines.fold) && binPack.importSelectors.contains(ImportSelectors.singleLine),
         "rewrite.imports.selectors == fold && binPack.importSelectors == singleLine",
       )
     }

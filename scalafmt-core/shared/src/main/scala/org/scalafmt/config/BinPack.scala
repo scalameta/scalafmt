@@ -48,7 +48,7 @@ case class BinPack(
     literalsMinArgCount: Int = 5,
     literalsInclude: Seq[String] = Seq(".*"),
     literalsExclude: Seq[String] = Seq("String", "Term.Name"),
-    importSelectors: ImportSelectors = ImportSelectors.unfold,
+    private[config] val importSelectors: Option[ImportSelectors] = None,
 ) {
   def literalsRegex: FilterMatcher =
     FilterMatcher(literalsInclude, literalsExclude)
@@ -89,7 +89,7 @@ object BinPack {
   def ctor(
       site: Site,
       parents: ParentCtors,
-      imports: ImportSelectors = ImportSelectors.fold,
+      imports: Option[ImportSelectors] = Some(ImportSelectors.fold),
   ): BinPack = BinPack(
     defnSite = site,
     callSite = site,
@@ -97,7 +97,7 @@ object BinPack {
     importSelectors = imports,
   )
 
-  val never = BinPack.ctor(Site.Never, ParentCtors.Never, ImportSelectors.unfold)
+  val never = BinPack.ctor(Site.Never, ParentCtors.Never, None)
   val always = BinPack.ctor(Site.Always, ParentCtors.Always)
   private val oneline = BinPack.ctor(Site.Oneline, ParentCtors.Oneline)
   private val onelineSjs = BinPack.ctor(Site.OnelineSjs, ParentCtors.Oneline)

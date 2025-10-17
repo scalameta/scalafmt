@@ -3645,9 +3645,12 @@ It takes the following values:
     as it might result in a very long line
 - `unfold`: will attempt to create a separate line for each selector (was: `expand = true`)
 
-```scala mdoc:defaults
-rewrite.imports.selectors
-```
+By default, the parameter is set to:
+
+- `unfold` if [`newlines.source = unfold`](#newlinessource)
+- `fold` if [`newlines.source = fold`](#newlinessource)
+- `keep` otherwise
+  - this used to be the default behavior prior to v3.10.1
 
 ```scala mdoc:scalafmt
 rewrite.rules = [Imports]
@@ -5563,15 +5566,14 @@ line if they fit without exceeding `maxColumn`. This parameter controls how they
 will be handled _if_ they overflow.
 (Prior to v3.8.4, it was called `importSelectors`.)
 
-```scala mdoc:defaults
-binPack.importSelectors
-```
-
 Takes the following parameters:
 
 - `unfold`: format one per line (prior to v3.8.4, called `noBinPack`)
 - `fold`: fit as many as possible on each line (prior to v3.8.4, called `binPack`)
 - `singleLine`: format all on one line
+
+By default, the parameter is set to `fold` if [`newlines.source = fold`](#newlinessource),
+and `unfold` otherwise (prior to v3.10.1, it would always be `unfold`).
 
 ```scala mdoc:scalafmt
 maxColumn = 10
