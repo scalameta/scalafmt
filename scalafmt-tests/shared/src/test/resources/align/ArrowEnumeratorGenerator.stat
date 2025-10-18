@@ -231,3 +231,65 @@ for {
   cond = try { Some(x) }
          catch { case _ => None }
 } yield x + y
+<<< #5010 nested for
+runner.dialect = scala3
+indent.significant = 3
+===
+@main def main(): Unit =
+  for
+    _ <- Option(1)
+    _ = for
+      c <- Option(2)
+      d <- Option(3)
+    yield c + d
+  yield ()
+>>>
+@main def main(): Unit =
+  for
+     _ <- Option(1)
+     _ =
+       for
+          c <- Option(2)
+          d <- Option(3)
+       yield c + d
+  yield ()
+<<< #5010 nested try
+runner.dialect = scala3
+indent.significant = 3
+===
+@main def main(): Unit =
+  for
+    _ <- Option(1)
+    _ = try
+      Option(2)
+    catch
+      case _ => Option(3)
+  yield ()
+>>>
+@main def main(): Unit =
+  for
+     _ <- Option(1)
+     _ =
+       try Option(2)
+       catch case _ => Option(3)
+  yield ()
+<<< #5010 nested if
+runner.dialect = scala3
+indent.significant = 3
+===
+@main def main(): Unit =
+  for
+    _ <- Option(1)
+    _ = if true then
+      Option(2)
+    else
+      Option(3)
+  yield ()
+>>>
+@main def main(): Unit =
+  for
+     _ <- Option(1)
+     _ =
+       if true then Option(2)
+       else Option(3)
+  yield ()

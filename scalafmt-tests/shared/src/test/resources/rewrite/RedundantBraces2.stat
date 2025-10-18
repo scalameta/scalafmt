@@ -821,3 +821,33 @@ def atEndOfId(): Boolean = {
     atEnd()
   } || { lookingAt('#') || lookingAt('.') || lookingAt('(') || lookingAt('[') }
 }
+<<< keep if a semicolon before closing brace
+class C extends A({ log("one"); }, { log("two"); }) with B
+>>>
+class C extends A({ log("one"); }, { log("two"); }) with B
+<<< keep if a semicolon before closing brace, scala3, no breaks
+runner.dialect = scala3
+===
+class C extends A({ log("one"); }, { log("two"); }) with B
+>>>
+class C extends A({ log("one"); }, { log("two"); }) with B
+<<< keep if a semicolon before closing brace, scala3, with breaks
+runner.dialect = scala3
+===
+class C extends A(
+  {
+    log("one");
+  }, {
+    log("two");
+  }
+) with B
+>>>
+class C
+    extends A(
+      {
+        log("one");
+      }, {
+        log("two");
+      }
+    )
+    with B

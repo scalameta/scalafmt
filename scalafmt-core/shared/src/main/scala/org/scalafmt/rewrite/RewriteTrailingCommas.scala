@@ -1,7 +1,6 @@
 package org.scalafmt.rewrite
 
-import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.config.TrailingCommas
+import org.scalafmt.config.{ScalafmtConfig, TrailingCommas}
 import org.scalafmt.internal._
 
 import scala.meta._

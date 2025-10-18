@@ -2426,7 +2426,7 @@ object a {
 >>>
 object a {
   (people.map(p => (p.name, p.age))
-  // c1
+    // c1
     returning people.map(_.id)
     // c2
     into ((nameAge, id) => Person(id, nameAge._1, nameAge._2)))
@@ -12582,3 +12582,189 @@ object a {
     1, 2, 3
   )
 }
+<<< #4976
+danglingParentheses.callSite = false
+===
+a(A(
+  b = B,
+  c = C
+))
+>>>
+a(
+  A(
+    b = B,
+    c = C
+  ))
+<<< from scala-native: newlines.afterCurlyLambdaParams=never
+newlines.afterCurlyLambdaParams = never
+===
+object a {
+  foo { implicit z =>
+
+    /* Requirement:
+     */
+     bar
+     baz
+  }
+}
+>>>
+object a {
+  foo { implicit z =>
+    /* Requirement:
+     */
+    bar
+    baz
+  }
+}
+<<< from scala-native: newlines.afterCurlyLambdaParams=squash
+newlines.afterCurlyLambdaParams = squash
+===
+object a {
+  foo { implicit z =>
+
+    /* Requirement:
+     */
+     bar
+     baz
+  }
+}
+>>>
+object a {
+  foo { implicit z =>
+    /* Requirement:
+     */
+    bar
+    baz
+  }
+}
+<<< from scala-native: newlines.afterCurlyLambdaParams=always
+newlines.afterCurlyLambdaParams = always
+===
+object a {
+  foo { implicit z =>
+
+    /* Requirement:
+     */
+     bar
+     baz
+  }
+}
+>>>
+object a {
+  foo { implicit z =>
+
+    /* Requirement:
+     */
+    bar
+    baz
+  }
+}
+<<< #5009 RemoveSemicolons block
+rewrite.rules = [RemoveSemicolons]
+===
+def main = {
+  if (true) bar += 1
+  else bar = 2; shouldBeFalse = true
+}
+>>>
+def main = {
+  if (true) bar += 1
+  else bar = 2
+  shouldBeFalse = true
+}
+<<< #5009 RemoveSemicolons template
+rewrite.rules = [RemoveSemicolons]
+===
+object foo {
+  if (true) bar += 1
+  else bar = 2; shouldBeFalse = true
+}
+>>>
+object foo {
+  if (true) bar += 1
+  else bar = 2
+  shouldBeFalse = true
+}
+<<< #5009 RemoveSemicolons for-clause 1
+rewrite.rules = [RemoveSemicolons]
+===
+for {
+  a <-
+  as1 ++ as2; b <-
+  bs1 ++ bs2; if a < b; c <- cs
+} yield a + b + c
+>>>
+for {
+  a <-
+    as1 ++ as2
+  b <-
+    bs1 ++ bs2
+  if a < b
+  c <- cs
+} yield a + b + c
+<<< #5009 RemoveSemicolons for-clause 2
+rewrite.rules = [RemoveSemicolons]
+===
+for {
+  a <- as1 ++
+    as2; b <- bs1 ++
+    bs2; if a < b; c <- cs
+} yield a + b + c
+>>>
+for {
+  a <- as1 ++
+    as2
+  b <- bs1 ++
+    bs2 if a < b
+  c <- cs
+} yield a + b + c
+<<< #5009 !RemoveSemicolons block
+def main = {
+  if (true) bar += 1
+  else bar = 2; shouldBeFalse = true
+}
+>>>
+def main = {
+  if (true) bar += 1
+  else bar = 2;
+  shouldBeFalse = true
+}
+<<< #5009 !RemoveSemicolons template
+object foo {
+  if (true) bar += 1
+  else bar = 2; shouldBeFalse = true
+}
+>>>
+object foo {
+  if (true) bar += 1
+  else bar = 2;
+  shouldBeFalse = true
+}
+<<< #5009 !RemoveSemicolons for-clause 1
+for {
+  a <-
+  as1 ++ as2; b <-
+  bs1 ++ bs2; if a < b; c <- cs
+} yield a + b + c
+>>>
+for {
+  a <-
+    as1 ++ as2;
+  b <-
+    bs1 ++ bs2;
+  if a < b; c <- cs
+} yield a + b + c
+<<< #5009 !RemoveSemicolons for-clause 2
+for {
+  a <- as1 ++
+    as2; b <- bs1 ++
+    bs2; if a < b; c <- cs
+} yield a + b + c
+>>>
+for {
+  a <- as1 ++
+    as2;
+  b <- bs1 ++
+    bs2;
+  if a < b; c <- cs
+} yield a + b + c

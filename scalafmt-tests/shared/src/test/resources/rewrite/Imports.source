@@ -564,6 +564,7 @@ package a
 
 // c1
 import a.b // c2
+// c4
 import a.c // c3
 
 import d.e
@@ -1005,3 +1006,441 @@ import scala.concurrent.Future
  */
 // format: on
 class Test {}
+<<< folding, no sort, no groups
+rewrite.imports {
+  selectors = fold
+}
+===
+package a
+
+  import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  import d.e.{a, b}
+  export d.e.{f, g}
+
+
+ // comment
+  import a.{f, g}
+
+//package b
+  export h.{f, g}
+  import h.{a, b}
+  import d.e.{d, f => g, g => _, _}
+
+  import x.y
+  import x._
+
+  import z._
+>>>
+package a
+
+// comment
+import a.{b, c, f, g}
+import h.{k, l, a, b}
+import d.e.{d, f => g, g => _, a, b, _}
+export d.e.{f, g}
+//package b
+export h.{f, g}
+import x.{y, _}
+import z._
+<<< folding, no sort, no groups, lots of comments
+rewrite.imports {
+  selectors = fold
+}
+===
+package a
+
+  import a.{ // a1
+    b, // a2
+    c // a3
+  }, h.{ // h1
+    k, l // h2
+  }
+  import d.e.{a, b}
+  import d.e.{f, g} // d0
+
+
+  import a.{f, g} // a0
+  import h.{f, g} // h0
+  import h.{a, b}
+  import d.e.{d, f => g, g => _, _}
+
+  import x.y
+  import x._
+
+  import z._
+>>>
+package a
+
+import a.{
+// a1
+  b, // a2
+  c, // a3
+  f,
+  g
+} // a0
+import h.{
+// h1
+  k,
+  l, // h2
+  f,
+  g,
+  a,
+  b
+} // h0
+import d.e.{d, f => g, g => _, a, b, _}
+import d.e.{f, g} // d0
+import x.{y, _}
+import z._
+<<< folding, sort ascii, no groups, lots of comments
+rewrite.imports {
+  selectors = fold
+  sort = ascii
+}
+===
+package a
+
+  import a.{ // a1
+    b, // a2
+    c // a3
+  }, h.{ // h1
+    k, l // h2
+  }
+  import d.e.{a, b}
+  import d.e.{f, g} // d0
+
+
+  import a.{f, g} // a0
+  import h.{f, g} // h0
+  import h.{a, b}
+  import d.e.{d, f => g, g => _, _}
+
+  import x.y
+  import x._
+
+  import z._
+>>>
+package a
+
+import a.{
+// a1
+  b, // a2
+  c, // a3
+  f,
+  g
+} // a0
+import d.e.{a, b, d, f => g, g => _, _}
+import d.e.{f, g} // d0
+import h.{
+  a,
+  b,
+  f,
+  g,
+// h1
+  k,
+  l // h2
+} // h0
+import x.{y, _}
+import z._
+<<< folding, sort ascii, no groups
+rewrite.imports {
+  selectors = fold
+  sort = ascii
+}
+===
+package a
+
+  import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  import d.e.{a, b}
+  export d.e.{f, g}
+
+
+ // comment
+  import a.{f, g}
+
+//package b
+  export h.{f, g}
+  import h.{a, b}
+  import d.e.{d, f => g, g => _, _}
+
+  import x.y
+  import x._
+
+  import z._
+>>>
+package a
+
+// comment
+import a.{b, c, f, g}
+import d.e.{a, b, d, f => g, g => _, _}
+export d.e.{f, g}
+import h.{a, b, k, l}
+//package b
+export h.{f, g}
+import x.{y, _}
+import z._
+<<< folding, no sort
+rewrite.imports {
+  selectors = fold
+  groups = [
+    ["a.*", "A.*"],
+    ["b.*", "B.*"],
+    ["c.*", "D.*"]
+  ]
+}
+===
+package a
+
+  import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  import d.e.{a, b}
+  export d.e.{f, g}
+
+
+ // comment
+  import a.{f, g}
+
+//package b
+  export h.{f, g}
+  import h.{a, b}
+  import d.e.{d, f => g, g => _, _}
+
+  import x.y
+  import x._
+
+  import z._
+>>>
+package a
+
+// comment
+import a.{b, c, f, g}
+
+import h.{k, l, a, b}
+import d.e.{d, f => g, g => _, a, b, _}
+export d.e.{f, g}
+//package b
+export h.{f, g}
+import x.{y, _}
+import z._
+<<< folding, sort ascii
+rewrite.imports {
+  selectors = fold
+  sort = ascii
+  groups = [
+    ["a.*", "A.*"],
+    ["b.*", "B.*"],
+    ["c.*", "D.*"]
+  ]
+}
+===
+package a
+
+  import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+  import d.e.{a, b}
+  export d.e.{f, g}
+
+
+ // comment
+  import a.{f, g}
+
+//package b
+  export h.{f, g}
+  import h.{a, b}
+  import d.e.{d, f => g, g => _, _}
+
+  import x.y
+  import x._
+
+  import z._
+>>>
+package a
+
+// comment
+import a.{b, c, f, g}
+
+import d.e.{a, b, d, f => g, g => _, _}
+export d.e.{f, g}
+import h.{a, b, k, l}
+//package b
+export h.{f, g}
+import x.{y, _}
+import z._
+<<< remove duplicates, fold
+runner.dialect = scala3
+rewrite.imports {
+  selectors = fold
+  removeRedundantSelectors = true
+}
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.{y => z, given}
+import a.*
+<<< remove duplicates, unfold
+runner.dialect = scala3
+rewrite.imports {
+  selectors = unfold
+  removeRedundantSelectors = true
+}
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.{y => z, given}
+import a.*
+<<< remove duplicates, sort
+runner.dialect = scala3
+rewrite.imports {
+  sort = ascii
+  removeRedundantSelectors = true
+}
+===
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given, given Z}
+>>>
+import a.{x, y => z, given}
+import a.{*, given}
+import a.{x, given}
+<<< avoid conflicting names when folding
+rewrite.imports {
+  sort = ascii
+  selectors = fold
+  removeRedundantSelectors = true
+}
+===
+import c.universe.{Position => ReflectPosition}
+import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
+import c.universe.{Symbol => ReflectSymbol}
+import c.universe.{Tree => ReflectTree}
+>>>
+import c.universe.{
+  Position => ReflectPosition,
+  Symbol => ReflectSymbol,
+  Tree => ReflectTree,
+  Type => _,
+  _
+}
+<<< dedup consistent names when folding, removeRedundantSelectors
+rewrite.imports {
+  sort = ascii
+  selectors = fold
+  removeRedundantSelectors = true
+}
+===
+import c.universe.Position
+import c.universe.Position
+import c.universe.{Symbol => ReflectSymbol}
+import c.universe.{Symbol => ReflectSymbol}
+import c.universe._
+>>>
+import c.universe._
+import c.universe.{Symbol => ReflectSymbol}
+<<< dedup consistent names when folding, !removeRedundantSelectors
+rewrite.imports {
+  sort = ascii
+  selectors = fold
+  removeRedundantSelectors = false
+}
+===
+import c.universe.Position
+import c.universe.Position
+import c.universe.{Symbol => ReflectSymbol}
+import c.universe.{Symbol => ReflectSymbol}
+import c.universe._
+>>>
+import c.universe._
+import c.universe.{Position, Symbol => ReflectSymbol}
+<<< fold with matching unimports and renames, removeRedundantSelectors
+rewrite.imports {
+  sort = ascii
+  selectors = fold
+  removeRedundantSelectors = true
+}
+===
+import c.universe.{Position => ReflectPosition}
+import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
+import c.universe.{Symbol => ReflectSymbol}
+import c.universe.{Tree => ReflectTree}
+>>>
+import c.universe.{
+  Position => ReflectPosition,
+  Symbol => ReflectSymbol,
+  Tree => ReflectTree,
+  Type => _,
+  _
+}
+<<< unfold with matching unimports and renames, removeRedundantSelectors
+rewrite.imports {
+  sort = ascii
+  selectors = unfold
+  removeRedundantSelectors = true
+}
+===
+import c.universe.{Position => ReflectPosition}
+import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
+import c.universe.{Symbol => ReflectSymbol}
+import c.universe.{Tree => ReflectTree}
+>>>
+import c.universe.{
+  Position => ReflectPosition,
+  Symbol => ReflectSymbol,
+  Tree => ReflectTree,
+  Type => _,
+  _
+}
+<<< fold with matching unimports and renames, !removeRedundantSelectors
+rewrite.imports {
+  sort = ascii
+  selectors = fold
+  removeRedundantSelectors = false
+}
+===
+import c.universe.{Position => ReflectPosition}
+import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
+import c.universe.{Symbol => ReflectSymbol}
+import c.universe.{Tree => ReflectTree}
+>>>
+import c.universe.{
+  Position => ReflectPosition,
+  Symbol => ReflectSymbol,
+  Tree => ReflectTree
+}
+import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
+<<< unfold with matching unimports and renames, !removeRedundantSelectors
+rewrite.imports {
+  sort = ascii
+  selectors = unfold
+  removeRedundantSelectors = false
+}
+===
+import c.universe.{Position => ReflectPosition}
+import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
+import c.universe.{Symbol => ReflectSymbol}
+import c.universe.{Tree => ReflectTree}
+>>>
+import c.universe.{Position => ReflectPosition}
+import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
+import c.universe.{Symbol => ReflectSymbol}
+import c.universe.{Tree => ReflectTree}

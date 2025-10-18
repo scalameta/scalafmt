@@ -6,13 +6,13 @@ import org.scalafmt.util._
 import scala.meta._
 import scala.meta.tokens.{Token => T}
 
+import java.util.LinkedList
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.HashMap
-import scala.collection.mutable.HashSet
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.{
+  ArrayBuffer, HashMap, HashSet, LinkedHashMap, ListBuffer,
+}
 
 import metaconfig._
 
@@ -20,16 +20,17 @@ object Imports extends RewriteFactory {
 
   case class Settings(
       sort: Sort = Sort.none,
-      expand: Boolean = false,
+      selectors: Option[Newlines.SourceHints] = None,
       contiguousGroups: ContiguousGroups = ContiguousGroups.only,
       private val groups: Seq[Seq[String]] = Nil,
+      removeRedundantSelectors: Boolean = false,
   ) {
     private lazy val regex = groups.zipWithIndex
       .flatMap { case (patterns, index) => patterns.map((_, index)) }
       .sortBy(_._1)(Ordering.String.reverse) // longest pattern first
       .map { case (pattern, index) => Pattern.compile(pattern) -> index }
 
-    private[Imports] val numGroups = groups.length
+    private[scalafmt] val numGroups = groups.length
 
     def noGroups: Boolean = sort.eq(Sort.none) && numGroups == 0
 
@@ -41,6 +42,12 @@ object Imports extends RewriteFactory {
     implicit val surface: generic.Surface[Settings] = generic.deriveSurface
     implicit val codec: ConfCodecEx[Settings] = generic
       .deriveCodecEx(new Settings).noTypos
+      .withSectionRenames(annotation.SectionRename(
+        "expand",
+        "selectors",
+        { case Conf.Bool(value) => if (value) Conf.Str("unfold") else Conf.Null() },
+      ))
+
   }
 
   sealed abstract class ContiguousGroups
@@ -57,10 +64,12 @@ object Imports extends RewriteFactory {
 
   override def create(implicit ctx: RewriteCtx): RewriteSession = {
     val settings = ctx.style.rewrite.imports
-    if (settings.expand) new ExpandFull
+    val selectors = ctx.style.importSelectorsRewrite
+    if (selectors eq Newlines.unfold) new ExpandFull
+    else if (selectors eq Newlines.fold) new Fold
     else if (settings.numGroups != 0) new ExpandPart
     else if (settings.sort ne Sort.none) new ExpandNone
-    else new RewriteSession.None()
+    else new RewriteSession.None
   }
 
   private val allImportRules: Set[Rewrite] =
@@ -69,51 +78,64 @@ object Imports extends RewriteFactory {
   def validateImports(obj: RewriteSettings): Configured[RewriteSettings] = {
     val (importRules, nonImportRules) = obj.rules
       .partition(allImportRules.contains)
-    val ok = importRules.isEmpty ||
-      TreeOps.isSeqSingle(importRules) && importRules.head.eq(Imports)
-    if (ok) Configured.Ok(obj)
+
+    val errBuf = Seq.newBuilder[String]
+
+    val sortOriginal = importRules.contains(SortImports)
+    val sortAscii = importRules.contains(AsciiSortImports)
+    if (sortAscii && sortOriginal) errBuf += "SortImports and AsciiSortImports"
+
+    val sortIn = obj.imports.sort
+    if (sortIn ne Sort.none)
+      if (sortOriginal && (sortIn ne Sort.original)) errBuf +=
+        s"SortImports and Imports with `sort=$sortIn"
+      else if (sortAscii && (sortIn ne Sort.ascii)) errBuf +=
+        s"AsciiSortImports and Imports with `sort=$sortIn"
+
+    val expandRule = importRules.contains(ExpandImportSelectors)
+    val selectorsIn = obj.imports.selectors
+    selectorsIn.foreach(x =>
+      if (expandRule && (x ne Newlines.unfold)) errBuf +=
+        s"ExpandImportSelectors and Imports with `selectors=$x`",
+    )
+
+    val errors = errBuf.result()
+    if (errors.nonEmpty) Configured.error(
+      if (errors.lengthCompare(1) == 0) s"Incompatible rewrites: ${errors.head}"
+      else errors.mkString("Incompatible rewrites:\n  ", "\n  ", ""),
+    )
     else {
-      val sortOriginal = importRules.contains(SortImports)
-      val sortAscii = importRules.contains(AsciiSortImports)
-      if (sortAscii && sortOriginal) {
-        val err = "Incompatible rewrites: SortImports and AsciiSortImports"
-        Configured.error(err)
-      } else {
-        val expand = obj.imports.expand ||
-          importRules.contains(ExpandImportSelectors)
-        val sort =
-          if (sortAscii) Imports.Sort.ascii
-          else if (sortOriginal) Imports.Sort.original
-          else obj.imports.sort
-        val validated = obj.copy(
-          rules = Imports +: nonImportRules,
-          imports = obj.imports.copy(expand = expand, sort = sort),
-        )
-        Configured.Ok(validated)
-      }
+      val selectorsOut = selectorsIn
+        .orElse(if (expandRule) Some(Newlines.unfold) else None)
+      val sortOut =
+        if (sortIn ne Sort.none) sortIn
+        else if (sortAscii) Sort.ascii
+        else if (sortOriginal) Sort.original
+        else if (selectorsIn.contains(Newlines.fold)) Sort.fold
+        else if (obj.imports.removeRedundantSelectors) Sort.fold
+        else Sort.none
+      Configured.Ok(obj.copy(
+        rules = Imports +: nonImportRules,
+        imports = obj.imports.copy(selectors = selectorsOut, sort = sortOut),
+      ))
     }
   }
 
   case class Selectors(
       pretty: String,
       raw: String,
-      cnt: Int,
+      importees: Seq[Importee],
       commentsBefore: Seq[T] = Seq.empty,
       commentAfter: Option[T] = None,
   )
 
   private class Grouping(
-      buffer: ListBuffer[GroupingEntry] = new ListBuffer[GroupingEntry],
-      stats: HashSet[String] = new HashSet[String],
+      buffer: ListBuffer[GroupingEntry] = ListBuffer.empty,
+      stats: HashSet[String] = HashSet.empty,
   ) {
-    def add(
-        kw: String,
-        ref: String,
-        selectors: Selectors,
-        owner: Importer,
-    ): Unit = {
+    def add(kw: String, ref: String, selectors: Selectors): Unit = {
       val stat = s"$kw $ref${selectors.pretty}"
-      if (stats.add(stat)) buffer += GroupingEntry(stat, ref, selectors, owner)
+      if (stats.add(stat)) buffer += GroupingEntry(stat, ref, selectors)
     }
     def result(): Seq[GroupingEntry] =
       try buffer.result()
@@ -123,31 +145,58 @@ object Imports extends RewriteFactory {
       }
   }
 
-  case class GroupingEntry(
-      stat: String,
-      ref: String,
-      selectors: Selectors,
-      owner: Importer,
-  ) {
+  case class GroupingEntry(stat: String, ref: String, selectors: Selectors) {
     lazy val labels = ref.split('.') :+ selectors.raw
   }
 
   sealed abstract class Sort {
-    def sortSelector(buf: Seq[Importee]): Iterable[(Importee, String)]
+    protected def sortSelectors(
+        buf: Seq[(Importee, String)],
+    ): Iterable[(Importee, String)]
     def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry]
+
+    def sortSelector(buf: Seq[Importee]): Iterable[(Importee, String)] = {
+      // https://docs.scala-lang.org/scala3/reference/contextual/given-imports.html
+      val others = new ListBuffer[(Importee, String)]
+      val givens = new ListBuffer[(Importee, String)]
+      val wildcards = new ListBuffer[(Importee, String)]
+      buf.foreach { x =>
+        val dst =
+          if (x.is[Importee.Given]) givens
+          else if (isWildcard(x)) wildcards
+          else others
+        dst += selectorToTuple(x)
+      }
+      def sorted(obj: ListBuffer[(Importee, String)]) = sortSelectors(obj.result())
+      // don't sort wildcards
+      Iterable.concat(sorted(others), sorted(givens), wildcards)
+    }
 
     protected final def selectorToTuple(tree: Importee): (Importee, String) =
       (tree, tree.toString)
   }
 
-  private object Sort {
+  private[scalafmt] object Sort {
 
     implicit val reader: ConfCodecEx[Sort] = ReaderUtil
       .oneOf[Sort](none, ascii, original, scalastyle)
 
     case object none extends Sort {
-      def sortSelector(buf: Seq[Importee]): Seq[(Importee, String)] = buf
-        .map(selectorToTuple)
+      override def sortSelector(
+          buf: Seq[Importee],
+      ): Iterable[(Importee, String)] = buf.map(selectorToTuple)
+
+      protected def sortSelectors(
+          buf: Seq[(Importee, String)],
+      ): Iterable[(Importee, String)] = buf
+
+      def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] = buf
+    }
+
+    case object fold extends Sort {
+      protected def sortSelectors(
+          buf: Seq[(Importee, String)],
+      ): Iterable[(Importee, String)] = buf
 
       def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] = buf
     }
@@ -178,22 +227,9 @@ object Imports extends RewriteFactory {
         }
       }
 
-      def sortSelector(buf: Seq[Importee]): Iterable[(Importee, String)] = {
-        // https://docs.scala-lang.org/scala3/reference/contextual/given-imports.html
-        val others = new ListBuffer[(Importee, String)]
-        val givens = new ListBuffer[(Importee, String)]
-        val wildcards = new ListBuffer[(Importee, String)]
-        @inline
-        def getDstBuf(x: Importee) =
-          if (x.is[Importee.Given]) givens
-          else if (isWildcard(x)) wildcards
-          else others
-        buf.foreach(x => getDstBuf(x) += selectorToTuple(x))
-        def sorted(obj: ListBuffer[(Importee, String)]) = obj.result()
-          .sortBy(_._2)(selectorOrdering)
-        // don't sort wildcards
-        Iterable.concat(sorted(others), sorted(givens), wildcards)
-      }
+      protected def sortSelectors(
+          buf: Seq[(Importee, String)],
+      ): Iterable[(Importee, String)] = buf.sortBy(_._2)(selectorOrdering)
 
       def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] = buf
         .view.sorted(GroupingEntryOrdering)
@@ -263,6 +299,12 @@ object Imports extends RewriteFactory {
   private final def notWildcardOrRename(importee: Importee): Boolean =
     !isWildcard(importee) && !isRename(importee)
 
+  private final def filterWithImporteesToKeep(
+      importeesToKeep: Set[Importee],
+  )(someImportees: Seq[Importee]): Seq[Importee] =
+    if (importeesToKeep.isEmpty) someImportees
+    else someImportees.filter(importeesToKeep.contains)
+
   private abstract class Base(implicit ctx: RewriteCtx) extends RewriteSession {
 
     protected val settings = ctx.style.rewrite.imports
@@ -300,7 +342,7 @@ object Imports extends RewriteFactory {
 
     protected final def getSelector(
         selector: Importee,
-        needRaw: Boolean,
+        needRaw: Boolean = true,
     ): Selectors = {
       val selectorString = selector.toString()
       val (commentsBefore, commentAfter) = getCommentsAround(selector)
@@ -319,12 +361,12 @@ object Imports extends RewriteFactory {
         Selectors(
           pretty,
           if (needRaw && hadComments) s"{$selector}" else pretty,
-          1,
+          Seq(selector),
         )
       } else Selectors(
         selectorString,
         selectorString,
-        1,
+        Seq(selector),
         commentsBefore,
         commentAfter,
       )
@@ -332,10 +374,10 @@ object Imports extends RewriteFactory {
 
     protected final def getSelectors(
         selectors: Seq[Importee],
-        needRaw: Boolean,
+        needRaw: Boolean = true,
     ): Selectors = {
       val selectorCount = selectors.length
-      if (selectorCount == 1) getSelector(selectors.head, needRaw)
+      if (selectorCount == 1) getSelector(selectors.head, needRaw = needRaw)
       else {
         val tuples = settings.sort.sortSelector(selectors)
         val sb = new StringBuilder
@@ -362,9 +404,39 @@ object Imports extends RewriteFactory {
           pretty,
           if (hadComments && needRaw) tuples.map(_._2).mkString("{", ",", "}")
           else pretty,
-          selectorCount,
+          selectors,
         )
       }
+    }
+
+    protected final def getImporteesToKeep(
+        importees: => Iterable[Importee],
+    ): Set[Importee] =
+      if (!settings.removeRedundantSelectors) Set.empty
+      else {
+        val res = Set.newBuilder[Importee]
+        var hadWildcard = false
+        var hadGivenAll = false
+        val names = HashMap.empty[String, Importee.Name]
+        val givens = HashMap.empty[String, Importee.Given]
+        importees.foreach {
+          case x: Importee.Wildcard =>
+            if (!hadWildcard) { res += x; hadWildcard = true }
+          case x: Importee.GivenAll =>
+            if (!hadGivenAll) { res += x; hadGivenAll = true }
+          case x: Importee.Name =>
+            if (!hadWildcard) names.update(x.name.value, x)
+          case x: Importee.Given => if (!hadGivenAll) givens.update(x.text, x)
+          case x => res += x
+        }
+        if (!hadWildcard) res ++= names.values
+        if (!hadGivenAll) res ++= givens.values
+        res.result()
+      }
+
+    protected final def filterImportees(importer: Importer): Seq[Importee] = {
+      val seq = importer.importees
+      filterWithImporteesToKeep(getImporteesToKeep(seq))(seq)
     }
 
     private final def mustUseBraces(tree: Importee): Boolean = (tree match {
@@ -378,8 +450,8 @@ object Imports extends RewriteFactory {
 
     protected final def getCommentsAround(tree: Tree): (Seq[T], Option[T]) = {
       val tokens = tree.tokens
-      val beg = getCommentsBefore(tokens.head)
-      val end = getCommentAfter(tokens.last)
+      val beg = getCommentsBefore(tokens)
+      val end = getCommentAfter(tokens)
       beg -> end
     }
 
@@ -392,10 +464,14 @@ object Imports extends RewriteFactory {
         case t: T.Comment if TokenOps.isSingleLineIfComment(t) =>
           slc.prepend(t); hadLf = false; None
         case _: T.Whitespace => None
+        case _: T.LeftBrace => Some(false)
         case _ => if (!hadLf && slc.nonEmpty) slc.remove(0); Some(false)
       }
       slc.result()
     }
+
+    protected final def getCommentsBefore(tokens: Tokens): Seq[T] =
+      getCommentsBefore(tokens.head)
 
     protected final def getCommentAfter(tok: T): Option[T] = ctx.tokenTraverser
       .findAtOrAfter(ctx.getIndex(tok) + 1) {
@@ -403,6 +479,9 @@ object Imports extends RewriteFactory {
         case t: T.Comment => Some(TokenOps.isSingleLineIfComment(t))
         case _ => Some(false)
       }
+
+    protected final def getCommentAfter(tokens: Tokens): Option[T] =
+      getCommentAfter(tokens.last)
 
     private val eol = LineEndings
       .eol(ctx.style.lineEndings.contains(LineEndings.windows))
@@ -415,31 +494,21 @@ object Imports extends RewriteFactory {
 
   private abstract class ExpandBase(implicit ctx: RewriteCtx) extends Base {
 
-    protected def addClauseToGroup(
+    protected def addClausesToGroup(
         group: Grouping,
         kw: String,
         ref: String,
-        importer: Importer,
+        importers: Seq[Importer],
     ): Unit
 
     protected val groups = Array.fill(settings.numGroups + 1)(new Grouping)
 
-    protected final def addToGroup(
+    protected def addSelectorsToGroup(
         group: Grouping,
         kw: String,
         ref: String,
-        selector: Importee,
-        importer: Importer,
-    ): Unit = group.add(kw, ref, getSelector(selector, true), importer)
-
-    protected final def addToGroup(
-        group: Grouping,
-        kw: String,
-        ref: String,
-        selectors: Seq[Importee],
-        importer: Importer,
-    ): Unit = if (selectors.nonEmpty) group
-      .add(kw, ref, getSelectors(selectors, true), importer)
+        importees: Seq[Importee],
+    ): Unit = if (importees.nonEmpty) group.add(kw, ref, getSelectors(importees))
 
     private def processImports(stats: Iterable[ImportExportStat]): String = {
       val indent = {
@@ -457,54 +526,66 @@ object Imports extends RewriteFactory {
         val head = stats.head.tokens.head
         iter(ctx.tokenTraverser.getIndex(head), head)
       }
-      stats.foreach { x =>
-        val kw = x.tokens.head.toString
-        x.importers.foreach { importer =>
-          val ref = getRef(importer)
-          val grp = groups(settings.group(ref))
-          addClauseToGroup(grp, kw, ref, importer)
+      val folding = settings.removeRedundantSelectors ||
+        (ctx.style.importSelectorsRewrite eq Newlines.fold)
+      val foldMap = LinkedHashMap.empty[(String, String), ListBuffer[Importer]]
+      def addToGroup(kw: String, ref: String, importers: Seq[Importer]): Unit =
+        addClausesToGroup(groups(settings.group(ref)), kw, ref, importers)
+      stats.foreach { s =>
+        val kw = s.tokens.head.toString
+        s.importers.foreach { i =>
+          val ref = getRef(i)
+          if (!folding) addToGroup(kw, ref, i :: Nil)
+          else foldMap.getOrElseUpdate((kw, ref), ListBuffer.empty).append(i)
         }
       }
-      val seenImports = new HashMap[Importer, Int]
+      foldMap.foreach { case ((kw, ref), v) => addToGroup(kw, ref, v.toList) }
+
+      val seenImports = HashMap.empty[Importer, Int]
       val sb = new StringBuilder()
       @inline
       def appendIndent(): Unit = if (sb.nonEmpty) sb.append(indent)
+      def appendComment(token: T) = {
+        if (token.pos.startColumn != 0) appendIndent()
+        sb.append(token.text).appendNL
+      }
+      def processImporteeComments(
+          appendTailComment: T => Unit,
+      )(tree: Importee): Unit = tree.parent match {
+        case Some(p: Importer) =>
+          val newSeen = seenImports.updateWith(p)(x => Some(1 + x.getOrElse(0)))
+          val pTokens = p.tokens
+          val isHead = newSeen.contains(1)
+          val isLast = newSeen.contains(p.importees.length)
+          if (isLast) getCommentAfter(pTokens).foreach(appendTailComment)
+          p.parent match {
+            case Some(pp: ImportExportStat) =>
+              if (isHead && pp.importers.headOption.contains(p))
+                getCommentsBefore(pp.tokens).foreach(appendComment)
+            case _ =>
+          }
+          if (isHead) getCommentsBefore(pTokens).foreach(appendComment)
+        case _ =>
+      }
       groups.foreach { group =>
         val entries = group.result()
         if (entries.nonEmpty) {
           if (sb.nonEmpty) sb.appendNL
           // sort and add empty line in all groups
-          settings.sort.sortGrouping(entries).foreach { x =>
-            val (commentBefore, commentAfter) = x.owner.parent match {
-              case Some(p: ImportExportStat) =>
-                val oldImporteeCount = seenImports.getOrElse(x.owner, 0)
-                val newImporteeCount = oldImporteeCount + x.selectors.cnt
-                seenImports.put(x.owner, newImporteeCount)
-                val headComments =
-                  if (oldImporteeCount != 0) Seq.empty
-                  else {
-                    val headImportComments =
-                      if (p.importers.headOption.contains(x.owner))
-                        getCommentsBefore(p.tokens.head)
-                      else Seq.empty
-                    headImportComments ++ getCommentsBefore(x.owner.tokens.head)
-                  }
-                val tailComments = x.selectors.commentAfter.orElse(
-                  if (newImporteeCount != x.owner.importees.length) None
-                  else if (p.importers.lastOption.contains(x.owner))
-                    getCommentAfter(p.tokens.last)
-                  else getCommentAfter(x.owner.tokens.last),
-                )
-                (headComments ++ x.selectors.commentsBefore, tailComments)
-              case _ => (Seq.empty, None)
-            }
-            commentBefore.foreach { x =>
-              if (x.pos.startColumn != 0) appendIndent()
-              sb.append(x.text).appendNL
-            }
+          settings.sort.sortGrouping(entries).foreach { entry =>
+            import entry._, selectors._
+            val commentsAfterBuilder = Seq.newBuilder[T]
+            val appendTailComment: T => Unit = commentsAfterBuilder += _
+            importees.foreach(processImporteeComments(appendTailComment))
+            commentsBefore.foreach(appendComment)
+            val commentsAfter = commentsAfterBuilder.result().iterator
+            val trailingComment = commentAfter.orElse(commentsAfter.nextOption())
+            commentsAfter.foreach(comment =>
+              if (!commentAfter.contains(comment)) appendComment(comment),
+            )
             appendIndent()
-            sb.append(x.stat)
-            commentAfter.foreach(x => sb.append(' ').append(x.text))
+            sb.append(stat)
+            trailingComment.foreach(x => sb.append(' ').append(x.text))
             sb.appendNL
           }
         }
@@ -585,24 +666,25 @@ object Imports extends RewriteFactory {
     *   import d.f
     * }}}
     */
-  private class ExpandFull(implicit ctx: RewriteCtx) extends ExpandBase {
-    override protected final def addClauseToGroup(
+  private class ExpandFull(implicit ctx: RewriteCtx) extends Fold {
+    override protected final def addSelectorsToGroup(
         group: Grouping,
         kw: String,
         ref: String,
-        importer: Importer,
+        importees: Seq[Importee],
     ): Unit = {
+      def addSelectorToGroup(selector: Importee): Unit = group
+        .add(kw, ref, getSelector(selector))
       // if there's a wildcard, unimports and renames must come with it, cannot be expanded
-      val importees = importer.importees
       if (importees.dropWhile(notWildcardOrRename).drop(1).exists(isWildcard)) {
         val filtered = importees.filter { x =>
-          val buffering = !notWildcardOrRename(x)
-          if (!buffering) addToGroup(group, kw, ref, x, importer)
-          buffering
+          val expanding = notWildcardOrRename(x)
+          if (expanding) addSelectorToGroup(x)
+          !expanding
         }
-        addToGroup(group, kw, ref, filtered, importer)
+        super.addSelectorsToGroup(group, kw, ref, filtered)
       } else // expand all
-        importees.foreach(addToGroup(group, kw, ref, _, importer))
+        importees.foreach(addSelectorToGroup)
     }
   }
 
@@ -618,12 +700,147 @@ object Imports extends RewriteFactory {
     * }}}
     */
   private class ExpandPart(implicit ctx: RewriteCtx) extends ExpandBase {
-    override protected final def addClauseToGroup(
+    override protected final def addClausesToGroup(
         group: Grouping,
         kw: String,
         ref: String,
-        importer: Importer,
-    ): Unit = addToGroup(group, kw, ref, importer.importees, importer)
+        importers: Seq[Importer],
+    ): Unit = importers.foreach(importer =>
+      addSelectorsToGroup(group, kw, ref, filterImportees(importer)),
+    )
+  }
+
+  /** convert
+    * {{{
+    *   import a.c, d.f
+    *   import a.b, d.e
+    * }}}
+    * to
+    * {{{
+    *   import a.{b, c}
+    *   import d.{e, f}
+    * }}}
+    */
+  private class Fold(implicit ctx: RewriteCtx) extends ExpandBase {
+    override protected final def addClausesToGroup(
+        group: Grouping,
+        kw: String,
+        ref: String,
+        importers: Seq[Importer],
+    ): Unit = {
+      type Importees = LinkedList[Importee]
+      def appendTo(src: Importer, dst: Importees): Importees = {
+        src.importees.foreach(dst.add)
+        dst
+      }
+      var globalWildcard: Importee.Wildcard = null
+      var globalGivenAll: Importee.GivenAll = null
+      // below: variable names refer to presence of renames and wildcards
+      val neither = new Importees
+      val both = Seq.newBuilder[Importer]
+      val renamesOnly = new Importees
+      val wildcardsOnly = Seq.newBuilder[Importee]
+      importers.foreach { importer =>
+        var hasRename = false
+        var wildcard: Importee.Wildcard = null
+        val hasBoth = importer.importees.exists { // stop if has both
+          case x: Importee.Wildcard =>
+            if (wildcard eq null) wildcard = x; hasRename
+          case _: Importee.Rename | _: Importee.Unimport =>
+            hasRename = true; wildcard ne null
+          case x: Importee.GivenAll =>
+            if (globalGivenAll eq null) globalGivenAll = x; false
+          case _ => false
+        }
+        if (hasBoth) both += importer
+        else if (hasRename) appendTo(importer, renamesOnly)
+        else if (wildcard ne null) {
+          globalWildcard = wildcard
+          wildcardsOnly ++= importer.importees
+        } else appendTo(importer, neither)
+      }
+
+      val buffer = LinkedHashMap.empty[String, Importee]
+      def tryFold(name: String, owner: Importee)(
+          f: Option[Importee] => Int,
+      ): Boolean = {
+        var res = 0
+        buffer.updateWith(name) { xOpt =>
+          res = f(xOpt)
+          if (res > 0) Some(owner) else xOpt
+        }
+        res != 0
+      }
+
+      def fold(
+          hasBoth: Int, // 0 no, 1 part of importer with both, -1 both folded previously
+      )(importee: Importee): Boolean = importee match {
+        case x: Importee.Name => tryFold(x.name.value, x) {
+            case Some(_: Importee.Unimport)
+                if settings.removeRedundantSelectors => 1
+            case Some(_: Importee.Name) => -1
+            case None
+                if settings.removeRedundantSelectors &&
+                  (hasBoth > 0 || (globalWildcard ne null)) => -1
+            case None => 1
+            case _ => 0
+          }
+        case x: Importee.Rename => tryFold(x.name.value, x) {
+            case Some(_: Importee.Unimport)
+                if settings.removeRedundantSelectors => 1
+            case Some(y: Importee.Rename) if x.rename.value == y.rename.value =>
+              -1
+            case None if hasBoth >= 0 => 1
+            case _ => 0
+          }
+        case x: Importee.Unimport => settings.removeRedundantSelectors &&
+          hasBoth <= 0 || tryFold(x.name.value, x) {
+            case Some(_: Importee.Unimport) => -1
+            case None if hasBoth >= 0 => 1
+            case _ => 0
+          }
+        case x: Importee.Wildcard =>
+          ((globalWildcard eq null) || (globalWildcard eq x)) &&
+          tryFold("_", x)(y => if (y.isEmpty) 1 else -1)
+        case x: Importee.GivenAll =>
+          ((globalGivenAll eq null) || (globalGivenAll eq x)) &&
+          tryFold("given", x)(y => if (y.isEmpty) 1 else -1)
+        case _: Importee.Given
+            if settings.removeRedundantSelectors && (globalGivenAll ne null) =>
+          true
+        case x => tryFold(x.text, x)(y => if (y.isEmpty) 1 else -1)
+      }
+
+      def flushFolded(): Unit = if (buffer.nonEmpty) {
+        addSelectorsToGroup(group, kw, ref, buffer.values.toSeq)
+        buffer.clear()
+      }
+
+      def foldNoWildcards(list: Importees, hasBoth: Int): Unit = {
+        val iter = list.listIterator()
+        while (iter.hasNext) {
+          val elem = iter.next()
+          if (fold(hasBoth = hasBoth)(elem)) iter.remove()
+        }
+      }
+
+      def flushWithNoWildcards(hasBoth: Int): Unit = {
+        foldNoWildcards(neither, hasBoth = hasBoth)
+        foldNoWildcards(renamesOnly, hasBoth = hasBoth)
+        flushFolded()
+      }
+
+      both.result().foreach { importer =>
+        importer.importees.foreach(fold(hasBoth = 1))
+        flushWithNoWildcards(hasBoth = -1)
+      }
+
+      while (!renamesOnly.isEmpty) flushWithNoWildcards(hasBoth = 0)
+
+      wildcardsOnly.result().foreach(fold(hasBoth = 0))
+      neither.forEach(fold(hasBoth = 0))
+      flushFolded()
+    }
   }
 
   /** convert
@@ -641,8 +858,8 @@ object Imports extends RewriteFactory {
     ): Unit = stats.flatten.foreach { t =>
       val patchBuilder = Seq.newBuilder[TokenPatch]
       t.importers.foreach { importer =>
-        val selectors = getSelectors(importer.importees, false).pretty
-        val replacement = getRef(importer) + selectors
+        val replacement = getRef(importer) +
+          getSelectors(filterImportees(importer), needRaw = false).pretty
         val tokens: Iterator[T] = importer.tokens.iterator
         // replace the first token
         patchBuilder += TokenPatch.Replace(tokens.next(), replacement)

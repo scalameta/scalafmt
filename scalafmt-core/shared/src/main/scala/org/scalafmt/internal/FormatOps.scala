@@ -83,7 +83,8 @@ class FormatOps(
           implicit val clauseSiteFlags: ClauseSiteFlags =
             ClauseSiteFlags(owner, isDefnSite)
           val bpFlags = getBinpackSiteFlags(matchingRight(start), start, false)
-          if (bpFlags.scalaJsStyle) scalaJsOptCloseOnRight(start, bpFlags)
+          if (bpFlags.scalaJsStyle)
+            if (start.hasBreak) start else scalaJsOptCloseOnRight(start, bpFlags)
           else if (
             !start.left.is[T.RightParen] ||
             !style.newlines.fold && clauseSiteFlags.dangleCloseDelim
@@ -503,7 +504,7 @@ class FormatOps(
     private val isLeftInfix = leftInfix eq app
     private val isAfterOp = ft.meta.leftOwner eq app.op
     private val beforeLhs = !isAfterOp && ft.left.start < app.pos.start
-    private val isFirstOp = beforeLhs || isLeftInfix
+    private val isFirstOp = beforeLhs || isLeftInfix && isAfterOp
     private val fullExpire = getLastExceptParen(fullInfix)
 
     private val assignBodyExpire = {
@@ -549,22 +550,34 @@ class FormatOps(
       }
       def isOldTopLevel(child: Tree) = child.parent
         .exists(isOldTopLevelWithParent(child))
-      def isAloneEnclosed(child: Tree) = child.parent.exists {
+      @tailrec
+      def isAloneEnclosed(child: Tree): Boolean = child.parent.orNull match {
         case p: Case => p.pat eq child
         case p: Term.If => p.cond eq child
         case p: Term.While => p.expr eq child
         case p: Term.Do => p.expr eq child
-        case p: Term.Block => hasSingleElement(p, child)
+        case p: Term.Block => hasSingleElement(p, child) &&
+          (p.tokens.head match {
+            case head: T.LeftBrace => // check brace was not rewritten
+              (tokens.before(head).left eq head) || isAloneEnclosed(p)
+            case _ => true
+          })
         case p: Member.Function => isBlockFunction(p)
         case p @ Member.ArgClause(`child` :: Nil) => isEnclosedInMatching(p)
         case Member.Tuple(`child` :: Nil) => true
         case _ => false
       }
-      def isAloneArgOrBody(child: Tree) = child.parent.exists {
+      @tailrec
+      def isAloneArgOrBody(child: Tree): Boolean = child.parent.orNull match {
         case t: Case => t.pat.eq(child) || t.body.eq(child)
         case _: Term.If | _: Term.While | _: Term.Do => true
         case _: Member.ArgClause => true
-        case p: Term.Block => hasSingleElement(p, child)
+        case p: Term.Block => hasSingleElement(p, child) &&
+          (p.tokens.head match {
+            case head: T.LeftBrace => // check brace was not rewritten
+              (tokens.before(head).left eq head) || isAloneArgOrBody(p)
+            case _ => true
+          })
         case _: Init | _: Term.Super | _: Member.Tuple => true
         case t: Tree.WithBody => t.body eq child
         case t: Term.Param => t.default.contains(child)
@@ -601,8 +614,13 @@ class FormatOps(
     val (nlIndent, nlPolicy) = {
       def policy(triggers: T*) = Policy ? triggers.isEmpty ||
         Policy.onLeft(fullExpire, prefix = "INF") {
-          case Decision(t: FT, s)
-              if isInfixOp(t.meta.leftOwner) || AsInfixOp(t.meta.rightOwner)
+          case Decision(FT(_: T.Ident, _, m), s) if isInfixOp(m.leftOwner) =>
+            InfixSplits.switch(s, triggers: _*)
+          case Decision(FT(_, _: T.Ident, m), s)
+              if AsInfixOp(m.rightOwner).exists(style.newlines.infix.keep) =>
+            InfixSplits.switch(s, triggers: _*)
+          case Decision(xft @ FT(_, _: T.Comment, _), s)
+              if AsInfixOp(nextNonCommentAfter(xft).rightOwner)
                 .exists(style.newlines.infix.keep) =>
             InfixSplits.switch(s, triggers: _*)
         }
@@ -1842,6 +1860,7 @@ class FormatOps(
           case _: T.Colon => ColonEolImpl
           case _: T.KwWith => WithImpl
           case _: T.RightArrow => RightArrowImpl
+          case _: T.ContextArrow => ContextArrowImpl
           case _: T.RightParen => RightParenImpl
           case _: T.KwFor => ForImpl
           case _: T.KwWhile => WhileImpl
@@ -1874,6 +1893,7 @@ class FormatOps(
         danglingKeyword: Boolean = true,
         indentOpt: Option[Int] = None,
         forceNLIfTrailingStandaloneComments: Boolean = true,
+        nlModOpt: Option[NewlineT] = None,
     )(implicit
         fileLine: FileLine,
         style: ScalafmtConfig,
@@ -1901,13 +1921,12 @@ class FormatOps(
       val indent = Indent(indentLen, close, ExpiresOn.After)
       def nlOnly = forceNLIfTrailingStandaloneComments &&
         slbExpire.right.is[T.Comment] && slbExpire.idx < close.idx
-      if (ft.hasBlankLine)
-        Seq(Split(Newline2x, 0).withIndent(indent).withPolicy(nlPolicy))
-      else if (forceNL || nlOnly)
-        Seq(Split(Newline, 0).withIndent(indent).withPolicy(nlPolicy))
+      val nlMod = nlModOpt.getOrElse(Newline2x(ft))
+      if (forceNL || nlMod.isDouble || nlOnly)
+        Seq(Split(nlMod, 0).withIndent(indent).withPolicy(nlPolicy))
       else Seq(
         Split(Space, 0).withSingleLine(slbExpire).withIndent(indent),
-        Split(Newline, 1).withIndent(indent).withPolicy(nlPolicy),
+        Split(nlMod, 1).withIndent(indent).withPolicy(nlPolicy),
       )
     }
 
@@ -2106,8 +2125,42 @@ class FormatOps(
               def splits = Some(getSplits(b, forceNL = true))
               def rightBrace = treeLast(b)
             })
+          case t: Term.FunctionLike => FunctionArrowImpl.get(t, nft)
           case _ => BlockImpl.create(nft)
         }
+    }
+
+    private object ContextArrowImpl extends Factory {
+      def create(
+          nft: FT,
+      )(implicit style: ScalafmtConfig, ft: FT): Option[OptionalBracesRegion] =
+        ft.leftOwner match {
+          case t: Term.FunctionLike => FunctionArrowImpl.get(t, nft)
+          case _ => BlockImpl.create(nft)
+        }
+    }
+
+    private object FunctionArrowImpl {
+      def get(t: Term.FunctionLike, nft: FT)(implicit
+          style: ScalafmtConfig,
+          ft: FT,
+      ): Option[OptionalBracesRegion] = {
+        val skip = isTreeSingleExpr(t.body) || isBlockFunction(t)
+        if (skip) None // not really optional braces
+        else Some(new OptionalBracesRegion {
+          def owner = Some(t)
+          def splits = {
+            val (afterCurlySpace, afterCurlyNewlines) =
+              getSpaceAndNewlineAfterCurlyLambda(ft.newlinesBetween)
+            Some(getSplits(
+              t.body,
+              forceNL = !afterCurlySpace || isTreeMultiStatBlock(t.body),
+              nlModOpt = Some(afterCurlyNewlines),
+            ))
+          }
+          def rightBrace = treeLast(t.body)
+        })
+      }
     }
 
     private object ForImpl extends Factory {

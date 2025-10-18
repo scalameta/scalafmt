@@ -1,7 +1,6 @@
 package org.scalafmt.interfaces
 
-import java.io.OutputStreamWriter
-import java.io.PrintWriter
+import java.io.{OutputStreamWriter, PrintWriter}
 import java.nio.file.Path
 
 /** A reporter to handle error and information messages from Scalafmt.

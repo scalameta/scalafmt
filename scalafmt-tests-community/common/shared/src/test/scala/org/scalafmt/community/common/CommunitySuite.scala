@@ -7,9 +7,7 @@ import java.nio.file._
 import java.util.concurrent.atomic.AtomicInteger
 
 import scala.collection.mutable.ListBuffer
-import scala.concurrent.Await
-import scala.concurrent.Future
-import scala.concurrent.duration
+import scala.concurrent.{Await, Future, duration}
 import scala.sys.process._
 
 import munit.FunSuite

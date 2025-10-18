@@ -1,10 +1,9 @@
 package org.scalafmt.util
 
-import org.scalafmt.Debug
-import org.scalafmt.Scalafmt
 import org.scalafmt.config._
 import org.scalafmt.sysops.PlatformFileOps
 import org.scalafmt.tests.BuildInfo
+import org.scalafmt.{Debug, Scalafmt}
 
 import java.nio.file.Path
 import java.util.regex.Pattern

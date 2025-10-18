@@ -1,8 +1,7 @@
 package docs
 
 import java.nio.file.Paths
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import java.util.concurrent.{ExecutorService, Executors}
 
 final class Docusaurus(getProcess: () => Process, executor: ExecutorService) {
   private def process = getProcess()

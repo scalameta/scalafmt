@@ -1,11 +1,9 @@
 package org.scalafmt
 
-import org.scalafmt.Error.Incomplete
-import org.scalafmt.Error.SearchStateExploded
+import org.scalafmt.Error.{Incomplete, SearchStateExploded}
 import org.scalafmt.config.LineEndings
 import org.scalafmt.rewrite.FormatTokensRewrite
-import org.scalafmt.sysops.FileOps
-import org.scalafmt.sysops.PlatformFileOps
+import org.scalafmt.sysops.{FileOps, PlatformFileOps}
 import org.scalafmt.util._
 
 import scala.meta.parsers.ParseException
@@ -148,7 +146,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     val explored = Debug.explored.get()
     logger.debug(s"Total explored: $explored")
     if (!onlyUnit && !onlyManual)
-      assertEquals(explored, 2597792, "total explored")
+      assertEquals(explored, 2617240, "total explored")
     if (!sys.env.contains("CI")) PlatformFileOps.writeFileAsync(
       FileOps.getPath("target", "index.html"),
       Report.heatmap(debugResults.result()),

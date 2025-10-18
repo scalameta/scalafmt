@@ -383,7 +383,11 @@ Under the hood, `scalafmt` uses the `scalafmt-dynamic` library and, in turn,
 By default, coursier will download from a few standard repositories (including
 sonatype, both public and snapshot). However, if you'd like to use instead some
 custom repositories within your environment, please specify them using the
-`COURSIER_REPOSITORIES` environment variable.
+[`COURSIER_REPOSITORIES`](https://get-coursier.io/docs/other-repositories) environment variable.
+
+> If you are using `sbt-scalafmt`, it will also automatically provide to coursier
+> [sbt resolvers](https://www.scala-sbt.org/1.x/docs/Resolvers.html) and
+> [sbt credentials](https://www.scala-sbt.org/1.x/docs/Publishing.html#Credentials).
 
 #### Repository credentials
 

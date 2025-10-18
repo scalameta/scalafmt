@@ -1,14 +1,11 @@
 package org.scalafmt.internal
 
-import org.scalafmt.Error
-import org.scalafmt.Formatted
-import org.scalafmt.Scalafmt
 import org.scalafmt.config._
 import org.scalafmt.internal.RegexCompat._
 import org.scalafmt.rewrite.RedundantBraces
-import org.scalafmt.util.LiteralOps
 import org.scalafmt.util.TokenOps._
-import org.scalafmt.util.TreeOps
+import org.scalafmt.util.{LiteralOps, TreeOps}
+import org.scalafmt.{Error, Formatted, Scalafmt}
 
 import scala.meta.internal.Scaladoc
 import scala.meta.internal.parsers.ScaladocParser
@@ -20,8 +17,7 @@ import java.nio.CharBuffer
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
-import scala.collection.AbstractIterator
-import scala.collection.mutable
+import scala.collection.{AbstractIterator, mutable}
 import scala.util.Try
 
 /** Produces formatted output from sequence of splits.
@@ -37,6 +33,7 @@ class FormatWriter(formatOps: FormatOps) {
     styleMap.init.runner.event(FormatEvent.Written(locations))
 
     var delayedAlign = 0
+    var totalAlignShift = 0
     locations.foreach { entry =>
       val location = entry.curr
       implicit val style: ScalafmtConfig = location.style
@@ -47,8 +44,8 @@ class FormatWriter(formatOps: FormatOps) {
       ft.left match {
         case _ if entry.previous.formatToken.meta.formatOff => sb.append(ltext) // checked the state for left
         case _: T.Comment => entry.formatComment
-        case _: T.Interpolation.Part | _: T.Constant.String =>
-          entry.formatMarginized
+        case _: T.Interpolation.Part | _: T.Constant.String => entry
+            .formatMarginized(totalAlignShift)
         case _: T.Constant.Int => LiteralOps.prettyPrintInteger(ltext)
         case _: T.Constant.Long => LiteralOps.prettyPrintInteger(ltext)
         case _: T.Constant.Float => LiteralOps.prettyPrintFloat(ltext)
@@ -85,7 +82,16 @@ class FormatWriter(formatOps: FormatOps) {
         } else if (ft.right.is[T.RightParen]) skipWs = true
       } else if (location.missingBracesOpenOrTuck) sb.append(" {")
 
-      if (!skipWs) delayedAlign = entry.formatWhitespace(delayedAlign)
+      if (!skipWs) {
+        val alignShift = entry.formatWhitespace(delayedAlign)
+        if (location.state.mod.isNL) {
+          delayedAlign = 0
+          totalAlignShift = 0
+        } else if (alignShift > 0) {
+          delayedAlign = 0
+          totalAlignShift += alignShift
+        } else delayedAlign = -alignShift
+      }
     }
 
     sb.toString()
@@ -439,25 +445,27 @@ class FormatWriter(formatOps: FormatOps) {
           sb: StringBuilder,
       ): Int = {
         val mod = state.mod
-        def currentAlign = tokenAligns.get(i).fold(0)(_ + alignOffset)
-        val ws = mod match {
+        def align = tokenAligns.get(i).fold(0)(_ + alignOffset) + delayedAlign
+        mod match {
           case nl: NewlineT =>
             val extraBlanks =
               if (i == locations.length - 1) 0
               else extraBlankTokens.getOrElse(i, if (nl.isDouble) 1 else 0)
-            val newlines = getNewlines(extraBlanks)
-            if (nl.noIndent) newlines
-            else newlines + getIndentation(state.indentation)
+            sb.append(getNewlines(extraBlanks))
+            if (!nl.noIndent) sb.append(getIndentation(state.indentation))
+            0
 
-          case p: Provided => p.betweenText
+          case p: Provided =>
+            sb.append(p.betweenText)
+            0
 
-          case NoSplit if style.align.delayUntilSpace =>
-            return delayedAlign + currentAlign // RETURNING!
+          case NoSplit if style.align.delayUntilSpace => -align // delay
 
-          case _ => getIndentation(mod.length + currentAlign + delayedAlign)
+          case _ =>
+            val alignShift = align
+            sb.append(getIndentation(mod.length + alignShift))
+            alignShift
         }
-        sb.append(ws)
-        0
       }
 
       def formatWhitespace(delayedAlign: Int)(implicit sb: StringBuilder): Int = {
@@ -532,7 +540,9 @@ class FormatWriter(formatOps: FormatOps) {
         }
       }
 
-      def formatMarginized(implicit sb: StringBuilder): Unit = {
+      def formatMarginized(
+          alignShift: Int,
+      )(implicit sb: StringBuilder): Unit = {
         val text = tok.meta.left.text
         val tupleOpt = tok.left match {
           case _ if !style.assumeStandardLibraryStripMargin => None
@@ -558,7 +568,7 @@ class FormatWriter(formatOps: FormatOps) {
         }
         tupleOpt match {
           case Some((pipe, indent)) =>
-            val spaces = getIndentation(indent)
+            val spaces = getIndentation(indent + alignShift)
             val matcher = RegexCompat.getStripMarginPattern(pipe).matcher(text)
             var pos = 0
             while (matcher.find()) {

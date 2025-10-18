@@ -1,8 +1,7 @@
 package org.scalafmt.config
 
 import scala.meta._
-import scala.meta.parsers.Parse
-import scala.meta.parsers.Parsed
+import scala.meta.parsers.{Parse, Parsed}
 
 import metaconfig.ConfCodecEx
 

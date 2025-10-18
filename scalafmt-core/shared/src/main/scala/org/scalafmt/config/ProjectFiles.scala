@@ -2,8 +2,7 @@ package org.scalafmt.config
 
 import org.scalafmt.sysops._
 
-import scala.meta.Dialect
-import scala.meta.dialects
+import scala.meta.{Dialect, dialects}
 
 import java.nio.file
 

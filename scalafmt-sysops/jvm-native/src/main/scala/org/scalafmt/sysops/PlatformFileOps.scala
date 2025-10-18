@@ -2,6 +2,7 @@ package org.scalafmt.sysops
 
 import org.scalafmt.CompatCollections.JavaConverters._
 
+import java.io.IOException
 import java.nio.file._
 
 import scala.concurrent.Future
@@ -35,20 +36,54 @@ object PlatformFileOps {
   def isRegularFileNoLinks(file: Path): Boolean = Files
     .isRegularFile(file, LinkOption.NOFOLLOW_LINKS)
 
-  def getFileStat(file: Path, followLinks: Boolean): Option[FileStat] = {
+  def tryGetFileStat(file: Path, followLinks: Boolean): Try[FileStat] = {
     val linkOpts = if (followLinks) Nil else Seq(LinkOption.NOFOLLOW_LINKS)
     Try(Files.readAttributes(
       file,
       classOf[attribute.BasicFileAttributes],
       linkOpts: _*,
-    )).toOption.map(new NioFileStat(_))
+    )).map(new NioFileStat(_))
   }
+
+  def getFileStat(file: Path, followLinks: Boolean): Option[FileStat] =
+    tryGetFileStat(file, followLinks).toOption
 
   def listFiles(file: Path, matches: (Path, FileStat) => Boolean): Seq[Path] = {
     val iter = Files
       .find(file, Integer.MAX_VALUE, (p, a) => matches(p, new NioFileStat(a)))
     try iter.iterator().asScala.toList
     finally iter.close()
+  }
+
+  def walkFiles(visitor: FileOps.WalkVisitor)(basePath: Path): Seq[Path] = {
+    val res = Seq.newBuilder[Path]
+    val simpleFileVisitor = new SimpleFileVisitor[Path] {
+      override def preVisitDirectory(
+          dir: Path,
+          attrs: attribute.BasicFileAttributes,
+      ): FileVisitResult = visitor.onTree(dir, new NioFileStat(attrs)) match {
+        case FileOps.WalkVisit.Stop => FileVisitResult.TERMINATE
+        case FileOps.WalkVisit.Skip => FileVisitResult.SKIP_SUBTREE
+        case FileOps.WalkVisit.Good => FileVisitResult.CONTINUE
+      }
+      override def visitFile(
+          file: Path,
+          attrs: attribute.BasicFileAttributes,
+      ): FileVisitResult = visitor.onFile(file, new NioFileStat(attrs)) match {
+        case FileOps.WalkVisit.Stop => FileVisitResult.TERMINATE
+        case FileOps.WalkVisit.Skip => FileVisitResult.CONTINUE
+        case FileOps.WalkVisit.Good => res += file; FileVisitResult.CONTINUE
+      }
+      override def visitFileFailed(
+          file: Path,
+          exc: IOException,
+      ): FileVisitResult =
+        if (visitor.onFailStop(file, exc)) FileVisitResult.TERMINATE
+        else FileVisitResult.CONTINUE
+    }
+
+    Files.walkFileTree(basePath, simpleFileVisitor)
+    res.result()
   }
 
   def readFile(file: Path)(implicit codec: Codec): String =

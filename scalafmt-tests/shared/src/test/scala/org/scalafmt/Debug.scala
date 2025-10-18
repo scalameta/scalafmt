@@ -1,9 +1,7 @@
 package org.scalafmt
 
 import org.scalafmt.config.FormatEvent._
-import org.scalafmt.internal.FormatOps
-import org.scalafmt.internal.FormatWriter
-import org.scalafmt.internal.Split
+import org.scalafmt.internal.{FormatOps, FormatWriter, Split}
 import org.scalafmt.util.LoggerOps
 
 import java.util.concurrent.TimeUnit

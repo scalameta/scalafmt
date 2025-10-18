@@ -5,13 +5,11 @@ import org.scalafmt.config._
 import org.scalafmt.internal._
 import org.scalafmt.rewrite.Rewrite
 import org.scalafmt.sysops.FileOps
-import org.scalafmt.util.LoggerOps
-import org.scalafmt.util.MarkdownParser
+import org.scalafmt.util.{LoggerOps, MarkdownParser}
 
-import scala.meta.Input
-import scala.meta.dialects
 import scala.meta.parsers.ParseException
 import scala.meta.tokenizers.TokenizerOptions
+import scala.meta.{Input, dialects}
 
 import java.nio.file.Path
 

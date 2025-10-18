@@ -24,14 +24,14 @@ jobs:
           - ubuntu-22.04-arm
         scala:
           - '2.12.20'
-          - '2.13.16'
+          - '2.13.17'
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Set up JVM
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
@@ -59,11 +59,11 @@ jobs:
         group: [ Scala2, Scala3, Spark, Intellij, Other ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Set up JVM
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java }}
           distribution: 'temurin'
@@ -73,8 +73,8 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
         with:
           java-version: '11'
           distribution: 'temurin'
@@ -108,7 +108,7 @@ jobs:
               NATIVE_IMAGE_STATIC: musl
     env: ${{ matrix.env }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
         with:

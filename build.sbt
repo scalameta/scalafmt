@@ -6,16 +6,10 @@ import org.scalajs.linker.interface.ESVersion
 import Dependencies._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
-def parseTagVersion: String = {
-  import scala.sys.process._
-  // drop `v` prefix
-  "git describe --abbrev=0 --tags".!!.drop(1).trim
-}
-def localSnapshotVersion: String = s"$parseTagVersion-SNAPSHOT"
 def isCI = System.getenv("CI") != null
 
 def scala212 = "2.12.20"
-def scala213 = "2.13.16"
+def scala213 = "2.13.17"
 
 def isScalaVer(ver: String) = Def.setting(scalaBinaryVersion.value == ver)
 def isScala212 = isScalaVer("2.12")
@@ -23,8 +17,13 @@ def isScala213 = isScalaVer("2.13")
 
 inThisBuild {
   List(
-    version ~= { dynVer =>
-      if (isCI) dynVer else localSnapshotVersion // only for local publishing
+    // version is set dynamically by sbt-dynver, but let's adjust it
+    version := {
+      val curVersion = version.value
+      def dynVer(out: sbtdynver.GitDescribeOutput): String =
+        if (out.isCleanAfterTag || isCI) curVersion
+        else s"${out.ref.dropPrefix}-next-SNAPSHOT" // modified for local builds
+      dynverGitDescribeOutput.value.mkVersion(dynVer, curVersion)
     },
     organization := "org.scalameta",
     homepage := Some(url("https://github.com/scalameta/scalafmt")),
@@ -41,7 +40,7 @@ inThisBuild {
     resolvers += Resolver.sonatypeCentralSnapshots,
     testFrameworks += new TestFramework("munit.Framework"),
     // causes native image issues
-    dependencyOverrides += "org.jline" % "jline" % "3.30.4",
+    dependencyOverrides += "org.jline" % "jline" % "3.30.6",
   )
 }
 
@@ -74,8 +73,8 @@ lazy val dynamic = crossProject(JVMPlatform) // don't build for NativePlatform
     description := "Implementation of scalafmt-interfaces",
     buildInfoSettings("org.scalafmt.dynamic", "BuildInfo"),
     libraryDependencies ++= List(
-      "io.get-coursier" % "interface" % "1.0.28",
-      "com.typesafe" % "config" % "1.4.4",
+      "io.get-coursier" %% "coursier" % coursier,
+      "com.typesafe" % "config" % "1.4.5",
     ),
     sharedTestSettings,
     scalacOptions ++= scalacJvmOptions.value,
@@ -97,7 +96,9 @@ lazy val interfaces = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     },
   ).jvmSettings(
     javacOptions ++= Seq("-source", "8", "-target", "8"),
-    Compile / doc / javacOptions := Seq(),
+    Compile / doc / javacOptions := Seq("-Xdoclint:none", "-quiet"),
+    Compile / doc / scalacOptions ++=
+      Seq("-no-link-warnings", "-Wconf:cat=doc:silent"),
     crossVersion := CrossVersion.disabled,
     autoScalaLibrary := false,
   )

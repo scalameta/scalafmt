@@ -3600,6 +3600,7 @@ This rule accepts the following settings:
 - `rewrite.preferCurlyFors.removeTrailingSemicolonsOnly` (default: `false`):
   - if `false` (default), replaces all semicolons with a newline
   - if `true`, keeps semicolons unless followed by a newline or single-line comment
+    - see also [RemoveSemicolons](#removesemicolons)
 
 ### `Imports`
 
@@ -3627,18 +3628,51 @@ Let's define some terminology: an import statement consists of several parts:
   - _reference_: `foo` and `foo.baz` in the example above
   - _selectors_: `bar` and `{qux => quux}` above
 
-#### Imports: `expand`
+#### Imports: `selectors`
 
-This parameter will attempt to create a separate line for each selector
-within a `{...}`. It replaces the deprecated rule `ExpandImportSelectors`.
+This parameter controls handling of import selectors within a `{...}`. Added in
+v3.10.0, it replaces the boolean parameter `expand` (which, in turn, replaced
+the deprecated rule `ExpandImportSelectors`).
 
-```scala mdoc:defaults
-rewrite.imports.expand
+It takes the following values:
+
+- `keep` (default): keeps the original grouping of selectors (was: `expand = false`)
+- `fold`: will group selectors from multiple import statements sharing the same
+  keyword (`import` or `export`) and the same reference (the part before the
+  last dot) into a single statement
+  - it will keep import statements which have a trailing comment as-is
+  - [`binPack.importSelectors`](#binpackimportselectors) may not be `singleLine`
+    as it might result in a very long line
+- `unfold`: will attempt to create a separate line for each selector (was: `expand = true`)
+
+By default, the parameter is set to:
+
+- `unfold` if [`newlines.source = unfold`](#newlinessource)
+- `fold` if [`newlines.source = fold`](#newlinessource)
+- `keep` otherwise
+  - this used to be the default behavior prior to v3.10.1
+
+```scala mdoc:scalafmt
+rewrite.rules = [Imports]
+rewrite.imports.selectors = unfold
+---
+import a.{
+    b,
+    c
+  }, h.{
+    k, l
+  }
+import d.e.{f, g}
+import a.{
+    foo => bar,
+    zzzz => _,
+    _
+  }
 ```
 
 ```scala mdoc:scalafmt
 rewrite.rules = [Imports]
-rewrite.imports.expand = true
+rewrite.imports.selectors = fold
 ---
 import a.{
     b,
@@ -3769,6 +3803,28 @@ import qux.bar.{Random, bar, ~>, `symbol`}
 import foo.Baz.{bar => xyz, _}
 import bar.`qux`.{Random, bar, ~>, `symbol`}
 import baz._
+```
+
+#### Imports: `removeRedundantSelectors`
+
+> Since v3.10.0.
+
+If `rewrite.imports.removeRedundantSelectors` is enabled, will remove those
+selectors which are identical to another or are superseded by an appropriate
+wildcard. This deduplication happens at the group level if
+[groups](#imports-groups) are enabled, or at the statement level otherwise.
+
+Regardless of this setting, the rule will de-duplicate identical import statements.
+
+```scala mdoc:scalafmt
+runner.dialect = scala3
+rewrite.rules = [Imports]
+rewrite.imports.removeRedundantSelectors = true
+---
+import foo.{bar, baz}
+import foo.bar
+import foo.{baz => qux, given A, _}
+import foo.given
 ```
 
 ### Trailing commas
@@ -3973,6 +4029,14 @@ for {
   b ← Option(2)
 } yield a + b
 ```
+
+### RemoveSemicolons
+
+> Since v3.10.1.
+
+This rule removes semicolons unless required by the Scala syntax (such
+as those used in for-clause enumerators enclosed in parentheses).
+See also [PreferCurlyFors](#prefercurlyfors).
 
 ## Scala3 rewrites
 
@@ -5502,15 +5566,14 @@ line if they fit without exceeding `maxColumn`. This parameter controls how they
 will be handled _if_ they overflow.
 (Prior to v3.8.4, it was called `importSelectors`.)
 
-```scala mdoc:defaults
-binPack.importSelectors
-```
-
 Takes the following parameters:
 
 - `unfold`: format one per line (prior to v3.8.4, called `noBinPack`)
 - `fold`: fit as many as possible on each line (prior to v3.8.4, called `binPack`)
 - `singleLine`: format all on one line
+
+By default, the parameter is set to `fold` if [`newlines.source = fold`](#newlinessource),
+and `unfold` otherwise (prior to v3.10.1, it would always be `unfold`).
 
 ```scala mdoc:scalafmt
 maxColumn = 10

@@ -1,17 +1,13 @@
 package org.scalafmt.sysops
 
 import java.nio.file.Path
-import java.util.concurrent.Executors
-import java.util.concurrent.SynchronousQueue
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{
+  Executors, SynchronousQueue, ThreadPoolExecutor, TimeUnit,
+}
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.ExecutionContextExecutorService
-import scala.sys.process.ProcessLogger
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService}
+import scala.sys.process.{Process, ProcessLogger}
+import scala.util.{Failure, Success, Try}
 
 private[scalafmt] object PlatformRunOps {
 
@@ -38,21 +34,21 @@ private[scalafmt] object PlatformRunOps {
   implicit def parasiticExecutionContext: ExecutionContext =
     GranularDialectAsyncOps.parasiticExecutionContext
 
-  def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[String] = {
+  def runArgv(cmd: Seq[String], cwd: Option[Path]): Try[Seq[String]] = {
+    val out = Seq.newBuilder[String]
     val err = new StringBuilder()
-    val logger = ProcessLogger(_ => (), x => err.append("\n> ").append(x))
-    val argv =
-      if (PlatformCompat.isNativeOnWindows) cmd.map(arg => '"' + arg + '"')
-      else cmd
-    try {
-      val proc = sys.process.Process(argv, cwd.map(_.toFile))
-      Success(proc.!!(logger).trim)
-    } catch {
-      case e: Throwable =>
-        val msg =
-          s"Failed to run '${cmd.mkString(" ")}'. Error:${err.result()}\n"
-        Failure(new IllegalStateException(msg, e))
+    val logger = ProcessLogger(out += _, err.append("\n> ").append(_))
+    def failed(e: Throwable) = {
+      val msg = cmd
+        .addString(new StringBuilder(), "Failed to run '", " ", "'. Error: ")
+        .append(err).append('\n')
+      Failure(new IllegalStateException(msg.toString(), e))
     }
+    try {
+      val exit = Process(cmd, cwd.map(_.toFile)).!(logger)
+      if (exit != 0) failed(new RuntimeException("exit code " + exit))
+      else Success(out.result())
+    } catch { case e: Throwable => failed(e) }
   }
 
   def exit(code: Int): Nothing = sys.exit(code)

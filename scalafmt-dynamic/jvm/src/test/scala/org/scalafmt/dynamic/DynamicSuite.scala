@@ -2,21 +2,16 @@ package org.scalafmt.dynamic
 
 import org.scalafmt.interfaces._
 
-import java.io.ByteArrayOutputStream
-import java.io.PrintStream
-import java.io.PrintWriter
+import java.io.{ByteArrayOutputStream, PrintStream, PrintWriter}
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
 import java.nio.file.attribute.FileTime
+import java.nio.file.{Files, Path, Paths}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 
-import munit.FunSuite
-import munit.Location
+import munit.{FunSuite, Location}
 
 class DynamicSuite extends FunSuite {
 
@@ -163,7 +158,8 @@ class DynamicSuite extends FunSuite {
   )(fn: (Format, String) => Unit): Unit = testedVersions.foreach(version =>
     test(s"$name [v=$version]") {
       val format = new Format(name, identity)
-      val dialect = if (version < "3.0.0") null else "scala213"
+      val ver = ScalafmtVersion.parse(version).get
+      val dialect = if (ver.cmp(3, 0, 0) < 0) null else "scala213"
       try {
         format.setVersion(version, dialect, config(version))
         fn(format, version)
@@ -187,10 +183,11 @@ class DynamicSuite extends FunSuite {
     val name = s"parse-error-$version-$dialect"
     check(name) { f =>
       f.setVersion(version, dialect)
-      val dialectError = getDialectError(version, dialect)
+      val ver = ScalafmtVersion.parse(version).get
+      val dialectError = getDialectError(ver, dialect)
       val code = s"""object object A { val version = "$version" }"""
-      val bq = getBackQuote(version)
-      val where = if (version >= "3.0.0") s"$name.scala" else "<input>"
+      val bq = getBackQuote(ver)
+      val where = if (ver.cmp(3, 0, 0) >= 0) s"$name.scala" else "<input>"
       f.assertError(
         code,
         s"""|[$version] $where:1: error:$dialectError ${bq}identifier$bq expected but ${bq}object$bq found
@@ -331,8 +328,9 @@ class DynamicSuite extends FunSuite {
       val name = s"sbt-$version-$dialect-$filename"
       check(name) { f =>
         f.setVersion(version, dialect, """project.includeFilters = [ ".*" ]""")
-        val isSbt = sbtTreatedDifferently(version) && filename.endsWith(".sbt")
-        val dialectError = getDialectError(version, dialect, isSbt)
+        val ver = ScalafmtVersion.parse(version).get
+        val isSbt = sbtTreatedDifferently(ver) && filename.endsWith(".sbt")
+        val dialectError = getDialectError(ver, dialect, isSbt)
         val path = Paths.get(filename)
         // test sbt allows top-level terms
         f.assertFormat(
@@ -341,7 +339,7 @@ class DynamicSuite extends FunSuite {
           path,
         )
         // test scala doesn't allow top-level terms (not passing path here)
-        if (version >= "3.0.0" || scalaVersion >= "213") f
+        if (ver.cmp(3, 0, 0) >= 0 || scalaVersion >= "213") f
           .assertFormat("lazy   val   x =  project", "lazy val x = project\n")
         else f.assertError(
           "lazy   val   x =  project",
@@ -352,10 +350,10 @@ class DynamicSuite extends FunSuite {
         // check wrapped literals, supported in sbt using scala 2.13+
         val wrappedLiteral = "object a { val  x:  Option[0]  =  Some(0) }"
         def assertIsWrappedLiteralFailure(): Unit = {
-          val bq = getBackQuote(version)
+          val bq = getBackQuote(ver)
           val usefilename = scalaVersion >= "213" ||
-            sbtTreatedDifferently(version) ||
-            version > "3.0.0" && filename.endsWith(".sbt")
+            sbtTreatedDifferently(ver) ||
+            ver.cmp(3, 0, 0) > 0 && filename.endsWith(".sbt")
           val where = if (usefilename) filename else "<input>"
           f.assertError(
             wrappedLiteral,
@@ -615,8 +613,13 @@ private object DynamicSuite {
     ).getOrElse(latest)
   }
 
-  def getDialectError(version: String, dialect: String, sbt: Boolean = false) =
-    if (version < "3.1.0") "" else s" [dialect ${if (sbt) "sbt" else dialect}]"
+  def getDialectError(
+      version: ScalafmtVersion,
+      dialect: String,
+      sbt: Boolean = false,
+  ) =
+    if (version.cmp(3, 1, 0) < 0) ""
+    else s" [dialect ${if (sbt) "sbt" else dialect}]"
 
   // in tests, let's not try to download current version
   def getModuleLoader = new ScalafmtModuleLoader {
@@ -632,8 +635,10 @@ private object DynamicSuite {
     override def close(): Unit = downloader.close()
   }
 
-  def getBackQuote(version: String): String = if (version > "3.8.0") "`" else ""
+  def getBackQuote(version: ScalafmtVersion): String =
+    if (version.cmp(3, 8, 0) > 0) "`" else ""
 
-  def sbtTreatedDifferently(version: String): Boolean = version > "3.8.0"
+  def sbtTreatedDifferently(version: ScalafmtVersion): Boolean = version
+    .cmp(3, 8, 0) > 0
 
 }

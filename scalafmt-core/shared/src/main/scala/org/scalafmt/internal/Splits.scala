@@ -194,15 +194,14 @@ object SplitsAfterLeftBrace extends Splits {
     import fo._, tokens._, ft._
     val close = matchingLeft(ft)
     val beforeClose = prev(close)
-    val policy = SingleLineBlock(
-      close,
-      okSLC = cfg.binPack.importSelectors eq ImportSelectors.singleLine,
-    )
+    val binPack = cfg.importSelectorsBinPack
+    val policy =
+      SingleLineBlock(close, okSLC = binPack eq ImportSelectors.singleLine)
     val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
 
     val mustDangleForTrailingCommas = getMustDangleForTrailingCommas(beforeClose)
     val mustUseNL = hasBreak && isRightCommentThenBreak(ft)
-    val newlinePolicy = cfg.binPack.importSelectors match {
+    val newlinePolicy = binPack match {
       case ImportSelectors.singleLine if mustUseNL => policy
       case ImportSelectors.singleLine if !mustDangleForTrailingCommas =>
         NoPolicy
@@ -687,15 +686,22 @@ object SplitsAfterEqualsLeftArrow {
     if (body.is[Term.Block] && isEnclosedInBraces(body)) Seq(Split(Space, 0))
     else maybeGetInfixSplitsBeforeLhs() {
       val endFt = getLastNonTrivial(body)
+      val noSpace = !cfg.align.arrowEnumeratorGenerator ||
+        (body match {
+          case t: Term.TryClause => Some(getHead(t))
+          case t: Term.ForClause => Some(getHead(t))
+          case t: Term.If => Some(tokenBefore(t.thenp))
+          case _ => None
+        }).exists(OptionalBraces.at)
       val spaceIndents =
-        if (!cfg.align.arrowEnumeratorGenerator) Seq.empty
-        else Seq(Indent(StateColumn, endFt, After))
+        if (noSpace) Seq.empty else Seq(Indent(StateColumn, endFt, After))
       SplitsAfterEquals.getSplitsDefValEquals(body, endFt, spaceIndents) {
         CtrlBodySplits.get(body, spaceIndents)(
           if (spaceIndents.nonEmpty) Split(Space, 0).withIndents(spaceIndents)
           else {
             val noSlb = body match {
               case _: Term.TryClause => false
+              case _: Term.ForClause => false
               case t: Term.If => ifWithoutElse(t)
               case _ => true
             }
@@ -822,7 +828,7 @@ object SplitsAfterFunctionArrow extends Splits {
     import fo._, ft._
     leftOwner match {
       case leftFunc: Term.FunctionLike =>
-        val isBlockFunc = !right.is[T.Comment] &&
+        val isBlockFunc = (!right.is[T.Comment] || ft.hasBreak) &&
           !tokens.isEmpty(leftFunc.body) && isBlockFunction(leftFunc)
         if (isBlockFunc) blockFunctionTerm(leftFunc) else functionOrSelf
       case t: Self if t.ancestor(2).is[Term.NewAnonymous] => functionOrSelf
@@ -3458,7 +3464,17 @@ object SplitsBeforeCommentLowPriority extends Splits {
         if (pft.right.is[T.Dot]) GetSelectLike.onRightOpt(pft) else None
       }
 
-    selectLikeOpt.fold(Seq(baseSplit))(t =>
+    selectLikeOpt.fold {
+      val infixSplits = nft.rightOwner match {
+        case t: Name if nft.right.is[T.Ident] =>
+          t.parent match {
+            case Some(p: Member.Infix) if p.op eq t => insideInfixSplit(p)
+            case _ => Seq.empty
+          }
+        case _ => Seq.empty
+      }
+      if (infixSplits.isEmpty) Seq(baseSplit) else infixSplits
+    }(t =>
       if (findPrevSelect(t, cfg.newlines.encloseSelectChains).isEmpty) Seq(split)
       else Seq(baseSplit, split.onlyFor(SplitTag.SelectChainFirstNL)),
     )

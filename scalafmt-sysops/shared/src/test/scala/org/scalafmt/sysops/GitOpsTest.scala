@@ -4,9 +4,7 @@ import java.nio.charset.StandardCharsets
 
 import scala.util._
 
-import munit.Assertions
-import munit.FunSuite
-import munit.Location
+import munit.{Assertions, FunSuite, Location}
 
 class GitOpsTest extends FunSuite {
 
@@ -271,24 +269,20 @@ private object GitOpsTest {
   def rmfs(file: AbsoluteFile): Unit = file.delete()
 
   // Git commands
-  def git(cmd: String, args: String*)(implicit
-      ops: GitOpsImpl,
-      loc: Location,
-  ): Seq[String] = ops.tryExecLines("git" +: cmd +: args)
-    .fold(ex => Assertions.fail(s"Failed git command. Got: $ex"), identity)
+  def git(args: Any*)(implicit ops: GitOpsImpl, loc: Location): Seq[String] =
+    ops.tryExec(args: _*)
+      .fold(ex => Assertions.fail(s"Failed git command. Got: $ex"), identity)
 
   def init(implicit ops: GitOpsImpl, loc: munit.Location): Unit =
     git("init", "-b", defaultBranch)
 
   def add(
       file: AbsoluteFile*,
-  )(implicit ops: GitOpsImpl, loc: munit.Location): Unit =
-    git("add", file.map(_.toString()): _*)
+  )(implicit ops: GitOpsImpl, loc: munit.Location): Unit = git("add", file)
 
   def rm(
       file: AbsoluteFile*,
-  )(implicit ops: GitOpsImpl, loc: munit.Location): Unit =
-    git("rm", file.map(_.toString()): _*)
+  )(implicit ops: GitOpsImpl, loc: munit.Location): Unit = git("rm", file)
 
   def commit(implicit ops: GitOpsImpl, loc: munit.Location): Unit =
     git("commit", "-m", "'some-message'")

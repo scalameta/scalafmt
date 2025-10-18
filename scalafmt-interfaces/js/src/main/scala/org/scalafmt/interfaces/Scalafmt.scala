@@ -2,8 +2,7 @@ package org.scalafmt.interfaces
 
 import java.nio.file.Path
 import java.util
-import java.util.NoSuchElementException
-import java.util.ServiceLoader
+import java.util.{NoSuchElementException, ServiceLoader}
 
 /** A stable public interface to run Scalafmt.
   *
@@ -50,9 +49,8 @@ trait Scalafmt {
     * @param respectExcludeFilters
     *   If true (default), returns the original file contents when formatting a
     *   file that does not matches the project settings in .scalafmt.conf. If
-    *   false, formats every file that is passed to the
-    *   {@link #format(Path, Path, String)} method regardless of .scalafmt.conf
-    *   settings.
+    *   false, formats every file that is passed to the [[format]] method
+    *   regardless of .scalafmt.conf settings.
     * @return
     *   an updated interface instance controlling whether to respect the
     *   'project.{excludeFilters,includeFilters}' setting in .scalafmt.conf.
@@ -65,7 +63,7 @@ trait Scalafmt {
     *   If true (default), refuses to format files when the 'version' setting is
     *   missing in .scalafmt.conf and users must update .scalafmt.conf to format
     *   files. If false, falls back to the default version provided via
-    *   {@link #withDefaultVersion(String)} .
+    *   [[withDefaultVersion]].
     * @return
     *   an updated interface instance controlling whether to respect the
     *   'version' setting in .scalafmt.conf.
@@ -77,8 +75,7 @@ trait Scalafmt {
     *
     * @param defaultVersion
     *   the fallback Scalafmt version to use when there is no 'version' setting
-    *   in `.scalafmt.conf`; N.B. ignored when
-    *   {@link #withRespectVersion(boolean)} is true
+    *   in `.scalafmt.conf`; N.B. ignored when [[withRespectVersion]] is true
     * @return
     *   an updated interface instance with the default version set
     */
@@ -135,7 +132,7 @@ object Scalafmt {
     *   the classloader containing the 'scalafmt-dynamic' module.
     * @return
     *   a new instance of this interface
-    * @throws NoSuchElementException
+    * @throws `java.util.NoSuchElementException`
     *   if the classloader does not have the 'scalafmt-dynamic' module.
     */
   def create(loader: ClassLoader): Scalafmt = throw new ScalafmtException(

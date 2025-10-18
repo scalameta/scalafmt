@@ -4,8 +4,7 @@ import org.scalafmt.dynamic.ScalafmtDynamicError._
 import org.scalafmt.dynamic.utils.ReentrantCache
 
 import java.io.Closeable
-import java.net.URL
-import java.net.URLClassLoader
+import java.net.{URL, URLClassLoader}
 import java.nio.file.Path
 
 import scala.concurrent.ExecutionContext

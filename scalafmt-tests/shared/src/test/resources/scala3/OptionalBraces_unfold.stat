@@ -1970,7 +1970,8 @@ object a:
  import Predef.{augmentString => _}
 >>>
 object a:
-   import A.{min as minimum, `*` as multiply}
+   import A.min as minimum
+   import A.`*` as multiply
    import Predef.{augmentString as _, *}
    import scala.annotation as ann
    import java as j
@@ -1991,7 +1992,8 @@ object a {
 }
 >>>
 object a {
-  import A.{min as minimum, `*` as multiply}
+  import A.min as minimum
+  import A.`*` as multiply
   import Predef.{augmentString as _, *}
   import scala.annotation as ann
   import java as j
@@ -6509,26 +6511,24 @@ object a:
          .asScala
          .filter(Files.isDirectory(_))
          .foreach { p =>
-            val moduleNamePathElementCount =
-              if (isJava12OrHigher)
-                1
-              else
-                0
-            if (
-              p.getNameCount > root.getNameCount + moduleNamePathElementCount
-            ) {
-              val packageDotted = p
-                .subpath(
-                  moduleNamePathElementCount + root.getNameCount,
-                  p.getNameCount
-                )
-                .toString
-                .replace('/', '.')
-              index.getOrElseUpdate(
-                packageDotted,
-                new collection.mutable.ListBuffer
-              ) += p
-            }
+           val moduleNamePathElementCount =
+             if (isJava12OrHigher)
+               1
+             else
+               0
+           if (p.getNameCount > root.getNameCount + moduleNamePathElementCount) {
+             val packageDotted = p
+               .subpath(
+                 moduleNamePathElementCount + root.getNameCount,
+                 p.getNameCount
+               )
+               .toString
+               .replace('/', '.')
+             index.getOrElseUpdate(
+               packageDotted,
+               new collection.mutable.ListBuffer
+             ) += p
+           }
          }
      )
      index
@@ -6564,26 +6564,24 @@ object a:
          .asScala
          .filter(Files.isDirectory(_))
          .foreach { [p] =>
-            val moduleNamePathElementCount =
-              if (isJava12OrHigher)
-                1
-              else
-                0
-            if (
-              p.getNameCount > root.getNameCount + moduleNamePathElementCount
-            ) {
-              val packageDotted = p
-                .subpath(
-                  moduleNamePathElementCount + root.getNameCount,
-                  p.getNameCount
-                )
-                .toString
-                .replace('/', '.')
-              index.getOrElseUpdate(
-                packageDotted,
-                new collection.mutable.ListBuffer
-              ) += p
-            }
+           val moduleNamePathElementCount =
+             if (isJava12OrHigher)
+               1
+             else
+               0
+           if (p.getNameCount > root.getNameCount + moduleNamePathElementCount) {
+             val packageDotted = p
+               .subpath(
+                 moduleNamePathElementCount + root.getNameCount,
+                 p.getNameCount
+               )
+               .toString
+               .replace('/', '.')
+             index.getOrElseUpdate(
+               packageDotted,
+               new collection.mutable.ListBuffer
+             ) += p
+           }
          }
      )
      index
@@ -6606,15 +6604,13 @@ object a:
        .walkingIterator()
        .useScalaFilter(Files__Is__Directory)
        .foreach { p =>
-          val_moduleNamePathElementCount_е_0
-          if (
-            p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount
-          ) {
-            val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
-            index_getOrElseUpdate(
-              packageDotted__new_collectionMutableListBuffer
-            )
-          }
+         val_moduleNamePathElementCount_е_0
+         if (p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount) {
+           val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
+           index_getOrElseUpdate(
+             packageDotted__new_collectionMutableListBuffer
+           )
+         }
        }
    )
 <<< complex code with selects and brace lambda 2, poly
@@ -6635,15 +6631,13 @@ object a:
        .walkingIterator()
        .useScalaFilter(Files__Is__Directory)
        .foreach { [p] =>
-          val_moduleNamePathElementCount_е_0
-          if (
-            p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount
-          ) {
-            val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
-            index_getOrElseUpdate(
-              packageDotted__new_collectionMutableListBuffer
-            )
-          }
+         val_moduleNamePathElementCount_е_0
+         if (p_getNameCount_g_root_getNameCount_p_moduleNamePathElementCount) {
+           val_packageDotted_e_p_subpath_moduleNamePathElementCountFooRoot__p__toString_replace
+           index_getOrElseUpdate(
+             packageDotted__new_collectionMutableListBuffer
+           )
+         }
        }
    )
 <<< braces to parens in one-line apply: overflow with braces, fit with parens
@@ -7418,6 +7412,44 @@ object a:
    end writeTo
    def withConstant(__v: dotty.tools.dotc.semanticdb.Constant): ConstantType =
      copy(constant = __v)
+<<< optional block within block, inner semicolon-terminated, no redundant braces
+rewrite {
+  scala3 {
+    convertToNewSyntax = true
+    insertEndMarkerMinLines = 5
+    removeOptionalBraces = yes
+  }
+}
+===
+object a:
+    def writeTo(`_output__`: SemanticdbOutputStream): _root_.scala.Unit = {
+      {
+        val __v = dotty.tools.dotc.semanticdb.ConstantType._typemapper_constant.toBase(constant)
+        if (__v.serializedSize != 0) {
+          _output__.writeTag(1, 2)
+          _output__.writeUInt32NoTag(__v.serializedSize)
+          __v.writeTo(_output__)
+        };
+      }
+    }
+    def withConstant(__v: dotty.tools.dotc.semanticdb.Constant): ConstantType = copy(constant = __v)
+>>>
+object a:
+   def writeTo(`_output__`: SemanticdbOutputStream): _root_.scala.Unit =
+      val __v = dotty
+        .tools
+        .dotc
+        .semanticdb
+        .ConstantType
+        ._typemapper_constant
+        .toBase(constant)
+      if __v.serializedSize != 0 then
+         _output__.writeTag(1, 2)
+         _output__.writeUInt32NoTag(__v.serializedSize)
+         __v.writeTo(_output__);
+   end writeTo
+   def withConstant(__v: dotty.tools.dotc.semanticdb.Constant): ConstantType =
+     copy(constant = __v)
 <<< #4133 binpack overflow assignment tupled, !dangling
 indent.callSite = 4
 binPack.preset = always
@@ -7609,10 +7641,10 @@ object a:
 >>>
 object a:
    val foo = map { postFile =>
-      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year)
-        .resolve(month)
-        .resolve(day)
-        .resolve(name)
+     val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year)
+       .resolve(month)
+       .resolve(day)
+       .resolve(name)
    }
 <<< #4133 overflow select with binpack, !dangling
 binPack.preset = always
@@ -7625,10 +7657,10 @@ object a:
 >>>
 object a:
    val foo = map { postFile =>
-      val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year)
-        .resolve(month)
-        .resolve(day)
-        .resolve(name)
+     val destPath = ctx_docsPath_resolve_defaultDirectory_resolve(year)
+       .resolve(month)
+       .resolve(day)
+       .resolve(name)
    }
 <<< #4133 overflow selects/applies, nobreak-dot-break, binpack + !dangling
 maxColumn = 70
@@ -8847,20 +8879,20 @@ object a {
 object a {
   val resultIterator = Iterator.continually(
     transformers.foldLeft(false) { (hadApply, transformer) =>
-       val elementIterator = range
-         .map(elementsIn(file, _))
-         .getOrElse(file.depthFirst())
-       val hasApply =
-         elementIterator.foldLeft(false) { (hadApply, element) =>
-            val (result, marker) = applyTransformer(
-              element,
-              transformer,
-              document
-            )
-            marker.foreach(markers ::= _)
-            hadApply || result
-         }
-       hadApply || hasApply
+      val elementIterator = range
+        .map(elementsIn(file, _))
+        .getOrElse(file.depthFirst())
+      val hasApply =
+        elementIterator.foldLeft(false) { (hadApply, element) =>
+          val (result, marker) = applyTransformer(
+            element,
+            transformer,
+            document
+          )
+          marker.foreach(markers ::= _)
+          hadApply || result
+        }
+      hadApply || hasApply
     }
   )
 }
@@ -9128,3 +9160,265 @@ object a {
     (f1[b](child), f2[b](child))
   }
 }
+<<< #4981 1
+object Foo {
+  // some comment
+  val foo: Boolean = "foo".nonEmpty
+    // another comment
+    && "foo".nonEmpty
+    // and another
+    && "foo".nonEmpty
+}
+>>>
+object Foo {
+  // some comment
+  val foo: Boolean =
+    "foo".nonEmpty
+    // another comment
+    && "foo".nonEmpty
+    // and another
+    && "foo".nonEmpty
+}
+<<< #4981 2
+object Foo {
+  val foo = bar
+    // c1
+    && baz
+    // c2
+    && qux
+}
+>>>
+object Foo {
+  val foo =
+    bar
+    // c1
+    && baz
+    // c2
+    && qux
+}
+<<< #4981 3
+object Foo {
+  val foo = bar &&
+    // c1
+    baz
+    && // c2
+    qux
+}
+>>>
+object Foo {
+  val foo =
+    bar &&
+      // c1
+      baz && // c2
+      qux
+}
+<<< #4981 4
+object Foo {
+  val foo = bar // c1
+    && baz // c2
+    && qux
+}
+>>>
+object Foo {
+  val foo =
+    bar // c1
+    && baz // c2
+    && qux
+}
+<<< #4981 5
+object Foo {
+  val foo = bar && // c1
+    baz && // c2
+    qux
+}
+>>>
+object Foo {
+  val foo =
+    bar && // c1
+      baz && // c2
+      qux
+}
+<<< from scala-native: newlines.afterCurlyLambdaParams=never
+newlines.afterCurlyLambdaParams = never
+===
+object a {
+  foo { implicit z =>
+
+    /* Requirement:
+     */
+     bar
+     baz
+  }
+}
+>>>
+object a {
+  foo { implicit z =>
+    /* Requirement:
+     */
+    bar
+    baz
+  }
+}
+<<< from scala-native: newlines.afterCurlyLambdaParams=squash
+newlines.afterCurlyLambdaParams = squash
+===
+object a {
+  foo { implicit z =>
+
+    /* Requirement:
+     */
+     bar
+     baz
+  }
+}
+>>>
+object a {
+  foo { implicit z =>
+    /* Requirement:
+     */
+    bar
+    baz
+  }
+}
+<<< from scala-native: newlines.afterCurlyLambdaParams=always
+newlines.afterCurlyLambdaParams = always
+===
+object a {
+  foo { implicit z =>
+
+    /* Requirement:
+     */
+     bar
+     baz
+  }
+}
+>>>
+object a {
+  foo { implicit z =>
+
+    /* Requirement:
+     */
+    bar
+    baz
+  }
+}
+<<< remove optional braces in multi-stat function body
+rewrite.scala3.removeOptionalBraces = yes
+===
+object a {
+  transformAfter(phase, sd => { sd.setFlag(flags); sd })
+}
+>>>
+object a:
+   transformAfter(
+     phase,
+     sd =>
+        sd.setFlag(flags);
+        sd
+   )
+<<< #5009 RemoveSemicolons block
+rewrite.rules = [RemoveSemicolons]
+===
+def main =
+  if true then bar += 1
+  else bar = 2; shouldBeFalse = true
+>>>
+def main =
+   if true then
+      bar += 1
+   else
+      bar = 2
+   shouldBeFalse = true
+<<< #5009 RemoveSemicolons template
+rewrite.rules = [RemoveSemicolons]
+===
+object foo:
+  if true then bar += 1
+  else bar = 2; shouldBeFalse = true
+>>>
+object foo:
+   if true then
+      bar += 1
+   else
+      bar = 2
+   shouldBeFalse = true
+<<< #5009 RemoveSemicolons for-clause 1
+rewrite.rules = [RemoveSemicolons]
+===
+for
+  a <-
+  as1 ++ as2; b <-
+  bs1 ++ b2; if a < b; c <- cs
+yield a + b + c
+>>>
+for
+   a <- as1 ++ as2
+   b <- bs1 ++ b2
+   if a < b
+   c <- cs
+yield a + b + c
+<<< #5009 RemoveSemicolons for-clause 2
+rewrite.rules = [RemoveSemicolons]
+===
+for
+  a <- as1 ++
+  as2; b <-
+  bs1 ++ b2; if a < b; c <- cs
+yield a + b + c
+>>>
+for
+   a <- as1 ++ as2
+   b <- bs1 ++ b2
+   if a < b
+   c <- cs
+yield a + b + c
+<<< #5009 !RemoveSemicolons block
+def main =
+  if true then bar += 1
+  else bar = 2; shouldBeFalse = true
+>>>
+def main =
+   if true then
+      bar += 1
+   else
+      bar = 2
+   ;
+   shouldBeFalse = true
+<<< #5009 !RemoveSemicolons template
+object foo:
+  if true then bar += 1
+  else bar = 2; shouldBeFalse = true
+>>>
+object foo:
+   if true then
+      bar += 1
+   else
+      bar = 2
+   ;
+   shouldBeFalse = true
+<<< #5009 !RemoveSemicolons for-clause 1
+for
+  a <-
+  as1 ++ as2; b <-
+  bs1 ++ b2; if a < b; c <- cs
+yield a + b + c
+>>>
+for
+   a <- as1 ++ as2;
+   b <- bs1 ++ b2;
+   if a < b;
+   c <- cs
+yield a + b + c
+<<< #5009 !RemoveSemicolons for-clause 2
+for
+  a <- as1 ++
+  as2; b <-
+  bs1 ++ b2; if a < b; c <- cs
+yield a + b + c
+>>>
+for
+   a <- as1 ++ as2;
+   b <- bs1 ++ b2;
+   if a < b;
+   c <- cs
+yield a + b + c

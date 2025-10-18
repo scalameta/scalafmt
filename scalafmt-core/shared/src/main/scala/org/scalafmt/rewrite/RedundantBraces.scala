@@ -20,6 +20,8 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
 
   override def create(implicit ftoks: FormatTokens): Rule = new RedundantBraces
 
+  override def priority: Int = RemoveScala3OptionalBraces.priority + 1
+
   private def settings(implicit
       style: ScalafmtConfig,
   ): RedundantBracesSettings = style.rewrite.redundantBraces
@@ -155,12 +157,17 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       session: Session,
       style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] = {
-    def okTrailingComma = RewriteTrailingCommas.enabled || {
+    def okBeforeBrace = {
       val pft = ftoks.prevNonComment(ft)
-      !pft.left.is[T.Comma] || session.isRemovedOnLeft(pft, ok = true)
+      def isRemoved = session.isRemovedOnLeft(pft, ok = true)
+      pft.left match {
+        case _: T.Comma => RewriteTrailingCommas.enabled || isRemoved
+        case _: T.Semicolon => isRemoved
+        case _ => true
+      }
     }
     Option(ft.right match {
-      case _: T.RightBrace if okTrailingComma => onRightBrace(left)
+      case _: T.RightBrace if okBeforeBrace => onRightBrace(left)
       case _: T.RightParen => onRightParen(left, hasFormatOff)
       case _ => null
     })

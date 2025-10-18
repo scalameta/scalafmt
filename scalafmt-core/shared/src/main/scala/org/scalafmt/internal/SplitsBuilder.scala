@@ -2,8 +2,7 @@ package org.scalafmt.internal
 
 import scala.meta.tokens.{Token => T}
 
-import scala.collection.immutable
-import scala.collection.mutable
+import scala.collection.{immutable, mutable}
 import scala.reflect.ClassTag
 
 /* scalafmt: {

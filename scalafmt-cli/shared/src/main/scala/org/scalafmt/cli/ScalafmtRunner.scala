@@ -6,9 +6,7 @@ import org.scalafmt.sysops._
 import java.nio.file.Path
 
 import scala.concurrent._
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 trait ScalafmtRunner {
   private[cli] def run(
