@@ -1391,6 +1391,22 @@ import c.universe.{
   Type => _,
   _
 }
+<<< unfold with matching unimports and renames, removeRedundantSelectors
+rewrite.imports {
+  sort = ascii
+  selectors = unfold
+  removeRedundantSelectors = true
+}
+===
+import c.universe.{Position => ReflectPosition}
+import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
+import c.universe.{Symbol => ReflectSymbol}
+import c.universe.{Tree => ReflectTree}
+>>>
+import c.universe.{Position => ReflectPosition}
+import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
+import c.universe.{Symbol => ReflectSymbol}
+import c.universe.{Tree => ReflectTree}
 <<< fold with matching unimports and renames, !removeRedundantSelectors
 rewrite.imports {
   sort = ascii
@@ -1409,3 +1425,19 @@ import c.universe.{
   Tree => ReflectTree
 }
 import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
+<<< unfold with matching unimports and renames, !removeRedundantSelectors
+rewrite.imports {
+  sort = ascii
+  selectors = unfold
+  removeRedundantSelectors = false
+}
+===
+import c.universe.{Position => ReflectPosition}
+import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
+import c.universe.{Symbol => ReflectSymbol}
+import c.universe.{Tree => ReflectTree}
+>>>
+import c.universe.{Position => ReflectPosition}
+import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
+import c.universe.{Symbol => ReflectSymbol}
+import c.universe.{Tree => ReflectTree}
