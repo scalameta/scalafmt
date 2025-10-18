@@ -21,6 +21,7 @@ jobs:
         os:
           - windows-2025
           - ubuntu-22.04
+          - macos-13
         scala:
           - '2.12.20'
           - '2.13.17'
