@@ -1403,10 +1403,13 @@ import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
 import c.universe.{Symbol => ReflectSymbol}
 import c.universe.{Tree => ReflectTree}
 >>>
-import c.universe.{Position => ReflectPosition}
-import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
-import c.universe.{Symbol => ReflectSymbol}
-import c.universe.{Tree => ReflectTree}
+import c.universe.{
+  Position => ReflectPosition,
+  Symbol => ReflectSymbol,
+  Tree => ReflectTree,
+  Type => _,
+  _
+}
 <<< fold with matching unimports and renames, !removeRedundantSelectors
 rewrite.imports {
   sort = ascii
