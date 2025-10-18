@@ -748,7 +748,7 @@ object Imports extends RewriteFactory {
       // below: variable names refer to presence of renames and wildcards
       val neither = new Importees
       val both = Seq.newBuilder[Importer]
-      val renamesOnly = new LinkedList[Importees]
+      val renamesOnly = new Importees
       val wildcardsOnly = Seq.newBuilder[Importee]
       importers.foreach { importer =>
         var hasRename = false
@@ -761,7 +761,7 @@ object Imports extends RewriteFactory {
           case _ => false
         }
         if (hasBoth) both += importer
-        else if (hasRename) renamesOnly.add(appendTo(importer, new Importees))
+        else if (hasRename) appendTo(importer, renamesOnly)
         else if (hasWildcard) {
           hasGlobalWildcard = true
           wildcardsOnly ++= importer.importees
@@ -780,21 +780,16 @@ object Imports extends RewriteFactory {
         res != 0
       }
 
-      def foldNoBoth(importee: Importee): Boolean =
-        fold(importee, hasBoth = false)
-
       def fold(
-          importee: Importee,
-          hasBoth: Boolean,
-          isInitial: Boolean = true,
-      ): Boolean = importee match {
+          hasBoth: Int, // 0 no, 1 part of importer with both, -1 both folded previously
+      )(importee: Importee): Boolean = importee match {
         case x: Importee.Name => tryFold(x.name.value, x) {
             case Some(_: Importee.Unimport)
                 if settings.removeRedundantSelectors => 1
             case Some(_: Importee.Name) => -1
             case None
                 if settings.removeRedundantSelectors &&
-                  (hasBoth || hasGlobalWildcard) => -1
+                  (hasBoth > 0 || hasGlobalWildcard) => -1
             case None => 1
             case _ => 0
           }
@@ -803,16 +798,16 @@ object Imports extends RewriteFactory {
                 if settings.removeRedundantSelectors => 1
             case Some(y: Importee.Rename) if x.rename.value == y.rename.value =>
               -1
-            case None if !hasBoth || isInitial => 1
+            case None if hasBoth >= 0 => 1
             case _ => 0
           }
         case x: Importee.Unimport => settings.removeRedundantSelectors &&
-          !hasBoth || tryFold(x.name.value, x) {
+          hasBoth <= 0 || tryFold(x.name.value, x) {
             case Some(_: Importee.Unimport) => -1
-            case None if isInitial => 1
+            case None if hasBoth >= 0 => 1
             case _ => 0
           }
-        case x: Importee.Wildcard => (hasBoth || isInitial) &&
+        case x: Importee.Wildcard => hasBoth >= 0 &&
           tryFold("_", x)(y => if (y.isEmpty) 1 else -1)
         case x: Importee.GivenAll =>
           tryFold("given", x)(y => if (y.isEmpty) 1 else -1)
@@ -826,38 +821,29 @@ object Imports extends RewriteFactory {
         buffer.clear()
       }
 
-      def foldNoWildcards(list: Importees, hasBoth: Boolean): Unit = {
+      def foldNoWildcards(list: Importees, hasBoth: Int): Unit = {
         val iter = list.listIterator()
         while (iter.hasNext) {
           val elem = iter.next()
-          if (fold(elem, hasBoth = hasBoth, isInitial = false)) iter.remove()
+          if (fold(hasBoth = hasBoth)(elem)) iter.remove()
         }
       }
 
-      def flushWithNoWildcards(hasBoth: Boolean): Unit = if (buffer.nonEmpty) {
+      def flushWithNoWildcards(hasBoth: Int): Unit = {
         foldNoWildcards(neither, hasBoth = hasBoth)
-        val iter = renamesOnly.listIterator()
-        while (iter.hasNext) {
-          val list = iter.next()
-          foldNoWildcards(list, hasBoth = hasBoth)
-          if (list.isEmpty) iter.remove()
-        }
+        foldNoWildcards(renamesOnly, hasBoth = hasBoth)
         flushFolded()
       }
 
       both.result().foreach { importer =>
-        importer.importees.foreach(fold(_, hasBoth = true))
-        flushWithNoWildcards(hasBoth = true)
+        importer.importees.foreach(fold(hasBoth = 1))
+        flushWithNoWildcards(hasBoth = -1)
       }
 
-      while (!renamesOnly.isEmpty) {
-        val list = renamesOnly.pop()
-        list.forEach(foldNoBoth)
-        flushWithNoWildcards(hasBoth = false)
-      }
+      while (!renamesOnly.isEmpty) flushWithNoWildcards(hasBoth = 0)
 
-      wildcardsOnly.result().foreach(foldNoBoth)
-      neither.forEach(foldNoBoth)
+      wildcardsOnly.result().foreach(fold(hasBoth = 0))
+      neither.forEach(fold(hasBoth = 0))
       flushFolded()
     }
   }
