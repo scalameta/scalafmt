@@ -1295,7 +1295,7 @@ import a.{*, given}
 import a.{x, given, given Z}
 >>>
 import a.{y => z, given}
-import a.{*, given}
+import a.*
 <<< remove duplicates, unfold
 runner.dialect = scala3
 rewrite.imports {

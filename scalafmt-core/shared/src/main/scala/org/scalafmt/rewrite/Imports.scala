@@ -743,8 +743,8 @@ object Imports extends RewriteFactory {
         src.importees.foreach(dst.add)
         dst
       }
-      var hasGlobalWildcard = false
-      var hasGlobalGivenAll = false
+      var globalWildcard: Importee.Wildcard = null
+      var globalGivenAll: Importee.GivenAll = null
       // below: variable names refer to presence of renames and wildcards
       val neither = new Importees
       val both = Seq.newBuilder[Importer]
@@ -752,18 +752,20 @@ object Imports extends RewriteFactory {
       val wildcardsOnly = Seq.newBuilder[Importee]
       importers.foreach { importer =>
         var hasRename = false
-        var hasWildcard = false
+        var wildcard: Importee.Wildcard = null
         val hasBoth = importer.importees.exists { // stop if has both
-          case _: Importee.Wildcard => hasWildcard = true; hasRename
+          case x: Importee.Wildcard =>
+            if (wildcard eq null) wildcard = x; hasRename
           case _: Importee.Rename | _: Importee.Unimport =>
-            hasRename = true; hasWildcard
-          case _: Importee.GivenAll => hasGlobalGivenAll = true; false
+            hasRename = true; wildcard ne null
+          case x: Importee.GivenAll =>
+            if (globalGivenAll eq null) globalGivenAll = x; false
           case _ => false
         }
         if (hasBoth) both += importer
         else if (hasRename) appendTo(importer, renamesOnly)
-        else if (hasWildcard) {
-          hasGlobalWildcard = true
+        else if (wildcard ne null) {
+          globalWildcard = wildcard
           wildcardsOnly ++= importer.importees
         } else appendTo(importer, neither)
       }
@@ -789,7 +791,7 @@ object Imports extends RewriteFactory {
             case Some(_: Importee.Name) => -1
             case None
                 if settings.removeRedundantSelectors &&
-                  (hasBoth > 0 || hasGlobalWildcard) => -1
+                  (hasBoth > 0 || (globalWildcard ne null)) => -1
             case None => 1
             case _ => 0
           }
@@ -807,12 +809,15 @@ object Imports extends RewriteFactory {
             case None if hasBoth >= 0 => 1
             case _ => 0
           }
-        case x: Importee.Wildcard => hasBoth >= 0 &&
+        case x: Importee.Wildcard =>
+          ((globalWildcard eq null) || (globalWildcard eq x)) &&
           tryFold("_", x)(y => if (y.isEmpty) 1 else -1)
         case x: Importee.GivenAll =>
+          ((globalGivenAll eq null) || (globalGivenAll eq x)) &&
           tryFold("given", x)(y => if (y.isEmpty) 1 else -1)
         case _: Importee.Given
-            if settings.removeRedundantSelectors && hasGlobalGivenAll => true
+            if settings.removeRedundantSelectors && (globalGivenAll ne null) =>
+          true
         case x => tryFold(x.text, x)(y => if (y.isEmpty) 1 else -1)
       }
 
