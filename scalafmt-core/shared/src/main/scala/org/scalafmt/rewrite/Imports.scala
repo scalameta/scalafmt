@@ -503,14 +503,7 @@ object Imports extends RewriteFactory {
 
     protected val groups = Array.fill(settings.numGroups + 1)(new Grouping)
 
-    protected final def addImporterToGroup(
-        group: Grouping,
-        kw: String,
-        ref: String,
-    )(importer: Importer): Unit =
-      addSelectorsToGroup(group, kw, ref, filterImportees(importer))
-
-    protected final def addSelectorsToGroup(
+    protected def addSelectorsToGroup(
         group: Grouping,
         kw: String,
         ref: String,
@@ -673,30 +666,25 @@ object Imports extends RewriteFactory {
     *   import d.f
     * }}}
     */
-  private class ExpandFull(implicit ctx: RewriteCtx) extends ExpandBase {
-    override protected final def addClausesToGroup(
+  private class ExpandFull(implicit ctx: RewriteCtx) extends Fold {
+    override protected final def addSelectorsToGroup(
         group: Grouping,
         kw: String,
         ref: String,
-        importers: Seq[Importer],
+        importees: Seq[Importee],
     ): Unit = {
-      val selectorsToKeep = getImporteesToKeep(importers.flatMap(_.importees))
-      importers.foreach { importer =>
-        def addSelectorToGroup(selector: Importee): Unit = group
-          .add(kw, ref, getSelector(selector))
-        // if there's a wildcard, unimports and renames must come with it, cannot be expanded
-        val importees =
-          filterWithImporteesToKeep(selectorsToKeep)(importer.importees)
-        if (importees.dropWhile(notWildcardOrRename).drop(1).exists(isWildcard)) {
-          val filtered = importees.filter { x =>
-            val expanding = notWildcardOrRename(x)
-            if (expanding) addSelectorToGroup(x)
-            !expanding
-          }
-          addSelectorsToGroup(group, kw, ref, filtered)
-        } else // expand all
-          importees.foreach(addSelectorToGroup)
-      }
+      def addSelectorToGroup(selector: Importee): Unit = group
+        .add(kw, ref, getSelector(selector))
+      // if there's a wildcard, unimports and renames must come with it, cannot be expanded
+      if (importees.dropWhile(notWildcardOrRename).drop(1).exists(isWildcard)) {
+        val filtered = importees.filter { x =>
+          val expanding = notWildcardOrRename(x)
+          if (expanding) addSelectorToGroup(x)
+          !expanding
+        }
+        super.addSelectorsToGroup(group, kw, ref, filtered)
+      } else // expand all
+        importees.foreach(addSelectorToGroup)
     }
   }
 
@@ -717,7 +705,9 @@ object Imports extends RewriteFactory {
         kw: String,
         ref: String,
         importers: Seq[Importer],
-    ): Unit = importers.foreach(addImporterToGroup(group, kw, ref))
+    ): Unit = importers.foreach(importer =>
+      addSelectorsToGroup(group, kw, ref, filterImportees(importer)),
+    )
   }
 
   /** convert
