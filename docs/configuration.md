@@ -3839,7 +3839,10 @@ import foo._
 > Keep in mind that this functionality should be used very carefully if
 > hierarchical (relative) imports are allowed in your codebase. Groups
 > should only refer to typical top-level domains such as `java`, `org`,
-> `com` or `scala`, and sorting should be disabled.
+> `com` or `scala` (i.e. ensuring no relative imports would fall into any
+> of the groups), and making sure
+> [`rewrite.imports.sortCatchallGroup`](#imports-sortcatchallgroup) is
+> not `full`.
 >
 > The safest way to handle this case is by using `scalafix` with a semantic
 > rule like `OrganizeImports`. However, on a large codebase, the overhead
@@ -3886,6 +3889,30 @@ import foo.Baz.{bar => xyz, _}
 import bar.`qux`.{Random, bar, ~>, `symbol`}
 import baz._
 ```
+
+#### Imports: `sortCatchallGroup`
+
+> Since v3.10.2.
+
+Preserving the order of relative imports is important, to avoid putting
+"relativeB-of-relativeA" before "relativeA", so they shouldn't be sorted
+the same way fully qualified ones are.
+
+If we assume that explicitly defined groups would not catch relative
+imports, then we only need to forgo or modify sorting of the implicit,
+catch-all group where everything else (including relatives) would end up.
+
+```scala mdoc:defaults
+rewrite.imports.sortCatchallGroup
+```
+
+This parameter takes the following values:
+
+- `full`: the catch-all group is sorted the same way as other groups
+- `none`: the catch-all group is not sorted, preserving the original order
+- `tail`: the catch-all group applies sorting to statements which have the same
+  first element (say, `import a.b` and `import a.c`), otherwise their original
+  order is preserved
 
 #### Imports: `removeRedundantSelectors`
 
