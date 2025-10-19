@@ -1489,3 +1489,108 @@ import ref.c
 >>>
 import ref.c
 import ref.{a => b, _}
+<<< sort relative imports (sortCatchallGroup=full)
+rewrite.imports {
+  groups = [ ["z.*"], ["y.*"], ["x.*"] ]
+  sort = ascii
+  sortCatchallGroup = full
+}
+===
+import x.absolute
+import c.relative_to.x.Z
+import y.absolute
+import c.relative_to.x.Y
+import z.absolute
+import c.relative_to.x.X
+import b.relative_to.c.Z
+import b.relative_to.c.Y
+import b.relative_to.c.X
+import a.relative_to.b.Z
+import a.relative_to.b.Y
+import a.relative_to.b.X
+>>>
+import z.absolute
+
+import y.absolute
+
+import x.absolute
+
+import a.relative_to.b.X
+import a.relative_to.b.Y
+import a.relative_to.b.Z
+import b.relative_to.c.X
+import b.relative_to.c.Y
+import b.relative_to.c.Z
+import c.relative_to.x.X
+import c.relative_to.x.Y
+import c.relative_to.x.Z
+<<< sort relative imports (sortCatchallGroup=tail)
+rewrite.imports {
+  groups = [ ["z.*"], ["y.*"], ["x.*"] ]
+  sort = ascii
+  sortCatchallGroup = tail
+}
+===
+import x.absolute
+import c.relative_to.x.Z
+import y.absolute
+import c.relative_to.x.Y
+import z.absolute
+import c.relative_to.x.X
+import b.relative_to.c.Z
+import b.relative_to.c.Y
+import b.relative_to.c.X
+import a.relative_to.b.Z
+import a.relative_to.b.Y
+import a.relative_to.b.X
+>>>
+import z.absolute
+
+import y.absolute
+
+import x.absolute
+
+import a.relative_to.b.X
+import a.relative_to.b.Y
+import a.relative_to.b.Z
+import b.relative_to.c.X
+import b.relative_to.c.Y
+import b.relative_to.c.Z
+import c.relative_to.x.X
+import c.relative_to.x.Y
+import c.relative_to.x.Z
+<<< sort relative imports (sortCatchallGroup=none)
+rewrite.imports {
+  groups = [ ["z.*"], ["y.*"], ["x.*"] ]
+  sort = ascii
+  sortCatchallGroup = none
+}
+===
+import x.absolute
+import c.relative_to.x.Z
+import y.absolute
+import c.relative_to.x.Y
+import z.absolute
+import c.relative_to.x.X
+import b.relative_to.c.Z
+import b.relative_to.c.Y
+import b.relative_to.c.X
+import a.relative_to.b.Z
+import a.relative_to.b.Y
+import a.relative_to.b.X
+>>>
+import z.absolute
+
+import y.absolute
+
+import x.absolute
+
+import a.relative_to.b.X
+import a.relative_to.b.Y
+import a.relative_to.b.Z
+import b.relative_to.c.X
+import b.relative_to.c.Y
+import b.relative_to.c.Z
+import c.relative_to.x.X
+import c.relative_to.x.Y
+import c.relative_to.x.Z

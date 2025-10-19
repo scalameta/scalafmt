@@ -24,6 +24,7 @@ object Imports extends RewriteFactory {
       contiguousGroups: ContiguousGroups = ContiguousGroups.only,
       private val groups: Seq[Seq[String]] = Nil,
       removeRedundantSelectors: Boolean = false,
+      sortCatchallGroup: SortCatchallGroup = SortCatchallGroup.tail,
   ) {
     private lazy val regex = groups.zipWithIndex
       .flatMap { case (patterns, index) => patterns.map((_, index)) }
@@ -57,6 +58,16 @@ object Imports extends RewriteFactory {
 
     implicit val codec: ConfCodecEx[ContiguousGroups] = ReaderUtil
       .oneOf(only, no)
+  }
+
+  sealed abstract class SortCatchallGroup
+  object SortCatchallGroup {
+    case object full extends SortCatchallGroup
+    case object none extends SortCatchallGroup
+    case object tail extends SortCatchallGroup
+
+    implicit val codec: ConfCodecEx[SortCatchallGroup] = ReaderUtil
+      .oneOf(full, none, tail)
   }
 
   override def hasChanged(v1: RewriteSettings, v2: RewriteSettings): Boolean =
