@@ -781,7 +781,7 @@ object Imports extends RewriteFactory {
             case Some(_: Importee.Name) => -1
             case None
                 if settings.removeRedundantSelectors &&
-                  (hasBoth > 0 || (globalWildcard ne null)) => -1
+                  (hasBoth != 0 || (globalWildcard ne null)) => -1
             case None => 1
             case _ => 0
           }
