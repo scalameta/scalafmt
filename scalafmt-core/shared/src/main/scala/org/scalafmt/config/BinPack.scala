@@ -48,7 +48,7 @@ case class BinPack(
     literalsMinArgCount: Int = 5,
     literalsInclude: Seq[String] = Seq(".*"),
     literalsExclude: Seq[String] = Seq("String", "Term.Name"),
-    private[config] val importSelectors: Option[ImportSelectors] = None,
+    private[scalafmt] val importSelectors: Option[ImportSelectors] = None,
 ) {
   def literalsRegex: FilterMatcher =
     FilterMatcher(literalsInclude, literalsExclude)

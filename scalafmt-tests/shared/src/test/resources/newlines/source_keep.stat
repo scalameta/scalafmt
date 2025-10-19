@@ -12574,9 +12574,5 @@ danglingParentheses.importSite = false
 ===
 import ref.{foo, bar, baz, qux}
 >>>
-import ref.{
-  foo,
-  bar,
-  baz,
-  qux
-}
+import ref.{foo,
+  bar, baz, qux}

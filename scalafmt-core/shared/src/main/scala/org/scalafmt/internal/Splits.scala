@@ -194,9 +194,20 @@ object SplitsAfterLeftBrace extends Splits {
     import fo._, tokens._, ft._
     val close = matchingLeft(ft)
     val beforeClose = prev(close)
-    val binPack = cfg.importSelectorsBinPack
-    val policy =
-      SingleLineBlock(close, okSLC = binPack eq ImportSelectors.singleLine)
+    val binPack = cfg.binPack.importSelectors
+      .getOrElse(cfg.newlines.source match {
+        case Newlines.fold => ImportSelectors.fold
+        case Newlines.unfold => ImportSelectors.unfold
+        case _ => null
+      })
+
+    def dangleBraces = cfg.danglingParentheses.importSite
+    val policy = binPack match {
+      case null if !dangleBraces && ft.noBreak => NoPolicy
+      case ImportSelectors.fold if !dangleBraces => NoPolicy
+      case ImportSelectors.singleLine => SingleLineBlock(close, okSLC = true)
+      case _ => SingleLineBlock(close)
+    }
     val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
 
     val mustDangleForTrailingCommas = getMustDangleForTrailingCommas(beforeClose)
@@ -209,11 +220,12 @@ object SplitsAfterLeftBrace extends Splits {
       case _ => newlineBeforeClosingCurly & splitOneArgOneLine(close, leftOwner)
     }
 
+    val indent = Indent(cfg.indent.main, close, Before)
     Seq(
-      Split(Space(cfg.spaces.inImportCurlyBraces), 0)
-        .notIf(mustUseNL || mustDangleForTrailingCommas).withPolicy(policy),
+      Split(Space(cfg.spaces.inImportCurlyBraces), 0, policy = policy)
+        .notIf(mustUseNL || mustDangleForTrailingCommas).withIndent(indent),
       Split(Newline, 1, policy = newlinePolicy).notIf(newlinePolicy.isEmpty)
-        .withIndent(cfg.indent.main, close, Before),
+        .withIndent(indent),
     )
   }
 
