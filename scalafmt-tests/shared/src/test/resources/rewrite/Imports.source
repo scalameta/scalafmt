@@ -347,12 +347,12 @@ import D.c.b.{g => _}
 import c.b.a.d
 import c.b.a.{f => g, g => _, _}
 
-export C.b.a.d
-export C.b.a.{f => g, g => _, _}
-export d.e.f
-export d.e.g
 import h.k
 import h.l
+export d.e.f
+export d.e.g
+export C.b.a.d
+export C.b.a.{f => g, g => _, _}
 <<< grouped sort scalastyle
 rewrite.imports {
   expand = true
@@ -405,12 +405,12 @@ import D.c.b.d
 import c.b.a.{f => g, g => _, _}
 import c.b.a.d
 
-export C.b.a.{f => g, g => _, _}
-export C.b.a.d
-export d.e.f
-export d.e.g
 import h.k
 import h.l
+export d.e.f
+export d.e.g
+export C.b.a.{f => g, g => _, _}
+export C.b.a.d
 <<< grouped sort original
 rewrite.imports {
   expand = true
@@ -463,10 +463,10 @@ import D.c.b.{f => g}
 import D.c.b.{g => _}
 import D.c.b.d
 
-export d.e.f
-export d.e.g
 import h.k
 import h.l
+export d.e.f
+export d.e.g
 export C.b.a.{f => g, g => _, _}
 export C.b.a.d
 <<< grouped sort ascii with nested package
@@ -515,10 +515,10 @@ import A.md.e.g
 import a.b
 import a.c
 
-export d.e.f
-export d.e.g
 import h.k
 import h.l
+export d.e.f
+export d.e.g
 
 class A
 
@@ -1276,9 +1276,9 @@ package a
 // comment
 import a.{b, c, f, g}
 
+import h.{a, b, k, l}
 import d.e.{a, b, d, f => g, g => _, _}
 export d.e.{f, g}
-import h.{a, b, k, l}
 //package b
 export h.{f, g}
 import x.{y, _}
@@ -1550,15 +1550,15 @@ import y.absolute
 
 import x.absolute
 
-import a.relative_to.b.X
-import a.relative_to.b.Y
-import a.relative_to.b.Z
-import b.relative_to.c.X
-import b.relative_to.c.Y
-import b.relative_to.c.Z
 import c.relative_to.x.X
 import c.relative_to.x.Y
 import c.relative_to.x.Z
+import b.relative_to.c.X
+import b.relative_to.c.Y
+import b.relative_to.c.Z
+import a.relative_to.b.X
+import a.relative_to.b.Y
+import a.relative_to.b.Z
 <<< sort relative imports (sortCatchallGroup=none)
 rewrite.imports {
   groups = [ ["z.*"], ["y.*"], ["x.*"] ]
@@ -1585,12 +1585,12 @@ import y.absolute
 
 import x.absolute
 
-import a.relative_to.b.X
-import a.relative_to.b.Y
-import a.relative_to.b.Z
-import b.relative_to.c.X
-import b.relative_to.c.Y
-import b.relative_to.c.Z
-import c.relative_to.x.X
-import c.relative_to.x.Y
 import c.relative_to.x.Z
+import c.relative_to.x.Y
+import c.relative_to.x.X
+import b.relative_to.c.Z
+import b.relative_to.c.Y
+import b.relative_to.c.X
+import a.relative_to.b.Z
+import a.relative_to.b.Y
+import a.relative_to.b.X
