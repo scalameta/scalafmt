@@ -2892,6 +2892,88 @@ if (something_else) {
 }
 ```
 
+### `danglingParentheses.importSite`
+
+> Since v3.10.1.
+
+```scala mdoc:defaults
+danglingParentheses.importSite
+```
+
+Normally, multiple import selectors
+(see [`binPack.importSelectors`](#binpackimportselectors))
+are either formatted one a single line if they fit,
+or newlines are added after the opening brace and before the closing one.
+
+However, if you prefer to avoid having these newlines, some combinations
+of parameters will help you achieve that. This parameter must be set to false
+and one of the following conditions enabled as follows:
+
+- [`binPack.importSelectors`](#binpackimportselectors) is set to `fold`, or
+- [`binPack.importSelectors`](#binpackimportselectors) is not set, and
+  - [`newlines.source = fold`](#newlinessource)), or
+  - [`newlines.source != unfold`](#newlinessource)) and there's no break after the opening brace
+
+```scala mdoc:scalafmt
+danglingParentheses.importSite = false
+maxColumn = 20
+binPack.importSelectors = fold
+---
+// should be folded, importSelectors = fold
+import ref.{foo, bar, baz, qux}
+// should be folded, importSelectors = fold
+import ref.{
+  foo, bar, baz, qux}
+```
+
+```scala mdoc:scalafmt
+danglingParentheses.importSite = false
+maxColumn = 20
+binPack.importSelectors = unfold
+---
+// should NOT be folded, importSelectors = unfold
+import ref.{foo, bar, baz, qux}
+// should NOT be folded, importSelectors = unfold
+import ref.{
+  foo, bar, baz, qux}
+```
+
+```scala mdoc:scalafmt
+danglingParentheses.importSite = false
+maxColumn = 20
+newlines.source = fold
+---
+// should be folded, source = fold
+import ref.{foo, bar, baz, qux}
+// should be folded, source = fold
+import ref.{
+  foo, bar, baz, qux}
+```
+
+```scala mdoc:scalafmt
+danglingParentheses.importSite = false
+maxColumn = 20
+newlines.source = keep
+---
+// should be folded: no break after opening brace
+import ref.{foo, bar, baz, qux}
+// should NOT be folded: break after opening brace
+import ref.{
+  foo, bar, baz, qux}
+```
+
+```scala mdoc:scalafmt
+danglingParentheses.importSite = false
+maxColumn = 20
+newlines.source = unfold
+---
+// should NOT be folded, source = unfold
+import ref.{foo, bar, baz, qux}
+// should NOT be folded, source = unfold
+import ref.{
+  foo, bar, baz, qux}
+```
+
 ### `danglingParentheses.tupleSite`
 
 This parameter controls dangling of closing parentheses in tuples. If not

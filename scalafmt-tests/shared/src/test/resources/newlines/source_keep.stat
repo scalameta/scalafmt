@@ -12555,3 +12555,24 @@ for {
     bs2;
   if a < b; c <- cs
 } yield a + b + c
+<<< break, danglingParentheses.importSite = false
+maxColumn = 20
+danglingParentheses.importSite = false
+===
+import ref.{
+  foo, bar, baz, qux}
+>>>
+import ref.{
+  foo,
+  bar,
+  baz,
+  qux
+}
+<<< no break, danglingParentheses.importSite = false
+maxColumn = 20
+danglingParentheses.importSite = false
+===
+import ref.{foo, bar, baz, qux}
+>>>
+import ref.{foo,
+  bar, baz, qux}

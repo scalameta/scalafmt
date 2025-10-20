@@ -14,6 +14,7 @@ case class DanglingParentheses(
     private[config] val tupleSite: Option[Boolean] = None,
     private[config] val bracketCallSite: Option[Boolean] = None,
     private[config] val bracketDefnSite: Option[Boolean] = None,
+    importSite: Boolean = true,
     private val exclude: Option[List[Exclude]] = None,
 ) {
   @inline

@@ -292,12 +292,6 @@ case class ScalafmtConfig(
   @inline
   def isFormatOff(token: T): Boolean = isFormatIn(token, formatOff)
 
-  def importSelectorsBinPack: ImportSelectors = binPack.importSelectors
-    .getOrElse(
-      if (newlines.source eq Newlines.fold) ImportSelectors.fold
-      else ImportSelectors.unfold,
-    )
-
   def importSelectorsRewrite: Newlines.SourceHints = rewrite.imports.selectors
     .getOrElse(newlines.source)
 }

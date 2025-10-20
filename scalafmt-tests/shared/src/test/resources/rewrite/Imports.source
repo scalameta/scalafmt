@@ -1444,3 +1444,48 @@ import c.universe.{Position => ReflectPosition}
 import c.universe.{Position => _, Symbol => _, Tree => _, Type => _, _}
 import c.universe.{Symbol => ReflectSymbol}
 import c.universe.{Tree => ReflectTree}
+<<< fold with names and renames/wildcards, removeRedundantSelectors
+rewrite.imports {
+  sort = ascii
+  selectors = fold
+  removeRedundantSelectors = true
+}
+===
+import ref.{a => b, _}
+import ref.c
+>>>
+import ref.{a => b, _}
+<<< unfold with names and renames/wildcards, removeRedundantSelectors
+rewrite.imports {
+  sort = ascii
+  selectors = unfold
+  removeRedundantSelectors = true
+}
+===
+import ref.{a => b, _}
+import ref.c
+>>>
+import ref.{a => b, _}
+<<< fold with names and renames/wildcards, !removeRedundantSelectors
+rewrite.imports {
+  sort = ascii
+  selectors = fold
+  removeRedundantSelectors = false
+}
+===
+import ref.{a => b, _}
+import ref.c
+>>>
+import ref.{a => b, c, _}
+<<< unfold with names and renames/wildcards, !removeRedundantSelectors
+rewrite.imports {
+  sort = ascii
+  selectors = unfold
+  removeRedundantSelectors = false
+}
+===
+import ref.{a => b, _}
+import ref.c
+>>>
+import ref.c
+import ref.{a => b, _}
