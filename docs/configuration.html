@@ -5136,7 +5136,10 @@ rewrite.imports.groups = [[<span class="hljs-string">"foo\\..*"</span>]]
 <p>Keep in mind that this functionality should be used very carefully if
 hierarchical (relative) imports are allowed in your codebase. Groups
 should only refer to typical top-level domains such as <code>java</code>, <code>org</code>,
-<code>com</code> or <code>scala</code>, and sorting should be disabled.</p>
+<code>com</code> or <code>scala</code> (i.e. ensuring no relative imports would fall into any
+of the groups), and making sure
+<a href="#imports-sortcatchallgroup"><code>rewrite.imports.sortCatchallGroup</code></a> is
+not <code>full</code>.</p>
 <p>The safest way to handle this case is by using <code>scalafix</code> with a semantic
 rule like <code>OrganizeImports</code>. However, on a large codebase, the overhead
 of using semantic <code>scalafix</code> rules might be substantial.</p>
@@ -5232,6 +5235,25 @@ rewrite.imports.groups = [
 ]
 </code></pre>
 </p></details>
+<h4><a class="anchor" aria-hidden="true" id="imports-sortcatchallgroup"></a><a href="#imports-sortcatchallgroup" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Imports: <code>sortCatchallGroup</code></h4>
+<blockquote>
+<p>Since v3.10.2.</p>
+</blockquote>
+<p>Preserving the order of relative imports is important, to avoid putting
+&quot;relativeB-of-relativeA&quot; before &quot;relativeA&quot;, so they shouldn't be sorted
+the same way fully qualified ones are.</p>
+<p>If we assume that explicitly defined groups would not catch relative
+imports, then we only need to forgo or modify sorting of the implicit,
+catch-all group where everything else (including relatives) would end up.</p>
+<p>Default: <code>rewrite.imports.sortCatchallGroup = &quot;tail&quot;</code></p>
+<p>This parameter takes the following values:</p>
+<ul>
+<li><code>full</code>: the catch-all group is sorted the same way as other groups</li>
+<li><code>none</code>: the catch-all group is not sorted, preserving the original order</li>
+<li><code>tail</code>: the catch-all group applies sorting to statements which have the same
+first element (say, <code>import a.b</code> and <code>import a.c</code>), otherwise their original
+order is preserved</li>
+</ul>
 <h4><a class="anchor" aria-hidden="true" id="imports-removeredundantselectors"></a><a href="#imports-removeredundantselectors" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Imports: <code>removeRedundantSelectors</code></h4>
 <blockquote>
 <p>Since v3.10.0.</p>
@@ -8067,6 +8089,7 @@ rewrite.imports.<span class="hljs-attr">selectors</span> = <span class="hljs-lit
 rewrite.imports.<span class="hljs-attr">contiguousGroups</span> = only
 rewrite.imports.<span class="hljs-attr">groups</span> = []
 rewrite.imports.<span class="hljs-attr">removeRedundantSelectors</span> = <span class="hljs-literal">false</span>
+rewrite.imports.<span class="hljs-attr">sortCatchallGroup</span> = tail
 rewrite.preferCurlyFors.<span class="hljs-attr">removeTrailingSemicolonsOnly</span> = <span class="hljs-literal">false</span>
 rewrite.trailingCommas.<span class="hljs-attr">allowFolding</span> = <span class="hljs-literal">true</span>
 rewrite.trailingCommas.<span class="hljs-attr">style</span> = never
