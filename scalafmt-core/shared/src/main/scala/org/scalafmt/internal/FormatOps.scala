@@ -1629,16 +1629,15 @@ class FormatOps(
       val expire = nextNonCommentSameLine(getLastNonTrivial(body))
       def slbSplit(end: FT)(implicit fileLine: FileLine) = Split(Space, 0)
         .withSingleLine(end, noSyntaxNL = true)
-      getBlockStat(body) match {
+      if (slbOnly) slbSplit(expire)
+      else getBlockStat(body) match {
         // we force newlines in for/yield
         case _: Term.ForYield => Split.ignored
         // we force newlines in try/catch/finally
         case _: Term.TryClause => Split.ignored
         // don't tuck curried apply
         case t: Term.Apply if t.fun.is[Term.Apply] => slbSplit(expire)
-        case t =>
-          val endOpt = if (slbOnly) None else getEndOfFirstCall(t)
-          slbSplit(endOpt.getOrElse(expire))
+        case t => slbSplit(getEndOfFirstCall(t).getOrElse(expire))
       }
     }
 
@@ -1682,7 +1681,7 @@ class FormatOps(
         nlSplitFunc: Int => Split,
     )(implicit style: ScalafmtConfig, ft: FT): Seq[Split] = checkComment(
       nlSplitFunc,
-    )(_ => unfoldedNonComment(body, nlSplitFunc, spaceIndents, true))
+    )(_ => unfoldedNonComment(body, nlSplitFunc, spaceIndents, slbOnly = true))
 
     def get(body: Tree, spaceIndents: Seq[Indent] = Seq.empty)(
         classicNoBreakFunc: => Split,
@@ -1696,7 +1695,7 @@ class FormatOps(
       style.newlines.getBeforeMultiline match {
         case Newlines.fold => getFolded(false)
         case Newlines.unfold =>
-          unfoldedNonComment(body, nlSplitFunc, spaceIndents, false)
+          unfoldedNonComment(body, nlSplitFunc, spaceIndents, slbOnly = false)
         case Newlines.classic if x.noBreak =>
           Option(classicNoBreakFunc).fold(getFolded(true))(func =>
             func.forThisLine +: getFoldedKeepNLOnly,
