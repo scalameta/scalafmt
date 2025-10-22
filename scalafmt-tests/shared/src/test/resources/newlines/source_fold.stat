@@ -11990,8 +11990,7 @@ newlines.forceBeforeMultilineAssign = def
 ===
 def chars(s: String): List[Int] = for c <- s.toList yield c.toInt
 >>>
-def chars(s: String): List[Int] =
-  for c <- s.toList yield c.toInt
+def chars(s: String): List[Int] = for c <- s.toList yield c.toInt
 <<< #5027 !forceBeforeMultilineAssign
 maxColumn = 100
 newlines.forceBeforeMultilineAssign = never
