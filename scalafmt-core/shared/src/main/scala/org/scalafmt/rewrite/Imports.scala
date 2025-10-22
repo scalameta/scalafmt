@@ -24,6 +24,7 @@ object Imports extends RewriteFactory {
       contiguousGroups: ContiguousGroups = ContiguousGroups.only,
       private val groups: Seq[Seq[String]] = Nil,
       removeRedundantSelectors: Boolean = false,
+      sortCatchallGroup: SortCatchallGroup = SortCatchallGroup.tail,
   ) {
     private lazy val regex = groups.zipWithIndex
       .flatMap { case (patterns, index) => patterns.map((_, index)) }
@@ -57,6 +58,16 @@ object Imports extends RewriteFactory {
 
     implicit val codec: ConfCodecEx[ContiguousGroups] = ReaderUtil
       .oneOf(only, no)
+  }
+
+  sealed abstract class SortCatchallGroup
+  object SortCatchallGroup {
+    case object full extends SortCatchallGroup
+    case object none extends SortCatchallGroup
+    case object tail extends SortCatchallGroup
+
+    implicit val codec: ConfCodecEx[SortCatchallGroup] = ReaderUtil
+      .oneOf(full, none, tail)
   }
 
   override def hasChanged(v1: RewriteSettings, v2: RewriteSettings): Boolean =
@@ -154,6 +165,7 @@ object Imports extends RewriteFactory {
         buf: Seq[(Importee, String)],
     ): Iterable[(Importee, String)]
     def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry]
+    def sortGroupingTail(buf: Seq[GroupingEntry]): Iterable[GroupingEntry]
 
     def sortSelector(buf: Seq[Importee]): Iterable[(Importee, String)] = {
       // https://docs.scala-lang.org/scala3/reference/contextual/given-imports.html
@@ -191,6 +203,8 @@ object Imports extends RewriteFactory {
       ): Iterable[(Importee, String)] = buf
 
       def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] = buf
+      def sortGroupingTail(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] =
+        buf
     }
 
     case object fold extends Sort {
@@ -199,6 +213,8 @@ object Imports extends RewriteFactory {
       ): Iterable[(Importee, String)] = buf
 
       def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] = buf
+      def sortGroupingTail(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] =
+        buf
     }
 
     abstract class SortBase extends Sort {
@@ -209,22 +225,44 @@ object Imports extends RewriteFactory {
         override def compare(x: GroupingEntry, y: GroupingEntry): Int = {
           val xarr = x.labels
           val yarr = y.labels
-          val lencmp = xarr.length - yarr.length
-          val cnt = if (lencmp < 0) xarr.length else yarr.length
-          @tailrec
-          def iter(i: Int): Int =
-            if (i == cnt) lencmp
-            else {
-              val xlabel = xarr(i)
-              val ylabel = yarr(i)
-              val cmp =
-                if (xlabel.isEmpty) if (ylabel.isEmpty) 0 else -1
-                else if (ylabel.isEmpty) 1
-                else groupingOrdering.compare(xlabel, ylabel)
-              if (cmp != 0) cmp else iter(i + 1)
-            }
-          iter(0)
+          compareArraySlices(xarr, 0, xarr.length, yarr, 0, yarr.length)
         }
+      }
+
+      private object GroupingEntryTailOrdering extends Ordering[GroupingEntry] {
+        override def compare(x: GroupingEntry, y: GroupingEntry): Int = {
+          val xarr = x.labels
+          val yarr = y.labels
+          if (xarr(0) != yarr(0)) 0 // don't reorder; assumes stable sort
+          else compareArraySlices(xarr, 1, xarr.length, yarr, 1, yarr.length)
+        }
+      }
+
+      private def compareArraySlices(
+          xarr: Array[String],
+          xbeg: Int,
+          xend: Int,
+          yarr: Array[String],
+          ybeg: Int,
+          yend: Int,
+      ): Int = {
+        val xlen = xend - xbeg
+        val ylen = yend - ybeg
+        val lencmp = xlen - ylen
+        val cnt = if (lencmp < 0) xlen else ylen
+        @tailrec
+        def iter(i: Int): Int =
+          if (i == cnt) lencmp
+          else {
+            val xlabel = xarr(i + xbeg)
+            val ylabel = yarr(i + ybeg)
+            val cmp =
+              if (xlabel.isEmpty) if (ylabel.isEmpty) 0 else -1
+              else if (ylabel.isEmpty) 1
+              else groupingOrdering.compare(xlabel, ylabel)
+            if (cmp != 0) cmp else iter(i + 1)
+          }
+        iter(0)
       }
 
       protected def sortSelectors(
@@ -233,6 +271,9 @@ object Imports extends RewriteFactory {
 
       def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] = buf
         .view.sorted(GroupingEntryOrdering)
+
+      def sortGroupingTail(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] =
+        buf.view.sorted(GroupingEntryTailOrdering)
     }
 
     case object ascii extends SortBase {
@@ -567,12 +608,26 @@ object Imports extends RewriteFactory {
           if (isHead) getCommentsBefore(pTokens).foreach(appendComment)
         case _ =>
       }
-      groups.foreach { group =>
+
+      val groupsIterator = groups.iterator
+      def sortGroup(entries: Seq[GroupingEntry]): Iterable[GroupingEntry] = {
+        val sortCatchallGroup =
+          if (groupsIterator.hasNext || settings.numGroups == 0)
+            SortCatchallGroup.full
+          else settings.sortCatchallGroup
+        sortCatchallGroup match {
+          case SortCatchallGroup.none => entries
+          case SortCatchallGroup.full => settings.sort.sortGrouping(entries)
+          case SortCatchallGroup.tail => settings.sort.sortGroupingTail(entries)
+        }
+      }
+
+      groupsIterator.foreach { group =>
         val entries = group.result()
         if (entries.nonEmpty) {
           if (sb.nonEmpty) sb.appendNL
           // sort and add empty line in all groups
-          settings.sort.sortGrouping(entries).foreach { entry =>
+          sortGroup(entries).foreach { entry =>
             import entry._, selectors._
             val commentsAfterBuilder = Seq.newBuilder[T]
             val appendTailComment: T => Unit = commentsAfterBuilder += _
