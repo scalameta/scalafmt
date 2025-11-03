@@ -708,7 +708,7 @@ object SplitsAfterEqualsLeftArrow {
       val spaceIndents =
         if (noSpace) Seq.empty else Seq(Indent(StateColumn, endFt, After))
       SplitsAfterEquals.getSplitsDefValEquals(body, endFt, spaceIndents) {
-        CtrlBodySplits.get(body, spaceIndents)(
+        CtrlBodySplits.get(body, spaceIndents) {
           if (spaceIndents.nonEmpty) Split(Space, 0).withIndents(spaceIndents)
           else {
             val noSlb = body match {
@@ -717,11 +717,19 @@ object SplitsAfterEqualsLeftArrow {
               case t: Term.If => ifWithoutElse(t)
               case _ => true
             }
-            if (noSlb) Split(Space, 0)
-              .withOptimalToken(next(ft), killOnFail = false)
-            else Split(Space, 0).withSingleLine(endFt)
-          },
-        )(cost => CtrlBodySplits.withIndent(Splits.lowRankNL(ft, cost), endFt))
+            val noSlbOpt =
+              if (!noSlb) None
+              else if (cfg.newlines.ignoreInSyntax) Some(next(ft))
+              else tokens.findTokenEx(ft)(xft =>
+                if (xft.rightHasNewline) Right(false)
+                else if (xft.right.is[T.Comment]) Left(next(xft))
+                else null,
+              ).left.toOption
+            noSlbOpt.fold(Split(Space, 0).withSingleLine(endFt))(xft =>
+              Split(Space, 0).withOptimalToken(xft, killOnFail = false),
+            )
+          }
+        }(cost => CtrlBodySplits.withIndent(Splits.lowRankNL(ft, cost), endFt))
       }
     }
   }
