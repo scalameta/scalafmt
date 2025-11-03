@@ -12829,7 +12829,8 @@ for {
 } yield foo
 >>>
 for {
-  foo <- """|
-    |bar
-    |baz""".stripMargin
+  foo <-
+    """|
+      |bar
+      |baz""".stripMargin
 } yield foo
