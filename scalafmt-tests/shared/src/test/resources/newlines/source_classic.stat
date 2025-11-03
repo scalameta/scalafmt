@@ -12803,3 +12803,33 @@ newlines.forceBeforeMultilineAssign = never
 def chars(s: String): List[Int] = for c <- s.toList yield c.toInt
 >>>
 def chars(s: String): List[Int] = for c <- s.toList yield c.toInt
+<<< for-yield with multiline, ignoreInSyntax
+newlines.ignoreInSyntax = true
+assumeStandardLibraryStripMargin = true
+===
+for {
+  foo <- """|
+    |bar
+    |baz""".stripMargin
+} yield foo
+>>>
+for {
+  foo <- """|
+    |bar
+    |baz""".stripMargin
+} yield foo
+<<< for-yield with multiline, !ignoreInSyntax
+newlines.ignoreInSyntax = false
+assumeStandardLibraryStripMargin = true
+===
+for {
+  foo <- """|
+    |bar
+    |baz""".stripMargin
+} yield foo
+>>>
+for {
+  foo <- """|
+    |bar
+    |baz""".stripMargin
+} yield foo
