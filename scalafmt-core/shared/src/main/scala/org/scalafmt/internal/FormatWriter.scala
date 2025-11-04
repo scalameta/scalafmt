@@ -1349,7 +1349,7 @@ class FormatWriter(formatOps: FormatOps) {
     ): (Tree, Int) = t match {
       case x: Tree.Block if fl.formatToken.right.is[T.Comment] => (x, depth)
 
-      case _: Defn | _: Case | _: Term.Apply | _: Init | _: Ctor.Primary =>
+      case _: Case | _: Term.Apply | _: Init | _: Ctor.Primary =>
         getAlignContainerParent(t, depth, Some(t))
 
       case _: Mod => t.parent match {
