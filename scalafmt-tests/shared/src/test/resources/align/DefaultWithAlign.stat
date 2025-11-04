@@ -2329,3 +2329,77 @@ object a {
   val y  = y  && y  && s"""|y
                            |y""".stripMargin
 }
+<<< #5031 blank interrupting align 1
+align.multiline = true
+runner.parser = source
+===
+object A {
+  val foo = "foo"
+}
+
+class Foo(
+) {
+  def bar: String = "foo"
+}
+
+case class SomeLongNameClass(
+    foo: String
+)
+object SomeLongNameObject {
+  val foo = "foo"
+}
+>>>
+object A                  {
+  val foo = "foo"
+}
+
+class Foo(
+) {
+  def bar: String = "foo"
+}
+
+case class SomeLongNameClass(
+    foo: String
+)
+object SomeLongNameObject {
+  val foo = "foo"
+}
+<<< #5031 blank interrupting align 2
+align.multiline = true
+runner.parser = source
+===
+object A {
+  val foo = "foo"
+}
+
+case class Foo(
+    foo: String
+) {
+  def bar: String = "foo"
+}
+
+case class SomeLongNameClass(
+    foo: String
+)
+
+object SomeLongNameObject {
+  val foo = "foo"
+}
+>>>
+object A {
+  val foo = "foo"
+}
+
+case class Foo(
+    foo: String
+) {
+  def bar: String = "foo"
+}
+
+case class SomeLongNameClass(
+    foo: String
+)
+
+object SomeLongNameObject {
+  val foo = "foo"
+}
