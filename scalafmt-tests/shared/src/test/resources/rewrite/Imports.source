@@ -1594,3 +1594,112 @@ import b.relative_to.c.X
 import a.relative_to.b.Z
 import a.relative_to.b.Y
 import a.relative_to.b.X
+<<< removeRedundantSelectors, no others
+runner.dialect = scala3
+rewrite {
+  rules = [Imports]
+  imports {
+    removeRedundantSelectors = true
+  }
+}
+===
+import foo.{bar, baz}
+import foo.bar
+import foo.{baz => qux, given A, _}
+import foo.given
+>>>
+import foo.{bar, baz}
+import foo.bar
+import foo.{baz => qux, given A, _}
+import foo.given
+<<< removeRedundantSelectors, selectors=fold
+runner.dialect = scala3
+rewrite {
+  rules = [Imports]
+  imports {
+    selectors = fold
+    removeRedundantSelectors = true
+  }
+}
+===
+import foo.{bar, baz}
+import foo.bar
+import foo.{baz => qux, given A, _}
+import foo.given
+>>>
+import foo.{baz => qux, _, given}
+import foo.baz
+<<< removeRedundantSelectors, selectors=unfold
+runner.dialect = scala3
+rewrite {
+  rules = [Imports]
+  imports {
+    selectors = unfold
+    removeRedundantSelectors = true
+  }
+}
+===
+import foo.{bar, baz}
+import foo.bar
+import foo.{baz => qux, given A, _}
+import foo.given
+>>>
+import foo.{baz => qux, _, given}
+import foo.baz
+<<< removeRedundantSelectors, groups includes
+runner.dialect = scala3
+rewrite {
+  rules = [Imports]
+  imports {
+    groups = [ [ "foo.*" ] ]
+    removeRedundantSelectors = true
+  }
+}
+===
+import foo.{bar, baz}
+import foo.bar
+import foo.{baz => qux, given A, _}
+import foo.given
+>>>
+import foo.{bar, baz}
+import foo.bar
+import foo.{baz => qux, given A, _}
+import foo.given
+<<< removeRedundantSelectors, groups excludes
+runner.dialect = scala3
+rewrite {
+  rules = [Imports]
+  imports {
+    groups = [ [ "bar.*" ] ]
+    removeRedundantSelectors = true
+  }
+}
+===
+import foo.{bar, baz}
+import foo.bar
+import foo.{baz => qux, given A, _}
+import foo.given
+>>>
+import foo.{bar, baz}
+import foo.bar
+import foo.{baz => qux, given A, _}
+import foo.given
+<<< removeRedundantSelectors, sorting
+runner.dialect = scala3
+rewrite {
+  rules = [Imports]
+  imports {
+    sort = ascii
+    removeRedundantSelectors = true
+  }
+}
+===
+import foo.{bar, baz}
+import foo.bar
+import foo.{baz => qux, given A, _}
+import foo.given
+>>>
+import foo.{bar, baz}
+import foo.bar
+import foo.{baz => qux, given A, _}
+import foo.given
