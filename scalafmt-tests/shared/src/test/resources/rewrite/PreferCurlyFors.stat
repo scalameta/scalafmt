@@ -242,3 +242,30 @@ object a {
       === a.id
   } yield (p.name, a.city)
 }
+<<< #5035 !convertToNewSyntax
+runner.dialect = scala3
+===
+for (a <- as; b <- bs if b > 2) yield (a, b)
+>>>
+for {
+  a <- as
+  b <- bs if b > 2
+} yield (a, b)
+<<< #5035 convertToNewSyntax
+runner.dialect = scala3
+rewrite.scala3.convertToNewSyntax = true
+===
+for (a <- as; b <- bs if b > 2) yield (a, b)
+>>>
+for (a <- as; b <- bs if b > 2) yield (a, b)
+<<< #5035 convertToNewSyntax, !allowQuietSyntax
+runner.dialect = scala3
+runner.dialectOverride.allowQuietSyntax = false
+rewrite.scala3.convertToNewSyntax = true
+===
+for (a <- as; b <- bs if b > 2) yield (a, b)
+>>>
+for {
+  a <- as
+  b <- bs if b > 2
+} yield (a, b)
