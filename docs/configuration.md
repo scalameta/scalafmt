@@ -3920,20 +3920,57 @@ This parameter takes the following values:
 
 If `rewrite.imports.removeRedundantSelectors` is enabled, will remove those
 selectors which are identical to another or are superseded by an appropriate
-wildcard. This deduplication happens at the group level if
-[groups](#imports-groups) are enabled, or at the statement level otherwise.
+wildcard. This deduplication will only happen at the statement level unless
+[groups](#imports-groups) or [selectors](#imports-selectors) are enabled.
 
 Regardless of this setting, the rule will de-duplicate identical import statements.
+
+Example with statement-level dedup:
 
 ```scala mdoc:scalafmt
 runner.dialect = scala3
 rewrite.rules = [Imports]
+rewrite.imports.sort = ascii // this is not enough
 rewrite.imports.removeRedundantSelectors = true
 ---
+import foo.{bar, baz, bar, baz} // will dedup only this
+import foo.bar
+import foo.{baz => qux, given A, _}
+import foo.given
+```
+
+Example with wider dedup due to selectors:
+
+```scala mdoc:scalafmt
+runner.dialect = scala3
+rewrite.rules = [Imports]
+rewrite.imports.selectors = unfold
+rewrite.imports.removeRedundantSelectors = true
+---
+// will dedup all
 import foo.{bar, baz}
 import foo.bar
 import foo.{baz => qux, given A, _}
 import foo.given
+```
+
+Example with wider dedup due to grouping:
+
+```scala mdoc:scalafmt
+runner.dialect = scala3
+rewrite.rules = [Imports]
+rewrite.imports.groups = [[ "foo1.*" ]]
+rewrite.imports.removeRedundantSelectors = true
+---
+// will dedup all
+import foo1.{bar, baz}
+import foo1.bar
+import foo1.{baz => qux, given A, _}
+import foo1.given
+import foo2.{bar, baz}
+import foo2.bar
+import foo2.{baz => qux, given A, _}
+import foo2.given
 ```
 
 ### Trailing commas
