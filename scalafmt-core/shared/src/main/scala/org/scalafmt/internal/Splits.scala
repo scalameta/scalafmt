@@ -3403,7 +3403,7 @@ object SplitsAfterYield extends Splits {
   ): Seq[Split] = {
     import fo._, tokens._, ft._
     (leftOwner match {
-      case t: Term.ForYield => Some(t.body)
+      case t: Term.ForYield => Some(CtrlBodySplits.getBlockStat(t.body))
       case _ => None
     }).fold(Seq.empty[Split]) {
       case b: Term.PartialFunction
@@ -3419,7 +3419,14 @@ object SplitsAfterYield extends Splits {
       case b =>
         val lastToken = getLast(b)
         val indent = Indent(cfg.indent.main, lastToken, ExpiresOn.After)
-        if (cfg.newlines.avoidAfterYield && !rightOwner.is[Term.If]) {
+        val avoidAfterYield = cfg.newlines.avoidAfterYield &&
+          (b match {
+            case _: Term.If => !nextNonComment(ft).right.is[T.KwIf]
+            case _: Term.ForClause => !nextNonComment(ft).right.is[T.KwFor]
+            case _: Term.TryClause => !nextNonComment(ft).right.is[T.KwTry]
+            case _ => true
+          })
+        if (avoidAfterYield) {
           val noIndent = !isRightCommentWithBreak(ft)
           Seq(Split(Space, 0).withIndent(indent, noIndent))
         } else Seq(
