@@ -1661,9 +1661,7 @@ import foo.bar
 import foo.{baz => qux, given A, _}
 import foo.given
 >>>
-import foo.{bar, baz}
-import foo.bar
-import foo.{baz => qux, given A, _}
+import foo.{baz => qux, _}
 import foo.given
 <<< removeRedundantSelectors, groups excludes
 runner.dialect = scala3
@@ -1680,9 +1678,7 @@ import foo.bar
 import foo.{baz => qux, given A, _}
 import foo.given
 >>>
-import foo.{bar, baz}
-import foo.bar
-import foo.{baz => qux, given A, _}
+import foo.{baz => qux, _}
 import foo.given
 <<< removeRedundantSelectors, sorting
 runner.dialect = scala3

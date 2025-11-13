@@ -760,9 +760,14 @@ object Imports extends RewriteFactory {
         kw: String,
         ref: String,
         importers: Seq[Importer],
-    ): Unit = importers.foreach(importer =>
-      addSelectorsToGroup(group, kw, ref, filterImportees(importer)),
-    )
+    ): Unit = {
+      val importeesToKeep = getImporteesToKeep(importers.flatMap(_.importees))
+      importers.foreach { importer =>
+        val importees =
+          filterWithImporteesToKeep(importeesToKeep)(importer.importees)
+        addSelectorsToGroup(group, kw, ref, importees)
+      }
+    }
   }
 
   /** convert
