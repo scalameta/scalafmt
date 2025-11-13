@@ -134,8 +134,9 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
             if (!nextRight.is[T.KwDo])
               replaceToken("do")(new T.KwDo(x.input, x.dialect, x.start))
             else removeToken
-          case t: Term.EnumeratorsBlock if t.parent.is[Term.For] =>
-            if (!nextRight.is[T.KwDo]) replaceToken("do", t.parent)(
+          case t: Term.EnumeratorsBlock =>
+            val needDo = t.parent.is[Term.For] && !nextRight.is[T.KwDo]
+            if (needDo) replaceToken("do", t.parent)(
               new T.KwDo(x.input, x.dialect, x.start),
             )
             else removeToken

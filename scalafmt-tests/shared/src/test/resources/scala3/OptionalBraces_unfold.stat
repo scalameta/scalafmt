@@ -1810,9 +1810,9 @@ object a {
 }
 >>>
 object a:
-   for (a <- b)
-     yield for a <- b
-     yield foo
+   for a <- b
+   yield for a <- b
+   yield foo
    while a > 0 do
       while a > 0 do
          foo
@@ -1889,25 +1889,24 @@ object a {
 }
 >>>
 object a:
-   for (
-     a <- b;
-     c <- d
-   )
-     yield
-        for
-           a <- b;
-           c <- d
-        yield
-           foo
-           bar
-        end for
-        for
-           a <- b;
-           c <- d
-        yield
-           foo
-           bar
-        end for
+   for
+      a <- b;
+      c <- d
+   yield
+      for
+         a <- b;
+         c <- d
+      yield
+         foo
+         bar
+      end for
+      for
+         a <- b;
+         c <- d
+      yield
+         foo
+         bar
+      end for
    end for
    while a > 0 do
       while a > 0 do
