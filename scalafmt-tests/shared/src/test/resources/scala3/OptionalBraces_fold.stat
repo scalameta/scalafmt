@@ -8703,9 +8703,8 @@ newlines.annotation = true
       limit: Option[Int]
   )
 >>>
-@Name("search-code") @Help(
-  "search code of snippet files using trigam search"
-) case SearchCode(
+@Name("search-code") @Help("search code of snippet files using trigam search")
+case SearchCode(
     @Short("q")
     query: Option[String],
     @Short("l")
@@ -8723,9 +8722,8 @@ newlines.annotation = false
       limit: Option[Int]
   )
 >>>
-@Name("search-code") @Help(
-  "search code of snippet files using trigam search"
-) case SearchCode(
+@Name("search-code") @Help("search code of snippet files using trigam search")
+case SearchCode(
     @Short("q") query: Option[String],
     @Short("l") limit: Option[Int]
 )
