@@ -8691,3 +8691,41 @@ newlines.forceBeforeMultilineAssign = never
 def chars(s: String): List[Int] = for c <- s.toList yield c.toInt
 >>>
 def chars(s: String): List[Int] = for c <- s.toList yield c.toInt
+<<< annotations on enums, annotation
+newlines.annotation = true
+===
+@Name("search-code") @Help(
+    "search code of snippet files using trigam search"
+  ) case SearchCode(
+      @Short("q")
+      query: Option[String],
+      @Short("l")
+      limit: Option[Int]
+  )
+>>>
+@Name("search-code") @Help(
+  "search code of snippet files using trigam search"
+) case SearchCode(
+    @Short("q")
+    query: Option[String],
+    @Short("l")
+    limit: Option[Int]
+)
+<<< annotations on enums, !annotation
+newlines.annotation = false
+===
+@Name("search-code") @Help(
+    "search code of snippet files using trigam search"
+  ) case SearchCode(
+      @Short("q")
+      query: Option[String],
+      @Short("l")
+      limit: Option[Int]
+  )
+>>>
+@Name("search-code") @Help(
+  "search code of snippet files using trigam search"
+) case SearchCode(
+    @Short("q") query: Option[String],
+    @Short("l") limit: Option[Int]
+)
