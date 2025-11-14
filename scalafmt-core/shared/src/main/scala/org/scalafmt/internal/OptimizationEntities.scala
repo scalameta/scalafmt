@@ -151,6 +151,7 @@ object OptimizationEntities {
       case t: Defn.Macro => addDefn[T.KwDef](t.mods, t)
       case t: meta.Stat.GivenLike => addDefn[T.KwGiven](t.mods, t)
       case t: Defn.Enum => addDefn[T.KwEnum](t.mods, t)
+      case t: Defn.EnumCase => addDefn[T.KwCase](t.mods, t)
       case t: Defn.ExtensionGroup =>
         addDefnTokens(Nil, t, "extension", soft.KwExtension.unapply)
       case t: Defn.Object => addDefn[T.KwObject](t.mods, t)
