@@ -9,7 +9,7 @@ import coursier.{Dependency => _, MavenRepository => Repository, _}
 
 private class CoursierDependencyDownloader(
     downloadProgressWriter: OutputStreamWriter,
-    repositories: Seq[Repository],
+    customRepositories: Seq[Repository],
 ) extends DependencyDownloader {
 
   override def download(dependencies: Seq[Dependency]): Try[Seq[URL]] = Try {
@@ -21,9 +21,17 @@ private class CoursierDependencyDownloader(
     }: _*).addRepositories(repositories: _*).run().map(_.toURI.toURL).toList
   }
 
+  private def repositories = customRepositories ++
+    CoursierDependencyDownloader.extraRepositories
+
 }
 
 object CoursierDependencyDownloader extends DependencyDownloaderFactory {
+
+  private val extraRepositories = Seq(
+    // central snapshots
+    "https://central.sonatype.com/repository/maven-snapshots",
+  ).map(Repository.apply)
 
   override def create(properties: ScalafmtProperties): DependencyDownloader = {
     val writer = properties.reporter.downloadOutputStreamWriter()
