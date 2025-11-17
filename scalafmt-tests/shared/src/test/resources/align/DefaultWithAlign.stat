@@ -2403,3 +2403,54 @@ case class SomeLongNameClass(
 object SomeLongNameObject {
   val foo = "foo"
 }
+<<< comments with !multiline and argclause before
+align.multiline = false
+runner.dialect = scala3
+===
+def foo = {
+  Seq("hello")
+    ++ Seq("a") // add a
+    ++ bar             // add bar
+    ++ somethingLonger // add something longer
+}
+>>>
+def foo = {
+  Seq("hello")
+    ++ Seq("a")        // add a
+    ++ bar             // add bar
+    ++ somethingLonger // add something longer
+}
+<<< comments with multiline and argclause before
+align.multiline = true
+runner.dialect = scala3
+===
+def foo = {
+  Seq("hello")
+    ++ Seq("a") // add a
+    ++ bar             // add bar
+    ++ somethingLonger // add something longer
+}
+>>>
+def foo = {
+  Seq("hello")
+    ++ Seq("a") // add a
+    ++ bar             // add bar
+    ++ somethingLonger // add something longer
+}
+<<< comments with multiline and no argclause before
+align.multiline = true
+runner.dialect = scala3
+===
+def foo = {
+  Seq("hello")
+    ++ Seq // add a
+    ++ bar             // add bar
+    ++ somethingLonger // add something longer
+}
+>>>
+def foo = {
+  Seq("hello")
+    ++ Seq             // add a
+    ++ bar             // add bar
+    ++ somethingLonger // add something longer
+}
