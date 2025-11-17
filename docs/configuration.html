@@ -5260,15 +5260,19 @@ order is preserved</li>
 </blockquote>
 <p>If <code>rewrite.imports.removeRedundantSelectors</code> is enabled, will remove those
 selectors which are identical to another or are superseded by an appropriate
-wildcard. This deduplication happens at the group level if
-<a href="#imports-groups">groups</a> are enabled, or at the statement level otherwise.</p>
+wildcard. This deduplication will only happen at the statement level unless
+<a href="#imports-groups">groups</a> or <a href="#imports-selectors">selectors</a> are enabled.</p>
 <p>Regardless of this setting, the rule will de-duplicate identical import statements.</p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">import</span> foo.{bar, baz}
+<p>Example with statement-level dedup:</p>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">import</span> foo.{
+  bar,
+  baz
+} <span class="hljs-comment">// will dedup only this</span>
 <span class="hljs-keyword">import</span> foo.bar
 <span class="hljs-keyword">import</span> foo.{baz =&gt; qux, given <span class="hljs-type">A</span>, _}
 <span class="hljs-keyword">import</span> foo.given
 </code></pre>
-<pre><code class="hljs css language-scala original"><span class="hljs-keyword">import</span> foo.{bar, baz}
+<pre><code class="hljs css language-scala original"><span class="hljs-keyword">import</span> foo.{bar, baz, bar, baz} <span class="hljs-comment">// will dedup only this</span>
 <span class="hljs-keyword">import</span> foo.bar
 <span class="hljs-keyword">import</span> foo.{baz =&gt; qux, given <span class="hljs-type">A</span>, _}
 <span class="hljs-keyword">import</span> foo.given
@@ -5276,6 +5280,50 @@ wildcard. This deduplication happens at the group level if
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">runner.dialect = scala3
 rewrite.rules = [<span class="hljs-type">Imports</span>]
+rewrite.imports.sort = ascii <span class="hljs-comment">// this is not enough</span>
+rewrite.imports.removeRedundantSelectors = <span class="hljs-literal">true</span>
+</code></pre>
+</p></details>
+<p>Example with wider dedup due to selectors:</p>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// will dedup all</span>
+<span class="hljs-keyword">import</span> foo.{baz =&gt; qux, _, given}
+<span class="hljs-keyword">import</span> foo.baz
+</code></pre>
+<pre><code class="hljs css language-scala original"><span class="hljs-comment">// will dedup all</span>
+<span class="hljs-keyword">import</span> foo.{bar, baz}
+<span class="hljs-keyword">import</span> foo.bar
+<span class="hljs-keyword">import</span> foo.{baz =&gt; qux, given <span class="hljs-type">A</span>, _}
+<span class="hljs-keyword">import</span> foo.given
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">runner.dialect = scala3
+rewrite.rules = [<span class="hljs-type">Imports</span>]
+rewrite.imports.selectors = unfold
+rewrite.imports.removeRedundantSelectors = <span class="hljs-literal">true</span>
+</code></pre>
+</p></details>
+<p>Example with wider dedup due to grouping:</p>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// will dedup all</span>
+<span class="hljs-keyword">import</span> foo1.{baz =&gt; qux, _}
+<span class="hljs-keyword">import</span> foo1.given
+
+<span class="hljs-keyword">import</span> foo2.{baz =&gt; qux, _}
+<span class="hljs-keyword">import</span> foo2.given
+</code></pre>
+<pre><code class="hljs css language-scala original"><span class="hljs-comment">// will dedup all</span>
+<span class="hljs-keyword">import</span> foo1.{bar, baz}
+<span class="hljs-keyword">import</span> foo1.bar
+<span class="hljs-keyword">import</span> foo1.{baz =&gt; qux, given <span class="hljs-type">A</span>, _}
+<span class="hljs-keyword">import</span> foo1.given
+<span class="hljs-keyword">import</span> foo2.{bar, baz}
+<span class="hljs-keyword">import</span> foo2.bar
+<span class="hljs-keyword">import</span> foo2.{baz =&gt; qux, given <span class="hljs-type">A</span>, _}
+<span class="hljs-keyword">import</span> foo2.given
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">runner.dialect = scala3
+rewrite.rules = [<span class="hljs-type">Imports</span>]
+rewrite.imports.groups = [[ <span class="hljs-string">"foo1.*"</span> ]]
 rewrite.imports.removeRedundantSelectors = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
