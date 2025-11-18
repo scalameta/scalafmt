@@ -1184,8 +1184,43 @@ class FormatWriter(formatOps: FormatOps) {
         while (idx < locations.length) {
           var alignContainer: Tree = null
           val columnCandidates = IndexedSeq.newBuilder[AlignStop]
+
+          def processLineEnd(implicit floc: FormatLocation): Unit = {
+            val isBlankLine = floc.state.mod.isBlankLine
+            if (alignContainer ne null) {
+              val candidates = columnCandidates.result()
+              val block = getOrCreateBlock(alignContainer)
+              val blockWasEmpty = block.isEmpty
+              if (!blockWasEmpty || !isBlankLine) {
+                val alignLine = new AlignLine(
+                  candidates,
+                  floc.state.prev.column + columnShift,
+                  floc.style,
+                )
+                val appendToEmptyBlock = blockWasEmpty || {
+                  val sameOwner = wasSameContainer(alignContainer)
+                  val notAdded = !block.tryAppendToBlock(alignLine, sameOwner)
+
+                  (isBlankLine || notAdded && shouldFlush(alignContainer)) && {
+                    flushAlignBlock(block)
+                    !isBlankLine
+                  }
+                }
+
+                if (appendToEmptyBlock) block.appendToEmptyBlock(alignLine)
+              }
+
+              prevAlignContainer = alignContainer
+              prevBlock = block
+            }
+            if (isBlankLine || alignContainer.eq(null)) getBlockToFlush(
+              getAlignContainer(floc.formatToken.rightOwner)._1,
+              isBlankLine,
+            ).foreach(flushAlignBlock)
+          }
+
           @tailrec
-          def processLine: FormatLocation = {
+          def processLine: Unit = {
             if (idx > 0) {
               val prevFloc = locations(idx - 1)
               if (prevFloc.hasBreakAfter || prevFloc.formatToken.leftHasNewline)
@@ -1197,7 +1232,7 @@ class FormatWriter(formatOps: FormatOps) {
             columnShift += floc.shift
             if (
               floc.hasBreakAfter || ft.leftHasNewline || idx >= locations.length
-            ) floc
+            ) processLineEnd
             else {
               val isSlc = ft.right.is[T.Comment] && locations(idx)
                 .hasBreakAfter && !ft.rightHasNewline
@@ -1227,42 +1262,11 @@ class FormatWriter(formatOps: FormatOps) {
                 }
                 if (alignContainer eq container) appendCandidate()
               }
-              if (idx < locations.length) processLine else floc
+              processLine
             }
           }
 
-          implicit val floc: FormatLocation = processLine
-          val isBlankLine = floc.state.mod.isBlankLine
-          if (alignContainer ne null) {
-            val candidates = columnCandidates.result()
-            val block = getOrCreateBlock(alignContainer)
-            val blockWasEmpty = block.isEmpty
-            if (!blockWasEmpty || !isBlankLine) {
-              val alignLine = new AlignLine(
-                candidates,
-                floc.state.prev.column + columnShift,
-                floc.style,
-              )
-              val appendToEmptyBlock = blockWasEmpty || {
-                val sameOwner = wasSameContainer(alignContainer)
-                val notAdded = !block.tryAppendToBlock(alignLine, sameOwner)
-
-                (isBlankLine || notAdded && shouldFlush(alignContainer)) && {
-                  flushAlignBlock(block)
-                  !isBlankLine
-                }
-              }
-
-              if (appendToEmptyBlock) block.appendToEmptyBlock(alignLine)
-            }
-
-            prevAlignContainer = alignContainer
-            prevBlock = block
-          }
-          if (isBlankLine || alignContainer.eq(null)) getBlockToFlush(
-            getAlignContainer(floc.formatToken.meta.rightOwner)._1,
-            isBlankLine,
-          ).foreach(flushAlignBlock)
+          processLine
         }
         blocks.valuesIterator.foreach(flushAlignBlock)
         finalResult.result()
