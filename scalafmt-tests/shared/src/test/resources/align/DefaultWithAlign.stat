@@ -2433,7 +2433,7 @@ def foo = {
 >>>
 def foo = {
   Seq("hello")
-    ++ Seq("a") // add a
+    ++ Seq("a")        // add a
     ++ bar             // add bar
     ++ somethingLonger // add something longer
 }
