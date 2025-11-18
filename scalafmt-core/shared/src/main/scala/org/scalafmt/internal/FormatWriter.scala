@@ -1185,7 +1185,9 @@ class FormatWriter(formatOps: FormatOps) {
           var alignContainer: Tree = null
           val columnCandidates = IndexedSeq.newBuilder[AlignStop]
 
-          def processLineEnd(implicit floc: FormatLocation): Unit = {
+          def processLineEnd(
+              wasSlc: Boolean,
+          )(implicit floc: FormatLocation): Unit = {
             val isBlankLine = floc.state.mod.isBlankLine
             if (alignContainer ne null) {
               val candidates = columnCandidates.result()
@@ -1213,14 +1215,13 @@ class FormatWriter(formatOps: FormatOps) {
               prevAlignContainer = alignContainer
               prevBlock = block
             }
-            if (isBlankLine || alignContainer.eq(null)) getBlockToFlush(
-              getAlignContainer(floc.formatToken.rightOwner)._1,
-              isBlankLine,
-            ).foreach(flushAlignBlock)
+            if (isBlankLine || alignContainer.eq(null))
+              getBlockToFlush(getAlignContainer(isSlc = wasSlc)._1, isBlankLine)
+                .foreach(flushAlignBlock)
           }
 
           @tailrec
-          def processLine: Unit = {
+          def processLine(wasSlc: Boolean): Unit = {
             if (idx > 0) {
               val prevFloc = locations(idx - 1)
               if (prevFloc.hasBreakAfter || prevFloc.formatToken.leftHasNewline)
@@ -1231,14 +1232,14 @@ class FormatWriter(formatOps: FormatOps) {
             idx += 1
             columnShift += floc.shift
             if (
-              floc.hasBreakAfter || ft.leftHasNewline || idx >= locations.length
-            ) processLineEnd
+              wasSlc || floc.hasBreakAfter || ft.leftHasNewline ||
+              idx >= locations.length
+            ) processLineEnd(wasSlc)
             else {
               val isSlc = ft.right.is[T.Comment] && locations(idx)
                 .hasBreakAfter && !ft.rightHasNewline
               if (shouldAlign(ft, isSlc)) {
-                val (container, depth) =
-                  getAlignContainer(if (isSlc) ft.leftOwner else ft.rightOwner)
+                val (container, depth) = getAlignContainer(isSlc)
                 def appendCandidate() = columnCandidates += new AlignStop(
                   getAlignColumn(floc) + columnShift,
                   depth,
@@ -1262,11 +1263,11 @@ class FormatWriter(formatOps: FormatOps) {
                 }
                 if (alignContainer eq container) appendCandidate()
               }
-              processLine
+              processLine(wasSlc = isSlc)
             }
           }
 
-          processLine
+          processLine(wasSlc = false)
         }
         blocks.valuesIterator.foreach(flushAlignBlock)
         finalResult.result()
@@ -1349,14 +1350,21 @@ class FormatWriter(formatOps: FormatOps) {
         case _ => (child, depth)
       }
 
+    private def getAlignContainer(
+        isSlc: Boolean,
+    )(implicit fl: FormatLocation): (Tree, Int) =
+      (if (isSlc) fl.formatToken.leftOwner else fl.formatToken.rightOwner) match {
+        case t @ (_: Case | _: Term.Apply | _: Init | _: Ctor.Primary) =>
+          getAlignContainerParent(t, depth = 0, Some(t))
+
+        case t => getAlignContainer(t)
+      }
+
     @tailrec
     private def getAlignContainer(t: Tree, depth: Int = 0)(implicit
         fl: FormatLocation,
     ): (Tree, Int) = t match {
       case x: Tree.Block if fl.formatToken.right.is[T.Comment] => (x, depth)
-
-      case _: Case | _: Term.Apply | _: Init | _: Ctor.Primary =>
-        getAlignContainerParent(t, depth, Some(t))
 
       case _: Mod => t.parent match {
           case Some(p) => getAlignContainer(p, depth)
