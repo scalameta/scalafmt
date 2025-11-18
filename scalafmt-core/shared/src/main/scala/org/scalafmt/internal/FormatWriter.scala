@@ -1199,7 +1199,9 @@ class FormatWriter(formatOps: FormatOps) {
               floc.hasBreakAfter || ft.leftHasNewline || idx >= locations.length
             ) floc
             else {
-              getAlignIsSlc(ft, locations(idx)).foreach { isSlc =>
+              val isSlc = ft.right.is[T.Comment] && locations(idx)
+                .hasBreakAfter && !ft.rightHasNewline
+              if (shouldAlign(ft, isSlc)) {
                 val (container, depth) =
                   getAlignContainer(if (isSlc) ft.leftOwner else ft.rightOwner)
                 def appendCandidate() = columnCandidates += new AlignStop(
@@ -1878,14 +1880,12 @@ object FormatWriter {
     if (useLeft) floc.state.prev.column else floc.state.column
   }
 
-  private def getAlignIsSlc(ft: FT, nextFloc: FormatLocation)(implicit
+  private def shouldAlign(ft: FT, slc: Boolean)(implicit
       floc: FormatLocation,
-  ): Option[Boolean] = {
-    val slc = ft.right.is[T.Comment] && nextFloc.hasBreakAfter &&
-      !ft.rightHasNewline
+  ): Boolean = {
     val code = if (slc) "//" else ft.meta.right.text
-    floc.style.alignMap.get(code).flatMap { matchers =>
-      val ok = matchers.isEmpty || {
+    floc.style.alignMap.get(code).exists(matchers =>
+      matchers.isEmpty || {
         val owner =
           if (slc) ft.leftOwner // Corner case when line ends with comment
           else ft.rightOwner match {
@@ -1896,9 +1896,8 @@ object FormatWriter {
             case x => x
           }
         matchers.exists(_.matches(owner))
-      }
-      if (ok) Some(slc) else None
-    }
+      },
+    )
   }
 
   // cache indentations to some level
