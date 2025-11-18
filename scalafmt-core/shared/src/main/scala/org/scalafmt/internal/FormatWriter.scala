@@ -1350,15 +1350,14 @@ class FormatWriter(formatOps: FormatOps) {
         case _ => (child, depth)
       }
 
-    private def getAlignContainer(
-        isSlc: Boolean,
-    )(implicit fl: FormatLocation): (Tree, Int) =
-      (if (isSlc) fl.formatToken.leftOwner else fl.formatToken.rightOwner) match {
-        case t @ (_: Case | _: Term.Apply | _: Init | _: Ctor.Primary) =>
-          getAlignContainerParent(t, depth = 0, Some(t))
+    private def getAlignContainer(isSlc: Boolean)(implicit
+        fl: FormatLocation,
+    ): (Tree, Int) = fl.formatToken.rightOwner match {
+      case t @ (_: Case | _: Term.Apply | _: Init | _: Ctor.Primary)
+          if !isSlc => getAlignContainerParent(t, depth = 0, Some(t))
 
-        case t => getAlignContainer(t)
-      }
+      case t => getAlignContainer(t)
+    }
 
     @tailrec
     private def getAlignContainer(t: Tree, depth: Int = 0)(implicit
