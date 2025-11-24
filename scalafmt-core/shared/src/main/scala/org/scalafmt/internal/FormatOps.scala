@@ -2677,6 +2677,7 @@ class FormatOps(
     private object EqualsImpl extends Factory {
       def getBlocks(ft: FT, nft: FT, all: Boolean): Result =
         ft.meta.leftOwner match {
+          case _: Defn.Type => None
           case t: Ctor.Secondary => Some((t, seq(all, t.body)))
           case t: Tree.WithBody => Some((t.body, Nil))
           case _ => BlockImpl.getBlocks(ft, nft, all)
