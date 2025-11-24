@@ -9479,3 +9479,15 @@ case SearchCode(
     @Short("l")
     limit: Option[Int]
 )
+<<< #5047
+rewrite.insertBraces.minLines = 1
+===
+type Bar[SECURITY_INPUT, INPUT, ERROR_OUTPUT, OUTPUT, -R] = Foo[SECURITY_INPUT, INPUT, ERROR_OUTPUT, OUTPUT, R]
+>>>
+type Bar[SECURITY_INPUT, INPUT, ERROR_OUTPUT, OUTPUT, -R] = Foo[
+  SECURITY_INPUT,
+  INPUT,
+  ERROR_OUTPUT,
+  OUTPUT,
+  R
+]
