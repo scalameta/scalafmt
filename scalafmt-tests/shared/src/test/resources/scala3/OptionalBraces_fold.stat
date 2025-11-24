@@ -8727,3 +8727,17 @@ case SearchCode(
     @Short("q") query: Option[String],
     @Short("l") limit: Option[Int]
 )
+<<< #5047
+rewrite.insertBraces.minLines = 1
+===
+type Bar[SECURITY_INPUT, INPUT, ERROR_OUTPUT, OUTPUT, -R] = Foo[SECURITY_INPUT, INPUT, ERROR_OUTPUT, OUTPUT, R]
+>>>
+test does not parse: [dialect scala3] illegal start of declaration
+type Bar[SECURITY_INPUT, INPUT, ERROR_OUTPUT, OUTPUT, -R] = {
+  Foo[SECURITY_INPUT, INPUT, ERROR_OUTPUT, OUTPUT, R]
+  ^
+}
+====== full result: ======
+type Bar[SECURITY_INPUT, INPUT, ERROR_OUTPUT, OUTPUT, -R] = {
+  Foo[SECURITY_INPUT, INPUT, ERROR_OUTPUT, OUTPUT, R]
+}
