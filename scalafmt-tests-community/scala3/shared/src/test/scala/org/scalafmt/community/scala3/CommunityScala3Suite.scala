@@ -17,7 +17,7 @@ class CommunityScala3_2Suite extends CommunityScala3Suite("scala-3.2") {
 
 class CommunityScala3_3Suite extends CommunityScala3Suite("scala-3.3") {
 
-  override protected def totalStatesVisited: Option[Int] = Some(42294121)
+  override protected def totalStatesVisited: Option[Int] = Some(42294117)
 
   override protected def builds = Seq(getBuild("3.3.3", dialects.Scala33, 861))
 
