@@ -16,7 +16,7 @@ addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % crossProje
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject"      % crossProjectV)
 
 addSbtPlugin("org.scalameta"    % "sbt-mdoc"         % "2.8.0")
-addSbtPlugin("org.scalameta"    % "sbt-scalafmt"     % "2.5.5")
+addSbtPlugin("org.scalameta"    % "sbt-scalafmt"     % "2.5.6")
 addSbtPlugin("org.scalameta"    % "sbt-native-image" % "0.3.4")
 addSbtPlugin("org.scala-js"     % "sbt-scalajs"      % "1.20.1")
 addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.9")
