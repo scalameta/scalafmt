@@ -11842,15 +11842,17 @@ object a {
   val foo3si =
     """|bar
        |baz
-       |qux""".stripMargin + s"""|bar
-                                |baz
-                                |qux""".stripMargin
+       |qux""".stripMargin +
+      s"""|bar
+          |baz
+          |qux""".stripMargin
   val foo3is =
     s"""|bar
         |baz
-        |qux""".stripMargin + """|bar
-                                |baz
-                                |qux""".stripMargin
+        |qux""".stripMargin +
+      """|bar
+         |baz
+         |qux""".stripMargin
 }
 <<< consistency between string and interpolation: !stripMargin, ignoreInSyntax
 maxColumn = 40
@@ -11960,15 +11962,17 @@ object a {
   val foo3si =
     """|bar
       |baz
-      |qux""".stripMargin + s"""|bar
-      |baz
-      |qux""".stripMargin
+      |qux""".stripMargin +
+      s"""|bar
+        |baz
+        |qux""".stripMargin
   val foo3is =
     s"""|bar
       |baz
-      |qux""".stripMargin + """|bar
-      |baz
-      |qux""".stripMargin
+      |qux""".stripMargin +
+      """|bar
+        |baz
+        |qux""".stripMargin
 }
 <<< `do` starts a new statement, narrow, danglingParentheses.ctrlSite
 danglingParentheses.ctrlSite = true
@@ -12671,10 +12675,12 @@ bar(
 )
 >>>
 bar(
-  "bar" -> """|qux
-              |xyzzy
-              |""".stripMargin,
-  "bar" -> s"""|qux
-               |xyzzy
-               |""".stripMargin
+  "bar" ->
+    """|qux
+       |xyzzy
+       |""".stripMargin,
+  "bar" ->
+    s"""|qux
+        |xyzzy
+        |""".stripMargin
 )

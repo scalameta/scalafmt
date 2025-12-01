@@ -392,6 +392,8 @@ class FormatOps(
         val (fullInfix, fullInfixEnclosedIn) = InfixSplits
           .findMaybeEnclosingInfix(app)
         val fullInfixEnclosedInParens = fullInfixEnclosedIn.exists(_.isRight)
+        val okSpace = isBeforeOp || style.newlines.ignoreInSyntax ||
+          tokens.getNonMultilineEnd(ft).isRight
         def okToBreak: Boolean = !isBeforeOp || fullInfixEnclosedInParens ||
           initStyle.dialect.allowInfixOperatorAfterNL ||
           (fullInfix.parent match {
@@ -403,7 +405,7 @@ class FormatOps(
             optokens.getWideOpt(idx).contains(ft.left) // no rewritten tokens
           }
         val mod =
-          if (ft.noBreak || !okToBreak) spaceMod
+          if (ft.noBreak && okSpace || !okToBreak) spaceMod
           else Newline2x(fullInfixEnclosedInParens && ft.hasBlankLine)
         def split(implicit fl: FileLine) = Split(mod, 0)
         if (isBeforeOp && isFewerBracesRhs(app.arg)) Seq(split)

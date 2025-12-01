@@ -12057,30 +12057,36 @@ object a {
 }
 >>>
 object a {
-  val foo1s = """bar
+  val foo1s =
+    """bar
    baz
    qux"""
-  val foo1i = s"""bar
+  val foo1i =
+    s"""bar
    baz
    qux"""
-  val foo2s = """|bar
-                 |baz
-                 |qux""".stripMargin
-  val foo2i = s"""|bar
-                  |baz
-                  |qux""".stripMargin
+  val foo2s =
+    """|bar
+       |baz
+       |qux""".stripMargin
+  val foo2i =
+    s"""|bar
+        |baz
+        |qux""".stripMargin
   val foo3si =
     """|bar
        |baz
-       |qux""".stripMargin + s"""|bar
-                                |baz
-                                |qux""".stripMargin
+       |qux""".stripMargin +
+      s"""|bar
+          |baz
+          |qux""".stripMargin
   val foo3is =
     s"""|bar
         |baz
-        |qux""".stripMargin + """|bar
-                                |baz
-                                |qux""".stripMargin
+        |qux""".stripMargin +
+      """|bar
+         |baz
+         |qux""".stripMargin
 }
 <<< consistency between string and interpolation: !stripMargin, ignoreInSyntax
 maxColumn = 40
@@ -12169,28 +12175,36 @@ object a {
 }
 >>>
 object a {
-  val foo1s = """bar
+  val foo1s =
+    """bar
    baz
    qux"""
-  val foo1i = s"""bar
+  val foo1i =
+    s"""bar
    baz
    qux"""
-  val foo2s = """|bar
-    |baz
-    |qux""".stripMargin
-  val foo2i = s"""|bar
-    |baz
-    |qux""".stripMargin
-  val foo3si = """|bar
-    |baz
-    |qux""".stripMargin + s"""|bar
-    |baz
-    |qux""".stripMargin
-  val foo3is = s"""|bar
-    |baz
-    |qux""".stripMargin + """|bar
-    |baz
-    |qux""".stripMargin
+  val foo2s =
+    """|bar
+      |baz
+      |qux""".stripMargin
+  val foo2i =
+    s"""|bar
+      |baz
+      |qux""".stripMargin
+  val foo3si =
+    """|bar
+      |baz
+      |qux""".stripMargin +
+      s"""|bar
+        |baz
+        |qux""".stripMargin
+  val foo3is =
+    s"""|bar
+      |baz
+      |qux""".stripMargin +
+      """|bar
+        |baz
+        |qux""".stripMargin
 }
 <<< `do` starts a new statement, narrow, danglingParentheses.ctrlSite
 danglingParentheses.ctrlSite = true
@@ -12842,9 +12856,10 @@ for {
     """|
       |bar
       |baz""".stripMargin
-  foo <- s"""|
-    |bar
-    |baz""".stripMargin
+  foo <-
+    s"""|
+      |bar
+      |baz""".stripMargin
 } yield foo
 <<< apply with multiline, ignoreInSyntax
 align.stripMargin = true
@@ -12883,10 +12898,12 @@ bar(
 )
 >>>
 bar(
-  "bar" -> """|qux
-              |xyzzy
-              |""".stripMargin,
-  "bar" -> s"""|qux
-               |xyzzy
-               |""".stripMargin
+  "bar" ->
+    """|qux
+       |xyzzy
+       |""".stripMargin,
+  "bar" ->
+    s"""|qux
+        |xyzzy
+        |""".stripMargin
 )

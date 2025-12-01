@@ -413,6 +413,31 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
   @inline
   def span(tree: Tree): Int = span(tree.tokens)
 
+  def getNonMultilineEnd(ft: FT): Either[FT, FT] = {
+    var inInterp = false
+    findTokenEx(ft) { xft =>
+      @inline
+      def done = Right(xft)
+      @inline
+      def goon = Left(next(xft))
+      xft.right match {
+        case _: T.Comment =>
+          if (xft.hasBreak) done
+          else if (xft.rightHasNewline) null
+          else {
+            val nft = next(xft)
+            if (nft.hasBreak) Right(nft) else Left(nft)
+          }
+        case _: T.Interpolation.Id => inInterp = true; goon
+        case _: T.Interpolation.End => inInterp = false; goon
+        case _: T.LeftBrace => done
+        case _: T.Constant.String | _: T.Interpolation.Part =>
+          if (xft.rightHasNewline) null else goon
+        case _ => if (inInterp) goon else done
+      }
+    }
+  }
+
 }
 
 object FormatTokens {
