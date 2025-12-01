@@ -12811,10 +12811,16 @@ for {
   foo <- """|
     |bar
     |baz""".stripMargin
+  foo <- s"""|
+    |bar
+    |baz""".stripMargin
 } yield foo
 >>>
 for {
   foo <- """|
+    |bar
+    |baz""".stripMargin
+  foo <- s"""|
     |bar
     |baz""".stripMargin
 } yield foo
@@ -12826,6 +12832,9 @@ for {
   foo <- """|
     |bar
     |baz""".stripMargin
+  foo <- s"""|
+    |bar
+    |baz""".stripMargin
 } yield foo
 >>>
 for {
@@ -12833,4 +12842,51 @@ for {
     """|
       |bar
       |baz""".stripMargin
+  foo <- s"""|
+    |bar
+    |baz""".stripMargin
 } yield foo
+<<< apply with multiline, ignoreInSyntax
+align.stripMargin = true
+newlines.ignoreInSyntax = true
+assumeStandardLibraryStripMargin = true
+===
+bar(
+  "bar" -> """|qux
+               |xyzzy
+               |""".stripMargin,
+  "bar" -> s"""|qux
+               |xyzzy
+               |""".stripMargin,
+)
+>>>
+bar(
+  "bar" -> """|qux
+              |xyzzy
+              |""".stripMargin,
+  "bar" -> s"""|qux
+               |xyzzy
+               |""".stripMargin
+)
+<<< apply with multiline, !ignoreInSyntax
+align.stripMargin = true
+newlines.ignoreInSyntax = false
+assumeStandardLibraryStripMargin = true
+===
+bar(
+  "bar" -> """|qux
+               |xyzzy
+               |""".stripMargin,
+  "bar" -> s"""|qux
+               |xyzzy
+               |""".stripMargin,
+)
+>>>
+bar(
+  "bar" -> """|qux
+              |xyzzy
+              |""".stripMargin,
+  "bar" -> s"""|qux
+               |xyzzy
+               |""".stripMargin
+)
