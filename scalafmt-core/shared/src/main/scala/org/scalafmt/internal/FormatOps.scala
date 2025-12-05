@@ -833,7 +833,7 @@ class FormatOps(
 
   private def findNestedInfixes(res: mutable.Buffer[Member.Infix])(
       pred: Member.Infix => Boolean,
-  )(tree: Tree): Boolean = CtrlBodySplits.getBlockStat(tree) match {
+  )(tree: Tree): Boolean = TreeOps.getBlockStat(tree) match {
     case Member.ArgClause(arg :: Nil)
         if !isEnclosedWithinParensOrBraces(tree) =>
       findNestedInfixes(res)(pred)(arg)
@@ -850,13 +850,13 @@ class FormatOps(
 
   @tailrec
   final def findLeftInfix(app: Member.Infix): Member.Infix =
-    CtrlBodySplits.getBlockStat(app.lhs) match {
+    TreeOps.getBlockStat(app.lhs) match {
       case ia: Member.Infix if !isEnclosedWithinParens(ia) => findLeftInfix(ia)
       case _ => app
     }
 
   private def getInfixRhsAsInfix(app: Member.Infix): Option[Member.Infix] =
-    app.singleArg.map(CtrlBodySplits.getBlockStat) match {
+    app.singleArg.map(TreeOps.getBlockStat) match {
       case Some(t: Member.Infix) if !isEnclosedWithinParens(t) => Some(t)
       case _ => None // multiple parameters to infix are always enclosed
     }
@@ -1240,18 +1240,6 @@ class FormatOps(
     if (!ft.right.is[T.Comment] || isDone(ft)) ft else iter(ft)
   }
 
-  def getSpaceAndNewlineAfterCurlyLambda(newlines: Int)(implicit
-      style: ScalafmtConfig,
-  ): (Boolean, NewlineT) = style.newlines.afterCurlyLambdaParams match {
-    case Newlines.AfterCurlyLambdaParams.squash => (true, Newline)
-    case Newlines.AfterCurlyLambdaParams.never =>
-      (style.newlines.okSpaceForSource(newlines), Newline)
-    case Newlines.AfterCurlyLambdaParams.always => (false, Newline2x)
-    case Newlines.AfterCurlyLambdaParams.preserve =>
-      val blanks = newlines >= 2
-      (style.newlines.okSpaceForSource(newlines, !blanks), Newline2x(blanks))
-  }
-
   def getNoSplitAfterOpening(
       ft: FT,
       commentNL: Modification,
@@ -1262,25 +1250,6 @@ class FormatOps(
       if (isDetachedSlc || ft.rightHasNewline) commentNL else Space
     case _: T.LeftParen if ft.meta.rightOwner eq ft.meta.leftOwner => NoSplit
     case _ => Space(spaceOk && style.spaces.inParentheses)
-  }
-
-  // look for arrow before body, if any, else after params
-  def getFuncArrow(term: Member.Function): Option[FT] = tokens
-    .tokenBeforeOpt(term.body)
-    .orElse(tokenAfterOpt(term.paramClause).map(getArrowAfter[T.FunctionArrow]))
-
-  // look for arrow before body, if any, else after cond/pat
-  def getCaseArrow(term: Case): FT = tokenBeforeOpt(term.body)
-    .getOrElse(getArrowAfter[T.RightArrow](tokenAfter(
-      term.cond.getOrElse(term.pat),
-    )))
-
-  // look for arrow before body, if any, else after cond/pat
-  def getCaseArrow(term: TypeCase): FT = next(tokenAfter(term.pat))
-
-  private def getArrowAfter[A](ft: FT)(implicit f: Classifier[T, A]): FT = {
-    val maybeArrow = next(ft)
-    if (f(maybeArrow.left)) maybeArrow else nextAfterNonComment(maybeArrow)
   }
 
   @tailrec
@@ -1736,15 +1705,6 @@ class FormatOps(
     ): Split = asInfixApp(body)
       .fold(withIndent(nlSplit, endFt))(InfixSplits.withNLIndent(nlSplit))
 
-    @tailrec
-    def getBlockStat(t: Tree): Tree = t match {
-      case b: Term.Block => getSingleStatExceptEndMarker(b.stats) match {
-          case Some(s) if !isEnclosedInBraces(b) => getBlockStat(s)
-          case _ => t
-        }
-      case _ => t
-    }
-
   }
 
   def withNLPolicy(endFt: FT)(nlSplit: Split): Split = {
@@ -2151,8 +2111,8 @@ class FormatOps(
         else Some(new OptionalBracesRegion {
           def owner = Some(t)
           def splits = {
-            val (afterCurlySpace, afterCurlyNewlines) =
-              getSpaceAndNewlineAfterCurlyLambda(ft.newlinesBetween)
+            val (afterCurlySpace, afterCurlyNewlines) = Modification
+              .getSpaceAndNewlineAfterCurlyLambda(ft.newlinesBetween)
             Some(getSplits(
               t.body,
               forceNL = !afterCurlySpace || isTreeMultiStatBlock(t.body),
@@ -3175,14 +3135,5 @@ object FormatOps {
 
   def alignOpenDelim(implicit clauseSiteFlags: ClauseSiteFlags): Boolean =
     clauseSiteFlags.alignOpenDelim
-
-  @tailrec
-  private def getBlockWithNonSingleTermStat(t: Term.Block): Option[Term.Block] =
-    t.stats match {
-      case (x: Term.Block) :: Nil => getBlockWithNonSingleTermStat(x)
-      case (_: Term) :: Nil => None
-      case _ :: _ => Some(t)
-      case _ => None
-    }
 
 }

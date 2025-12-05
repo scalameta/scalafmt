@@ -550,6 +550,15 @@ object TreeOps {
     case _ => true
   }
 
+  @tailrec
+  def getBlockStat(t: Tree)(implicit ftoks: FormatTokens): Tree = t match {
+    case b: Term.Block => getSingleStatExceptEndMarker(b.stats) match {
+        case Some(s) if !ftoks.isEnclosedInBraces(b) => getBlockStat(s)
+        case _ => t
+      }
+    case _ => t
+  }
+
   /** In cases like:
     * {{{
     *   class X(
@@ -1008,6 +1017,60 @@ object TreeOps {
     case _: Term.NewAnonymous => true
     case t: Term.AnonymousFunction => isTreeEndingInArgumentClause(t.body)
     case _ => false
+  }
+
+  @tailrec
+  def getBlockWithNonSingleTermStat(t: Term.Block): Option[Term.Block] =
+    t.stats match {
+      case (x: Term.Block) :: Nil => getBlockWithNonSingleTermStat(x)
+      case (_: Term) :: Nil => None
+      case _ :: _ => Some(t)
+      case _ => None
+    }
+
+  // look for arrow before body, if any, else after params
+  def getFuncArrow(term: Member.Function)(implicit
+      ftoks: FormatTokens,
+  ): Option[FT] = ftoks.tokenBeforeOpt(term.body).orElse(
+    ftoks.tokenAfterOpt(term.paramClause).map(getArrowAfter[T.FunctionArrow]),
+  )
+
+  // look for arrow before body, if any, else after cond/pat
+  def getCaseArrow(term: Case)(implicit ftoks: FormatTokens): FT = ftoks
+    .tokenBeforeOpt(term.body).getOrElse(getArrowAfter[T.RightArrow](
+      ftoks.tokenAfter(term.cond.getOrElse(term.pat)),
+    ))
+
+  // look for arrow before body, if any, else after cond/pat
+  def getCaseArrow(term: TypeCase)(implicit ftoks: FormatTokens): FT = ftoks
+    .next(ftoks.tokenAfter(term.pat))
+
+  private def getArrowAfter[A](
+      ft: FT,
+  )(implicit f: Classifier[T, A], ftoks: FormatTokens): FT = {
+    val maybeArrow = ftoks.next(ft)
+    if (f(maybeArrow.left)) maybeArrow else ftoks.nextAfterNonComment(maybeArrow)
+  }
+
+  def isBlockWithoutBraces(
+      t: Term.Block,
+  )(implicit ftoks: FormatTokens): Boolean = t.tokens.head match {
+    case lb: T.LeftBrace => lb ne ftoks.before(lb).left
+    case _ => true
+  }
+
+  def existsBlockIfWithoutElse(t: Term.If)(implicit
+      ftoks: FormatTokens,
+  ): Boolean = existsBlockIfWithoutElse(t.thenp, other = false) ||
+    existsBlockIfWithoutElse(t.elsep, ifWithoutElse(t))
+
+  def existsBlockIfWithoutElse(t: Tree, other: => Boolean)(implicit
+      ftoks: FormatTokens,
+  ): Boolean = t match {
+    case x: Term.If => existsBlockIfWithoutElse(x)
+    case b @ Term.Block((x: Term.If) :: Nil) => isBlockWithoutBraces(b) &&
+      existsBlockIfWithoutElse(x)
+    case _ => other
   }
 
 }

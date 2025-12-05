@@ -53,6 +53,7 @@ object Splits {
 
   def lowRankNL(ft: FT, cost: Int)(implicit fl: FileLine): Split =
     Split(Newline2x(ft), cost, rank = 1)
+
 }
 
 object SplitsNoSplit extends Splits {
@@ -354,7 +355,7 @@ object SplitsAfterLeftBrace extends Splits {
 
     def getSingleLineLambdaDecisionOpt = {
       val ok = !lambdaNLOnly.contains(true) &&
-        getSpaceAndNewlineAfterCurlyLambda(newlinesBetween)._1
+        Modification.getSpaceAndNewlineAfterCurlyLambda(newlinesBetween)._1
       if (ok) Some(true) else None
     }
 
@@ -660,7 +661,7 @@ object SplitsAfterEquals extends Splits {
         )
       }
 
-    val body = CtrlBodySplits.getBlockStat(rawBody)
+    val body = TreeOps.getBlockStat(rawBody)
     val spaceSplit = body match {
       case _ if hasBreak && leftOwner.is[Defn] => Split.ignored
       case _: Term.If => twoBranches
@@ -929,8 +930,8 @@ object SplitsAfterFunctionArrow extends Splits {
     import fo._, tokens._, ft._
     def spaceSplitBase(implicit line: FileLine): Split = Split(Space, 0)
     if (canBreakAfterFuncArrow(leftFunc)) {
-      val (afterCurlySpace, afterCurlyNewlines) =
-        getSpaceAndNewlineAfterCurlyLambda(newlinesBetween)
+      val (afterCurlySpace, afterCurlyNewlines) = Modification
+        .getSpaceAndNewlineAfterCurlyLambda(newlinesBetween)
       val spaceSplit = leftFunc.body match {
         case _: Member.Function => spaceSplitBase
         case Term.Block((_: Member.Function) :: Nil)
@@ -1754,7 +1755,7 @@ object SplitsAfterLeftParenOrBracket {
     val (onlyArgument, enclosedOnlyArgumentHead, multipleArgs, notTooManyArgs) =
       args match {
         case arg :: Nil =>
-          val onlyArgument = CtrlBodySplits.getBlockStat(arg)
+          val onlyArgument = TreeOps.getBlockStat(arg)
           val enclosedHead = getHeadIfEnclosed(onlyArgument)
           (onlyArgument, enclosedHead, false, false)
         case _ :: rest => (null, None, true, rest.lengthCompare(100) < 0)
@@ -3402,7 +3403,7 @@ object SplitsAfterYield extends Splits {
   ): Seq[Split] = {
     import fo._, tokens._, ft._
     (leftOwner match {
-      case t: Term.ForYield => Some(CtrlBodySplits.getBlockStat(t.body))
+      case t: Term.ForYield => Some(TreeOps.getBlockStat(t.body))
       case _ => None
     }).fold(Seq.empty[Split]) {
       case b: Term.PartialFunction

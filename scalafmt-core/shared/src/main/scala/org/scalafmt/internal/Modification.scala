@@ -1,5 +1,7 @@
 package org.scalafmt.internal
 
+import org.scalafmt.config.{Newlines, ScalafmtConfig}
+
 sealed abstract class Modification {
   val newlines: Int
   val length: Int
@@ -73,4 +75,20 @@ case class SpaceOrNoSplit(policy: Policy.End.WithPos) extends Modification {
   override val length: Int = 1
 
   override def toString: String = "SPorNS"
+}
+
+object Modification {
+
+  def getSpaceAndNewlineAfterCurlyLambda(newlines: Int)(implicit
+      style: ScalafmtConfig,
+  ): (Boolean, NewlineT) = style.newlines.afterCurlyLambdaParams match {
+    case Newlines.AfterCurlyLambdaParams.squash => (true, Newline)
+    case Newlines.AfterCurlyLambdaParams.never =>
+      (style.newlines.okSpaceForSource(newlines), Newline)
+    case Newlines.AfterCurlyLambdaParams.always => (false, Newline2x)
+    case Newlines.AfterCurlyLambdaParams.preserve =>
+      val blanks = newlines >= 2
+      (style.newlines.okSpaceForSource(newlines, !blanks), Newline2x(blanks))
+  }
+
 }
