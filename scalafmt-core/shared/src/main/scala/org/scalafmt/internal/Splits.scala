@@ -3614,7 +3614,9 @@ object SplitsAfterOptionalBracesKeyword extends Splits {
       ft: FT,
       fo: FormatOps,
       cfg: ScalafmtConfig,
-  ): Seq[Split] = fo.OptionalBraces.get(ft)(cfg).flatMap(_.splits)
-    .getOrElse(Seq.empty)
+  ): Seq[Split] = {
+    import fo.tokens
+    OptionalBraces.get(ft).flatMap(_.splits).getOrElse(Seq.empty)
+  }
 
 }

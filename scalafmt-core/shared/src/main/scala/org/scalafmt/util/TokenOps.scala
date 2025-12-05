@@ -4,8 +4,11 @@ import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal._
 
 import scala.meta._
+import scala.meta.classifiers.Classifier
 import scala.meta.tokens.Token.{Space => _, _}
 import scala.meta.tokens.{Token => T, Tokens}
+
+import scala.annotation.tailrec
 
 /** Stateless helper functions on [[scala.meta.Token]].
   */
@@ -122,5 +125,61 @@ object TokenOps {
   }
 
   def getIndentTrigger(tree: Tree): T = tree.tokens.head
+
+  def getEndOfBlock(ft: FT, parens: => Boolean, brackets: => Boolean = false)(
+      implicit
+      style: ScalafmtConfig,
+      ftoks: FormatTokens,
+  ): Option[FT] = ft.left match {
+    case _: T.LeftBrace => ftoks.matchingOptLeft(ft)
+    case _: T.LeftParen => if (parens) ftoks.matchingOptLeft(ft) else None
+    case _: T.LeftBracket => if (brackets) ftoks.matchingOptLeft(ft) else None
+    case _ => OptionalBraces.get(ft)
+        .flatMap(_.rightBrace.map(x => ftoks.nextNonCommentSameLine(x)))
+  }
+
+  def insideBlock[A](start: FT, end: FT)(implicit
+      classifier: Classifier[T, A],
+      ftoks: FormatTokens,
+  ): TokenRanges = insideBlock(start, end, x => classifier(x.left))
+
+  def insideBlock(start: FT, end: FT, matches: FT => Boolean)(implicit
+      ftoks: FormatTokens,
+  ): TokenRanges = insideBlock(x =>
+    if (matches(x)) ftoks.matchingOptLeft(x) else None,
+  )(start, end)
+
+  def insideBracesBlock(
+      start: FT,
+      end: FT,
+      parens: Boolean = false,
+      brackets: Boolean = false,
+  )(implicit style: ScalafmtConfig, ftoks: FormatTokens): TokenRanges =
+    insideBlock(x => getEndOfBlock(x, parens = parens, brackets = brackets))(
+      start,
+      end,
+    )
+
+  def insideBlock(
+      matches: FT => Option[FT],
+  )(start: FT, end: FT)(implicit ftoks: FormatTokens): TokenRanges = {
+    var result = TokenRanges.empty
+
+    @tailrec
+    def run(tok: FT): Unit = if (tok.idx < end.idx) {
+      val nextTokOpt = matches(tok).flatMap(closeFt =>
+        if (tok.left.start >= closeFt.left.end) None
+        else {
+          result = result.append(TokenRange(tok, closeFt))
+          Some(closeFt)
+        },
+      )
+      val nextTok = nextTokOpt.getOrElse(ftoks.next(tok))
+      if (nextTok ne tok) run(nextTok)
+    }
+
+    run(ftoks.next(start))
+    result
+  }
 
 }

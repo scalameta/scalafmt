@@ -198,7 +198,8 @@ class FormatWriter(formatOps: FormatOps) {
       floc: FormatLocation,
       minBlockStats: Int,
   ): Option[Tree] = {
-    val ob = formatOps.OptionalBraces.get(floc.formatToken)(floc.style)
+    implicit val style = floc.style
+    val ob = OptionalBraces.get(floc.formatToken)
     ob.flatMap(_.owner).filter(
       /* if we add the end marker, it might turn a single-stat expression (or
        * block) into a multi-stat block and thus potentially change how that
@@ -350,14 +351,13 @@ class FormatWriter(formatOps: FormatOps) {
         case Some(p: Init) => !p.parent.is[Mod.Annot]
         case _ => true
       }
-      val style = floc.style
+      implicit val style = floc.style
       val ib = style.rewrite.insertBraces
       val ft = floc.formatToken
       val ok = !ft.meta.formatOff && ib.minLines > 0 &&
         (!style.rewrite.scala3.removeOptionalBraces.enabled &&
           style.indent.main == style.indent.getSignificant ||
-          !formatOps.OptionalBraces.at(ft)(style)) &&
-        floc.missingBracesIndent.isEmpty
+          !OptionalBraces.at(ft)) && floc.missingBracesIndent.isEmpty
       val mb =
         if (ok) formatOps.MissingBraces.getBlocks(ft, ib.allBlocks)
           .filter { case (y, _) =>
