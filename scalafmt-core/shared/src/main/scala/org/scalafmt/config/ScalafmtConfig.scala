@@ -227,9 +227,9 @@ case class ScalafmtConfig(
           style.getConfigViaLayoutInfoFor(absfile) { (layout, lang) =>
             val sameDialect = style.dialect.isEquivalentTo(dialect)
             if (sameDialect) layout.withLang(lang, style) else style
-          }.getOrElse(style)
+          }.getOrElse(style.forMain)
       }
-      pmStyle.orElse(langStyle).getOrElse(forTest)
+      pmStyle.getOrElse(langStyle.getOrElse(this).forMain)
     }
   }
 
