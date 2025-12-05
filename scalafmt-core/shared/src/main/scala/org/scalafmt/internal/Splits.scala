@@ -87,9 +87,9 @@ object SplitsBeforeStatement extends Splits { // New statement
         (annoRight || annoLeft) && cfg.newlines.annotation &&
         !cfg.newlines.sourceIgnored
       ) Seq(Split(getMod(ft), 0))
-      else maybeGetInfixSplitsBeforeLhs(
-        Some(if (left.is[T.Comment] && noBreak) Space else Newline2x(ft)),
-      ) {
+      else InfixSplits.maybeGetInfixSplitsBeforeLhs(Some(
+        if (left.is[T.Comment] && noBreak) Space else Newline2x(ft),
+      )) {
         val spaceCouldBeOk = annoLeft &&
           (cfg.newlines.source match {
             case Newlines.unfold => right.is[T.Comment] ||
@@ -545,7 +545,7 @@ object SplitsAfterEquals extends Splits {
       rhs: Tree,
   )(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig) = {
     import fo._, tokens._, ft._
-    maybeGetInfixSplitsBeforeLhs() {
+    InfixSplits.maybeGetInfixSplitsBeforeLhs() {
       def endFt = getLast(rhs)
       getSplitsDefValEquals(rhs, endFt)(
         if (leftOwner.is[Tree.WithParamClauses]) getSplitsDefEquals(rhs, endFt)
@@ -700,7 +700,7 @@ object SplitsAfterEqualsLeftArrow {
   )(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig): Seq[Split] = {
     import fo._, tokens._
     if (body.is[Term.Block] && isEnclosedInBraces(body)) Seq(Split(Space, 0))
-    else maybeGetInfixSplitsBeforeLhs() {
+    else InfixSplits.maybeGetInfixSplitsBeforeLhs() {
       val endFt = getLastNonTrivial(body)
       val noSpace = !cfg.align.arrowEnumeratorGenerator ||
         (body match {
@@ -2093,7 +2093,7 @@ object SplitsAfterLeftParen extends Splits {
         Seq(
           if (!singleLine) spaceSplit
           else spaceSplitWithoutPolicy.withSingleLine(close).andPolicy(
-            getSingleLineInfixPolicy(close),
+            InfixSplits.getSingleLineInfixPolicy(close),
             ignore = !enclosed.exists(isInfixApp),
           ),
           newlineSplit(10, forceDangle = true),
