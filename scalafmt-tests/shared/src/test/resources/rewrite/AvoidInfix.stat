@@ -832,3 +832,77 @@ def templates = symbols.filter (x => x.isClass || x.isTrait || x == AnyRefClass/
 def templates = symbols.filter(x =>
   x.isClass || x.isTrait || x == AnyRefClass // which is now a type alias */
 ).toSet
+<<< #5056 Main.scala
+rewrite.avoidInfix.excludeScalaTest = false
+fileOverride {
+  "glob:**/src/test/scala/**.scala" {
+    rewrite.avoidInfix.excludeScalaTest = true
+    rewrite.avoidInfix.excludeFilters."+" = [thenReturn]
+  }
+}
+===
+class Main {
+  A mustBe B
+  C thenReturn D
+}
+>>> ./src/main/scala/Main.scala
+class Main {
+  A.mustBe(B)
+  C.thenReturn(D)
+}
+<<< #5056 Main.scala with layout
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = false
+fileOverride {
+  "glob:**/src/test/scala/**.scala" {
+    rewrite.avoidInfix.excludeScalaTest = true
+    rewrite.avoidInfix.excludeFilters."+" = [thenReturn]
+  }
+}
+===
+class Main {
+  A mustBe B
+  C thenReturn D
+}
+>>> ./src/main/scala/Main.scala
+class Main {
+  A.mustBe(B)
+  C.thenReturn(D)
+}
+<<< #5056 Test.scala
+rewrite.avoidInfix.excludeScalaTest = false
+fileOverride {
+  "glob:**/src/test/scala/**.scala" {
+    rewrite.avoidInfix.excludeScalaTest = true
+    rewrite.avoidInfix.excludeFilters."+" = [thenReturn]
+  }
+}
+===
+class Test {
+  A mustBe B
+  C thenReturn D
+}
+>>> ./src/test/scala/Test.scala
+class Test {
+  A.mustBe(B)
+  C thenReturn D
+}
+<<< #5056 Test.scala with layout
+project.layout = StandardConvention
+rewrite.avoidInfix.excludeScalaTest = false
+fileOverride {
+  "glob:**/src/test/scala/**.scala" {
+    rewrite.avoidInfix.excludeScalaTest = true
+    rewrite.avoidInfix.excludeFilters."+" = [thenReturn]
+  }
+}
+===
+class Test {
+  A mustBe B
+  C thenReturn D
+}
+>>> ./src/test/scala/Test.scala
+class Test {
+  A mustBe B
+  C thenReturn D
+}
