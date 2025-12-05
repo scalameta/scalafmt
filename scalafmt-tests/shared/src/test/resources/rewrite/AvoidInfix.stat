@@ -884,7 +884,7 @@ class Test {
 }
 >>> ./src/test/scala/Test.scala
 class Test {
-  A.mustBe(B)
+  A mustBe B
   C thenReturn D
 }
 <<< #5056 Test.scala with layout
