@@ -359,7 +359,7 @@ class FormatWriter(formatOps: FormatOps) {
           style.indent.main == style.indent.getSignificant ||
           !OptionalBraces.at(ft)) && floc.missingBracesIndent.isEmpty
       val mb =
-        if (ok) formatOps.MissingBraces.getBlocks(ft, ib.allBlocks)
+        if (ok) MissingBraces.getBlocks(ft, ib.allBlocks)
           .filter { case (y, _) =>
             checkInfix(y) && hasBreakAfter(idx) && noAnnoFor(y)
           }
