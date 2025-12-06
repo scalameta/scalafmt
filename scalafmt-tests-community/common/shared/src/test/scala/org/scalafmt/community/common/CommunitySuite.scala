@@ -7,6 +7,7 @@ import java.nio.file._
 import java.util.concurrent.atomic.AtomicInteger
 
 import scala.collection.mutable.ListBuffer
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Future, duration}
 import scala.sys.process._
 
@@ -16,7 +17,7 @@ abstract class CommunitySuite extends FunSuite {
 
   import TestHelpers._
 
-  override val munitTimeout = new duration.FiniteDuration(10, duration.MINUTES)
+  override val munitTimeout = 10.minutes
 
   protected def builds: Seq[CommunityBuild]
   protected def totalStatesVisited: Option[Int] = None

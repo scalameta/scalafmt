@@ -8,9 +8,10 @@ import scala.collection.immutable.SortedMap
 
 private[community] object TestStyles {
 
+  val isWin = System.lineSeparator() == "\r\n"
+
   private val baseClassicStyle = {
     val base = ScalafmtConfig.default
-    val isWin = System.lineSeparator() == "\r\n"
     base.copy(
       docstrings = base.docstrings.copy(wrap = Docstrings.Wrap.keep),
       project = base.project
