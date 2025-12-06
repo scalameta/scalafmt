@@ -1835,24 +1835,22 @@ object SplitsAfterLeftParenOrBracket {
         )
       }
 
-    val excludeBlocks =
-      if (isBracket) {
+    val excludeBlocks = cfg.newlines.source match {
+      case _ if isBracket =>
         val excludeBeg = if (align) getHead(args.last) else ft
         insideBlock[T.LeftBracket](excludeBeg, close)
-      } else if (
-        multipleArgs ||
-        cfg.newlines.unfold &&
-        (leftOwnerIsEnclosed || enclosedOnlyArgumentHead.forall(_ eq ft))
-      ) TokenRanges.empty
-      else if (
-        cfg.newlines.fold && (onlyArgument ne null) && {
-          enclosedOnlyArgumentHead.isDefined ||
-          isTreeEndingInArgumentClause(onlyArgument)
-        }
-      )
+      case _ if multipleArgs => TokenRanges.empty
+      case Newlines.unfold
+          if leftOwnerIsEnclosed || enclosedOnlyArgumentHead.forall(_ eq ft) =>
+        TokenRanges.empty
+      case Newlines.fold if (onlyArgument ne null) && {
+            enclosedOnlyArgumentHead.isDefined ||
+            isTreeEndingInArgumentClause(onlyArgument)
+          } =>
         if (onlyArgument eq leftOwner) TokenRanges(TokenRange(ft, close))
         else parensTuple(onlyArgument)
-      else insideBracesBlock(ft, close)
+      case _ => insideBracesBlock(ft, close)
+    }
 
     def singleLine(newlinePenalty: Int)(implicit fileLine: FileLine): Policy =
       if (multipleArgs && (isBracket || excludeBlocks.isEmpty))
