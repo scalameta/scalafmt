@@ -12088,3 +12088,78 @@ bar(
         |xyzzy
         |""".stripMargin
 )
+<<< `if` as single-arg of apply, openParenCallSite
+align.openParenCallSite = true
+newlines.configStyle.callSite.prefer = false
+===
+res.append(if (next('*')) {
+      i += 1
+      ".*"
+    } else s"[^$sep]*")
+>>>
+res.append(if (next('*')) {
+  i += 1
+  ".*"
+} else s"[^$sep]*")
+<<< `if` as single-arg of apply, !openParenCallSite
+align.openParenCallSite = false
+===
+res.append(if (next('*')) {
+      i += 1
+      ".*"
+    } else s"[^$sep]*")
+>>>
+res.append(if (next('*')) {
+  i += 1
+  ".*"
+} else s"[^$sep]*")
+<<< `for` as single-arg of apply, openParenCallSite
+align.openParenCallSite = true
+newlines.configStyle.callSite.prefer = false
+===
+res.append(for {
+      a <- b
+      c <- d
+    } yield a + c)
+>>>
+res.append(for {
+  a <- b
+  c <- d
+} yield a + c)
+<<< `for` as single-arg of apply, !openParenCallSite
+align.openParenCallSite = false
+===
+res.append(for {
+      a <- b
+      c <- d
+    } yield a + c)
+>>>
+res.append(for {
+  a <- b
+  c <- d
+} yield a + c)
+<<< `try` as single-arg of apply, openParenCallSite
+align.openParenCallSite = true
+newlines.configStyle.callSite.prefer = false
+===
+res.append(try {
+      foo
+      bar
+    } finally { baz })
+>>>
+res.append(try {
+  foo
+  bar
+} finally { baz })
+<<< `try` as single-arg of apply, !openParenCallSite
+align.openParenCallSite = false
+===
+res.append(try {
+      foo
+      bar
+    } finally { baz })
+>>>
+res.append(try {
+  foo
+  bar
+} finally { baz })
