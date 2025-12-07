@@ -1843,6 +1843,11 @@ object SplitsAfterLeftParenOrBracket {
       case Newlines.unfold
           if leftOwnerIsEnclosed || enclosedOnlyArgumentHead.forall(_ eq ft) =>
         TokenRanges.empty
+      case Newlines.fold if (onlyArgument match {
+            case _: Tree.WithCond | _: Term.TryClause | _: Term.ForClause =>
+              enclosedOnlyArgumentHead.isEmpty
+            case _ => false
+          }) => TokenRanges.empty
       case Newlines.fold if (onlyArgument ne null) && {
             enclosedOnlyArgumentHead.isDefined ||
             isTreeEndingInArgumentClause(onlyArgument)
