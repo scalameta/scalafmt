@@ -230,8 +230,13 @@ class FormatWriter(formatOps: FormatOps) {
         if (endIdx >= 0) {
           val bLoc = locations(begIdx)
           val eLoc = locations(endIdx)
-          val span = getLineDiff(bLoc, eLoc)
-          if (span < bLoc.style.rewrite.scala3.endMarker.removeMaxSpan) {
+          val span = bLoc.style.rewrite.scala3.endMarker.spanIs match {
+            case RewriteScala3Settings.EndMarker.SpanIs.lines =>
+              getLineDiff(bLoc, eLoc) + 1
+            case RewriteScala3Settings.EndMarker.SpanIs.blankGaps =>
+              getBlankGapsDiff(bLoc, eLoc)
+          }
+          if (span <= bLoc.style.rewrite.scala3.endMarker.removeMaxSpan) {
             val loc2 = locations(idx + 2)
             locations(idx + 1) = locations(idx + 1).remove
             locations(idx + 2) = loc2.remove
@@ -296,8 +301,15 @@ class FormatWriter(formatOps: FormatOps) {
             .copy(optionalBraces = eLoc.optionalBraces - begIndent)
           def processOwner() = {
             val settings = floc.style.rewrite.scala3
-            def okSpan(loc: FormatLocation) = 1 + getLineDiff(loc, eLoc) >=
-              settings.endMarker.insertMinSpan
+            def okSpan(loc: FormatLocation) = {
+              val span = settings.endMarker.spanIs match {
+                case RewriteScala3Settings.EndMarker.SpanIs.lines =>
+                  getLineDiff(loc, eLoc) + 1
+                case RewriteScala3Settings.EndMarker.SpanIs.blankGaps =>
+                  getBlankGapsDiff(loc, eLoc)
+              }
+              span >= settings.endMarker.insertMinSpan
+            }
             settings.endMarker.spanHas match {
               case RewriteScala3Settings.EndMarker.SpanHas.lastBlockOnly =>
                 val i = nextNonCommentSameLine(floc.formatToken).meta.idx

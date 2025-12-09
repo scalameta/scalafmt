@@ -67,6 +67,7 @@ object RewriteScala3Settings {
   }
 
   case class EndMarker(
+      spanIs: EndMarker.SpanIs = EndMarker.SpanIs.lines,
       spanHas: EndMarker.SpanHas = EndMarker.SpanHas.all,
       removeMaxSpan: Int = 0,
       insertMinSpan: Int = 0,
@@ -78,6 +79,14 @@ object RewriteScala3Settings {
     implicit val surface: generic.Surface[EndMarker] = generic.deriveSurface
     implicit val codec: ConfCodecEx[EndMarker] = generic.deriveCodecEx(default)
       .noTypos
+
+    sealed abstract class SpanIs
+    object SpanIs {
+      implicit val codec: ConfCodecEx[SpanIs] = ReaderUtil
+        .oneOf(lines, blankGaps)
+      case object lines extends SpanIs
+      case object blankGaps extends SpanIs
+    }
 
     sealed abstract class SpanHas
     object SpanHas {

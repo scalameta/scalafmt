@@ -4312,6 +4312,22 @@ is used to calculate the span for the purposes of applying
 
 Prior to v3.10.3, this setting was named `scala3.countEndMarkerLines`.
 
+### `rewrite.scala3.endMarker.spanIs`
+
+```scala mdoc:defaults
+rewrite.scala3.endMarker.spanIs
+```
+
+> Since v3.10.3.
+
+This parameter defines what "span" refers to when applying
+[`insertMinSpan`](#rewritescala3endmarkerinsertminspan) and
+[`removeMaxSpan`](#rewritescala3endmarkerremovemaxspan).
+It takes the following values:
+
+- `lines`: span counts the number of lines
+- `blankGaps`: span counts the number of blank gaps instead
+
 ## Vertical Multiline
 
 Since: v1.6.0.

@@ -9491,3 +9491,123 @@ type Bar[SECURITY_INPUT, INPUT, ERROR_OUTPUT, OUTPUT, -R] = Foo[
   OUTPUT,
   R
 ]
+<<< #5064 insert/remove end markers using blank gaps
+rewrite.scala3.endMarker {
+  spanIs = blankGaps
+  insertMinSpan = 3
+  removeMaxSpan = 2
+}
+===
+object a:
+  def foo1before2between1after() =
+
+    line1
+
+    line2
+
+    line3
+
+  def foo1before2between0after() =
+
+    line1
+
+    line2
+
+    line3
+  def foo0before2between0after() =
+    line1
+
+    line2
+
+    line3
+  def foo0before2between1after() =
+    line1
+
+    line2
+
+    line3
+
+  def foo0before3between0after() =
+    line1
+
+    line2
+
+    line3
+
+    line4
+  def foo1before1between1after() =
+
+    line1
+
+    line2
+
+  end foo
+
+  def foo0before1between1after() =
+    line1
+
+    line2
+
+  end foo
+
+  def foo0before1between0after() =
+    line1
+
+    line2
+  end foo
+>>>
+object a:
+   def foo1before2between1after() =
+
+      line1
+
+      line2
+
+      line3
+   end foo1before2between1after
+
+   def foo1before2between0after() =
+
+      line1
+
+      line2
+
+      line3
+   end foo1before2between0after
+   def foo0before2between0after() =
+      line1
+
+      line2
+
+      line3
+   def foo0before2between1after() =
+      line1
+
+      line2
+
+      line3
+
+   def foo0before3between0after() =
+      line1
+
+      line2
+
+      line3
+
+      line4
+   end foo0before3between0after
+   def foo1before1between1after() =
+
+      line1
+
+      line2
+
+   def foo0before1between1after() =
+      line1
+
+      line2
+
+   def foo0before1between0after() =
+      line1
+
+      line2
