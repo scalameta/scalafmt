@@ -4,14 +4,14 @@ import org.scalafmt.config.RewriteScala3Settings._
 
 import metaconfig._
 
+@annotation.SectionRename("countEndMarkerLines", "endMarker.spanHas") // renamed in v3.10.3
+@annotation.SectionRename("removeEndMarkerMaxLines", "endMarker.removeMaxSpan") // renamed in v3.10.3
+@annotation.SectionRename("insertEndMarkerMinLines", "endMarker.insertMinSpan") // renamed in v3.10.3
 case class RewriteScala3Settings(
     convertToNewSyntax: Boolean = false,
     newSyntax: ConvertToNewSyntax = ConvertToNewSyntax.default,
     removeOptionalBraces: RemoveOptionalBraces = RemoveOptionalBraces.no,
-    countEndMarkerLines: RewriteScala3Settings.EndMarkerLines =
-      RewriteScala3Settings.EndMarkerLines.all,
-    removeEndMarkerMaxLines: Int = 0,
-    insertEndMarkerMinLines: Int = 0,
+    endMarker: EndMarker = EndMarker.default,
 )
 
 object RewriteScala3Settings {
@@ -23,7 +23,10 @@ object RewriteScala3Settings {
   val default = new RewriteScala3Settings
 
   implicit val decodec: ConfDecoderEx[RewriteScala3Settings] = Presets
-    .mapDecoder(generic.deriveDecoderEx(default).noTypos, "rewrite.scala3") {
+    .mapDecoder(
+      generic.deriveDecoderEx(default).noTypos.detectSectionRenames,
+      "rewrite.scala3",
+    ) {
       case Conf.Bool(true) => new RewriteScala3Settings(
           convertToNewSyntax = true,
           removeOptionalBraces = RemoveOptionalBraces.yes,
@@ -63,15 +66,26 @@ object RewriteScala3Settings {
     }
   }
 
-  sealed abstract class EndMarkerLines
+  case class EndMarker(
+      spanHas: EndMarker.SpanHas = EndMarker.SpanHas.all,
+      removeMaxSpan: Int = 0,
+      insertMinSpan: Int = 0,
+  )
 
-  object EndMarkerLines {
+  object EndMarker {
 
-    implicit val codec: ConfCodecEx[EndMarkerLines] = ReaderUtil
-      .oneOf[EndMarkerLines](all, lastBlockOnly)
+    val default = new EndMarker
+    implicit val surface: generic.Surface[EndMarker] = generic.deriveSurface
+    implicit val codec: ConfCodecEx[EndMarker] = generic.deriveCodecEx(default)
+      .noTypos
 
-    case object all extends EndMarkerLines
-    case object lastBlockOnly extends EndMarkerLines
+    sealed abstract class SpanHas
+    object SpanHas {
+      implicit val codec: ConfCodecEx[SpanHas] = ReaderUtil
+        .oneOf(all, lastBlockOnly)
+      case object all extends SpanHas
+      case object lastBlockOnly extends SpanHas
+    }
 
   }
 
