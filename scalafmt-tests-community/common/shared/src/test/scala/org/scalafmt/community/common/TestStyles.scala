@@ -38,7 +38,7 @@ private[community] object TestStyles {
         scala3 = style.rewrite.scala3.copy(
           convertToNewSyntax = true,
           removeOptionalBraces = RewriteScala3Settings.RemoveOptionalBraces.yes,
-          insertEndMarkerMinLines = 5,
+          endMarker = style.rewrite.scala3.endMarker.copy(insertMinSpan = 5),
         ),
         redundantBraces = RedundantBracesSettings.all
           .copy(maxBreaks = Int.MaxValue, oneStatApply = oneStatApply),

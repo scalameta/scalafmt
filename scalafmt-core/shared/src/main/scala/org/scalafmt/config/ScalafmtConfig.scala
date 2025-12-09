@@ -394,9 +394,9 @@ object ScalafmtConfig {
       checkPositive(indent.main, indent.callSite, indent.defnSite, indent.commaSiteRelativeToExtends)
       checkNonNeg(indent.caseSite, indent.extendSite, indent.withSiteRelativeToExtends)
       checkPositiveOpt(indent.significant, indent.ctorSite)
-      if (rewrite.scala3.insertEndMarkerMinLines != 0)
-        addIf(rewrite.scala3.removeEndMarkerMaxLines >= rewrite.scala3.insertEndMarkerMinLines)
-      addIf(rewrite.insertBraces.minLines != 0 && rewrite.scala3.insertEndMarkerMinLines != 0)
+      if (rewrite.scala3.endMarker.insertMinSpan != 0)
+        addIf(rewrite.scala3.endMarker.removeMaxSpan >= rewrite.scala3.endMarker.insertMinSpan)
+      addIf(rewrite.insertBraces.minLines != 0 && rewrite.scala3.endMarker.insertMinSpan != 0)
       addIf(rewrite.insertBraces.minLines != 0 && rewrite.scala3.removeOptionalBraces.oldSyntaxToo)
       if (RedundantBraces.usedIn(rewrite)) {
         if (rewrite.insertBraces.minLines != 0) addIf(rewrite.insertBraces.minLines < rewrite.redundantBraces.maxBreaks)

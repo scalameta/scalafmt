@@ -3462,8 +3462,9 @@ def f() = {
 > Warning: this rewrite might cause non-idempotent formatting,
 > formatter might need to be run twice.
 >
-> This rule cannot be used with `rewrite.scala3.insertEndMarkerMinLines` or
-> `rewrite.scala3.removeOptionalBraces.oldSyntaxToo == true`.
+> This rule cannot be used with
+> [`rewrite.scala3.endMarker.insertMinSpan`](#rewritescala3endmarkerinsertminspan) or
+> [`rewrite.scala3.removeOptionalBraces.oldSyntaxToo == true`](#rewritescala3removeoptionalbraces).
 
 This rewrite in essence provides the opposite of what `RedundantBraces` achieves,
 and somewhat similar to Scala3's end marker rewrite rules.
@@ -4263,7 +4264,7 @@ took three possible values (with their equivalent current settings shown):
 - `yes`: `enabled = true`
 - `oldSyntaxToo`: `enabled = true` and `oldSyntaxToo = true`
 
-### `rewrite.scala3.insertEndMarkerMinLines`
+### `rewrite.scala3.endMarker.insertMinSpan`
 
 If this flag is set to a positive value, when an expression containing an
 [optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
@@ -4273,7 +4274,9 @@ region spans at least as many lines and isn't followed by an end marker, one wil
 > or a multi-stat block. Doing so might turn a single-stat expression (which
 > doesn't require significant indentation handling) into a multi-stat block.
 
-### `rewrite.scala3.removeEndMarkerMaxLines`
+Prior to v3.10.3, this setting was named `scala3.insertEndMarkerMinLines`.
+
+### `rewrite.scala3.endMarker.removeMaxSpan`
 
 If this flag is set to a positive value, when an expression containing an
 [optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
@@ -4289,14 +4292,16 @@ the end marker will be deleted.
 > - there are comments before the end marker, as without the end marker they
 >   would be treated as outside of the optional-braces region.
 
-### `rewrite.scala3.countEndMarkerLines`
+Prior to v3.10.3, this setting was named `scala3.removeEndMarkerMaxLines`.
+
+### `rewrite.scala3.endMarker.spanHas`
 
 > Since v3.0.6.
 
 This flag dictates which part of the expression terminated by the end marker
 is used to calculate the span for the purposes of applying
-[`insertEndMarkerMinLines`](#rewritescala3insertendmarkerminlines) and
-[`removeEndMarkerMaxLines`](#rewritescala3removeendmarkermaxlines).
+[`insertMinSpan`](#rewritescala3endmarkerinsertminspan) and
+[`removeMaxSpan`](#rewritescala3removeendmarkermaxspan).
 
 - `all` (default): the entire expression
 - `lastBlockOnly`: only the last block with significant indentation relative to
@@ -4304,6 +4309,8 @@ is used to calculate the span for the purposes of applying
   which would have been used otherwise); for instance:
   - in case of a class, this would be the body of the class
   - but for an if-else, this would be just the `else` part
+
+Prior to v3.10.3, this setting was named `scala3.countEndMarkerLines`.
 
 ## Vertical Multiline
 

@@ -133,9 +133,9 @@ class FormatWriter(formatOps: FormatOps) {
     if (depth == toks.length) { // format completed
       val initStyle = styleMap.init
       if (initStyle.dialect.allowEndMarker) {
-        if (initStyle.rewrite.scala3.removeEndMarkerMaxLines > 0)
+        if (initStyle.rewrite.scala3.endMarker.removeMaxSpan > 0)
           checkRemoveEndMarkers(result)
-        if (initStyle.rewrite.scala3.insertEndMarkerMinLines > 0)
+        if (initStyle.rewrite.scala3.endMarker.insertMinSpan > 0)
           checkInsertEndMarkers(result)
       }
       if (initStyle.rewrite.insertBraces.minLines > 0) checkInsertBraces(result)
@@ -231,7 +231,7 @@ class FormatWriter(formatOps: FormatOps) {
           val bLoc = locations(begIdx)
           val eLoc = locations(endIdx)
           val span = getLineDiff(bLoc, eLoc)
-          if (span < bLoc.style.rewrite.scala3.removeEndMarkerMaxLines) {
+          if (span < bLoc.style.rewrite.scala3.endMarker.removeMaxSpan) {
             val loc2 = locations(idx + 2)
             locations(idx + 1) = locations(idx + 1).remove
             locations(idx + 2) = loc2.remove
@@ -254,10 +254,10 @@ class FormatWriter(formatOps: FormatOps) {
             end + 2 < locations.length && locations(end + 2).hasBreakAfter
           if (isStandalone) {
             val settings = floc.style.rewrite.scala3
-            val idx = settings.countEndMarkerLines match {
-              case RewriteScala3Settings.EndMarkerLines.lastBlockOnly => tokens
-                  .nextNonCommentSameLine(floc.formatToken).meta.idx + 1
-              case RewriteScala3Settings.EndMarkerLines.all => tokens
+            val idx = settings.endMarker.spanHas match {
+              case RewriteScala3Settings.EndMarker.SpanHas.lastBlockOnly =>
+                tokens.nextNonCommentSameLine(floc.formatToken).meta.idx + 1
+              case RewriteScala3Settings.EndMarker.SpanHas.all => tokens
                   .getHead(owner).meta.idx
             }
             endMarkers.prepend(end -> idx)
@@ -297,12 +297,12 @@ class FormatWriter(formatOps: FormatOps) {
           def processOwner() = {
             val settings = floc.style.rewrite.scala3
             def okSpan(loc: FormatLocation) = 1 + getLineDiff(loc, eLoc) >=
-              settings.insertEndMarkerMinLines
-            settings.countEndMarkerLines match {
-              case RewriteScala3Settings.EndMarkerLines.lastBlockOnly =>
+              settings.endMarker.insertMinSpan
+            settings.endMarker.spanHas match {
+              case RewriteScala3Settings.EndMarker.SpanHas.lastBlockOnly =>
                 val i = nextNonCommentSameLine(floc.formatToken).meta.idx
                 if (okSpan(locations(i + 1))) appendOwner() else removeOwner()
-              case RewriteScala3Settings.EndMarkerLines.all =>
+              case RewriteScala3Settings.EndMarker.SpanHas.all =>
                 if (!eLoc.optionalBraces.contains(begIndent) && okSpan(bLoc))
                   appendOwner()
             }
