@@ -77,6 +77,9 @@ object Literals {
 
     case class Format( // formatting settings
         maxPaddingZeros: Int = 0,
+        separators: Int = 0,
+        forceDot: Boolean = false,
+        forceExpPlus: Boolean = false,
     )
     object Format {
       val default = Format()

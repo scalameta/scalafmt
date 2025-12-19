@@ -4327,6 +4327,85 @@ literals.floatingPoint {
 0.000123
 ```
 
+##### `literals.floatingPoint.format.separators`
+
+If positive, and allowed by the dialect (via
+`allowNumericLiteralUnderscoreSeparators` flag), will add a numeric
+separator (underscore) for every group of digits (counting from the dot).
+
+```scala mdoc:scalafmt
+rewrite.rules = [RewriteLiterals]
+literals.floatingPoint {
+  filter.minTotalDigits = 1
+  format.maxPaddingZeros = 10
+}
+---
+1234e-4
+1234e-3
+1234e-2
+1234e-1
+1234e+0
+1234e+1
+1234e+2
+1234e+3
+1234e+4
+// scalafmt: { literals.floatingPoint.format.separators = 2 }
+1234e-4
+1234e-3
+1234e-2
+1234e-1
+1234e+0
+1234e+1
+1234e+2
+1234e+3
+1234e+4
+```
+
+##### `literals.floatingPoint.format.forceDot`
+
+If enabled, always includes `.0` if the number has no fractional part; otherwise,
+this would be added only if the number looks like an integer
+(that is, no exponent or type suffix).
+
+```scala mdoc:scalafmt
+rewrite.rules = [RewriteLiterals]
+literals.floatingPoint {
+  filter.minTotalDigits = 1
+}
+---
+1230
+1230d
+123e10
+// scalafmt: { literals.floatingPoint.format.forceDot = true }
+1230
+1230d
+123e10
+```
+
+##### `literals.floatingPoint.format.forceExpPlus`
+
+If enabled, always includes a sign after the `E` in exponent; otherwise,
+only negative exponent (naturally) comes with a sign.
+
+```scala mdoc:scalafmt
+rewrite.rules = [RewriteLiterals]
+literals.floatingPoint {
+  filter.minTotalDigits = 1
+}
+---
+123e0
+123e+0
+123e1
+123e+1
+123e-1
+// scalafmt: { literals.floatingPoint.format.forceExpPlus = true }
+123e0
+123e+0
+123e1
+123e+1
+123e-1
+```
+
 ## Scala3 rewrites
 
 This section describes rules which are applied if the appropriate dialect (e.g.,
