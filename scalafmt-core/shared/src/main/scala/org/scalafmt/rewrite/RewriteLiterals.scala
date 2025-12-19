@@ -56,29 +56,55 @@ object RewriteLiterals extends Rewrite with FormatTokensRewrite.RuleFactory {
     if (fpFilter.minSignificantDigits > digits.length) return None
 
     val fpFormat = fpStyle.format
+    val separators =
+      if (!style.dialect.allowNumericLiteralUnderscoreSeparators) 0
+      else fpFormat.separators
     @tailrec
-    def appendZeros(numZeros: Int): Int =
+    def appendDigits(beg: Int, end: Int, max: Int): Unit = {
+      jsb.append(digits, beg, end.min(max))
+      if (end < max) {
+        jsb.append('_')
+        appendDigits(end, end + separators, max)
+      }
+    }
+    @tailrec
+    def appendZeros(numZeros: Int, beforeNextSeparator: Int): Int =
       if (numZeros > 0) {
+        val nextBeforeNextSeparator =
+          if (separators > 0 && beforeNextSeparator == 0) {
+            jsb.append('_')
+            separators
+          } else beforeNextSeparator - 1
         jsb.append('0')
-        appendZeros(numZeros - 1)
-      } else 0
+        appendZeros(numZeros - 1, nextBeforeNextSeparator)
+      } else beforeNextSeparator
 
     if (signum < 0) jsb.append('-')
     var exp = -stripped.scale()
     val beforeDot = digits.length - stripped.scale()
+    def appendDigitsBeforeDot(): Unit = appendDigits(
+      0,
+      (beforeDot - 1) % separators + 1,
+      beforeDot.min(digits.length),
+    )
     if (exp >= 0 && exp <= fpFormat.maxPaddingZeros) {
       // all before dot, possibly padded
-      jsb.append(digits)
-      appendZeros(exp)
-      if (!hasSuffix) jsb.append(".0")
+      if (separators <= 0) jsb.append(digits) else appendDigitsBeforeDot()
+      appendZeros(exp, if (separators > 0) exp % separators else 0)
+      if (!hasSuffix || fpFormat.forceDot) jsb.append(".0")
     } else if (-beforeDot <= fpFormat.maxPaddingZeros && beforeDot <= 0) {
       // all after dot, possibly padded
       jsb.append("0.")
-      appendZeros(-beforeDot)
-      jsb.append(digits)
+      val beforeNextSeparator = appendZeros(-beforeDot, separators)
+      if (separators <= 0) jsb.append(digits)
+      else appendDigits(0, beforeNextSeparator, digits.length)
     } else if (beforeDot > 0 && beforeDot < digits.length)
       // split digits before and after dot
-      jsb.append(digits, 0, beforeDot).append('.')
+      if (separators > 0) {
+        appendDigitsBeforeDot()
+        jsb.append('.')
+        appendDigits(beforeDot, beforeDot + separators, digits.length)
+      } else jsb.append(digits, 0, beforeDot).append('.')
         .append(digits, beforeDot, digits.length)
     else {
       // use scientific
@@ -86,14 +112,16 @@ object RewriteLiterals extends Rewrite with FormatTokensRewrite.RuleFactory {
       jsb.append(digits.charAt(0))
       if (digits.length > 1) {
         jsb.append('.')
-        jsb.append(digits, 1, digits.length)
-      }
+        if (separators > 0) appendDigits(1, separators + 1, digits.length)
+        else jsb.append(digits, 1, digits.length)
+      } else if (fpFormat.forceDot) jsb.append(".0")
       jsb.append(fpStyle.scientific match {
         case Literals.Case.Keep =>
           val exp = str.indexWhere(x => x == 'e' || x == 'E', digits.length)
           if (exp < 1) 'e' else str.charAt(exp)
         case lcase => lcase.process('e')
       })
+      if (exp >= 0 && fpFormat.forceExpPlus) jsb.append('+')
       jsb.append(exp)
     }
 
