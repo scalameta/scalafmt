@@ -25,11 +25,13 @@ object LiteralOps {
     */
   def prettyPrintInteger(
       str: String,
-  )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit =
-    if (str.endsWith("L") || str.endsWith("l")) {
+  )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit = {
+    val suffix = str.last
+    if (suffix == 'L' || suffix == 'l') {
       prettyPrintHexOrBin(str.dropRight(1))
-      sb.append(style.literals.long.process(str.takeRight(1)))
+      sb.append(style.literals.long.process(suffix))
     } else prettyPrintHexOrBin(str)
+  }
 
   def prettyPrintFloat(
       str: String,
@@ -58,22 +60,26 @@ object LiteralOps {
       suffixUpper: Char,
       suffixLower: Char,
       suffixCase: Literals.Case,
-  )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit =
-    if (str.last == suffixUpper || str.last == suffixLower) sb
+  )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit = {
+    val suffix = str.last
+    if (suffix == suffixUpper || suffix == suffixLower) sb
       .append(style.literals.scientific.process(str.dropRight(1)))
-      .append(suffixCase.process(str.takeRight(1)))
+      .append(suffixCase.process(suffix))
     else sb.append(style.literals.scientific.process(str))
+  }
 
   private def prettyPrintHexOrBin(
       str: String,
   )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit = {
-    val (prefix, body) = str.splitAt(2)
-    prefix match {
-      case "0x" | "0X" => sb.append(style.literals.hexPrefix.process(prefix))
-          .append(style.literals.hexDigits.process(body))
-      case "0b" | "0B" => sb.append(style.literals.binPrefix.process(prefix))
-          .append(body)
-      case _ => sb.append(str)
+    val sbLen = sb.length
+    if (str.length > 2 && str.charAt(0) == '0') str.charAt(1) match {
+      case ch @ ('x' | 'X') => sb.append('0')
+          .append(style.literals.hexPrefix.process(ch))
+          .append(style.literals.hexDigits.process(str.substring(2)))
+      case ch @ ('b' | 'B') => sb.append('0')
+          .append(style.literals.binPrefix.process(ch)).append(str.substring(2))
+      case _ =>
     }
+    if (sb.length == sbLen) sb.append(str)
   }
 }

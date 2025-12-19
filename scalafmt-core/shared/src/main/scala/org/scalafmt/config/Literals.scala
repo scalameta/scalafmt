@@ -25,6 +25,11 @@ object Literals {
       case Lower => str.toLowerCase()
       case Upper => str.toUpperCase()
     }
+    def process(ch: Char): Char = this match {
+      case Unchanged => ch
+      case Lower => Character.toLowerCase(ch)
+      case Upper => Character.toUpperCase(ch)
+    }
   }
 
   object Case {
