@@ -47,6 +47,8 @@ inThisBuild {
 name := "scalafmtRoot"
 publish / skip := true
 
+lazy val runAssembly = inputKey[Unit]("Run assembly")
+
 lazy val copyScalaNative = taskKey[Unit]("Copy Scala Native output to root")
 
 copyScalaNative := {
@@ -177,6 +179,7 @@ val scalacJvmOptions = Def.setting {
 lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-cli")).settings(
     moduleName := "scalafmt-cli",
+    assembly / aggregate := false,
     assembly / mainClass := Some("org.scalafmt.cli.Cli"),
     assembly / assemblyOption := (assembly / assemblyOption).value
       .withPrependShellScript(Some(defaultUniversalScript(shebang = false))),
@@ -215,6 +218,13 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
         case Some("musl") => Seq("--static", "--libc=musl")
         case _ => Nil
       }
+    },
+    runAssembly := {
+      val jar = (assembly / assemblyOutputPath).value
+      val args = sbt.complete.DefaultParsers.spaceDelimited("<args>").parsed
+      val cmd = Seq("java", "-jar", jar.getAbsolutePath) ++ args
+      val exit = scala.sys.process.Process(cmd).!
+      if (exit != 0) sys.error(s"runAssembly failed with exit code $exit")
     },
   ).nativeSettings(scalaNativeConfig).dependsOn(core, interfaces)
   // TODO: enable NPM publishing
