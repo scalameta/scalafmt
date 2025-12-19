@@ -36,12 +36,12 @@ object LiteralOps {
   def prettyPrintFloat(
       str: String,
   )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit =
-    prettyPrintFloatingPoint(str, 'F', 'f', style.literals.float)
+    prettyPrintFloatingPoint(str, 'F', 'f', _.float)
 
   def prettyPrintDouble(
       str: String,
   )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit =
-    prettyPrintFloatingPoint(str, 'D', 'd', style.literals.double)
+    prettyPrintFloatingPoint(str, 'D', 'd', _.double)
 
   /** Prints floating point literals with specified case
     *
@@ -59,13 +59,14 @@ object LiteralOps {
       str: String,
       suffixUpper: Char,
       suffixLower: Char,
-      suffixCase: Literals.Case,
+      suffixCase: Literals.FloatingPoint => Literals.Case,
   )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit = {
     val suffix = str.last
+    val fpStyle = style.literals.floatingPoint
     if (suffix == suffixUpper || suffix == suffixLower) sb
-      .append(style.literals.scientific.process(str.dropRight(1)))
-      .append(suffixCase.process(suffix))
-    else sb.append(style.literals.scientific.process(str))
+      .append(fpStyle.scientific.process(str.dropRight(1)))
+      .append(suffixCase(fpStyle).process(suffix))
+    else sb.append(fpStyle.scientific.process(str))
   }
 
   private def prettyPrintHexOrBin(

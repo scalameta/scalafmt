@@ -111,7 +111,7 @@ case class ScalafmtConfig(
     indent: Indents = Indents(),
     align: Align = Align(),
     spaces: Spaces = Spaces(),
-    literals: Literals = Literals(),
+    literals: Literals = Literals.default,
     lineEndings: Option[LineEndings] = None,
     rewrite: RewriteSettings = RewriteSettings.default,
     newlines: Newlines = Newlines(),

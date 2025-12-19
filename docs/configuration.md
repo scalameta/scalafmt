@@ -5310,34 +5310,6 @@ literals.long=Upper
 123l
 ```
 
-### `literals.float`
-
-```scala mdoc:defaults
-literals.float
-```
-
-Responsible for the case of `Float` literals suffix `F`
-
-```scala mdoc:scalafmt
-literals.float=Lower
----
-42.0F
-```
-
-### `literals.double`
-
-```scala mdoc:defaults
-literals.double
-```
-
-Responsible for the case of `Double` literals suffix `D`
-
-```scala mdoc:scalafmt
-literals.double=Lower
----
-42.0d
-```
-
 ### `literals.hexPrefix`
 
 ```scala mdoc:defaults
@@ -5386,17 +5358,52 @@ literals.long=Upper
 0B111l
 ```
 
-### `literals.scientific`
+### `literals.floatingPoint`
+
+This sections contains settings controlling formatting of floating-point
+(float, double, generic) literals.
+
+#### `literals.floatingPoint.float`
 
 ```scala mdoc:defaults
-literals.scientific
+literals.floatingPoint.float
+```
+
+Responsible for the case of `Float` literals suffix `F`
+
+```scala mdoc:scalafmt
+literals.floatingPoint.float = Lower
+---
+42.0F
+```
+
+#### `literals.floatingPoint.double`
+
+```scala mdoc:defaults
+literals.floatingPoint.double
+```
+
+Responsible for the case of `Double` literals suffix `D`
+
+```scala mdoc:scalafmt
+literals.floatingPoint.double = Lower
+---
+42.0d
+```
+
+#### `literals.floatingPoint.scientific`
+
+```scala mdoc:defaults
+literals.floatingPoint.scientific
 ```
 
 Responsible for the case of `Double` literals exponent part
 
 ```scala mdoc:scalafmt
-literals.scientific=Upper
-literals.float=Lower
+literals.floatingPoint {
+  scientific = Upper
+  float = Lower
+}
 ---
 10e-1
 10e-1f
