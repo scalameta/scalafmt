@@ -78,6 +78,15 @@ lazy val dynamic = crossProject(JVMPlatform) // don't build for NativePlatform
     ),
     sharedTestSettings,
     scalacOptions ++= scalacJvmOptions.value,
+    assembly / assemblyMergeStrategy := {
+      case PathList("META-INF", "versions", "9", "module-info.class") =>
+        MergeStrategy.discard
+      case PathList("META-INF", "sisu", "javax.inject.Named") =>
+        MergeStrategy.concat
+      case x =>
+        val oldStrategy = (assembly / assemblyMergeStrategy).value
+        oldStrategy(x)
+    },
   ).dependsOn(interfaces, sysops).dependsOn(core % "test")
   .enablePlugins(BuildInfoPlugin)
 
@@ -178,6 +187,11 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     assembly / assemblyJarName := "scalafmt.jar",
     assembly / assemblyMergeStrategy := {
       case "reflect.properties" => MergeStrategy.first
+      case PathList("scala-collection-compat.properties") => MergeStrategy.first
+      case PathList("META-INF", "versions", "9", "module-info.class") =>
+        MergeStrategy.discard
+      case PathList("META-INF", "sisu", "javax.inject.Named") =>
+        MergeStrategy.concat
       case x =>
         val oldStrategy = (assembly / assemblyMergeStrategy).value
         oldStrategy(x)
@@ -189,11 +203,6 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     scalacOptions ++= scalacJvmOptions.value,
     Compile / mainClass := Some("org.scalafmt.cli.Cli"),
     sharedTestSettings,
-    assembly / assemblyMergeStrategy := {
-      case PathList("scala-collection-compat.properties") =>
-        sbtassembly.MergeStrategy.first
-      case x => (assembly / assemblyMergeStrategy).value(x)
-    },
   ).jvmSettings(
     libraryDependencies += "com.facebook" % "nailgun-server" % "1.0.1",
     nativeImageInstalled := isCI,
