@@ -42,6 +42,7 @@ jobs:
         run: git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
       - run: sbt ++${{ matrix.scala }} test-jvm
         if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
+        id: testjvm
       - run: sbt ++${{ matrix.scala }} test-js
         if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
       - run: sbt ++${{ matrix.scala }} test-native
@@ -50,6 +51,9 @@ jobs:
         if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
       - run: sbt ++${{ matrix.scala }} docs/run
         if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
+      # Build and sanity-check the fat jar
+      - run: sbt ++${{ matrix.scala }} "cli/assembly; cli/runAssembly --non-interactive"
+        if: ${{ (success() || failure()) && steps.testjvm.outcome == 'success' }}
   community-test:
     strategy:
       fail-fast: false
