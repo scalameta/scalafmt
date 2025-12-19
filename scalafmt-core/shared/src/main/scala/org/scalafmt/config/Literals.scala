@@ -50,6 +50,8 @@ object Literals {
       float: Case = Case.Lower,
       double: Case = Case.Lower,
       scientific: Case = Case.Lower,
+      filter: FloatingPoint.Filter = FloatingPoint.Filter.default,
+      format: FloatingPoint.Format = FloatingPoint.Format.default,
   )
 
   object FloatingPoint {
@@ -59,6 +61,31 @@ object Literals {
       .deriveSurface[FloatingPoint]
     implicit val codec: ConfCodecEx[FloatingPoint] = generic
       .deriveCodecEx(default).noTypos
+
+    case class Filter( // filtering settings
+        needSuffix: Boolean = false,
+        minTotalDigits: Int = Int.MaxValue,
+        minSignificantDigits: Int = 0,
+    )
+    object Filter {
+      val default = Filter()
+      implicit val surface: generic.Surface[Filter] = generic
+        .deriveSurface[Filter]
+      implicit val codec: ConfCodecEx[Filter] = generic.deriveCodecEx(default)
+        .noTypos
+    }
+
+    case class Format( // formatting settings
+        maxPaddingZeros: Int = 0,
+    )
+    object Format {
+      val default = Format()
+      implicit val surface: generic.Surface[Format] = generic
+        .deriveSurface[Format]
+      implicit val codec: ConfCodecEx[Format] = generic.deriveCodecEx(default)
+        .noTypos
+    }
+
   }
 
 }

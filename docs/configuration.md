@@ -4185,6 +4185,148 @@ This rule removes semicolons unless required by the Scala syntax (such
 as those used in for-clause enumerators enclosed in parentheses).
 See also [PreferCurlyFors](#prefercurlyfors).
 
+### RewriteLiterals
+
+> Since v3.10.3.
+
+This rule rewrites numeric literals potentially modifying representation style.
+It's an extension of single-character replacement rules grouped under [`literals`](#literals).
+
+#### `literals.floatingPoint.filter`
+
+```scala mdoc:defaults
+literals.floatingPoint.filter
+```
+
+These settings determine whether the rule is applicable to a given
+floating-point token.
+
+##### `literals.floatingPoint.filter.minTotalDigits`
+
+Filters on length of literal, excluding sign and type suffix.
+
+```scala mdoc:scalafmt
+rewrite.rules = [RewriteLiterals]
+literals.floatingPoint {
+  filter.minTotalDigits = 6
+}
+---
+-0.000120d
+-0.00120d
+-0.0120d
+-0.120d
+-1.20d
+-12.0d
+-120d
+-1200d
+-12000d
+-120000d
+-1200000d
+```
+
+##### `literals.floatingPoint.filter.minSignificantDigits`
+
+Filters on number of decimal digits in normalized
+scientific notation, excluding sign, type suffix, dot and exponent.
+
+```scala mdoc:scalafmt
+rewrite.rules = [RewriteLiterals]
+literals.floatingPoint {
+  filter {
+    minTotalDigits = 100
+    minSignificantDigits = 3
+  }
+}
+---
+-0.000120e0d
+-0.000123e0d
+-0.00120e0d
+-0.00123e0d
+-0.0120e0d
+-0.0123e0d
+-0.120e0d
+-0.123e0d
+-1.20e0d
+-1.23e0d
+-12.0e0d
+-12.3e0d
+-120e0d
+-123e0d
+-1200e0d
+-1230e0d
+-12000e0d
+-12300e0d
+-120000e0d
+-123000e0d
+```
+
+##### `literals.floatingPoint.filter.needSuffix`
+
+Applies only to literals which contain a type suffix (`D` or `F`),
+to avoid modifying
+[custom number literals](https://docs.scala-lang.org/scala3/reference/experimental/numeric-literals.html).
+
+```scala mdoc:scalafmt
+rewrite.rules = [RewriteLiterals]
+literals.floatingPoint {
+  filter {
+    minTotalDigits = 100
+    needSuffix = true
+  }
+}
+---
+0.000120
+0.000120d
+0.00120
+0.00120d
+0.0120
+0.0120d
+0.120
+0.120d
+1.20
+1.20d
+12.0
+12.0d
+120
+120d
+1200
+1200d
+12000
+12000d
+```
+
+#### `literals.floatingPoint.format`
+
+```scala mdoc:defaults
+literals.floatingPoint.format
+```
+
+These settings control how the resulting literal is formatted.
+The output is in either a
+[normalized scientific notation](https://en.wikipedia.org/wiki/Scientific_notation#Normalized_notation)
+or a simple decimal form with a non-empty whole part and a possibly empty
+fractional part.
+
+##### `literals.floatingPoint.format.maxPaddingZeros`
+
+This setting controls choice between decimal and scientific notation:
+normalized scientific notation is selected if in the decimal representation
+the number of padding zeros just before trailing `.0` or immediately after
+leading `0.` exceeds this value.
+
+```scala mdoc:scalafmt
+rewrite.rules = [RewriteLiterals]
+literals.floatingPoint {
+  filter.minTotalDigits = 1
+  format.maxPaddingZeros = 2
+}
+---
+12300
+123000
+0.00123
+0.000123
+```
+
 ## Scala3 rewrites
 
 This section describes rules which are applied if the appropriate dialect (e.g.,
@@ -5362,6 +5504,9 @@ literals.long=Upper
 
 This sections contains settings controlling formatting of floating-point
 (float, double, generic) literals.
+
+Also see the [`RewriteLiterals` rule](#rewriteliterals)
+which defines additional settings in this section.
 
 #### `literals.floatingPoint.float`
 
