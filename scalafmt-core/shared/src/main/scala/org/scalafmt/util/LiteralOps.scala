@@ -2,6 +2,8 @@ package org.scalafmt.util
 
 import org.scalafmt.config._
 
+import scala.meta.tokens.Token.Constant
+
 object LiteralOps {
 
   /** Prints integer literals with specified case
@@ -33,15 +35,15 @@ object LiteralOps {
     } else prettyPrintHexOrBin(str)
   }
 
-  def prettyPrintFloat(
-      str: String,
-  )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit =
-    prettyPrintFloatingPoint(str, 'F', 'f', _.float)
+  def prettyPrintFloat(tok: Constant[BigDecimal], str: String)(implicit
+      style: ScalafmtConfig,
+      sb: StringBuilder,
+  ): Unit = prettyPrintFloatingPoint(tok, str, 'F', 'f', _.float)
 
-  def prettyPrintDouble(
-      str: String,
-  )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit =
-    prettyPrintFloatingPoint(str, 'D', 'd', _.double)
+  def prettyPrintDouble(tok: Constant[BigDecimal], str: String)(implicit
+      style: ScalafmtConfig,
+      sb: StringBuilder,
+  ): Unit = prettyPrintFloatingPoint(tok, str, 'D', 'd', _.double)
 
   /** Prints floating point literals with specified case
     *
@@ -56,18 +58,21 @@ object LiteralOps {
     *   - literals.float/double applies to suffix
     */
   private def prettyPrintFloatingPoint(
+      tok: Constant[BigDecimal],
       str: String,
       suffixUpper: Char,
       suffixLower: Char,
       suffixCase: Literals.FloatingPoint => Literals.Case,
-  )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit = {
-    val suffix = str.last
-    val fpStyle = style.literals.floatingPoint
-    if (suffix == suffixUpper || suffix == suffixLower) sb
-      .append(fpStyle.scientific.process(str.dropRight(1)))
-      .append(suffixCase(fpStyle).process(suffix))
-    else sb.append(fpStyle.scientific.process(str))
-  }
+  )(implicit style: ScalafmtConfig, sb: StringBuilder): Unit =
+    if (tok.isEmpty) sb.append(str) // rewritten
+    else {
+      val suffix = str.last
+      val fpStyle = style.literals.floatingPoint
+      if (suffix == suffixUpper || suffix == suffixLower) sb
+        .append(fpStyle.scientific.process(str.dropRight(1)))
+        .append(suffixCase(fpStyle).process(suffix))
+      else sb.append(fpStyle.scientific.process(str))
+    }
 
   private def prettyPrintHexOrBin(
       str: String,
