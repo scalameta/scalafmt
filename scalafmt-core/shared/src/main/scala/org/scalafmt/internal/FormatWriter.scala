@@ -48,8 +48,8 @@ class FormatWriter(formatOps: FormatOps) {
             .formatMarginized(totalAlignShift)
         case _: T.Constant.Int => LiteralOps.prettyPrintInteger(ltext)
         case _: T.Constant.Long => LiteralOps.prettyPrintInteger(ltext)
-        case _: T.Constant.Float => LiteralOps.prettyPrintFloat(ltext)
-        case _: T.Constant.Double => LiteralOps.prettyPrintDouble(ltext)
+        case t: T.Constant.Float => LiteralOps.prettyPrintFloat(t, ltext)
+        case t: T.Constant.Double => LiteralOps.prettyPrintDouble(t, ltext)
         case _ =>
           val syntax = Option(location.replace).getOrElse(ltext)
           sb.append(style.rewrite.tokens.getOrElse(syntax, syntax))
