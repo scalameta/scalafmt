@@ -117,10 +117,6 @@ lazy val sysops = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     moduleName := "scalafmt-sysops",
     description := "Scalafmt systems operations",
     scalacOptions ++= scalacJvmOptions.value,
-    libraryDependencies ++= {
-      if (!isScala212.value) Nil
-      else Seq("com.github.bigwheel" %% "util-backports" % "2.1")
-    },
     sharedTestSettings,
   ).jsEnablePlugins(ScalaJSPlugin).jsSettings(
     libraryDependencies += "org.scalameta" %%% "io" % scalametaV,
