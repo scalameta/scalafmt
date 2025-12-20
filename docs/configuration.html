@@ -5748,7 +5748,7 @@ would be treated as outside of the optional-braces region.</li>
 <p>This flag dictates which part of the expression terminated by the end marker
 is used to calculate the span for the purposes of applying
 <a href="#rewritescala3endmarkerinsertminspan"><code>insertMinSpan</code></a> and
-<a href="#rewritescala3removeendmarkermaxspan"><code>removeMaxSpan</code></a>.</p>
+<a href="#rewritescala3endmarkerremovemaxspan"><code>removeMaxSpan</code></a>.</p>
 <ul>
 <li><code>all</code> (default): the entire expression</li>
 <li><code>lastBlockOnly</code>: only the last block with significant indentation relative to
@@ -7831,8 +7831,8 @@ many line breaks we have selected to output for a given code passage);
 for instance,
 <ul>
 <li><a href="#inserting-braces">inserting</a> braces,</li>
-<li><a href="#rewritescala3insertendmarkerminlines">adding</a> or
-<a href="#rewritescala3removeendmarkermaxlines">removing</a> end markers</li>
+<li><a href="#rewritescala3endmarkerinsertminspan">adding</a> or
+<a href="#rewritescala3endmarkerremovemaxspan">removing</a> end markers</li>
 <li>modifying <a href="#newlines-around-package-or-template-body">blank lines</a></li>
 </ul></li>
 <li>rewrite comments and docstrings if configured</li>
