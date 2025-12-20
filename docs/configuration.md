@@ -4301,7 +4301,7 @@ Prior to v3.10.3, this setting was named `scala3.removeEndMarkerMaxLines`.
 This flag dictates which part of the expression terminated by the end marker
 is used to calculate the span for the purposes of applying
 [`insertMinSpan`](#rewritescala3endmarkerinsertminspan) and
-[`removeMaxSpan`](#rewritescala3removeendmarkermaxspan).
+[`removeMaxSpan`](#rewritescala3endmarkerremovemaxspan).
 
 - `all` (default): the entire expression
 - `lastBlockOnly`: only the last block with significant indentation relative to
@@ -6059,8 +6059,8 @@ Currently, the formatting process consists of several stages:
       many line breaks we have selected to output for a given code passage);
       for instance,
       - [inserting](#inserting-braces) braces,
-      - [adding](#rewritescala3insertendmarkerminlines) or
-        [removing](#rewritescala3removeendmarkermaxlines) end markers
+      - [adding](#rewritescala3endmarkerinsertminspan) or
+        [removing](#rewritescala3endmarkerremovemaxspan) end markers
       - modifying [blank lines](#newlines-around-package-or-template-body)
     - rewrite comments and docstrings if configured
     - [rewrite trailing commas](#trailing-commas):
