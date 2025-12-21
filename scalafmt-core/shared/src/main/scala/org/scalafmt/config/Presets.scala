@@ -6,17 +6,36 @@ object Presets {
 
   val presetKey = "preset"
 
+  def contramap[A <: Product](
+      baseDecoder: ConfDecoderEx[A],
+  )(f: PartialFunction[Conf, Conf]): ConfDecoderEx[A] = baseDecoder.contramap {
+    case conf @ Conf.Obj(v) => v.collectFirst { case (`presetKey`, x) => x }
+        .flatMap(f.lift.apply)
+        .fold(conf)(x => Conf.Obj((presetKey -> x) :: v.filter(_._1 != presetKey)))
+    case conf => conf
+  }
+
   def mapDecoder[A <: Product](
       baseDecoder: ConfDecoderEx[A],
       sectionName: String = null,
   )(implicit presets: PartialFunction[Conf, A]): ConfDecoderEx[A] =
-    (state, conf) =>
-      decodePresets(conf, sectionName, presets) match {
-        case Some(x: Configured.NotOk) => x
-        case Some(Configured.Ok((obj, null))) => Configured.ok(obj)
-        case Some(Configured.Ok((obj, cfg))) => baseDecoder.read(Some(obj), cfg)
-        case _ => baseDecoder.read(state, conf)
-      }
+    new ConfDecoderEx[A] {
+      override def read(state: Option[A], conf: Conf): Configured[A] =
+        decodePresets(conf, sectionName, presets) match {
+          case Some(x: Configured.NotOk) => x
+          case Some(Configured.Ok((obj, cfg))) =>
+            if (cfg eq null) Configured.ok(obj)
+            else baseDecoder.read(Some(obj), cfg)
+          case _ => baseDecoder.read(state, conf)
+        }
+      override def convert(conf: Conf): Conf = baseDecoder.convert(conf)
+    }
+
+  def contramapDecoder[A <: Product](
+      f: PartialFunction[Conf, Conf],
+  )(baseDecoder: ConfDecoderEx[A], sectionName: String = null)(implicit
+      presets: PartialFunction[Conf, A],
+  ): ConfDecoderEx[A] = contramap(mapDecoder(baseDecoder, sectionName))(f)
 
   private def decodePresets[A](
       conf: Conf,
