@@ -86,7 +86,7 @@ object Modification {
     case Newlines.AfterCurlyLambdaParams.never =>
       (style.newlines.okSpaceForSource(newlines), Newline)
     case Newlines.AfterCurlyLambdaParams.always => (false, Newline2x)
-    case Newlines.AfterCurlyLambdaParams.preserve =>
+    case Newlines.AfterCurlyLambdaParams.keep =>
       val blanks = newlines >= 2
       (style.newlines.okSpaceForSource(newlines, !blanks), Newline2x(blanks))
   }

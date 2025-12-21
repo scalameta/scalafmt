@@ -24,12 +24,12 @@ object Literals {
   sealed abstract class Case {
     import Case._
     def process(str: String): String = this match {
-      case Unchanged => str
+      case Keep => str
       case Lower => str.toLowerCase()
       case Upper => str.toUpperCase()
     }
     def process(ch: Char): Char = this match {
-      case Unchanged => ch
+      case Keep => ch
       case Lower => Character.toLowerCase(ch)
       case Upper => Character.toUpperCase(ch)
     }
@@ -37,12 +37,13 @@ object Literals {
 
   object Case {
     implicit val codec: ConfCodecEx[Case] = ReaderUtil
-      .oneOfCustom[Case](Upper, Lower, Unchanged) { // aliases
-        case Conf.Str("keep") => Configured.Ok(Unchanged)
+      .oneOfCustom[Case](Upper, Lower, Keep) { // aliases
+        case Conf.Str(str) if str.equalsIgnoreCase("unchanged") =>
+          Configured.Ok(Keep)
       }
     case object Upper extends Case
     case object Lower extends Case
-    case object Unchanged extends Case
+    case object Keep extends Case
   }
 
   case class FloatingPoint(

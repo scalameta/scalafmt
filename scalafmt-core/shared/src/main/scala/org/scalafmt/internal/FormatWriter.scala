@@ -106,7 +106,7 @@ class FormatWriter(formatOps: FormatOps) {
     var useCRLF = initStyle.lineEndings.fold(-1) {
       case LineEndings.unix => -1
       case LineEndings.windows => 1
-      case LineEndings.preserve => 0
+      case LineEndings.keep => 0
     }
 
     @tailrec
@@ -624,7 +624,7 @@ class FormatWriter(formatOps: FormatOps) {
       private def formatDocstring(
           text: String,
       )(implicit sb: StringBuilder): Unit =
-        if (style.docstrings.style eq Docstrings.Preserve) sb.append(text)
+        if (style.docstrings.style eq Docstrings.keep) sb.append(text)
         else if (!formatOnelineDocstring(text)) new FormatMlDoc(text).format()
 
       private abstract class FormatCommentBase(
