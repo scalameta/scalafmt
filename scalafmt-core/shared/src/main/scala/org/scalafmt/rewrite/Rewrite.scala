@@ -1,6 +1,6 @@
 package org.scalafmt.rewrite
 
-import org.scalafmt.config.{ReaderUtil, RewriteSettings, ScalafmtConfig}
+import org.scalafmt.config.{RewriteSettings, ScalafmtConfig}
 import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps}
 
 import scala.meta.tokens.{Token => T}
@@ -115,7 +115,7 @@ object Rewrite {
     RewriteLiterals,
   )
 
-  implicit val reader: ConfCodecEx[Rewrite] = ReaderUtil.oneOf(rewrites: _*)
+  implicit val reader: ConfCodecEx[Rewrite] = ConfCodecEx.oneOf(rewrites: _*)
 
   val name2rewrite: Map[String, Rewrite] = rewrites.view
     .map(x => x.source -> x.value).toMap

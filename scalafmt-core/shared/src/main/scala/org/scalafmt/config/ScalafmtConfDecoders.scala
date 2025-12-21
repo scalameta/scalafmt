@@ -12,7 +12,7 @@ trait ScalafmtConfDecoders {
   implicit def eventReaderFor[A <: FormatEvent]: ConfDecoderEx[A => Unit] =
     ConfDecoderEx.from[A => Unit] { case _ => Configured.Ok((_: A) => ()) }
 
-  implicit lazy val parseReader: ConfCodecEx[MetaParser] = ReaderUtil
+  implicit lazy val parseReader: ConfCodecEx[MetaParser] = ConfCodecEx
     .oneOf[MetaParser](parseSource, parseStat, parseCase)
 
   implicit lazy val codecReader: ConfDecoderEx[Codec] = ConfDecoderEx

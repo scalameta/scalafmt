@@ -5,10 +5,9 @@ import metaconfig._
 sealed abstract class LineEndings
 
 object LineEndings {
-  implicit val reader: ConfCodecEx[LineEndings] = ReaderUtil
+  implicit val reader: ConfCodecEx[LineEndings] = ConfCodecEx
     .oneOfCustom[LineEndings](unix, windows, keep) {
-      case Conf.Str(str) if str.equalsIgnoreCase("preserve") =>
-        Configured.Ok(keep)
+      case Conf.Str(str) if str.equalsIgnoreCase("preserve") => Conf.nameOf(keep)
     }
   case object unix extends LineEndings
   case object windows extends LineEndings

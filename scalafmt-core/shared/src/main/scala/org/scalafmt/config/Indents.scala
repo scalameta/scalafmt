@@ -83,7 +83,7 @@ object Indents {
     case object `match` extends RelativeToLhs
     case object `infix` extends RelativeToLhs
 
-    implicit val reader: ConfCodecEx[RelativeToLhs] = ReaderUtil
+    implicit val reader: ConfCodecEx[RelativeToLhs] = ConfCodecEx
       .oneOf[RelativeToLhs](`match`, `infix`)
   }
 
@@ -93,7 +93,7 @@ object Indents {
     case object always extends FewerBraces
     case object beforeSelect extends FewerBraces
 
-    implicit val reader: ConfCodecEx[FewerBraces] = ReaderUtil
+    implicit val reader: ConfCodecEx[FewerBraces] = ConfCodecEx
       .oneOf[FewerBraces](never, always, beforeSelect)
   }
 

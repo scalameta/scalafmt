@@ -92,7 +92,7 @@ object IndentOperator {
     case object notAssign extends Exempt
     case object notWithinAssign extends Exempt
 
-    implicit val reader: ConfCodecEx[Exempt] = ReaderUtil.oneOf[Exempt](
+    implicit val reader: ConfCodecEx[Exempt] = ConfCodecEx.oneOf[Exempt](
       all,
       oldTopLevel,
       aloneEnclosed,
@@ -104,7 +104,7 @@ object IndentOperator {
 
   val boolToAssign: PartialFunction[Conf, Conf] = { case Conf.Bool(value) =>
     if (value) Conf.Obj(
-      "exemptScope" -> Conf.Str("notAssign"),
+      "exemptScope" -> Conf.nameOf(Exempt.notAssign),
       "excludeRegex" -> Conf.Str(".*"),
     )
     else Conf.Obj.empty

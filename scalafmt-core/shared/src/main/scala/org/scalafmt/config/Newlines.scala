@@ -373,10 +373,10 @@ object Newlines {
 
   object SourceHints {
     // NB: don't allow specifying classic, only by default
-    implicit val codec: ConfCodecEx[SourceHints] = ReaderUtil
+    implicit val codec: ConfCodecEx[SourceHints] = ConfCodecEx
       .oneOfCustom[SourceHints](keep, fold, unfold) {
-        case Conf.Bool(true) => Configured.Ok(unfold)
-        case Conf.Bool(false) => Configured.Ok(fold)
+        case Conf.Bool(true) => Conf.nameOf(unfold)
+        case Conf.Bool(false) => Conf.nameOf(fold)
       }
   }
 
@@ -415,7 +415,7 @@ object Newlines {
     case object keep extends Style
     case object some extends Style
     case object many extends Style
-    implicit val styleReader: ConfCodecEx[Style] = ReaderUtil
+    implicit val styleReader: ConfCodecEx[Style] = ConfCodecEx
       .oneOf[Style](keep, some, many)
 
     /** @param style
@@ -466,7 +466,7 @@ object Newlines {
   case object before extends BeforeAfter
   case object after extends BeforeAfter
 
-  implicit val beforeAfterReader: ConfCodecEx[BeforeAfter] = ReaderUtil
+  implicit val beforeAfterReader: ConfCodecEx[BeforeAfter] = ConfCodecEx
     .oneOf[BeforeAfter](before, after)
 
   sealed abstract class AvoidForSimpleOverflow
@@ -478,7 +478,7 @@ object Newlines {
     val all: Seq[sourcecode.Text[AvoidForSimpleOverflow]] =
       Seq(punct, tooLong, slc)
 
-    implicit val codec: ConfCodecEx[AvoidForSimpleOverflow] = ReaderUtil
+    implicit val codec: ConfCodecEx[AvoidForSimpleOverflow] = ConfCodecEx
       .oneOf[AvoidForSimpleOverflow](all: _*)
 
     implicit val seqDecoder: ConfDecoderEx[Seq[AvoidForSimpleOverflow]] =
@@ -492,7 +492,7 @@ object Newlines {
     case object allow extends InInterpolation
     case object avoid extends InInterpolation
     case object oneline extends InInterpolation
-    implicit val codec: ConfCodecEx[InInterpolation] = ReaderUtil
+    implicit val codec: ConfCodecEx[InInterpolation] = ConfCodecEx
       .oneOf[InInterpolation](allow, avoid, oneline)
   }
 
@@ -502,10 +502,10 @@ object Newlines {
     case object always extends AfterCurlyLambdaParams
     case object never extends AfterCurlyLambdaParams
     case object squash extends AfterCurlyLambdaParams
-    implicit val codec: ConfCodecEx[AfterCurlyLambdaParams] = ReaderUtil
+    implicit val codec: ConfCodecEx[AfterCurlyLambdaParams] = ConfCodecEx
       .oneOfCustom[AfterCurlyLambdaParams](keep, always, never, squash) {
         case Conf.Str(str) if str.equalsIgnoreCase("preserve") =>
-          Configured.Ok(keep)
+          Conf.nameOf(keep)
       }
   }
 
@@ -515,15 +515,15 @@ object Newlines {
     case object never extends BeforeCurlyLambdaParams
     case object multiline extends BeforeCurlyLambdaParams
     case object multilineWithCaseOnly extends BeforeCurlyLambdaParams
-    implicit val codec: ConfCodecEx[BeforeCurlyLambdaParams] = ReaderUtil
+    implicit val codec: ConfCodecEx[BeforeCurlyLambdaParams] = ConfCodecEx
       .oneOfCustom[BeforeCurlyLambdaParams](
         never,
         always,
         multiline,
         multilineWithCaseOnly,
       ) {
-        case Conf.Bool(true) => Configured.Ok(always)
-        case Conf.Bool(false) => Configured.Ok(never)
+        case Conf.Bool(true) => Conf.nameOf(always)
+        case Conf.Bool(false) => Conf.nameOf(never)
       }
   }
 
@@ -533,7 +533,7 @@ object Newlines {
 
   object ForceBeforeMultilineAssign {
 
-    implicit val codec: ConfCodecEx[ForceBeforeMultilineAssign] = ReaderUtil
+    implicit val codec: ConfCodecEx[ForceBeforeMultilineAssign] = ConfCodecEx
       .oneOf[ForceBeforeMultilineAssign](never, any, `def`, anyMember, topMember)
 
     case object never extends ForceBeforeMultilineAssign {

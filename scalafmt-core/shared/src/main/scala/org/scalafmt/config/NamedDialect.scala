@@ -47,7 +47,7 @@ object NamedDialect {
         |""".stripMargin
   }
 
-  implicit val codec: ConfCodecEx[NamedDialect] = ReaderUtil
+  implicit val codec: ConfCodecEx[NamedDialect] = ConfCodecEx
     .oneOf(known.map(nd => sourcecode.Text(nd, nd.source)): _*)
 
 }

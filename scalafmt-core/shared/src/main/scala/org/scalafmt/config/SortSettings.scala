@@ -77,7 +77,7 @@ object SortSettings {
     modOpaque,
   )
 
-  implicit val sortSettingsModKeyCodec: ConfCodecEx[ModKey] = ReaderUtil
+  implicit val sortSettingsModKeyCodec: ConfCodecEx[ModKey] = ConfCodecEx
     .oneOf[ModKey](defaultOrder.map(v => Text(v, v.name)): _*)
 
   implicit val surface: generic.Surface[SortSettings] = generic.deriveSurface

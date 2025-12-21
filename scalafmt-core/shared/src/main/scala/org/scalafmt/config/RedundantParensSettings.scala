@@ -26,7 +26,7 @@ object RedundantParensSettings {
 
   sealed abstract class InfixSide
   object InfixSide {
-    implicit val codec: ConfCodecEx[InfixSide] = ReaderUtil
+    implicit val codec: ConfCodecEx[InfixSide] = ConfCodecEx
       .oneOf[InfixSide](all, many, some)
     case object all extends InfixSide
     case object many extends InfixSide

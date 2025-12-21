@@ -37,10 +37,10 @@ object TrailingCommas {
   sealed abstract class Style
 
   object Style {
-    implicit val codec: ConfCodecEx[Style] = ReaderUtil
+    implicit val codec: ConfCodecEx[Style] = ConfCodecEx
       .oneOfCustom[Style](always, never, keep, multiple) {
         case Conf.Str(str) if str.equalsIgnoreCase("preserve") =>
-          Configured.Ok(keep)
+          Conf.nameOf(keep)
       }
   }
 

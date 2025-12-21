@@ -36,10 +36,10 @@ object Literals {
   }
 
   object Case {
-    implicit val codec: ConfCodecEx[Case] = ReaderUtil
+    implicit val codec: ConfCodecEx[Case] = ConfCodecEx
       .oneOfCustom[Case](Upper, Lower, Keep) { // aliases
         case Conf.Str(str) if str.equalsIgnoreCase("unchanged") =>
-          Configured.Ok(Keep)
+          Conf.nameOf(Keep)
       }
     case object Upper extends Case
     case object Lower extends Case

@@ -81,15 +81,15 @@ object Spaces {
     def apply(tb: Type.Bounds): Boolean
   }
   object BeforeContextBound {
-    implicit val codec: ConfCodecEx[BeforeContextBound] = ReaderUtil
+    implicit val codec: ConfCodecEx[BeforeContextBound] = ConfCodecEx
       .oneOfCustom[BeforeContextBound](
         Always,
         Never,
         IfMultipleBounds,
         IfMultipleContextBounds,
       ) {
-        case Conf.Bool(true) => Configured.ok(Always)
-        case Conf.Bool(false) => Configured.ok(Never)
+        case Conf.Bool(true) => Conf.nameOf(Always)
+        case Conf.Bool(false) => Conf.nameOf(Never)
       }
 
     case object Always extends BeforeContextBound {
@@ -109,7 +109,7 @@ object Spaces {
 
   sealed abstract class AfterColonInMatchPattern
   object AfterColonInMatchPattern {
-    implicit val codec: ConfCodecEx[AfterColonInMatchPattern] = ReaderUtil
+    implicit val codec: ConfCodecEx[AfterColonInMatchPattern] = ConfCodecEx
       .oneOf[AfterColonInMatchPattern](Always, Never, NoAlternatives)
     case object Always extends AfterColonInMatchPattern
     case object Never extends AfterColonInMatchPattern
@@ -120,10 +120,10 @@ object Spaces {
     def apply(name: => String): Boolean
   }
   private object BeforeArgInParens {
-    implicit val codec: ConfCodecEx[BeforeArgInParens] = ReaderUtil
+    implicit val codec: ConfCodecEx[BeforeArgInParens] = ConfCodecEx
       .oneOfCustom[BeforeArgInParens](Never, Always, AfterSymbolic) {
-        case Conf.Bool(true) => Configured.ok(Always)
-        case Conf.Bool(false) => Configured.ok(Never)
+        case Conf.Bool(true) => Conf.nameOf(Always)
+        case Conf.Bool(false) => Conf.nameOf(Never)
       }
 
     case object Never extends BeforeArgInParens {

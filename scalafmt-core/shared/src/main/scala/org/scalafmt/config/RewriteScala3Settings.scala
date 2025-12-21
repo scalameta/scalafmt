@@ -82,7 +82,7 @@ object RewriteScala3Settings {
 
     sealed abstract class SpanIs
     object SpanIs {
-      implicit val codec: ConfCodecEx[SpanIs] = ReaderUtil
+      implicit val codec: ConfCodecEx[SpanIs] = ConfCodecEx
         .oneOf(lines, blankGaps)
       case object lines extends SpanIs
       case object blankGaps extends SpanIs
@@ -90,7 +90,7 @@ object RewriteScala3Settings {
 
     sealed abstract class SpanHas
     object SpanHas {
-      implicit val codec: ConfCodecEx[SpanHas] = ReaderUtil
+      implicit val codec: ConfCodecEx[SpanHas] = ConfCodecEx
         .oneOf(all, lastBlockOnly)
       case object all extends SpanHas
       case object lastBlockOnly extends SpanHas

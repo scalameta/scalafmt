@@ -104,9 +104,10 @@ object ScalafmtOptimizer {
     case object Yes extends PruneSlowStates
     case object Only extends PruneSlowStates
 
-    implicit val reader: ConfCodecEx[PruneSlowStates] = ReaderUtil
-      .oneOfCustom[PruneSlowStates](No, Yes, Only) { case Conf.Bool(flag) =>
-        Configured.Ok(if (flag) Yes else No)
+    implicit val reader: ConfCodecEx[PruneSlowStates] = ConfCodecEx
+      .oneOfCustom[PruneSlowStates](No, Yes, Only) {
+        case Conf.Bool(true) => Conf.nameOf(Yes)
+        case Conf.Bool(false) => Conf.nameOf(No)
       }
   }
 
