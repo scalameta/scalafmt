@@ -1,10 +1,15 @@
 package org.scalafmt.cli
 
+import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.Versions.{stable => stableVersion}
+import org.scalafmt.config.{ConfParsed, ScalafmtConfig}
 import org.scalafmt.sysops.{FileOps, PlatformFileOps, PlatformRunOps}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
+
+import metaconfig.{Conf, Configured}
+import munit.diff.DiffUtils
 
 object Cli extends CliUtils {
 
@@ -27,9 +32,33 @@ object Cli extends CliUtils {
 
   def mainWithOptions(options: CliOptions, args: String*): Future[ExitCode] =
     getConfig(options, args: _*) match {
+      case Some(x) if x.writeModeOpt.contains(WriteMode.DiffConfig) =>
+        diffConfig(options)
       case Some(x) => run(x)
       case None => ExitCode.CommandLineArgumentError.future
     }
+
+  private def diffConfig(options: CliOptions): Future[ExitCode] = Future {
+    import options._
+    def printLines(c: Conf) = Conf.printHocon(c).split('\n').toList.asJava
+    hoconOpt match {
+      case Some(x: ConfParsed) => x.conf match {
+          case Configured.Ok(srcConf) =>
+            val dstConf = ScalafmtConfig.decoder.convert(srcConf)
+            val src = printLines(srcConf)
+            val diff = DiffUtils.diff(src, printLines(dstConf))
+            val res = DiffUtils.generateUnifiedDiff("src", "dst", src, diff, 1)
+            common.out.println(res.asScala.iterator.drop(2).mkString("\n"))
+            ExitCode.Ok
+          case Configured.NotOk(err) =>
+            common.err.println(err.msg)
+            ExitCode.UnexpectedError
+        }
+      case _ =>
+        common.err.println("Configuration file not found")
+        ExitCode.UnexpectedError
+    }
+  }
 
   def getConfig(init: CliOptions, args: String*): Option[CliOptions] = {
     val expandedArguments = expandArguments(args)
