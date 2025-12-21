@@ -93,7 +93,7 @@ object DanglingParentheses {
     case object `def` extends Exclude
     case object `given` extends Exclude
 
-    implicit val reader: ConfCodecEx[Exclude] = ReaderUtil
+    implicit val reader: ConfCodecEx[Exclude] = ConfCodecEx
       .oneOf[Exclude](`class`, `trait`, `enum`, `extension`, `def`, `given`)
 
     val defaultVerticalMultiline = List(`class`, `trait`)

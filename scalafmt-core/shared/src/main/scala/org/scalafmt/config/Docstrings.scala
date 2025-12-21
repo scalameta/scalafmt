@@ -88,10 +88,9 @@ object Docstrings {
     def skipFirstLine(v: Option[BlankFirstLine]): Option[BlankFirstLine] = v
   }
 
-  implicit val reader: ConfCodecEx[Style] = ReaderUtil
+  implicit val reader: ConfCodecEx[Style] = ConfCodecEx
     .oneOfCustom[Style](keep, Asterisk, SpaceAsterisk, AsteriskSpace) {
-      case Conf.Str(str) if str.equalsIgnoreCase("preserve") =>
-        Configured.Ok(keep)
+      case Conf.Str(str) if str.equalsIgnoreCase("preserve") => Conf.nameOf(keep)
     }
 
   sealed abstract class Oneline
@@ -99,7 +98,7 @@ object Docstrings {
     case object keep extends Oneline
     case object fold extends Oneline
     case object unfold extends Oneline
-    implicit val reader: ConfCodecEx[Oneline] = ReaderUtil
+    implicit val reader: ConfCodecEx[Oneline] = ConfCodecEx
       .oneOf[Oneline](keep, fold, unfold)
   }
 
@@ -108,12 +107,10 @@ object Docstrings {
     case object keep extends Wrap
     case object fold extends Wrap
     case object unfold extends Wrap
-    implicit val codec: ConfCodecEx[Wrap] = ReaderUtil
+    implicit val codec: ConfCodecEx[Wrap] = ConfCodecEx
       .oneOfCustom[Wrap](keep, fold, unfold) {
-        case Conf.Str("no") => Configured.Ok(keep)
-        case Conf.Bool(false) => Configured.Ok(keep)
-        case Conf.Str("yes") => Configured.Ok(unfold)
-        case Conf.Bool(true) => Configured.Ok(unfold)
+        case Conf.Str("no") | Conf.Bool(false) => Conf.nameOf(keep)
+        case Conf.Str("yes") | Conf.Bool(true) => Conf.nameOf(unfold)
       }
   }
 
@@ -122,12 +119,10 @@ object Docstrings {
     case object unfold extends BlankFirstLine
     case object fold extends BlankFirstLine
     case object keep extends BlankFirstLine
-    implicit val codec: ConfCodecEx[BlankFirstLine] = ReaderUtil
+    implicit val codec: ConfCodecEx[BlankFirstLine] = ConfCodecEx
       .oneOfCustom[BlankFirstLine](unfold, fold, keep) {
-        case Conf.Str("no") => Configured.Ok(fold)
-        case Conf.Bool(false) => Configured.Ok(fold)
-        case Conf.Str("yes") => Configured.Ok(unfold)
-        case Conf.Bool(true) => Configured.Ok(unfold)
+        case Conf.Str("no") | Conf.Bool(false) => Conf.nameOf(fold)
+        case Conf.Str("yes") | Conf.Bool(true) => Conf.nameOf(unfold)
       }
   }
 

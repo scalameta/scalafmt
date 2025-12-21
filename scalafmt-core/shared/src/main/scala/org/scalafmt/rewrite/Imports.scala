@@ -46,7 +46,9 @@ object Imports extends RewriteFactory {
       .withSectionRenames(annotation.SectionRename(
         "expand",
         "selectors",
-        { case Conf.Bool(value) => if (value) Conf.Str("unfold") else Conf.Null() },
+        { case Conf.Bool(value) =>
+          if (value) Conf.nameOf(Newlines.unfold) else Conf.Null()
+        },
       ))
 
   }
@@ -56,7 +58,7 @@ object Imports extends RewriteFactory {
     case object no extends ContiguousGroups
     case object only extends ContiguousGroups
 
-    implicit val codec: ConfCodecEx[ContiguousGroups] = ReaderUtil
+    implicit val codec: ConfCodecEx[ContiguousGroups] = ConfCodecEx
       .oneOf(only, no)
   }
 
@@ -66,7 +68,7 @@ object Imports extends RewriteFactory {
     case object none extends SortCatchallGroup
     case object tail extends SortCatchallGroup
 
-    implicit val codec: ConfCodecEx[SortCatchallGroup] = ReaderUtil
+    implicit val codec: ConfCodecEx[SortCatchallGroup] = ConfCodecEx
       .oneOf(full, none, tail)
   }
 
@@ -190,7 +192,7 @@ object Imports extends RewriteFactory {
 
   private[scalafmt] object Sort {
 
-    implicit val reader: ConfCodecEx[Sort] = ReaderUtil
+    implicit val reader: ConfCodecEx[Sort] = ConfCodecEx
       .oneOf[Sort](none, ascii, original, scalastyle)
 
     case object none extends Sort {

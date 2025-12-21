@@ -144,7 +144,7 @@ object ProjectFiles {
       }
     }
 
-    implicit val reader: ConfCodecEx[Layout] = ReaderUtil
+    implicit val reader: ConfCodecEx[Layout] = ConfCodecEx
       .oneOf[Layout](StandardConvention)
 
   }

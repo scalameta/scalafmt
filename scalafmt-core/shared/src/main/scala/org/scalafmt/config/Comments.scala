@@ -35,7 +35,7 @@ object Comments {
     case object no extends Wrap
     case object standalone extends Wrap
     case object trailing extends Wrap
-    implicit val reader: ConfCodecEx[Wrap] = ReaderUtil
+    implicit val reader: ConfCodecEx[Wrap] = ConfCodecEx
       .oneOf[Wrap](no, standalone, trailing)
   }
 

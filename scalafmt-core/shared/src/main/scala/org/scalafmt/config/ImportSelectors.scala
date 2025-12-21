@@ -42,12 +42,10 @@ sealed abstract class ImportSelectors
 
 object ImportSelectors {
 
-  implicit val codec: ConfCodecEx[ImportSelectors] = ReaderUtil
+  implicit val codec: ConfCodecEx[ImportSelectors] = ConfCodecEx
     .oneOfCustom[ImportSelectors](unfold, fold, singleLine) {
-      case Conf.Bool(value) => Configured
-          .ok(if (value) ImportSelectors.fold else ImportSelectors.unfold)
-      case Conf.Str("binPack") => Configured.ok(ImportSelectors.fold)
-      case Conf.Str("noBinPack") => Configured.ok(ImportSelectors.unfold)
+      case Conf.Str("binPack") | Conf.Bool(true) => Conf.nameOf(fold)
+      case Conf.Str("noBinPack") | Conf.Bool(false) => Conf.nameOf(unfold)
     }
 
   case object fold extends ImportSelectors

@@ -50,10 +50,10 @@ object RedundantBracesSettings {
   sealed abstract class DefnBodies
 
   object DefnBodies {
-    implicit val codec: ConfCodecEx[DefnBodies] = ReaderUtil
+    implicit val codec: ConfCodecEx[DefnBodies] = ConfCodecEx
       .oneOfCustom[DefnBodies](all, none, noParams) {
-        case Conf.Bool(true) => Configured.Ok(all)
-        case Conf.Bool(false) => Configured.Ok(none)
+        case Conf.Bool(true) => Conf.nameOf(all)
+        case Conf.Bool(false) => Conf.nameOf(none)
       }
 
     case object all extends DefnBodies
