@@ -27,4 +27,8 @@ object WriteMode {
   case object Test extends WriteMode {
     val usesOut: Boolean = false
   }
+
+  case object DiffConfig extends WriteMode {
+    val usesOut: Boolean = true
+  }
 }

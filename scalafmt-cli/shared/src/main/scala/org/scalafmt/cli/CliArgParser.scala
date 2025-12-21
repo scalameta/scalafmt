@@ -137,6 +137,12 @@ object CliArgParser {
              |continuing after read completes, thus separating I/O-bound
              |input and CPU-bound formatting thread pools.""".stripMargin,
         )
+      opt[Unit]("diff-config")
+        .action((_, c) => writeMode(c, WriteMode.DiffConfig)).text(
+          """|Compare original configuration with the effective one
+             |(after resolving aliases or renaming deprecated parameters).
+             |""".stripMargin,
+        )
 
       note(
         s"""|Examples:
