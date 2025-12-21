@@ -72,16 +72,17 @@ object IndentOperator {
     generic.deriveSurface
   implicit lazy val encoder: ConfEncoder[IndentOperator] = generic.deriveEncoder
 
-  implicit val decoder: ConfDecoderEx[IndentOperator] = Presets
-    .mapDecoder(generic.deriveDecoderEx(default).noTypos, "indentOperator") {
-      case Conf.Str("spray" | "akka" | "akka-http") => IndentOperator.akka
-      case Conf.Str("default") => IndentOperator.default
-    }.withSectionRenames(
-      // deprecated since v3.4.0
-      annotation.SectionRename { case Conf.Bool(value) =>
-        Conf.Str(if (value) "oldTopLevel" else "all")
-      }("topLevelOnly", "exemptScope"),
-    )
+  implicit val decoder: ConfDecoderEx[IndentOperator] = Presets.contramapDecoder {
+    case Conf.Str("spray" | "akka-http") => Conf.nameOf(akka)
+  }(generic.deriveDecoderEx(default).noTypos, "indentOperator") {
+    case Conf.Str("akka") => akka
+    case Conf.Str("default") => default
+  }.withSectionRenames(
+    // deprecated since v3.4.0
+    annotation.SectionRename { case Conf.Bool(value) =>
+      Conf.Str(if (value) "oldTopLevel" else "all")
+    }("topLevelOnly", "exemptScope"),
+  )
 
   sealed abstract class Exempt
   object Exempt {

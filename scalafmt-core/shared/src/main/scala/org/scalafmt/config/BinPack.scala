@@ -104,12 +104,12 @@ object BinPack {
 
   private val customPresets = ConfEnum(never, always, oneline, onelineSjs)
 
-  implicit val decoder: ConfDecoderEx[BinPack] = Presets
-    .mapDecoder(generic.deriveDecoderEx(never).noTypos, "binPack") {
-      case Conf.Bool(true) => always
-      case Conf.Bool(false) => never
-      case Conf.Str(customPresets(obj)) => obj
-    }
+  implicit val decoder: ConfDecoderEx[BinPack] = Presets.contramapDecoder {
+    case Conf.Bool(true) => Conf.nameOf(always)
+    case Conf.Bool(false) => Conf.nameOf(never)
+  }(generic.deriveDecoderEx(never).noTypos, "binPack") {
+    case Conf.Str(customPresets(obj)) => obj
+  }
 
   sealed abstract class ParentCtors
   object ParentCtors {
