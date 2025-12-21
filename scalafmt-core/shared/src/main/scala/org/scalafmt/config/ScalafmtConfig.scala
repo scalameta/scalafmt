@@ -45,7 +45,7 @@ import metaconfig._
   *   - If [[LineEndings.unix]], output will include only unix line endings
   *   - If [[LineEndings.windows]], output will include only windows line
   *     endings
-  *   - If [[LineEndings.preserve]], output will include endings included in
+  *   - If [[LineEndings.keep]], output will include endings included in
   *     original file (windows if there was at least one windows line ending,
   *     unix if there was zero occurrences of windows line endings)
   * @param includeCurlyBraceInSelectChains
@@ -163,7 +163,7 @@ case class ScalafmtConfig(
   def withGitAutoCRLF(value: String): ScalafmtConfig = value.toLowerCase match {
     case "input" => withLineEndings(LineEndings.unix)
     case "true" => withLineEndings(LineEndings.windows)
-    case "false" => withLineEndings(LineEndings.preserve)
+    case "false" => withLineEndings(LineEndings.keep)
     case _ => this
   }
 

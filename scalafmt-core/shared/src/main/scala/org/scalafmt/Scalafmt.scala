@@ -85,7 +85,7 @@ object Scalafmt {
       range: Set[Range],
   ): Try[String] =
     if (FileOps.isMarkdown(file)) {
-      val mdocStyle = style.withLineEndings(LineEndings.preserve)
+      val mdocStyle = style.withLineEndings(LineEndings.keep)
       val res = MarkdownParser
         .transformMdoc(code)(doFormatOne(_, mdocStyle, file, range))
       style.lineEndings match {

@@ -13,7 +13,7 @@ class EmptyFileTest extends FunSuite {
   private val cfgWithLineEndingsCRLF = ScalafmtConfig.default
     .withLineEndings(LineEndings.windows)
   private val cfgWithLineEndingsKeep = ScalafmtConfig.default
-    .withLineEndings(LineEndings.preserve)
+    .withLineEndings(LineEndings.keep)
 
   Seq(
     ("", "\n", "\r\n", "\n"),

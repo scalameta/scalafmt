@@ -498,13 +498,14 @@ object Newlines {
 
   sealed abstract class AfterCurlyLambdaParams
   object AfterCurlyLambdaParams {
-    case object preserve extends AfterCurlyLambdaParams
+    case object keep extends AfterCurlyLambdaParams
     case object always extends AfterCurlyLambdaParams
     case object never extends AfterCurlyLambdaParams
     case object squash extends AfterCurlyLambdaParams
     implicit val codec: ConfCodecEx[AfterCurlyLambdaParams] = ReaderUtil
-      .oneOfCustom[AfterCurlyLambdaParams](preserve, always, never, squash) {
-        case Conf.Str("keep") => Configured.Ok(preserve)
+      .oneOfCustom[AfterCurlyLambdaParams](keep, always, never, squash) {
+        case Conf.Str(str) if str.equalsIgnoreCase("preserve") =>
+          Configured.Ok(keep)
       }
   }
 

@@ -49,7 +49,7 @@ case class Docstrings(
   import Docstrings._
 
   def withoutRewrites: Docstrings =
-    copy(removeEmpty = false, wrap = Wrap.keep, style = Preserve)
+    copy(removeEmpty = false, wrap = Wrap.keep, style = keep)
 
   def skipFirstLineIf(wasBlank: Boolean): Boolean = style
     .skipFirstLine(blankFirstLine).exists {
@@ -70,7 +70,7 @@ object Docstrings {
   sealed abstract class Style {
     def skipFirstLine(v: Option[BlankFirstLine]): Option[BlankFirstLine]
   }
-  case object Preserve extends Style {
+  case object keep extends Style {
     def skipFirstLine(v: Option[BlankFirstLine]): Option[BlankFirstLine] =
       Some(BlankFirstLine.keep)
   }
@@ -89,8 +89,9 @@ object Docstrings {
   }
 
   implicit val reader: ConfCodecEx[Style] = ReaderUtil
-    .oneOfCustom[Style](Preserve, Asterisk, SpaceAsterisk, AsteriskSpace) {
-      case Conf.Str("keep") => Configured.Ok(Preserve)
+    .oneOfCustom[Style](keep, Asterisk, SpaceAsterisk, AsteriskSpace) {
+      case Conf.Str(str) if str.equalsIgnoreCase("preserve") =>
+        Configured.Ok(keep)
     }
 
   sealed abstract class Oneline
