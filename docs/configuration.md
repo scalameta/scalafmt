@@ -4233,7 +4233,7 @@ scientific notation, excluding sign, type suffix, dot and exponent.
 rewrite.rules = [RewriteLiterals]
 literals.floatingPoint {
   filter {
-    minTotalDigits = 100
+    minTotalDigits = 0
     minSignificantDigits = 3
   }
 }
@@ -4270,7 +4270,7 @@ to avoid modifying
 rewrite.rules = [RewriteLiterals]
 literals.floatingPoint {
   filter {
-    minTotalDigits = 100
+    minTotalDigits = 0
     needSuffix = true
   }
 }
