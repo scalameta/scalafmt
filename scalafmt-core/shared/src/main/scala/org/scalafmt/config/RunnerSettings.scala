@@ -1,6 +1,6 @@
 package org.scalafmt.config
 
-import scala.meta.parsers.Parsed
+import scala.meta.parsers.{Parsed, ParserOptions}
 import scala.meta.{Dialect, Tree}
 
 import scala.reflect.ClassTag
@@ -31,7 +31,7 @@ case class RunnerSettings(
 ) {
   @inline
   private[scalafmt] def getDialect = dialect.value
-  private[scalafmt] lazy val getDialectForParser: Dialect = getDialect
+  private[scalafmt] implicit lazy val getDialectForParser: Dialect = getDialect
     .withAllowToplevelTerms(true).withAllowToplevelStatements(true)
   @inline
   private[scalafmt] def dialectName = {
@@ -60,8 +60,10 @@ case class RunnerSettings(
   def event(evt: => FormatEvent): Unit =
     if (null != eventCallback) eventCallback(evt)
 
-  def parse(input: meta.inputs.Input): Parsed[_ <: Tree] =
-    getParser(input, getDialectForParser)
+  private implicit val parserOptions: ParserOptions =
+    new ParserOptions(captureComments = false)
+
+  def parse(input: meta.inputs.Input): Parsed[_ <: Tree] = getParser(input)
 
   @inline
   def isDefaultDialect = dialect.source == NamedDialect.defaultName
