@@ -23,7 +23,7 @@ jobs:
           - ubuntu-22.04
           - ubuntu-22.04-arm
         scala:
-          - '2.12.20'
+          - '2.12.21'
           - '2.13.18'
     runs-on: ${{ matrix.os }}
     steps:
