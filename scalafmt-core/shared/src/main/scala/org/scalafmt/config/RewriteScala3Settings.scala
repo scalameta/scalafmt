@@ -53,17 +53,16 @@ object RewriteScala3Settings {
     implicit val encoder: ConfEncoder[RemoveOptionalBraces] = generic
       .deriveEncoder[RemoveOptionalBraces]
 
-    implicit final val decoder: ConfDecoderEx[RemoveOptionalBraces] = {
-      val baseDecoder = generic.deriveDecoderEx[RemoveOptionalBraces](no)
-      (stateOpt, conf) =>
-        conf match {
-          case Conf.Bool(true) | Conf.Str("yes") => Configured.Ok(yes)
-          case Conf.Bool(false) | Conf.Str("no") => Configured.Ok(no)
-          case Conf.Str("oldSyntaxToo") => Configured
-              .Ok(RemoveOptionalBraces(oldSyntaxToo = true))
-          case _ => baseDecoder.read(stateOpt, conf)
-        }
-    }
+    implicit final val decoder: ConfDecoderEx[RemoveOptionalBraces] = generic
+      .deriveDecoderEx[RemoveOptionalBraces](no).contramap {
+        case Conf.Bool(true) | Conf.Str("yes") => Conf
+            .Obj("enabled" -> Conf(true))
+        case Conf.Bool(false) | Conf.Str("no") => Conf
+            .Obj("enabled" -> Conf(false))
+        case Conf.Str("oldSyntaxToo") => Conf
+            .Obj("enabled" -> Conf(true), "oldSyntaxToo" -> Conf(true))
+        case conf => conf
+      }
   }
 
   case class EndMarker(
