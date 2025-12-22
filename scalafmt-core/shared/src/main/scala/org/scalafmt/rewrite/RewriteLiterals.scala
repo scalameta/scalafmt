@@ -71,12 +71,14 @@ object RewriteLiterals extends Rewrite with FormatTokensRewrite.RuleFactory {
     def appendZeros(numZeros: Int, beforeNextSeparator: Int): Int =
       if (numZeros > 0) {
         val nextBeforeNextSeparator =
-          if (separators > 0 && beforeNextSeparator == 0) {
+          if (separators <= 0) 0
+          else if (beforeNextSeparator > 0) beforeNextSeparator
+          else {
             jsb.append('_')
             separators
-          } else beforeNextSeparator - 1
+          }
         jsb.append('0')
-        appendZeros(numZeros - 1, nextBeforeNextSeparator)
+        appendZeros(numZeros - 1, nextBeforeNextSeparator - 1)
       } else beforeNextSeparator
 
     if (signum < 0) jsb.append('-')
@@ -90,7 +92,7 @@ object RewriteLiterals extends Rewrite with FormatTokensRewrite.RuleFactory {
     if (exp >= 0 && exp <= fpFormat.maxPaddingZeros) {
       // all before dot, possibly padded
       if (separators <= 0) jsb.append(digits) else appendDigitsBeforeDot()
-      appendZeros(exp, if (separators > 0) exp % separators else 0)
+      appendZeros(exp, if (separators > 0) exp % separators else -1)
       if (!hasSuffix || fpFormat.forceDot) jsb.append(".0")
     } else if (-beforeDot <= fpFormat.maxPaddingZeros && beforeDot <= 0) {
       // all after dot, possibly padded
