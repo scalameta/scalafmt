@@ -4287,11 +4287,11 @@ literals.floatingPoint {
 1.20d
 12.0
 12.0d
-120
+120.0
 120d
-1200
+1200.0
 1200d
-12000
+12000.0
 12000d
 ```
 
@@ -4321,8 +4321,8 @@ literals.floatingPoint {
   format.maxPaddingZeros = 2
 }
 ---
-12300
-123000
+12300.0
+123000.0
 0.00123
 0.000123
 ```
@@ -4373,11 +4373,11 @@ literals.floatingPoint {
   filter.minTotalDigits = 1
 }
 ---
-1230
+1230.0
 1230d
 123e10
 // scalafmt: { literals.floatingPoint.format.forceDot = true }
-1230
+1230.0
 1230d
 123e10
 ```
