@@ -5668,25 +5668,25 @@ literals.floatingPoint {
 <p>Filters on number of decimal digits in normalized
 scientific notation, excluding sign, type suffix, dot and exponent.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-number">-0.000120e0</span>d
-<span class="hljs-number">-0.000123e0</span>d
+<span class="hljs-number">-1.23e-4</span>d
 <span class="hljs-number">-0.00120e0</span>d
-<span class="hljs-number">-0.00123e0</span>d
+<span class="hljs-number">-1.23e-3</span>d
 <span class="hljs-number">-0.0120e0</span>d
-<span class="hljs-number">-0.0123e0</span>d
+<span class="hljs-number">-1.23e-2</span>d
 <span class="hljs-number">-0.120e0</span>d
-<span class="hljs-number">-0.123e0</span>d
+<span class="hljs-number">-0.123</span>d
 <span class="hljs-number">-1.20e0</span>d
-<span class="hljs-number">-1.23e0</span>d
+<span class="hljs-number">-1.23</span>d
 <span class="hljs-number">-12.0e0</span>d
-<span class="hljs-number">-12.3e0</span>d
+<span class="hljs-number">-12.3</span>d
 <span class="hljs-number">-120e0</span>d
-<span class="hljs-number">-123e0</span>d
+<span class="hljs-number">-123</span>d
 <span class="hljs-number">-1200e0</span>d
-<span class="hljs-number">-1230e0</span>d
+<span class="hljs-number">-1.23e3</span>d
 <span class="hljs-number">-12000e0</span>d
-<span class="hljs-number">-12300e0</span>d
+<span class="hljs-number">-1.23e4</span>d
 <span class="hljs-number">-120000e0</span>d
-<span class="hljs-number">-123000e0</span>d
+<span class="hljs-number">-1.23e5</span>d
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-number">-0.000120e0</span>d
 <span class="hljs-number">-0.000123e0</span>d
@@ -5713,7 +5713,7 @@ scientific notation, excluding sign, type suffix, dot and exponent.</p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RewriteLiterals</span>]
 literals.floatingPoint {
   filter {
-    minTotalDigits = <span class="hljs-number">100</span>
+    minTotalDigits = <span class="hljs-number">0</span>
     minSignificantDigits = <span class="hljs-number">3</span>
   }
 }
@@ -5724,23 +5724,23 @@ literals.floatingPoint {
 to avoid modifying
 <a href="https://docs.scala-lang.org/scala3/reference/experimental/numeric-literals.html">custom number literals</a>.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-number">0.000120</span>
-<span class="hljs-number">0.000120</span>d
+<span class="hljs-number">1.2e-4</span>d
 <span class="hljs-number">0.00120</span>
-<span class="hljs-number">0.00120</span>d
+<span class="hljs-number">1.2e-3</span>d
 <span class="hljs-number">0.0120</span>
-<span class="hljs-number">0.0120</span>d
+<span class="hljs-number">1.2e-2</span>d
 <span class="hljs-number">0.120</span>
-<span class="hljs-number">0.120</span>d
+<span class="hljs-number">0.12</span>d
 <span class="hljs-number">1.20</span>
-<span class="hljs-number">1.20</span>d
+<span class="hljs-number">1.2</span>d
 <span class="hljs-number">12.0</span>
-<span class="hljs-number">12.0</span>d
+<span class="hljs-number">12</span>d
 <span class="hljs-number">120</span>
-<span class="hljs-number">120</span>d
+<span class="hljs-number">1.2e2</span>d
 <span class="hljs-number">1200</span>
-<span class="hljs-number">1200</span>d
+<span class="hljs-number">1.2e3</span>d
 <span class="hljs-number">12000</span>
-<span class="hljs-number">12000</span>d
+<span class="hljs-number">1.2e4</span>d
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-number">0.000120</span>
 <span class="hljs-number">0.000120</span>d
@@ -5765,7 +5765,7 @@ to avoid modifying
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RewriteLiterals</span>]
 literals.floatingPoint {
   filter {
-    minTotalDigits = <span class="hljs-number">100</span>
+    minTotalDigits = <span class="hljs-number">0</span>
     needSuffix = <span class="hljs-literal">true</span>
   }
 }
