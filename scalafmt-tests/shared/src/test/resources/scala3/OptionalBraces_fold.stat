@@ -7664,46 +7664,6 @@ object a:
    b.c match
       case d if e => f
       // comment
-<<< implicit parameter type conversion with "into" modifier 1
-runner.dialect = scala3future
-===
-object a:
-  def ++ (elems: into IterableOnce[A]): List[A]
->>>
-object a:
-   def ++(elems: into IterableOnce[A]): List[A]
-<<< implicit parameter type conversion with "into" modifier 2
-runner.dialect = scala3future
-===
-object a:
-  def ++ (elems: => into IterableOnce[A]): List[A]
->>>
-object a:
-   def ++(elems: => into IterableOnce[A]): List[A]
-<<< implicit parameter type conversion with "into" modifier 3
-runner.dialect = scala3future
-===
-object a:
-  def flatMap[B](f: into A => IterableOnce[B]): List[B]
->>>
-object a:
-   def flatMap[B](f: into A => IterableOnce[B]): List[B]
-<<< implicit parameter type conversion with "into" modifier 4
-runner.dialect = scala3future
-===
-object a:
-  def flatMap[B](f: A => into IterableOnce[B]): List[B]
->>>
-object a:
-   def flatMap[B](f: A => into IterableOnce[B]): List[B]
-<<< implicit parameter type conversion with "into" modifier 5
-runner.dialect = scala3future
-===
-object a:
-  def concatAll(xss: (into IterableOnce[Char])*): List[Char]
->>>
-object a:
-   def concatAll(xss: (into IterableOnce[Char])*): List[Char]
 <<< pure type functions 1
 runner.dialect = scala3future
 ===

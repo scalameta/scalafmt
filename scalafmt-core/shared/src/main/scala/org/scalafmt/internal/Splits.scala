@@ -2821,6 +2821,8 @@ object SplitsAfterIdent extends Splits {
           case Some(p: Member.Infix) if p.op eq t =>
             if (right.is[T.Colon]) Seq(Split(NoSplit, 0))
             else insideInfixSplit(p)
+          case Some(p: Lit.WithUnary)
+              if (p.op eq t) && (t.tokens.head eq left) => Seq(Split(NoSplit, 0))
           case Some(p: Term.ApplyUnary)
               if (p.op eq t) && (t.tokens.head eq left) =>
             val useSpace = right match {

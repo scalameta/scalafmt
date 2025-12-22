@@ -943,7 +943,7 @@ object TreeOps {
   def isParentAnApply(t: Tree): Boolean = t.parent.is[Term.Apply]
 
   def isCapturingBrace(owner: Tree): Boolean = owner match {
-    case _: Type.Capturing => true
+    case _: Type.Capturing | _: Type.Captures => true
     case t: Type.FunctionLikeType => t.parent.is[Type.Capturing]
     case _ => false
   }

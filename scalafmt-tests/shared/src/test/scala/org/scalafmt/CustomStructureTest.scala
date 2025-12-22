@@ -2,15 +2,20 @@ package org.scalafmt
 
 import scala.meta._
 import scala.meta.internal.parsers.ScalametaParser
+import scala.meta.parsers.ParserOptions
 
 import munit.FunSuite
 
 class CustomStructureTest extends FunSuite {
 
+  private implicit val parserOptions: ParserOptions =
+    new ParserOptions(captureComments = false)
+
   private def check(original: String, expected: Tree, dialect: Dialect)(implicit
       loc: munit.Location,
   ): Unit = test(original) {
-    val parser = new ScalametaParser(Input.String(original))(dialect)
+    implicit val implicitDialect: Dialect = dialect
+    val parser = new ScalametaParser(Input.String(original))
     assertNoDiff(parser.parseStat().structure, expected.structure)
   }
 
