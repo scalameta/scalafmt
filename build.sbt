@@ -8,7 +8,7 @@ import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 def isCI = System.getenv("CI") != null
 
-def scala212 = "2.12.20"
+def scala212 = "2.12.21"
 def scala213 = "2.13.18"
 
 def isScalaVer(ver: String) = Def.setting(scalaBinaryVersion.value == ver)
