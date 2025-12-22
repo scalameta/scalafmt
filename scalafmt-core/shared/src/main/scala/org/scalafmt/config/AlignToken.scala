@@ -52,21 +52,19 @@ object AlignToken {
   val applyInfix = "Term.ApplyInfix"
   val caseArrow = AlignToken("=>", "Case")
   protected[scalafmt] val fallbackAlign = new AlignToken("<empty>")
-  implicit val decoder: ConfDecoderEx[AlignToken] = {
-    val base = generic.deriveDecoderEx[AlignToken](fallbackAlign).noTypos
-      .withSectionRenames(
-        // deprecated since v3.0.0
-        annotation.SectionRename { case x: Conf.Str =>
-          Conf.Lst(Conf.Obj("regex" -> x))
-        }("owner", "owners"),
-      )
-    ConfDecoderEx.from {
-      case (_, Conf.Str("caseArrow")) => Configured.Ok(caseArrow)
-      case (_, Conf.Str(regex)) => Configured
-          .Ok(default.find(_.code == regex).getOrElse(AlignToken(regex)))
-      case (state, conf) => base.read(state, conf)
+  implicit val decoder: ConfDecoderEx[AlignToken] = generic
+    .deriveDecoderEx[AlignToken](fallbackAlign).noTypos.withSectionRenames(
+      // deprecated since v3.0.0
+      annotation.SectionRename { case x: Conf.Str =>
+        Conf.Lst(Conf.Obj("regex" -> x))
+      }("owner", "owners"),
+    ).except {
+      case (_, Conf.Str("caseArrow")) => Some(Configured.Ok(caseArrow))
+      case (_, Conf.Str(regex)) => Some(
+          Configured.Ok(default.find(_.code == regex).getOrElse(AlignToken(regex))),
+        )
+      case _ => None
     }
-  }
   val seqDecoder: ConfDecoderEx[Seq[AlignToken]] = implicitly
 
   val default = Seq(

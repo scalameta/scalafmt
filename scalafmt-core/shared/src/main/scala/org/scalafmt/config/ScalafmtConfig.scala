@@ -424,35 +424,41 @@ object ScalafmtConfig {
     .detectSectionRenames
 
   implicit final val decoder: ConfDecoderEx[ScalafmtConfig] =
-    (stateOpt, conf) => {
-      val stylePreset = conf match {
-        case x: Conf.Obj =>
-          val section = Seq(Presets.presetKey, "style")
-            .flatMap(y => x.field(y).map(y -> _))
-          section.headOption.map { case (field, obj) =>
-            obj -> Conf.Obj((x.map - field).toList)
-          }
-        case _ => None
-      }
-      val parsed = stylePreset match {
-        case Some((styleConf, restConf)) => readActiveStylePresets(styleConf)
-            .andThen { x =>
-              val preset = stateOpt.fold(x) { state =>
-                val isDefaultDialect = x.runner.isDefaultDialect
-                val dialect =
-                  (if (isDefaultDialect) state else x).runner.dialect
-                x.copy(
-                  version = state.version,
-                  runner = x.runner.withParser(state.runner.parser)
-                    .withDialect(dialect),
-                )
-              }
-              baseDecoder.read(Some(preset), restConf)
+    new ConfDecoderEx[ScalafmtConfig] {
+      override def read(
+          state: Option[ScalafmtConfig],
+          conf: Conf,
+      ): Configured[ScalafmtConfig] = {
+        val stylePreset = conf match {
+          case x: Conf.Obj =>
+            val section = Seq(Presets.presetKey, "style")
+              .flatMap(y => x.field(y).map(y -> _))
+            section.headOption.map { case (field, obj) =>
+              obj -> Conf.Obj((x.map - field).toList)
             }
-        case _ => baseDecoder.read(stateOpt, conf)
+          case _ => None
+        }
+        val parsed = stylePreset match {
+          case Some((styleConf, restConf)) => readActiveStylePresets(styleConf)
+              .andThen { x =>
+                val preset = state.fold(x) { state =>
+                  val isDefaultDialect = x.runner.isDefaultDialect
+                  val dialect =
+                    (if (isDefaultDialect) state else x).runner.dialect
+                  x.copy(
+                    version = state.version,
+                    runner = x.runner.withParser(state.runner.parser)
+                      .withDialect(dialect),
+                  )
+                }
+                baseDecoder.read(Some(preset), restConf)
+              }
+          case _ => baseDecoder.read(state, conf)
+        }
+        parsed.andThen(validate)
       }
-      val res = parsed.andThen(validate)
-      res
+
+      override def convert(conf: Conf): Conf = baseDecoder.convert(conf)
     }
 
   def fromHoconString(

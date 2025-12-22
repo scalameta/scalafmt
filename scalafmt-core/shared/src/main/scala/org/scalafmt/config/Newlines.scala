@@ -584,15 +584,13 @@ object Newlines {
       .deriveSurface[NumBlanks]
     implicit val encoder: ConfEncoder[NumBlanks] = generic
       .deriveEncoder[NumBlanks]
-    implicit val decoder: ConfDecoderEx[NumBlanks] = {
-      val base = generic.deriveDecoderEx(NumBlanks()).noTypos
-      ConfDecoderEx.from[NumBlanks] {
+    implicit val decoder: ConfDecoderEx[NumBlanks] = generic
+      .deriveDecoderEx(NumBlanks()).noTypos.except {
         case (_, Conf.Num(num)) if num.isWhole =>
           val cnt = num.toInt
-          Configured.Ok(NumBlanks(before = cnt, after = cnt))
-        case (state, conf) => base.read(state, conf)
+          Some(Configured.Ok(NumBlanks(before = cnt, after = cnt)))
+        case _ => None
       }
-    }
   }
 
   /** @param regex
@@ -637,12 +635,18 @@ object Newlines {
   object BeforeOpenParen {
     implicit val encoder: ConfEncoder[BeforeOpenParen] = SourceHints.codec
       .contramap(_.src)
-    implicit val decoder: ConfDecoderEx[BeforeOpenParen] = ConfDecoderEx.from {
-      case (_, Conf.Str("source")) => Configured.Ok(BeforeOpenParen())
-      case (_, _: Conf.Bool) => Configured.error("beforeOpenParen can't be bool")
-      case (_, conf) => SourceHints.codec.read(None, conf)
-          .map(BeforeOpenParen.apply)
-    }
+    implicit val decoder: ConfDecoderEx[BeforeOpenParen] =
+      new ConfDecoderEx[BeforeOpenParen] {
+        override def read(
+            state: Option[BeforeOpenParen],
+            conf: Conf,
+        ): Configured[BeforeOpenParen] = conf match {
+          case Conf.Str("source") => Configured.Ok(BeforeOpenParen())
+          case _: Conf.Bool => Configured.error("beforeOpenParen can't be bool")
+          case _ => SourceHints.codec.read(None, conf).map(BeforeOpenParen.apply)
+        }
+        override def convert(conf: Conf): Conf = SourceHints.codec.convert(conf)
+      }
   }
 
   /** Clauses where there is a newline after opening `(`` and newline before
@@ -772,14 +776,11 @@ object Newlines {
     implicit val surface: generic.Surface[SelectChain] = generic
       .deriveSurface[SelectChain]
     implicit val encoder: ConfEncoder[SelectChain] = generic.deriveEncoder
-    implicit val decoder: ConfDecoderEx[SelectChain] = {
-      val base = generic.deriveDecoderEx(default).noTypos
-      ConfDecoderEx.from {
-        case (_, conf: Conf.Str) => SourceHints.codec.read(None, conf)
-            .map(x => SelectChain(style = Some(x)))
-        case (state, conf) => base.read(state, conf)
+    implicit val decoder: ConfDecoderEx[SelectChain] = generic
+      .deriveDecoderEx(default).noTypos.contramap {
+        case conf: Conf.Str => Conf.Obj("style" -> conf)
+        case conf => conf
       }
-    }
   }
 
 }

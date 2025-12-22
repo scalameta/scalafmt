@@ -155,18 +155,16 @@ object Align {
     case Conf.Str("most") => Align.most
   }
 
-  implicit val alignTokensDecoder: ConfDecoderEx[Seq[AlignToken]] = {
-    val base = AlignToken.seqDecoder
-    ConfDecoderEx.from {
-      // this is really no longer necessary; metaconfig supports "+" key
-      case (state, Conf.Obj(List(("add", c)))) =>
+  implicit val alignTokensDecoder: ConfDecoderEx[Seq[AlignToken]] = AlignToken
+    .seqDecoder.except { case (_, conf) =>
+      preset.lift(conf).map(x => Configured.Ok(x.tokens))
+    }.contramap {
+      case Conf.Obj(List(("add", c))) =>
         Console.err.println(
           """'align.tokens.add' is deprecated; use align.tokens."+" instead.""",
         )
-        base.read(None, c).map(x => state.fold(x)(_ ++ x))
-      case (state, c) => preset.lift(c)
-          .fold(base.read(state, c))(x => Configured.Ok(x.tokens))
+        Conf.Obj("+" -> c)
+      case conf => conf
     }
-  }
 
 }
