@@ -8298,149 +8298,233 @@ visited nested fields like <code>spaces</code> and <code>newlines</code>.</p>
 pseudo-formatting similar to but incompatible with <code>scalafmt.conf</code>.
 Some of them show values which can't be explicitly specified.</p>
 </blockquote>
-<pre><code class="hljs"><span class="hljs-attr">version</span> = <span class="hljs-string">"3.10.2"</span>
-<span class="hljs-attr">maxColumn</span> = <span class="hljs-number">80</span>
-docstrings.<span class="hljs-attr">oneline</span> = keep
-docstrings.<span class="hljs-attr">removeEmpty</span> = <span class="hljs-literal">false</span>
-docstrings.<span class="hljs-attr">wrap</span> = unfold
-docstrings.<span class="hljs-attr">wrapMaxColumn</span> = <span class="hljs-literal">null</span>
-docstrings.<span class="hljs-attr">forceBlankLineBefore</span> = <span class="hljs-literal">true</span>
-docstrings.<span class="hljs-attr">blankFirstLine</span> = <span class="hljs-literal">null</span>
-docstrings.<span class="hljs-attr">style</span> = SpaceAsterisk
-comments.<span class="hljs-attr">wrap</span> = no
-comments.<span class="hljs-attr">wrapSingleLineMlcAsSlc</span> = <span class="hljs-literal">false</span>
-comments.<span class="hljs-attr">wrapStandaloneSlcAsSlc</span> = <span class="hljs-literal">false</span>
-binPack.<span class="hljs-attr">callSite</span> = Never
-binPack.<span class="hljs-attr">defnSite</span> = Never
-binPack.<span class="hljs-attr">bracketCallSite</span> = <span class="hljs-literal">null</span>
-binPack.<span class="hljs-attr">bracketDefnSite</span> = <span class="hljs-literal">null</span>
-binPack.<span class="hljs-attr">indentCallSiteOnce</span> = <span class="hljs-literal">false</span>
-binPack.<span class="hljs-attr">indentCallSiteSingleArg</span> = <span class="hljs-literal">true</span>
-binPack.<span class="hljs-attr">parentConstructors</span> = source
-binPack.<span class="hljs-attr">literalArgumentLists</span> = <span class="hljs-literal">true</span>
-binPack.<span class="hljs-attr">literalsIncludeSimpleExpr</span> = <span class="hljs-literal">false</span>
-binPack.<span class="hljs-attr">literalsSingleLine</span> = <span class="hljs-literal">false</span>
-binPack.<span class="hljs-attr">literalsMinArgCount</span> = <span class="hljs-number">5</span>
-binPack.<span class="hljs-attr">literalsInclude</span> = [
-  <span class="hljs-string">".*"</span>
-]
-binPack.<span class="hljs-attr">literalsExclude</span> = [
-  String
-  <span class="hljs-string">"Term.Name"</span>
-]
-binPack.<span class="hljs-attr">importSelectors</span> = <span class="hljs-literal">null</span>
-indent.<span class="hljs-attr">main</span> = <span class="hljs-number">2</span>
-indent.<span class="hljs-attr">significant</span> = <span class="hljs-literal">null</span>
-indent.<span class="hljs-attr">callSite</span> = <span class="hljs-number">2</span>
-indent.<span class="hljs-attr">ctrlSite</span> = <span class="hljs-literal">null</span>
-indent.<span class="hljs-attr">binPackCallSite</span> = <span class="hljs-literal">null</span>
-indent.<span class="hljs-attr">defnSite</span> = <span class="hljs-number">4</span>
-indent.<span class="hljs-attr">binPackDefnSite</span> = <span class="hljs-literal">null</span>
-indent.<span class="hljs-attr">caseSite</span> = <span class="hljs-number">4</span>
-indent.<span class="hljs-attr">matchSite</span> = <span class="hljs-literal">null</span>
-indent.<span class="hljs-attr">ctorSite</span> = <span class="hljs-literal">null</span>
-indent.<span class="hljs-attr">extraBeforeOpenParenDefnSite</span> = <span class="hljs-number">0</span>
-indent.<span class="hljs-attr">relativeToLhsLastLine</span> = []
-indent.<span class="hljs-attr">fewerBraces</span> = never
-indent.<span class="hljs-attr">afterInfixSite</span> = <span class="hljs-literal">null</span>
-indent.<span class="hljs-attr">extendSite</span> = <span class="hljs-number">4</span>
-indent.<span class="hljs-attr">withSiteRelativeToExtends</span> = <span class="hljs-number">0</span>
-indent.<span class="hljs-attr">commaSiteRelativeToExtends</span> = <span class="hljs-number">2</span>
-indent.<span class="hljs-attr">yieldKeyword</span> = <span class="hljs-literal">true</span>
-indent.infix.<span class="hljs-attr">exemptScope</span> = oldTopLevel
-indent.infix.<span class="hljs-attr">includeRegex</span> = <span class="hljs-string">".*"</span>
-indent.infix.<span class="hljs-attr">excludeRegex</span> = <span class="hljs-string">"^(&amp;&amp;|\|\|)$"</span>
-align.<span class="hljs-attr">allowOverflow</span> = <span class="hljs-literal">false</span>
-align.<span class="hljs-attr">delayUntilSpace</span> = <span class="hljs-literal">true</span>
-align.<span class="hljs-attr">multiline</span> = <span class="hljs-literal">false</span>
-align.<span class="hljs-attr">stripMargin</span> = <span class="hljs-literal">true</span>
+<pre><code class="hljs">align.<span class="hljs-attr">allowOverflow</span> = <span class="hljs-literal">false</span>
+align.<span class="hljs-attr">arrowEnumeratorGenerator</span> = <span class="hljs-literal">false</span>
+align.<span class="hljs-attr">beforeOpenParenCallSite</span> = <span class="hljs-literal">false</span>
+align.<span class="hljs-attr">beforeOpenParenDefnSite</span> = <span class="hljs-literal">false</span>
 align.<span class="hljs-attr">closeParenSite</span> = <span class="hljs-literal">false</span>
+align.<span class="hljs-attr">delayUntilSpace</span> = <span class="hljs-literal">true</span>
+align.<span class="hljs-attr">inInterpolation</span> = <span class="hljs-literal">false</span>
+align.<span class="hljs-attr">multiline</span> = <span class="hljs-literal">false</span>
 align.<span class="hljs-attr">openBracketCallSite</span> = <span class="hljs-literal">null</span>
+align.<span class="hljs-attr">openBracketDefnSite</span> = <span class="hljs-literal">null</span>
 align.<span class="hljs-attr">openParenCallSite</span> = <span class="hljs-literal">false</span>
 align.<span class="hljs-attr">openParenCtrlSite</span> = <span class="hljs-literal">false</span>
-align.<span class="hljs-attr">openBracketDefnSite</span> = <span class="hljs-literal">null</span>
 align.<span class="hljs-attr">openParenDefnSite</span> = <span class="hljs-literal">false</span>
 align.<span class="hljs-attr">openParenTupleSite</span> = <span class="hljs-literal">null</span>
-align.<span class="hljs-attr">beforeOpenParenDefnSite</span> = <span class="hljs-literal">false</span>
-align.<span class="hljs-attr">beforeOpenParenCallSite</span> = <span class="hljs-literal">false</span>
-align.<span class="hljs-attr">inInterpolation</span> = <span class="hljs-literal">false</span>
+align.<span class="hljs-attr">stripMargin</span> = <span class="hljs-literal">true</span>
 align.<span class="hljs-attr">tokens</span> = [
   {
     <span class="hljs-attr">code</span> = <span class="hljs-string">"=&gt;"</span>
     <span class="hljs-attr">owners</span> = [
       {
-        <span class="hljs-attr">regex</span> = Case
         <span class="hljs-attr">parents</span> = []
+        <span class="hljs-attr">regex</span> = Case
       }
     ]
   }
 ]
-align.<span class="hljs-attr">arrowEnumeratorGenerator</span> = <span class="hljs-literal">false</span>
-align.treeCategory.<span class="hljs-string">"Defn.Trait"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
-align.treeCategory.<span class="hljs-string">"Defn.Object"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
-align.treeCategory.<span class="hljs-string">"Defn.Val"</span> = <span class="hljs-string">"given/val/var/def"</span>
-align.treeCategory.<span class="hljs-string">"Defn.Enum"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
-align.treeCategory.<span class="hljs-string">"Defn.Macro"</span> = <span class="hljs-string">"given/val/var/def"</span>
 align.treeCategory.<span class="hljs-string">"Decl.Def"</span> = <span class="hljs-string">"given/val/var/def"</span>
+align.treeCategory.<span class="hljs-string">"Defn.Class"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
 align.treeCategory.<span class="hljs-string">"Defn.Def"</span> = <span class="hljs-string">"given/val/var/def"</span>
+align.treeCategory.<span class="hljs-string">"Defn.Enum"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
 align.treeCategory.<span class="hljs-string">"Defn.GivenAlias"</span> = <span class="hljs-string">"given/val/var/def"</span>
+align.treeCategory.<span class="hljs-string">"Defn.Macro"</span> = <span class="hljs-string">"given/val/var/def"</span>
+align.treeCategory.<span class="hljs-string">"Defn.Object"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
+align.treeCategory.<span class="hljs-string">"Defn.Trait"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
+align.treeCategory.<span class="hljs-string">"Defn.Val"</span> = <span class="hljs-string">"given/val/var/def"</span>
 align.treeCategory.<span class="hljs-string">"Defn.Var"</span> = <span class="hljs-string">"given/val/var/def"</span>
 align.treeCategory.<span class="hljs-string">"Enumerator.Generator"</span> = for
 align.treeCategory.<span class="hljs-string">"Enumerator.Val"</span> = for
-align.treeCategory.<span class="hljs-string">"Defn.Class"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
-spaces.<span class="hljs-attr">beforeContextBoundColon</span> = Never
-spaces.<span class="hljs-attr">withinContextBoundBraces</span> = Never
-spaces.<span class="hljs-attr">beforeApplyArgInParens</span> = Never
-spaces.<span class="hljs-attr">beforeInfixArgInParens</span> = Always
-spaces.<span class="hljs-attr">afterTripleEquals</span> = <span class="hljs-literal">false</span>
-spaces.<span class="hljs-attr">inImportCurlyBraces</span> = <span class="hljs-literal">false</span>
-spaces.<span class="hljs-attr">inInterpolatedStringCurlyBraces</span> = <span class="hljs-literal">false</span>
-spaces.<span class="hljs-attr">inParentheses</span> = <span class="hljs-literal">false</span>
-spaces.<span class="hljs-attr">neverAroundInfixTypes</span> = []
-spaces.<span class="hljs-attr">aroundSymbolicInfixOperators</span> = <span class="hljs-literal">null</span>
-spaces.<span class="hljs-attr">afterKeywordBeforeParen</span> = <span class="hljs-literal">true</span>
-spaces.<span class="hljs-attr">inByNameTypes</span> = <span class="hljs-literal">true</span>
-spaces.<span class="hljs-attr">afterSymbolicDefs</span> = <span class="hljs-literal">false</span>
-spaces.<span class="hljs-attr">afterColonInMatchPattern</span> = Always
-literals.<span class="hljs-attr">long</span> = Upper
-literals.<span class="hljs-attr">hexDigits</span> = Lower
-literals.<span class="hljs-attr">hexPrefix</span> = Lower
+<span class="hljs-attr">assumeStandardLibraryStripMargin</span> = <span class="hljs-literal">false</span>
+binPack.<span class="hljs-attr">bracketCallSite</span> = <span class="hljs-literal">null</span>
+binPack.<span class="hljs-attr">bracketDefnSite</span> = <span class="hljs-literal">null</span>
+binPack.<span class="hljs-attr">callSite</span> = Never
+binPack.<span class="hljs-attr">defnSite</span> = Never
+binPack.<span class="hljs-attr">importSelectors</span> = <span class="hljs-literal">null</span>
+binPack.<span class="hljs-attr">indentCallSiteOnce</span> = <span class="hljs-literal">false</span>
+binPack.<span class="hljs-attr">indentCallSiteSingleArg</span> = <span class="hljs-literal">true</span>
+binPack.<span class="hljs-attr">literalArgumentLists</span> = <span class="hljs-literal">true</span>
+binPack.<span class="hljs-attr">literalsExclude</span> = [
+  String
+  <span class="hljs-string">"Term.Name"</span>
+]
+binPack.<span class="hljs-attr">literalsInclude</span> = [
+  <span class="hljs-string">".*"</span>
+]
+binPack.<span class="hljs-attr">literalsIncludeSimpleExpr</span> = <span class="hljs-literal">false</span>
+binPack.<span class="hljs-attr">literalsMinArgCount</span> = <span class="hljs-number">5</span>
+binPack.<span class="hljs-attr">literalsSingleLine</span> = <span class="hljs-literal">false</span>
+binPack.<span class="hljs-attr">parentConstructors</span> = source
+comments.<span class="hljs-attr">wrap</span> = no
+comments.<span class="hljs-attr">wrapSingleLineMlcAsSlc</span> = <span class="hljs-literal">false</span>
+comments.<span class="hljs-attr">wrapStandaloneSlcAsSlc</span> = <span class="hljs-literal">false</span>
+danglingParentheses.<span class="hljs-attr">bracketCallSite</span> = <span class="hljs-literal">null</span>
+danglingParentheses.<span class="hljs-attr">bracketDefnSite</span> = <span class="hljs-literal">null</span>
+danglingParentheses.<span class="hljs-attr">callSite</span> = <span class="hljs-literal">true</span>
+danglingParentheses.<span class="hljs-attr">ctrlSite</span> = <span class="hljs-literal">true</span>
+danglingParentheses.<span class="hljs-attr">defnSite</span> = <span class="hljs-literal">true</span>
+danglingParentheses.<span class="hljs-attr">exclude</span> = <span class="hljs-literal">null</span>
+danglingParentheses.<span class="hljs-attr">importSite</span> = <span class="hljs-literal">true</span>
+danglingParentheses.<span class="hljs-attr">tupleSite</span> = <span class="hljs-literal">null</span>
+docstrings.<span class="hljs-attr">blankFirstLine</span> = <span class="hljs-literal">null</span>
+docstrings.<span class="hljs-attr">forceBlankLineBefore</span> = <span class="hljs-literal">true</span>
+docstrings.<span class="hljs-attr">oneline</span> = keep
+docstrings.<span class="hljs-attr">removeEmpty</span> = <span class="hljs-literal">false</span>
+docstrings.<span class="hljs-attr">style</span> = SpaceAsterisk
+docstrings.<span class="hljs-attr">wrap</span> = unfold
+docstrings.<span class="hljs-attr">wrapMaxColumn</span> = <span class="hljs-literal">null</span>
+<span class="hljs-attr">encoding</span> = <span class="hljs-string">"UTF-8"</span>
+<span class="hljs-attr">formatOff</span> = [
+  <span class="hljs-string">"@formatter:off"</span>
+  <span class="hljs-string">"format: off"</span>
+]
+<span class="hljs-attr">formatOn</span> = [
+  <span class="hljs-string">"@formatter:on"</span>
+  <span class="hljs-string">"format: on"</span>
+]
+indent.<span class="hljs-attr">afterInfixSite</span> = <span class="hljs-literal">null</span>
+indent.<span class="hljs-attr">binPackCallSite</span> = <span class="hljs-literal">null</span>
+indent.<span class="hljs-attr">binPackDefnSite</span> = <span class="hljs-literal">null</span>
+indent.<span class="hljs-attr">callSite</span> = <span class="hljs-number">2</span>
+indent.<span class="hljs-attr">caseSite</span> = <span class="hljs-number">4</span>
+indent.<span class="hljs-attr">commaSiteRelativeToExtends</span> = <span class="hljs-number">2</span>
+indent.<span class="hljs-attr">ctorSite</span> = <span class="hljs-literal">null</span>
+indent.<span class="hljs-attr">ctrlSite</span> = <span class="hljs-literal">null</span>
+indent.<span class="hljs-attr">defnSite</span> = <span class="hljs-number">4</span>
+indent.<span class="hljs-attr">extendSite</span> = <span class="hljs-number">4</span>
+indent.<span class="hljs-attr">extraBeforeOpenParenDefnSite</span> = <span class="hljs-number">0</span>
+indent.<span class="hljs-attr">fewerBraces</span> = never
+indent.infix.<span class="hljs-attr">excludeRegex</span> = <span class="hljs-string">"^(&amp;&amp;|\|\|)$"</span>
+indent.infix.<span class="hljs-attr">exemptScope</span> = oldTopLevel
+indent.infix.<span class="hljs-attr">includeRegex</span> = <span class="hljs-string">".*"</span>
+indent.<span class="hljs-attr">main</span> = <span class="hljs-number">2</span>
+indent.<span class="hljs-attr">matchSite</span> = <span class="hljs-literal">null</span>
+indent.<span class="hljs-attr">relativeToLhsLastLine</span> = []
+indent.<span class="hljs-attr">significant</span> = <span class="hljs-literal">null</span>
+indent.<span class="hljs-attr">withSiteRelativeToExtends</span> = <span class="hljs-number">0</span>
+indent.<span class="hljs-attr">yieldKeyword</span> = <span class="hljs-literal">true</span>
+<span class="hljs-attr">lineEndings</span> = <span class="hljs-literal">null</span>
 literals.<span class="hljs-attr">binPrefix</span> = Lower
-literals.floatingPoint.<span class="hljs-attr">float</span> = Lower
 literals.floatingPoint.<span class="hljs-attr">double</span> = Lower
-literals.floatingPoint.<span class="hljs-attr">scientific</span> = Lower
-literals.floatingPoint.filter.<span class="hljs-attr">needSuffix</span> = <span class="hljs-literal">false</span>
-literals.floatingPoint.filter.<span class="hljs-attr">minTotalDigits</span> = <span class="hljs-number">2147483647</span>
 literals.floatingPoint.filter.<span class="hljs-attr">minSignificantDigits</span> = <span class="hljs-number">0</span>
-literals.floatingPoint.format.<span class="hljs-attr">maxPaddingZeros</span> = <span class="hljs-number">0</span>
-literals.floatingPoint.format.<span class="hljs-attr">separators</span> = <span class="hljs-number">0</span>
+literals.floatingPoint.filter.<span class="hljs-attr">minTotalDigits</span> = <span class="hljs-number">2147483647</span>
+literals.floatingPoint.filter.<span class="hljs-attr">needSuffix</span> = <span class="hljs-literal">false</span>
+literals.floatingPoint.<span class="hljs-attr">float</span> = Lower
 literals.floatingPoint.format.<span class="hljs-attr">forceDot</span> = <span class="hljs-literal">false</span>
 literals.floatingPoint.format.<span class="hljs-attr">forceExpPlus</span> = <span class="hljs-literal">false</span>
-<span class="hljs-attr">lineEndings</span> = <span class="hljs-literal">null</span>
+literals.floatingPoint.format.<span class="hljs-attr">maxPaddingZeros</span> = <span class="hljs-number">0</span>
+literals.floatingPoint.format.<span class="hljs-attr">separators</span> = <span class="hljs-number">0</span>
+literals.floatingPoint.<span class="hljs-attr">scientific</span> = Lower
+literals.<span class="hljs-attr">hexDigits</span> = Lower
+literals.<span class="hljs-attr">hexPrefix</span> = Lower
+literals.<span class="hljs-attr">long</span> = Upper
+<span class="hljs-attr">maxColumn</span> = <span class="hljs-number">80</span>
+newlines.<span class="hljs-attr">afterCurlyLambdaParams</span> = never
+newlines.<span class="hljs-attr">alwaysBeforeElseAfterCurlyIf</span> = <span class="hljs-literal">false</span>
+newlines.<span class="hljs-attr">annotation</span> = <span class="hljs-literal">true</span>
+newlines.<span class="hljs-attr">avoidAfterYield</span> = <span class="hljs-literal">true</span>
+newlines.<span class="hljs-attr">avoidForSimpleOverflow</span> = []
+newlines.<span class="hljs-attr">avoidInResultType</span> = <span class="hljs-literal">false</span>
+newlines.<span class="hljs-attr">beforeCurlyLambdaParams</span> = never
+newlines.<span class="hljs-attr">beforeMultiline</span> = <span class="hljs-literal">null</span>
+newlines.<span class="hljs-attr">beforeMultilineDef</span> = <span class="hljs-literal">null</span>
+newlines.<span class="hljs-attr">beforeOpenParenCallSite</span> = <span class="hljs-literal">null</span>
+newlines.<span class="hljs-attr">beforeOpenParenDefnSite</span> = <span class="hljs-literal">null</span>
+newlines.<span class="hljs-attr">beforeTemplateBodyIfBreakInParentCtors</span> = <span class="hljs-literal">false</span>
+newlines.<span class="hljs-attr">beforeTypeBounds</span> = <span class="hljs-literal">null</span>
+newlines.configStyle.<span class="hljs-attr">beforeComma</span> = <span class="hljs-literal">false</span>
+newlines.configStyle.<span class="hljs-attr">bracketCallSite</span> = <span class="hljs-literal">null</span>
+newlines.configStyle.<span class="hljs-attr">bracketDefnSite</span> = <span class="hljs-literal">null</span>
+newlines.configStyle.<span class="hljs-attr">callSite</span> = <span class="hljs-literal">null</span>
+newlines.configStyle.<span class="hljs-attr">defnSite</span> = <span class="hljs-literal">null</span>
+newlines.configStyle.fallBack.<span class="hljs-attr">forceIfOptimized</span> = <span class="hljs-literal">null</span>
+newlines.configStyle.fallBack.<span class="hljs-attr">prefer</span> = <span class="hljs-literal">true</span>
+newlines.<span class="hljs-attr">forceBeforeAssign</span> = never
+newlines.<span class="hljs-attr">forceBeforeMultilineAssign</span> = <span class="hljs-literal">null</span>
+newlines.<span class="hljs-attr">ignoreInSyntax</span> = <span class="hljs-literal">true</span>
+newlines.<span class="hljs-attr">implicitParamListModifierForce</span> = []
+newlines.<span class="hljs-attr">implicitParamListModifierPrefer</span> = <span class="hljs-literal">null</span>
+newlines.<span class="hljs-attr">inInterpolation</span> = allow
+newlines.infix.<span class="hljs-attr">patSite</span> = <span class="hljs-literal">null</span>
+newlines.infix.termSite.<span class="hljs-attr">breakOnNested</span> = <span class="hljs-literal">false</span>
+newlines.infix.termSite.<span class="hljs-attr">maxCountPerExprForSome</span> = <span class="hljs-number">10</span>
+newlines.infix.termSite.<span class="hljs-attr">maxCountPerFile</span> = <span class="hljs-number">500</span>
+newlines.infix.termSite.<span class="hljs-attr">style</span> = <span class="hljs-literal">null</span>
+newlines.infix.<span class="hljs-attr">typeSite</span> = <span class="hljs-literal">null</span>
+newlines.<span class="hljs-attr">neverBeforeJsNative</span> = <span class="hljs-literal">false</span>
+newlines.<span class="hljs-attr">penalizeSingleSelectMultiArgList</span> = <span class="hljs-literal">true</span>
+newlines.selectChains.<span class="hljs-attr">classicCanStartWithBraceApply</span> = <span class="hljs-literal">true</span>
+newlines.selectChains.<span class="hljs-attr">classicCanStartWithoutApply</span> = <span class="hljs-literal">false</span>
+newlines.selectChains.<span class="hljs-attr">classicKeepAfterFirstBreak</span> = <span class="hljs-literal">false</span>
+newlines.selectChains.<span class="hljs-attr">classicKeepFirst</span> = <span class="hljs-literal">true</span>
+newlines.selectChains.<span class="hljs-attr">enclose</span> = <span class="hljs-literal">null</span>
+newlines.selectChains.<span class="hljs-attr">style</span> = <span class="hljs-literal">null</span>
+newlines.<span class="hljs-attr">selfAnnotation</span> = <span class="hljs-literal">true</span>
+newlines.<span class="hljs-attr">sometimesBeforeColonInMethodReturnType</span> = <span class="hljs-literal">true</span>
+newlines.<span class="hljs-attr">source</span> = <span class="hljs-literal">null</span>
+newlines.<span class="hljs-attr">topLevelBodyIfMinStatements</span> = []
+newlines.<span class="hljs-attr">topLevelBodyMinStatements</span> = <span class="hljs-number">2</span>
+newlines.<span class="hljs-attr">topLevelStatementBlankLines</span> = []
+newlines.<span class="hljs-attr">topLevelStatements</span> = []
+newlines.<span class="hljs-attr">topLevelStatementsMinBreaks</span> = <span class="hljs-number">1</span>
+<span class="hljs-attr">onTestFailure</span> = <span class="hljs-string">""</span>
+project.<span class="hljs-attr">excludeFilters</span> = []
+project.<span class="hljs-attr">excludePaths</span> = []
+project.<span class="hljs-attr">git</span> = <span class="hljs-literal">false</span>
+project.<span class="hljs-attr">includeFilters</span> = []
+project.<span class="hljs-attr">includePaths</span> = [
+  <span class="hljs-string">"glob:**.scala"</span>
+  <span class="hljs-string">"glob:**.sbt"</span>
+  <span class="hljs-string">"glob:**.sc"</span>
+  <span class="hljs-string">"glob:**.mill"</span>
+]
+project.<span class="hljs-attr">layout</span> = <span class="hljs-literal">null</span>
+rewrite.avoidInfix.<span class="hljs-attr">excludeFilters</span> = [
+  until
+  to
+  by
+  eq
+  ne
+]
+rewrite.avoidInfix.<span class="hljs-attr">excludeMatch</span> = <span class="hljs-literal">true</span>
+rewrite.avoidInfix.<span class="hljs-attr">excludePlaceholderArg</span> = <span class="hljs-literal">true</span>
+rewrite.avoidInfix.<span class="hljs-attr">excludePostfix</span> = <span class="hljs-literal">false</span>
+rewrite.avoidInfix.<span class="hljs-attr">excludeScalaTest</span> = <span class="hljs-literal">null</span>
+rewrite.avoidInfix.<span class="hljs-attr">includeFilters</span> = [
+  <span class="hljs-string">"[\w\d_]+"</span>
+]
+rewrite.imports.<span class="hljs-attr">contiguousGroups</span> = only
+rewrite.imports.<span class="hljs-attr">groups</span> = []
+rewrite.imports.<span class="hljs-attr">removeRedundantSelectors</span> = <span class="hljs-literal">false</span>
+rewrite.imports.<span class="hljs-attr">selectors</span> = <span class="hljs-literal">null</span>
+rewrite.imports.<span class="hljs-attr">sort</span> = none
+rewrite.imports.<span class="hljs-attr">sortCatchallGroup</span> = tail
+rewrite.insertBraces.<span class="hljs-attr">allBlocks</span> = <span class="hljs-literal">false</span>
+rewrite.insertBraces.<span class="hljs-attr">minLines</span> = <span class="hljs-number">0</span>
+rewrite.preferCurlyFors.<span class="hljs-attr">removeTrailingSemicolonsOnly</span> = <span class="hljs-literal">false</span>
+rewrite.redundantBraces.<span class="hljs-attr">defnBodies</span> = all
+rewrite.redundantBraces.<span class="hljs-attr">generalExpressions</span> = <span class="hljs-literal">true</span>
+rewrite.redundantBraces.<span class="hljs-attr">ifElseExpressions</span> = <span class="hljs-literal">false</span>
+rewrite.redundantBraces.<span class="hljs-attr">includeUnitMethods</span> = <span class="hljs-literal">true</span>
+rewrite.redundantBraces.<span class="hljs-attr">maxBreaks</span> = <span class="hljs-number">100</span>
+rewrite.redundantBraces.oneStatApply.<span class="hljs-attr">bracesMinSpan</span> = -<span class="hljs-number">1</span>
+rewrite.redundantBraces.oneStatApply.<span class="hljs-attr">parensMaxSpan</span> = <span class="hljs-number">0</span>
+rewrite.redundantBraces.<span class="hljs-attr">stringInterpolation</span> = <span class="hljs-literal">false</span>
+rewrite.redundantParens.<span class="hljs-attr">infixSide</span> = <span class="hljs-literal">null</span>
 rewrite.<span class="hljs-attr">rules</span> = []
 rewrite.scala3.<span class="hljs-attr">convertToNewSyntax</span> = <span class="hljs-literal">false</span>
+rewrite.scala3.endMarker.<span class="hljs-attr">insertMinSpan</span> = <span class="hljs-number">0</span>
+rewrite.scala3.endMarker.<span class="hljs-attr">removeMaxSpan</span> = <span class="hljs-number">0</span>
+rewrite.scala3.endMarker.<span class="hljs-attr">spanHas</span> = all
+rewrite.scala3.endMarker.<span class="hljs-attr">spanIs</span> = lines
 rewrite.scala3.newSyntax.<span class="hljs-attr">control</span> = <span class="hljs-literal">true</span>
 rewrite.scala3.newSyntax.<span class="hljs-attr">deprecated</span> = <span class="hljs-literal">true</span>
 rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">enabled</span> = <span class="hljs-literal">false</span>
-rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">fewerBracesMinSpan</span> = <span class="hljs-number">2</span>
 rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">fewerBracesMaxSpan</span> = <span class="hljs-number">0</span>
+rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">fewerBracesMinSpan</span> = <span class="hljs-number">2</span>
 rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">fewerBracesParensToo</span> = <span class="hljs-literal">false</span>
 rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">oldSyntaxToo</span> = <span class="hljs-literal">false</span>
-rewrite.scala3.endMarker.<span class="hljs-attr">spanIs</span> = lines
-rewrite.scala3.endMarker.<span class="hljs-attr">spanHas</span> = all
-rewrite.scala3.endMarker.<span class="hljs-attr">removeMaxSpan</span> = <span class="hljs-number">0</span>
-rewrite.scala3.endMarker.<span class="hljs-attr">insertMinSpan</span> = <span class="hljs-number">0</span>
-rewrite.insertBraces.<span class="hljs-attr">minLines</span> = <span class="hljs-number">0</span>
-rewrite.insertBraces.<span class="hljs-attr">allBlocks</span> = <span class="hljs-literal">false</span>
-rewrite.redundantBraces.<span class="hljs-attr">defnBodies</span> = all
-rewrite.redundantBraces.<span class="hljs-attr">includeUnitMethods</span> = <span class="hljs-literal">true</span>
-rewrite.redundantBraces.<span class="hljs-attr">maxBreaks</span> = <span class="hljs-number">100</span>
-rewrite.redundantBraces.<span class="hljs-attr">stringInterpolation</span> = <span class="hljs-literal">false</span>
-rewrite.redundantBraces.oneStatApply.<span class="hljs-attr">parensMaxSpan</span> = <span class="hljs-number">0</span>
-rewrite.redundantBraces.oneStatApply.<span class="hljs-attr">bracesMinSpan</span> = -<span class="hljs-number">1</span>
-rewrite.redundantBraces.<span class="hljs-attr">generalExpressions</span> = <span class="hljs-literal">true</span>
-rewrite.redundantBraces.<span class="hljs-attr">ifElseExpressions</span> = <span class="hljs-literal">false</span>
-rewrite.redundantParens.<span class="hljs-attr">infixSide</span> = <span class="hljs-literal">null</span>
 rewrite.sortModifiers.<span class="hljs-attr">order</span> = [
   implicit
   final
@@ -8457,131 +8541,47 @@ rewrite.sortModifiers.<span class="hljs-attr">order</span> = [
   infix
   opaque
 ]
-rewrite.imports.<span class="hljs-attr">sort</span> = none
-rewrite.imports.<span class="hljs-attr">selectors</span> = <span class="hljs-literal">null</span>
-rewrite.imports.<span class="hljs-attr">contiguousGroups</span> = only
-rewrite.imports.<span class="hljs-attr">groups</span> = []
-rewrite.imports.<span class="hljs-attr">removeRedundantSelectors</span> = <span class="hljs-literal">false</span>
-rewrite.imports.<span class="hljs-attr">sortCatchallGroup</span> = tail
-rewrite.preferCurlyFors.<span class="hljs-attr">removeTrailingSemicolonsOnly</span> = <span class="hljs-literal">false</span>
 rewrite.trailingCommas.<span class="hljs-attr">allowFolding</span> = <span class="hljs-literal">true</span>
 rewrite.trailingCommas.<span class="hljs-attr">style</span> = never
-rewrite.avoidInfix.<span class="hljs-attr">includeFilters</span> = [
-  <span class="hljs-string">"[\w\d_]+"</span>
-]
-rewrite.avoidInfix.<span class="hljs-attr">excludeFilters</span> = [
-  until
-  to
-  by
-  eq
-  ne
-]
-rewrite.avoidInfix.<span class="hljs-attr">excludeScalaTest</span> = <span class="hljs-literal">null</span>
-rewrite.avoidInfix.<span class="hljs-attr">excludePlaceholderArg</span> = <span class="hljs-literal">true</span>
-rewrite.avoidInfix.<span class="hljs-attr">excludePostfix</span> = <span class="hljs-literal">false</span>
-rewrite.avoidInfix.<span class="hljs-attr">excludeMatch</span> = <span class="hljs-literal">true</span>
-newlines.<span class="hljs-attr">source</span> = <span class="hljs-literal">null</span>
-newlines.<span class="hljs-attr">avoidInResultType</span> = <span class="hljs-literal">false</span>
-newlines.<span class="hljs-attr">beforeTypeBounds</span> = <span class="hljs-literal">null</span>
-newlines.<span class="hljs-attr">neverBeforeJsNative</span> = <span class="hljs-literal">false</span>
-newlines.<span class="hljs-attr">sometimesBeforeColonInMethodReturnType</span> = <span class="hljs-literal">true</span>
-newlines.<span class="hljs-attr">beforeOpenParenDefnSite</span> = <span class="hljs-literal">null</span>
-newlines.<span class="hljs-attr">beforeOpenParenCallSite</span> = <span class="hljs-literal">null</span>
-newlines.<span class="hljs-attr">penalizeSingleSelectMultiArgList</span> = <span class="hljs-literal">true</span>
-newlines.<span class="hljs-attr">beforeCurlyLambdaParams</span> = never
-newlines.<span class="hljs-attr">topLevelStatementBlankLines</span> = []
-newlines.<span class="hljs-attr">topLevelStatementsMinBreaks</span> = <span class="hljs-number">1</span>
-newlines.<span class="hljs-attr">topLevelStatements</span> = []
-newlines.<span class="hljs-attr">beforeTemplateBodyIfBreakInParentCtors</span> = <span class="hljs-literal">false</span>
-newlines.<span class="hljs-attr">topLevelBodyIfMinStatements</span> = []
-newlines.<span class="hljs-attr">topLevelBodyMinStatements</span> = <span class="hljs-number">2</span>
-newlines.<span class="hljs-attr">afterCurlyLambdaParams</span> = never
-newlines.<span class="hljs-attr">implicitParamListModifierForce</span> = []
-newlines.<span class="hljs-attr">implicitParamListModifierPrefer</span> = <span class="hljs-literal">null</span>
-newlines.<span class="hljs-attr">alwaysBeforeElseAfterCurlyIf</span> = <span class="hljs-literal">false</span>
-newlines.<span class="hljs-attr">forceBeforeAssign</span> = never
-newlines.<span class="hljs-attr">forceBeforeMultilineAssign</span> = <span class="hljs-literal">null</span>
-newlines.<span class="hljs-attr">beforeMultiline</span> = <span class="hljs-literal">null</span>
-newlines.<span class="hljs-attr">beforeMultilineDef</span> = <span class="hljs-literal">null</span>
-newlines.selectChains.<span class="hljs-attr">style</span> = <span class="hljs-literal">null</span>
-newlines.selectChains.<span class="hljs-attr">enclose</span> = <span class="hljs-literal">null</span>
-newlines.selectChains.<span class="hljs-attr">classicKeepFirst</span> = <span class="hljs-literal">true</span>
-newlines.selectChains.<span class="hljs-attr">classicKeepAfterFirstBreak</span> = <span class="hljs-literal">false</span>
-newlines.selectChains.<span class="hljs-attr">classicCanStartWithBraceApply</span> = <span class="hljs-literal">true</span>
-newlines.selectChains.<span class="hljs-attr">classicCanStartWithoutApply</span> = <span class="hljs-literal">false</span>
-newlines.infix.termSite.<span class="hljs-attr">style</span> = <span class="hljs-literal">null</span>
-newlines.infix.termSite.<span class="hljs-attr">breakOnNested</span> = <span class="hljs-literal">false</span>
-newlines.infix.termSite.<span class="hljs-attr">maxCountPerFile</span> = <span class="hljs-number">500</span>
-newlines.infix.termSite.<span class="hljs-attr">maxCountPerExprForSome</span> = <span class="hljs-number">10</span>
-newlines.infix.<span class="hljs-attr">typeSite</span> = <span class="hljs-literal">null</span>
-newlines.infix.<span class="hljs-attr">patSite</span> = <span class="hljs-literal">null</span>
-newlines.<span class="hljs-attr">avoidForSimpleOverflow</span> = []
-newlines.<span class="hljs-attr">inInterpolation</span> = allow
-newlines.<span class="hljs-attr">ignoreInSyntax</span> = <span class="hljs-literal">true</span>
-newlines.<span class="hljs-attr">avoidAfterYield</span> = <span class="hljs-literal">true</span>
-newlines.configStyle.<span class="hljs-attr">callSite</span> = <span class="hljs-literal">null</span>
-newlines.configStyle.<span class="hljs-attr">defnSite</span> = <span class="hljs-literal">null</span>
-newlines.configStyle.<span class="hljs-attr">bracketCallSite</span> = <span class="hljs-literal">null</span>
-newlines.configStyle.<span class="hljs-attr">bracketDefnSite</span> = <span class="hljs-literal">null</span>
-newlines.configStyle.fallBack.<span class="hljs-attr">prefer</span> = <span class="hljs-literal">true</span>
-newlines.configStyle.fallBack.<span class="hljs-attr">forceIfOptimized</span> = <span class="hljs-literal">null</span>
-newlines.configStyle.<span class="hljs-attr">beforeComma</span> = <span class="hljs-literal">false</span>
-newlines.<span class="hljs-attr">annotation</span> = <span class="hljs-literal">true</span>
-newlines.<span class="hljs-attr">selfAnnotation</span> = <span class="hljs-literal">true</span>
-runner.<span class="hljs-attr">debug</span> = <span class="hljs-literal">false</span>
 runner.<span class="hljs-attr">completeCallback</span> = <span class="hljs-string">"&lt;FormatEvent =&gt; Unit&gt;"</span>
+runner.<span class="hljs-attr">debug</span> = <span class="hljs-literal">false</span>
+runner.<span class="hljs-attr">dialect</span> = <span class="hljs-literal">null</span>
 runner.<span class="hljs-attr">eventCallback</span> = <span class="hljs-string">"&lt;FormatEvent =&gt; Unit&gt;"</span>
-runner.<span class="hljs-attr">parser</span> = Source
-runner.optimizer.<span class="hljs-attr">dequeueOnNewStatements</span> = <span class="hljs-literal">true</span>
-runner.optimizer.<span class="hljs-attr">escapeInPathologicalCases</span> = <span class="hljs-literal">true</span>
-runner.optimizer.<span class="hljs-attr">maxVisitsPerToken</span> = <span class="hljs-number">10000</span>
-runner.optimizer.<span class="hljs-attr">maxDepth</span> = <span class="hljs-number">100</span>
+runner.<span class="hljs-attr">fatalWarnings</span> = <span class="hljs-literal">false</span>
+runner.<span class="hljs-attr">ignoreWarnings</span> = <span class="hljs-literal">false</span>
+runner.<span class="hljs-attr">maxStateVisits</span> = <span class="hljs-literal">null</span>
 runner.optimizer.<span class="hljs-attr">acceptOptimalAtHints</span> = <span class="hljs-literal">true</span>
+runner.optimizer.callSite.<span class="hljs-attr">minCount</span> = <span class="hljs-number">2</span>
+runner.optimizer.callSite.<span class="hljs-attr">minSpan</span> = <span class="hljs-number">150</span>
+runner.optimizer.defnSite.<span class="hljs-attr">minCount</span> = <span class="hljs-number">0</span>
+runner.optimizer.defnSite.<span class="hljs-attr">minSpan</span> = -<span class="hljs-number">1</span>
+runner.optimizer.<span class="hljs-attr">dequeueOnNewStatements</span> = <span class="hljs-literal">true</span>
 runner.optimizer.<span class="hljs-attr">disableOptimizationsInsideSensitiveAreas</span> = <span class="hljs-literal">true</span>
+runner.optimizer.<span class="hljs-attr">escapeInPathologicalCases</span> = <span class="hljs-literal">true</span>
+runner.optimizer.<span class="hljs-attr">maxDepth</span> = <span class="hljs-number">100</span>
+runner.optimizer.<span class="hljs-attr">maxVisitsPerToken</span> = <span class="hljs-number">10000</span>
 runner.optimizer.<span class="hljs-attr">pruneSlowStates</span> = Yes
 runner.optimizer.<span class="hljs-attr">recurseOnBlocks</span> = <span class="hljs-literal">true</span>
-runner.optimizer.callSite.<span class="hljs-attr">minSpan</span> = <span class="hljs-number">150</span>
-runner.optimizer.callSite.<span class="hljs-attr">minCount</span> = <span class="hljs-number">2</span>
-runner.optimizer.defnSite.<span class="hljs-attr">minSpan</span> = -<span class="hljs-number">1</span>
-runner.optimizer.defnSite.<span class="hljs-attr">minCount</span> = <span class="hljs-number">0</span>
-runner.<span class="hljs-attr">maxStateVisits</span> = <span class="hljs-literal">null</span>
-runner.<span class="hljs-attr">dialect</span> = <span class="hljs-literal">null</span>
-runner.<span class="hljs-attr">ignoreWarnings</span> = <span class="hljs-literal">false</span>
-runner.<span class="hljs-attr">fatalWarnings</span> = <span class="hljs-literal">false</span>
-<span class="hljs-attr">assumeStandardLibraryStripMargin</span> = <span class="hljs-literal">false</span>
-danglingParentheses.<span class="hljs-attr">callSite</span> = <span class="hljs-literal">true</span>
-danglingParentheses.<span class="hljs-attr">defnSite</span> = <span class="hljs-literal">true</span>
-danglingParentheses.<span class="hljs-attr">ctrlSite</span> = <span class="hljs-literal">true</span>
-danglingParentheses.<span class="hljs-attr">tupleSite</span> = <span class="hljs-literal">null</span>
-danglingParentheses.<span class="hljs-attr">bracketCallSite</span> = <span class="hljs-literal">null</span>
-danglingParentheses.<span class="hljs-attr">bracketDefnSite</span> = <span class="hljs-literal">null</span>
-danglingParentheses.<span class="hljs-attr">importSite</span> = <span class="hljs-literal">true</span>
-danglingParentheses.<span class="hljs-attr">exclude</span> = <span class="hljs-literal">null</span>
-verticalMultiline.<span class="hljs-attr">atDefnSite</span> = <span class="hljs-literal">false</span>
+runner.<span class="hljs-attr">parser</span> = Source
+spaces.<span class="hljs-attr">afterColonInMatchPattern</span> = Always
+spaces.<span class="hljs-attr">afterKeywordBeforeParen</span> = <span class="hljs-literal">true</span>
+spaces.<span class="hljs-attr">afterSymbolicDefs</span> = <span class="hljs-literal">false</span>
+spaces.<span class="hljs-attr">afterTripleEquals</span> = <span class="hljs-literal">false</span>
+spaces.<span class="hljs-attr">aroundSymbolicInfixOperators</span> = <span class="hljs-literal">null</span>
+spaces.<span class="hljs-attr">beforeApplyArgInParens</span> = Never
+spaces.<span class="hljs-attr">beforeContextBoundColon</span> = Never
+spaces.<span class="hljs-attr">beforeInfixArgInParens</span> = Always
+spaces.<span class="hljs-attr">inByNameTypes</span> = <span class="hljs-literal">true</span>
+spaces.<span class="hljs-attr">inImportCurlyBraces</span> = <span class="hljs-literal">false</span>
+spaces.<span class="hljs-attr">inInterpolatedStringCurlyBraces</span> = <span class="hljs-literal">false</span>
+spaces.<span class="hljs-attr">inParentheses</span> = <span class="hljs-literal">false</span>
+spaces.<span class="hljs-attr">neverAroundInfixTypes</span> = []
+spaces.<span class="hljs-attr">withinContextBoundBraces</span> = Never
+<span class="hljs-attr">version</span> = <span class="hljs-string">"3.10.2"</span>
 verticalMultiline.<span class="hljs-attr">arityThreshold</span> = <span class="hljs-number">100</span>
+verticalMultiline.<span class="hljs-attr">atDefnSite</span> = <span class="hljs-literal">false</span>
 verticalMultiline.<span class="hljs-attr">newlineAfterOpenParen</span> = <span class="hljs-literal">false</span>
-<span class="hljs-attr">onTestFailure</span> = <span class="hljs-string">""</span>
-<span class="hljs-attr">encoding</span> = <span class="hljs-string">"UTF-8"</span>
-project.<span class="hljs-attr">git</span> = <span class="hljs-literal">false</span>
-project.<span class="hljs-attr">layout</span> = <span class="hljs-literal">null</span>
-project.<span class="hljs-attr">includePaths</span> = [
-  <span class="hljs-string">"glob:**.scala"</span>
-  <span class="hljs-string">"glob:**.sbt"</span>
-  <span class="hljs-string">"glob:**.sc"</span>
-  <span class="hljs-string">"glob:**.mill"</span>
-]
-project.<span class="hljs-attr">excludePaths</span> = []
-project.<span class="hljs-attr">includeFilters</span> = []
-project.<span class="hljs-attr">excludeFilters</span> = []
 xmlLiterals.<span class="hljs-attr">assumeFormatted</span> = <span class="hljs-literal">false</span>
-<span class="hljs-attr">formatOn</span> = [
-  <span class="hljs-string">"@formatter:on"</span>
-  <span class="hljs-string">"format: on"</span>
-]
-<span class="hljs-attr">formatOff</span> = [
-  <span class="hljs-string">"@formatter:off"</span>
-  <span class="hljs-string">"format: off"</span>
-]
 </code></pre>
 </span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/installation.html"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/scalafmt/docs/gotchas.html"><span>Gotchas</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#most-popular">Most popular</a><ul class="toc-headings"><li><a href="#maxcolumn"><code>maxColumn</code></a></li><li><a href="#assumestandardlibrarystripmargin"><code>assumeStandardLibraryStripMargin</code></a></li></ul></li><li><a href="#version">Version</a></li><li><a href="#scala-dialects">Scala Dialects</a><ul class="toc-headings"><li><a href="#runnerdialectoverride"><code>runner.dialectOverride</code></a></li><li><a href="#scala-3">Scala 3</a></li><li><a href="#scala-2-with--xsource3">Scala 2 with <code>-Xsource:3</code></a></li></ul></li><li><a href="#presets">Presets</a><ul class="toc-headings"><li><a href="#top-level-presets">Top-level presets</a></li><li><a href="#appending-to-preset-collections">Appending to preset collections</a></li></ul></li><li><a href="#indentation">Indentation</a><ul class="toc-headings"><li><a href="#indentmain"><code>indent.main</code></a></li><li><a href="#indentsignificant"><code>indent.significant</code></a></li><li><a href="#indentcallsite"><code>indent.callSite</code></a></li><li><a href="#indentbinpackcallsite"><code>indent.binPackCallSite</code></a></li><li><a href="#indentctrlsite"><code>indent.ctrlSite</code></a></li><li><a href="#indentdefnsite"><code>indent.defnSite</code></a></li><li><a href="#indentbinpackdefnsite"><code>indent.binPackDefnSite</code></a></li><li><a href="#indentctorsite"><code>indent.ctorSite</code></a></li><li><a href="#indentmatchsite"><code>indent.matchSite</code></a></li><li><a href="#indentcasesite"><code>indent.caseSite</code></a></li><li><a href="#indentextendsite"><code>indent.extendSite</code></a></li><li><a href="#indentwithsiterelativetoextends"><code>indent.withSiteRelativeToExtends</code></a></li><li><a href="#indentcommasiterelativetoextends"><code>indent.commaSiteRelativeToExtends</code></a></li><li><a href="#indentextrabeforeopenparendefnsite"><code>indent.extraBeforeOpenParenDefnSite</code></a></li><li><a href="#indentafterinfixsite"><code>indent.afterInfixSite</code></a></li><li><a href="#indent-for-binpackcallsite">Indent for <code>binPack.callSite</code></a></li><li><a href="#indentinfix"><code>indent.infix</code></a></li></ul></li><li><a href="#alignment">Alignment</a><ul class="toc-headings"><li><a href="#alignpreset"><code>align.preset</code></a></li><li><a href="#aligntokens"><code>align.tokens</code></a></li><li><a href="#alignarrowenumeratorgenerator"><code>align.arrowEnumeratorGenerator</code></a></li><li><a href="#aligncloseparensite"><code>align.closeParenSite</code></a></li><li><a href="#alignopenparencallsite"><code>align.openParenCallSite</code></a></li><li><a href="#alignopenbracketcallsite"><code>align.openBracketCallSite</code></a></li><li><a href="#alignopenparenctrlsite"><code>align.openParenCtrlSite</code></a></li><li><a href="#alignopenparendefnsite"><code>align.openParenDefnSite</code></a></li><li><a href="#alignopenbracketdefnsite"><code>align.openBracketDefnSite</code></a></li><li><a href="#alignopenparentuplesite"><code>align.openParenTupleSite</code></a></li><li><a href="#alignbeforeopenparenxxxsite"><code>align.beforeOpenParenXxxSite</code></a></li><li><a href="#alignstripmargin"><code>align.stripMargin</code></a></li><li><a href="#alignmultiline"><code>align.multiline</code></a></li><li><a href="#alignallowoverflow"><code>align.allowOverflow</code></a></li><li><a href="#alignininterpolation"><code>align.inInterpolation</code></a></li><li><a href="#aligndelayuntilspace"><code>align.delayUntilSpace</code></a></li></ul></li><li><a href="#newlines">Newlines</a><ul class="toc-headings"><li><a href="#newlinessource"><code>newlines.source</code></a></li><li><a href="#newlinestoplevelstatementblanklines"><code>newlines.topLevelStatementBlankLines</code></a></li><li><a href="#newlines-around-package-or-template-body">Newlines around package or template body</a></li><li><a href="#newlinesbeforemultiline"><code>newlines.beforeMultiline</code></a></li><li><a href="#newlinesforcebeforemultilineassign"><code>newlines.forceBeforeMultilineAssign</code></a></li><li><a href="#newlinesforcebeforeassign"><code>newlines.forceBeforeAssign</code></a></li><li><a href="#newlinesbeforetypebounds"><code>newlines.beforeTypeBounds</code></a></li><li><a href="#newlinesalwaysbeforeelseaftercurlyif"><code>newlines.alwaysBeforeElseAfterCurlyIf</code></a></li><li><a href="#newlinesbeforecurlylambdaparams"><code>newlines.beforeCurlyLambdaParams</code></a></li><li><a href="#newlinesaftercurlylambdaparams"><code>newlines.afterCurlyLambdaParams</code></a></li><li><a href="#newlinesimplicitparamlistmodifierxxx"><code>newlines.implicitParamListModifierXXX</code></a></li><li><a href="#newlinesinfix"><code>newlines.infix</code></a></li><li><a href="#newlinesavoidforsimpleoverflow"><code>newlines.avoidForSimpleOverflow</code></a></li><li><a href="#newlinesavoidinresulttype"><code>newlines.avoidInResultType</code></a></li><li><a href="#newlinessometimesbeforecoloninmethodreturntype"><code>newlines.sometimesBeforeColonInMethodReturnType</code></a></li><li><a href="#newlinesbeforeopenparenxxxsite"><code>newlines.beforeOpenParenXxxSite</code></a></li><li><a href="#newlinesininterpolation"><code>newlines.inInterpolation</code></a></li><li><a href="#newlinesignoreinsyntax"><code>newlines.ignoreInSyntax</code></a></li><li><a href="#newlinesannotation"><code>newlines.annotation</code></a></li><li><a href="#newlinesselfannotation"><code>newlines.selfAnnotation</code></a></li></ul></li><li><a href="#newlines-danglingparentheses">Newlines: <code>danglingParentheses</code></a><ul class="toc-headings"><li><a href="#danglingparenthesesdefnsite"><code>danglingParentheses.defnSite</code></a></li><li><a href="#danglingparenthesescallsite"><code>danglingParentheses.callSite</code></a></li><li><a href="#danglingparenthesesbracketxxxsite"><code>danglingParentheses.bracketXxxSite</code></a></li><li><a href="#danglingparenthesesctrlsite"><code>danglingParentheses.ctrlSite</code></a></li><li><a href="#danglingparenthesesimportsite"><code>danglingParentheses.importSite</code></a></li><li><a href="#danglingparenthesestuplesite"><code>danglingParentheses.tupleSite</code></a></li><li><a href="#danglingparenthesesexclude"><code>danglingParentheses.exclude</code></a></li></ul></li><li><a href="#newlines-config-style-formatting">Newlines: Config-style formatting</a><ul class="toc-headings"><li><a href="#newlinesconfigstylexxxsite"><code>newlines.configStyle.xxxSite</code></a></li><li><a href="#newlinesconfigstylexxxsiteprefer"><code>newlines.configStyle.xxxSite.prefer</code></a></li><li><a href="#forcing-config-style">Forcing config style</a></li><li><a href="#newlinesconfigstylebeforecomma"><code>newlines.configStyle.beforeComma</code></a></li></ul></li><li><a href="#rewrite-rules">Rewrite Rules</a><ul class="toc-headings"><li><a href="#avoidinfix"><code>AvoidInfix</code></a></li><li><a href="#redundantbraces"><code>RedundantBraces</code></a></li><li><a href="#inserting-braces">Inserting braces</a></li><li><a href="#redundantparens"><code>RedundantParens</code></a></li><li><a href="#sortmodifiers"><code>SortModifiers</code></a></li><li><a href="#prefercurlyfors"><code>PreferCurlyFors</code></a></li><li><a href="#imports"><code>Imports</code></a></li><li><a href="#trailing-commas">Trailing commas</a></li><li><a href="#rewritetokens"><code>rewrite.tokens</code></a></li><li><a href="#removesemicolons">RemoveSemicolons</a></li><li><a href="#rewriteliterals">RewriteLiterals</a></li></ul></li><li><a href="#scala3-rewrites">Scala3 rewrites</a><ul class="toc-headings"><li><a href="#rewritescala3converttonewsyntax"><code>rewrite.scala3.convertToNewSyntax</code></a></li><li><a href="#rewritescala3removeoptionalbraces"><code>rewrite.scala3.removeOptionalBraces</code></a></li><li><a href="#rewritescala3endmarkerinsertminspan"><code>rewrite.scala3.endMarker.insertMinSpan</code></a></li><li><a href="#rewritescala3endmarkerremovemaxspan"><code>rewrite.scala3.endMarker.removeMaxSpan</code></a></li><li><a href="#rewritescala3endmarkerspanhas"><code>rewrite.scala3.endMarker.spanHas</code></a></li><li><a href="#rewritescala3endmarkerspanis"><code>rewrite.scala3.endMarker.spanIs</code></a></li></ul></li><li><a href="#vertical-multiline">Vertical Multiline</a><ul class="toc-headings"><li><a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThreshold</code></a></li><li><a href="#verticalmultilinenewlineafteropenparen"><code>verticalMultiline.newlineAfterOpenParen</code></a></li><li><a href="#verticalmultilineexcludedanglingparens"><code>verticalMultiline.excludeDanglingParens</code></a></li><li><a href="#vertical-multiline-with-implicit-parameter-lists">Vertical multiline with <code>implicit</code> parameter lists</a></li></ul></li><li><a href="#comment-processing">Comment processing</a><ul class="toc-headings"><li><a href="#commentswrap"><code>comments.wrap</code></a></li><li><a href="#commentswrapstandaloneslcasslc"><code>comments.wrapStandaloneSlcAsSlc</code></a></li><li><a href="#commentswrapsinglelinemlcasslc"><code>comments.wrapSingleLineMlcAsSlc</code></a></li><li><a href="#docstringsstyle"><code>docstrings.style</code></a></li><li><a href="#docstringsremoveempty"><code>docstrings.removeEmpty</code></a></li><li><a href="#docstringsoneline"><code>docstrings.oneline</code></a></li><li><a href="#docstringswrap"><code>docstrings.wrap</code></a></li><li><a href="#docstringswrapmaxcolumn"><code>docstrings.wrapMaxColumn</code></a></li><li><a href="#docstringsblankfirstline"><code>docstrings.blankFirstLine</code></a></li><li><a href="#docstringsforceblanklinebefore"><code>docstrings.forceBlankLineBefore</code></a></li></ul></li><li><a href="#disabling-or-customizing-formatting">Disabling or customizing formatting</a><ul class="toc-headings"><li><a href="#search-state-exploded"><code>Search state exploded</code></a></li><li><a href="#for-code-block">For code block</a></li><li><a href="#-format-off">// format: off</a></li><li><a href="#project">Project</a></li><li><a href="#fileoverride"><code>fileOverride</code></a></li></ul></li><li><a href="#spaces">Spaces</a><ul class="toc-headings"><li><a href="#spacesbeforecontextboundcolon"><code>spaces.beforeContextBoundColon</code></a></li><li><a href="#spaceswithincontextboundbraces"><code>spaces.withinContextBoundBraces</code></a></li><li><a href="#spacesinimportcurlybraces"><code>spaces.inImportCurlyBraces</code></a></li><li><a href="#spacesininterpolatedstringcurlybraces"><code>spaces.inInterpolatedStringCurlyBraces</code></a></li><li><a href="#spacesinparentheses"><code>spaces.inParentheses</code></a></li><li><a href="#spacesneveraroundinfixtypes"><code>spaces.neverAroundInfixTypes</code></a></li><li><a href="#spacesaroundsymbolicinfixoperators"><code>spaces.aroundSymbolicInfixOperators</code></a></li><li><a href="#spacesafterkeywordbeforeparen"><code>spaces.afterKeywordBeforeParen</code></a></li><li><a href="#spacesinbynametypes"><code>spaces.inByNameTypes</code></a></li><li><a href="#spacesaftersymbolicdefs"><code>spaces.afterSymbolicDefs</code></a></li><li><a href="#spacesbeforexxxarginparens"><code>spaces.beforeXxxArgInParens</code></a></li><li><a href="#spacesaftercoloninmatchpattern"><code>spaces.afterColonInMatchPattern</code></a></li></ul></li><li><a href="#literals">Literals</a><ul class="toc-headings"><li><a href="#literalslong"><code>literals.long</code></a></li><li><a href="#literalshexprefix"><code>literals.hexPrefix</code></a></li><li><a href="#literalshexdigits"><code>literals.hexDigits</code></a></li><li><a href="#literalsbinprefix"><code>literals.binPrefix</code></a></li><li><a href="#literalsfloatingpoint"><code>literals.floatingPoint</code></a></li></ul></li><li><a href="#xml">XML</a><ul class="toc-headings"><li><a href="#xmlliteralsassumeformatted"><code>xmlLiterals.assumeFormatted</code></a></li></ul></li><li><a href="#binpacking">Binpacking</a><ul class="toc-headings"><li><a href="#binpack-presets"><code>binPack</code> presets</a></li><li><a href="#literal-argument-lists">Literal argument lists</a></li><li><a href="#binpackparentconstructors"><code>binPack.parentConstructors</code></a></li><li><a href="#binpackxxxsite"><code>binPack.xxxSite</code></a></li><li><a href="#binpackbracketxxxsite"><code>binPack.bracketXxxSite</code></a></li><li><a href="#binpackimportselectors"><code>binPack.importSelectors</code></a></li></ul></li><li><a href="#select-chains">Select chains</a><ul class="toc-headings"><li><a href="#newlinesselectchainsstyle"><code>newlines.selectChains.style</code></a></li><li><a href="#newlinesselectchainsenclose"><code>newlines.selectChains.enclose</code></a></li><li><a href="#newlinesselectchainsclassiccanstartwithbraceapply"><code>newlines.selectChains.classicCanStartWithBraceApply</code></a></li><li><a href="#newlinesselectchainsclassiccanstartwithoutapply"><code>newlines.selectChains.classicCanStartWithoutApply</code></a></li><li><a href="#newlinesselectchainsclassickeepfirst"><code>newlines.selectChains.classicKeepFirst</code></a></li><li><a href="#newlinesselectchainsclassickeepafterfirstbreak"><code>newlines.selectChains.classicKeepAfterFirstBreak</code></a></li></ul></li><li><a href="#miscellaneous">Miscellaneous</a><ul class="toc-headings"><li><a href="#lineendings"><code>lineEndings</code></a></li></ul></li><li><a href="#markdown-formatting">Markdown Formatting</a></li><li><a href="#advanced-formatting-process">Advanced: formatting process</a></li><li><a href="#advanced-route-search-optimizations">Advanced: Route search optimizations</a><ul class="toc-headings"><li><a href="#route-search-optimizations-giving-up">Route search optimizations: giving up</a></li><li><a href="#route-search-optimizations-discarding-some-states">Route search optimizations: discarding some states</a></li><li><a href="#route-search-optimizations-preferential-treatment">Route search optimizations: preferential treatment</a></li></ul></li><li><a href="#edition">Edition</a></li><li><a href="#other">Other</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><a href="/scalafmt/" class="nav-home"><img src="/scalafmt/img/scalameta-logo.png" alt="Scalafmt" width="66" height="58"/></a><div><h5>Docs</h5><a href="
                 /scalafmt/docs/installation.html">Installation</a><a href="
