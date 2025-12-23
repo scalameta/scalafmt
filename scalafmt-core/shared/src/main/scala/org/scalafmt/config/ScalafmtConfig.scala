@@ -458,7 +458,19 @@ object ScalafmtConfig {
         parsed.andThen(validate)
       }
 
-      override def convert(conf: Conf): Conf = baseDecoder.convert(conf)
+      override def convert(conf: Conf): Conf = baseDecoder.convert(conf) match {
+        case c @ Conf.Obj(elems) =>
+          val fileOverrideKey = Conf.nameOf(default.fileOverride).value
+          elems.collectFirst {
+            case (`fileOverrideKey`, Conf.Obj(vv)) if vv.nonEmpty =>
+              val fo = fileOverrideKey -> Conf.Obj(vv.map {
+                case (k, v: Conf.Obj) => k -> baseDecoder.convert(v)
+                case x => x
+              })
+              Conf.Obj(fo :: elems.filter(_._1 != fileOverrideKey))
+          }.getOrElse(c)
+        case c => c
+      }
     }
 
   def fromHoconString(
