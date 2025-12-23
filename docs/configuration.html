@@ -5857,26 +5857,43 @@ literals.floatingPoint {
 <p>If enabled, always includes <code>.0</code> if the number has no fractional part; otherwise,
 this would be added only if the number looks like an integer
 (that is, no exponent or type suffix).</p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-number">1.23e3</span>
-<span class="hljs-number">1.23e3</span>d
+<pre><code class="hljs css language-scala formatted"><span class="hljs-number">1230.0</span>
+<span class="hljs-number">1230</span>d
+<span class="hljs-number">1230</span>d
+<span class="hljs-number">123000.0</span>
+<span class="hljs-number">123000.0</span>
+<span class="hljs-number">1.23e12</span>
 <span class="hljs-number">1.23e12</span>
 <span class="hljs-comment">// scalafmt: { literals.floatingPoint.format.forceDot = true }</span>
-<span class="hljs-number">1.23e3</span>
-<span class="hljs-number">1.23e3</span>d
+<span class="hljs-number">1230.0</span>
+<span class="hljs-number">1230.0</span>d
+<span class="hljs-number">1230.0</span>d
+<span class="hljs-number">123000.0</span>
+<span class="hljs-number">123000.0</span>
+<span class="hljs-number">1.23e12</span>
 <span class="hljs-number">1.23e12</span>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-number">1230.0</span>
 <span class="hljs-number">1230</span>d
+<span class="hljs-number">1230.0</span>d
+<span class="hljs-number">123e3</span>
+<span class="hljs-number">123.0e3</span>
 <span class="hljs-number">123e10</span>
+<span class="hljs-number">123.0e10</span>
 <span class="hljs-comment">// scalafmt: { literals.floatingPoint.format.forceDot = true }</span>
 <span class="hljs-number">1230.0</span>
 <span class="hljs-number">1230</span>d
+<span class="hljs-number">1230.0</span>d
+<span class="hljs-number">123e3</span>
+<span class="hljs-number">123.0e3</span>
 <span class="hljs-number">123e10</span>
+<span class="hljs-number">123.0e10</span>
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
 <pre><code class="hljs css language-scala config">rewrite.rules = [<span class="hljs-type">RewriteLiterals</span>]
 literals.floatingPoint {
   filter.minTotalDigits = <span class="hljs-number">1</span>
+  format.maxPaddingZeros = <span class="hljs-number">5</span>
 }
 </code></pre>
 </p></details>
