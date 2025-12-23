@@ -4371,15 +4371,24 @@ this would be added only if the number looks like an integer
 rewrite.rules = [RewriteLiterals]
 literals.floatingPoint {
   filter.minTotalDigits = 1
+  format.maxPaddingZeros = 5
 }
 ---
 1230.0
 1230d
+1230.0d
+123e3
+123.0e3
 123e10
+123.0e10
 // scalafmt: { literals.floatingPoint.format.forceDot = true }
 1230.0
 1230d
+1230.0d
+123e3
+123.0e3
 123e10
+123.0e10
 ```
 
 ##### `literals.floatingPoint.format.forceExpPlus`
