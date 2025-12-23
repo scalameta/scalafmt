@@ -25,12 +25,14 @@ private[scalafmt] object MarkdownParser {
       case _ =>
     }
 
-    Success(if (hadFencedParts) {
-      val out = new StringBuilder()
-      parts.foreach(_.renderToString(out))
-      if (out.last != '\n') out.append('\n')
-      out.toString()
-    } else code)
+    Success(
+      if (hadFencedParts) {
+        val out = new StringBuilder()
+        parts.foreach(_.renderToString(out))
+        if (out.last != '\n') out.append('\n')
+        out.toString()
+      } else code,
+    )
   }
 
 }
