@@ -448,11 +448,13 @@ object State {
       val adjusted = 3 + (if (style.align.stripMargin) column else indent)
       _ => adjusted
     } else identity,
-  )(if (style.assumeStandardLibraryStripMargin) {
-    // 1 for '|'
-    val adjusted = 1 + indent
-    _ => adjusted
-  } else identity)
+  )(
+    if (style.assumeStandardLibraryStripMargin) {
+      // 1 for '|'
+      val adjusted = 1 + indent
+      _ => adjusted
+    } else identity,
+  )
 
   def nonSpace(ch: Char): Boolean = // isWhitespace excludes non-breaking space
     !Character.isSpaceChar(ch) && !Character.isWhitespace(ch)
