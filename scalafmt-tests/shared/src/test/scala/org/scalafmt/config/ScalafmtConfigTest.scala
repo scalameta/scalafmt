@@ -1,5 +1,6 @@
 package org.scalafmt.config
 
+import metaconfig.{Conf, Configured}
 import munit.FunSuite
 
 class ScalafmtConfigTest extends FunSuite {
@@ -102,6 +103,37 @@ class ScalafmtConfigTest extends FunSuite {
     assert(config1.hasRewrites)
     val config2 = config1.withoutRewrites
     assert(!config2.hasRewrites)
+  }
+
+  test("convert") {
+    ConfParsed.fromString {
+      """|binPack.unsafeCallSite = false # callSite = never
+         |indentOperator.topLevelOnly = true # exemptScope = all
+         |newlines.alwaysBeforeMultilineDef = true # forceBeforeMultilineAssign = def
+         |importSelectors = false # binPack.importSelectors = unfold
+         |fileOverride {
+         |  "pat1": "scala213"
+         |  "pat2" {
+         |    binPack.unsafeCallSite = true # callSite = always
+         |  }
+         |  "pat3" {
+         |    importSelectors = true # binPack.importSelectors = fold
+         |  }
+         |}
+         |""".stripMargin
+    }.conf match {
+      case Configured.Ok(value) => assertEquals(
+          Conf.printHocon(ScalafmtConfig.decoder.convert(value)),
+          """|binPack.callSite = Never
+             |binPack.importSelectors = unfold
+             |fileOverride.pat1 = "scala213"
+             |fileOverride.pat2.binPack.unsafeCallSite = true
+             |fileOverride.pat3.importSelectors = true
+             |indent.infix.exemptScope = oldTopLevel
+             |newlines.forceBeforeMultilineAssign = def""".stripMargin,
+        )
+      case Configured.NotOk(err) => fail(err.msg)
+    }
   }
 
 }
