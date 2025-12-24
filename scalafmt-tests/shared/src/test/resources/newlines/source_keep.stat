@@ -12567,10 +12567,7 @@ import ref.{
   foo, bar, baz, qux}
 >>>
 import ref.{
-  foo,
-  bar,
-  baz,
-  qux
+  foo, bar, baz, qux
 }
 <<< no break, danglingParentheses.importSite = false
 maxColumn = 20
@@ -12775,21 +12772,15 @@ import packagename1.{
    }
 >>>
 import packagename1.{
-  AVeryLongClass1,
-  AVeryLongClass2,
-  AVeryLongClass3,
-  AVeryLongClass4
+  AVeryLongClass1, AVeryLongClass2,
+  AVeryLongClass3, AVeryLongClass4
 }, packagename2.{
-  AVeryLongClass1,
-  AVeryLongClass2,
-  AVeryLongClass3,
-  AVeryLongClass4
+  AVeryLongClass1, AVeryLongClass2,
+  AVeryLongClass3, AVeryLongClass4
 },
   packagename3.{
-  AVeryLongClass1,
-  AVeryLongClass2,
-  AVeryLongClass3,
-  AVeryLongClass4
+  AVeryLongClass1, AVeryLongClass2,
+  AVeryLongClass3, AVeryLongClass4
 }
 <<< import with binPack.importSelectors = fold
 maxColumn = 60
@@ -12808,15 +12799,15 @@ import packagename1.{
    }
 >>>
 import packagename1.{
-  AVeryLongClass1, AVeryLongClass2,
-  AVeryLongClass3, AVeryLongClass4
+  AVeryLongClass1, AVeryLongClass2, AVeryLongClass3,
+  AVeryLongClass4
 }, packagename2.{
-  AVeryLongClass1, AVeryLongClass2,
-  AVeryLongClass3, AVeryLongClass4
+  AVeryLongClass1, AVeryLongClass2, AVeryLongClass3,
+  AVeryLongClass4
 },
   packagename3.{
-  AVeryLongClass1, AVeryLongClass2,
-  AVeryLongClass3, AVeryLongClass4
+  AVeryLongClass1, AVeryLongClass2, AVeryLongClass3,
+  AVeryLongClass4
 }
 <<< import with binPack.importSelectors = unfold
 maxColumn = 60
