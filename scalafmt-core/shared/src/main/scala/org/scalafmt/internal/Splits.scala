@@ -195,35 +195,33 @@ object SplitsAfterLeftBrace extends Splits {
     import fo._, tokens._, ft._
     val close = matchingLeft(ft)
     val beforeClose = prev(close)
-    val binPack = cfg.binPack.importSelectors
-      .getOrElse(cfg.newlines.source match {
-        case Newlines.fold => ImportSelectors.fold
-        case Newlines.unfold => ImportSelectors.unfold
-        case _ => null
-      })
+    val binPack = cfg.importSelectorsBinPack
 
     def dangleBraces = cfg.danglingParentheses.importSite
-    val policy = binPack match {
-      case null if !dangleBraces && ft.noBreak => NoPolicy
+    val spacePolicy = binPack match {
+      case ImportSelectors.keep | null if !dangleBraces && ft.noBreak =>
+        NoPolicy
       case ImportSelectors.fold if !dangleBraces => NoPolicy
       case ImportSelectors.singleLine => SingleLineBlock(close, okSLC = true)
       case _ => SingleLineBlock(close)
     }
-    val newlineBeforeClosingCurly = decideNewlinesOnlyBeforeClose(close)
+    def newlineBeforeClosingCurly(implicit fl: FileLine) =
+      decideNewlinesOnlyBeforeClose(close)
 
     val mustDangleForTrailingCommas = getMustDangleForTrailingCommas(beforeClose)
     val mustUseNL = hasBreak && isRightCommentThenBreak(ft)
     val newlinePolicy = binPack match {
-      case ImportSelectors.singleLine if mustUseNL => policy
+      case ImportSelectors.singleLine if mustUseNL => spacePolicy
       case ImportSelectors.singleLine if !mustDangleForTrailingCommas =>
         NoPolicy
-      case ImportSelectors.fold => newlineBeforeClosingCurly
-      case _ => newlineBeforeClosingCurly & splitOneArgOneLine(close, leftOwner)
+      case ImportSelectors.unfold | null => newlineBeforeClosingCurly &
+          splitOneArgOneLine(close, leftOwner)
+      case _ => newlineBeforeClosingCurly
     }
 
     val indent = Indent(cfg.indent.main, close, Before)
     Seq(
-      Split(Space(cfg.spaces.inImportCurlyBraces), 0, policy = policy)
+      Split(Space(cfg.spaces.inImportCurlyBraces), 0, policy = spacePolicy)
         .notIf(mustUseNL || mustDangleForTrailingCommas).withIndent(indent),
       Split(Newline, 1, policy = newlinePolicy).notIf(newlinePolicy.isEmpty)
         .withIndent(indent),
@@ -2410,8 +2408,10 @@ object SplitsAfterComma extends Splits {
           Seq(noSplit, nlSplit)
         }
 
-      def defaultSplits(indent: Length)(implicit fileLine: FileLine) = Seq(
-        Split(cfg.newlines.keepBreak(hasBreak), 0)(Space),
+      def defaultSplits(indent: Length, allowKeepNL: Boolean = true)(implicit
+          fileLine: FileLine,
+      ) = Seq(
+        Split(cfg.newlines.keepBreak(allowKeepNL && hasBreak), 0)(Space),
         Split(Newline, 1, rank = 1).withIndent(indent, next(ft), ExpiresOn.After),
       )
 
@@ -2422,6 +2422,8 @@ object SplitsAfterComma extends Splits {
             if cfg.newlines.unfold || !cfg.newlines.fold && hasBreak =>
           Seq(Split(Newline, 0))
         case _: ImportExportStat => defaultSplits(cfg.indent.main)
+        case _: Importer =>
+          defaultSplits(0, cfg.importSelectorsBinPack eq ImportSelectors.keep)
         case _ => defaultSplits(0)
       }
 

@@ -48,6 +48,7 @@ object ImportSelectors {
       case Conf.Str("noBinPack") | Conf.Bool(false) => Conf.nameOf(unfold)
     }
 
+  case object keep extends ImportSelectors
   case object fold extends ImportSelectors
   case object unfold extends ImportSelectors
   case object singleLine extends ImportSelectors

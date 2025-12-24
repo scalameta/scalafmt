@@ -2909,10 +2909,12 @@ However, if you prefer to avoid having these newlines, some combinations
 of parameters will help you achieve that. This parameter must be set to false
 and one of the following conditions enabled as follows:
 
-- [`binPack.importSelectors`](#binpackimportselectors) is set to `fold`, or
-- [`binPack.importSelectors`](#binpackimportselectors) is not set, and
-  - [`newlines.source = fold`](#newlinessource)), or
-  - [`newlines.source != unfold`](#newlinessource)) and there's no break after the opening brace
+- [`binPack.importSelectors`](#binpackimportselectors) is`fold`
+  (explicitly, or implied from [`newlines.source`](#newlinessource), or
+- there's no break after the opening brace and
+  - [`binPack.importSelectors`](#binpackimportselectors) is `keep`, or
+  - [`binPack.importSelectors`](#binpackimportselectors) and
+    [`newlines.source`](#newlinessource) are both unspecified
 
 ```scala mdoc:scalafmt
 danglingParentheses.importSite = false
@@ -5979,10 +5981,13 @@ Takes the following parameters:
 
 - `unfold`: format one per line (prior to v3.8.4, called `noBinPack`)
 - `fold`: fit as many as possible on each line (prior to v3.8.4, called `binPack`)
+- `keep`: preserve breaks between selectors (added in v3.10.4)
 - `singleLine`: format all on one line
 
-By default, the parameter is set to `fold` if [`newlines.source = fold`](#newlinessource),
+By default, the parameter will match [`newlines.source`](#newlinessource) if
+the latter is explicitly specified,
 and `unfold` otherwise (prior to v3.10.1, it would always be `unfold`).
+See also [`danglingParentheses.importSite`](#danglingparenthesesimportsite).
 
 ```scala mdoc:scalafmt
 maxColumn = 10

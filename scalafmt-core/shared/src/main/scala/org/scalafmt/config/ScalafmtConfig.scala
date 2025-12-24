@@ -294,6 +294,15 @@ case class ScalafmtConfig(
 
   def importSelectorsRewrite: Newlines.SourceHints = rewrite.imports.selectors
     .getOrElse(newlines.source)
+
+  def importSelectorsBinPack: ImportSelectors = binPack.importSelectors
+    .getOrElse(newlines.source match {
+      case Newlines.fold => ImportSelectors.fold
+      case Newlines.keep => ImportSelectors.keep
+      case Newlines.unfold => ImportSelectors.unfold
+      case _ => null
+    })
+
 }
 
 object ScalafmtConfig {
@@ -369,6 +378,7 @@ object ScalafmtConfig {
         mustIgnoreSourceSplit(newlines.beforeMultilineDef)
         addIf(newlines.beforeTypeBounds eq Newlines.keep)
         addIf(binPack.parentConstructors eq BinPack.ParentCtors.keep)
+        addIf(binPack.importSelectors.orNull eq ImportSelectors.keep)
         addIf(newlines.selectChains.style.orNull eq Newlines.keep)
         addIf(getTrailingCommas.eq(TrailingCommas.keep))
       }
