@@ -12173,3 +12173,86 @@ res.append(
     bar
   } finally { baz }
 )
+<<< import with binPack.importSelectors unspecified
+maxColumn = 60
+===
+import packagename1.{
+  AVeryLongClass1, AVeryLongClass2,
+  AVeryLongClass3, AVeryLongClass4
+}, packagename2.{
+     AVeryLongClass1, AVeryLongClass2,
+     AVeryLongClass3, AVeryLongClass4
+   },
+   packagename3.{
+     AVeryLongClass1, AVeryLongClass2,
+     AVeryLongClass3, AVeryLongClass4
+   }
+>>>
+import packagename1.{
+  AVeryLongClass1, AVeryLongClass2, AVeryLongClass3,
+  AVeryLongClass4
+}, packagename2.{
+  AVeryLongClass1, AVeryLongClass2, AVeryLongClass3,
+  AVeryLongClass4
+}, packagename3.{
+  AVeryLongClass1, AVeryLongClass2, AVeryLongClass3,
+  AVeryLongClass4
+}
+<<< import with binPack.importSelectors = fold
+maxColumn = 60
+binPack.importSelectors = fold
+===
+import packagename1.{
+  AVeryLongClass1, AVeryLongClass2,
+  AVeryLongClass3, AVeryLongClass4
+}, packagename2.{
+     AVeryLongClass1, AVeryLongClass2,
+     AVeryLongClass3, AVeryLongClass4
+   },
+   packagename3.{
+     AVeryLongClass1, AVeryLongClass2,
+     AVeryLongClass3, AVeryLongClass4
+   }
+>>>
+import packagename1.{
+  AVeryLongClass1, AVeryLongClass2, AVeryLongClass3,
+  AVeryLongClass4
+}, packagename2.{
+  AVeryLongClass1, AVeryLongClass2, AVeryLongClass3,
+  AVeryLongClass4
+}, packagename3.{
+  AVeryLongClass1, AVeryLongClass2, AVeryLongClass3,
+  AVeryLongClass4
+}
+<<< import with binPack.importSelectors = unfold
+maxColumn = 60
+binPack.importSelectors = unfold
+===
+import packagename1.{
+  AVeryLongClass1, AVeryLongClass2,
+  AVeryLongClass3, AVeryLongClass4
+}, packagename2.{
+     AVeryLongClass1, AVeryLongClass2,
+     AVeryLongClass3, AVeryLongClass4
+   },
+   packagename3.{
+     AVeryLongClass1, AVeryLongClass2,
+     AVeryLongClass3, AVeryLongClass4
+   }
+>>>
+import packagename1.{
+  AVeryLongClass1,
+  AVeryLongClass2,
+  AVeryLongClass3,
+  AVeryLongClass4
+}, packagename2.{
+  AVeryLongClass1,
+  AVeryLongClass2,
+  AVeryLongClass3,
+  AVeryLongClass4
+}, packagename3.{
+  AVeryLongClass1,
+  AVeryLongClass2,
+  AVeryLongClass3,
+  AVeryLongClass4
+}
