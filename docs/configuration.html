@@ -3902,11 +3902,13 @@ or newlines are added after the opening brace and before the closing one.</p>
 of parameters will help you achieve that. This parameter must be set to false
 and one of the following conditions enabled as follows:</p>
 <ul>
-<li><a href="#binpackimportselectors"><code>binPack.importSelectors</code></a> is set to <code>fold</code>, or</li>
-<li><a href="#binpackimportselectors"><code>binPack.importSelectors</code></a> is not set, and
+<li><a href="#binpackimportselectors"><code>binPack.importSelectors</code></a> is<code>fold</code>
+(explicitly, or implied from <a href="#newlinessource"><code>newlines.source</code></a>, or</li>
+<li>there's no break after the opening brace and
 <ul>
-<li><a href="#newlinessource"><code>newlines.source = fold</code></a>), or</li>
-<li><a href="#newlinessource"><code>newlines.source != unfold</code></a>) and there's no break after the opening brace</li>
+<li><a href="#binpackimportselectors"><code>binPack.importSelectors</code></a> is <code>keep</code>, or</li>
+<li><a href="#binpackimportselectors"><code>binPack.importSelectors</code></a> and
+<a href="#newlinessource"><code>newlines.source</code></a> are both unspecified</li>
 </ul></li>
 </ul>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// should be folded, importSelectors = fold</span>
@@ -3979,10 +3981,7 @@ newlines.source = fold
   bar, baz, qux}
 <span class="hljs-comment">// should NOT be folded: break after opening brace</span>
 <span class="hljs-keyword">import</span> ref.{
-  foo,
-  bar,
-  baz,
-  qux
+  foo, bar, baz, qux
 }
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-comment">// should be folded: no break after opening brace</span>
@@ -7760,10 +7759,13 @@ will be handled <em>if</em> they overflow.
 <ul>
 <li><code>unfold</code>: format one per line (prior to v3.8.4, called <code>noBinPack</code>)</li>
 <li><code>fold</code>: fit as many as possible on each line (prior to v3.8.4, called <code>binPack</code>)</li>
+<li><code>keep</code>: preserve breaks between selectors (added in v3.10.4)</li>
 <li><code>singleLine</code>: format all on one line</li>
 </ul>
-<p>By default, the parameter is set to <code>fold</code> if <a href="#newlinessource"><code>newlines.source = fold</code></a>,
-and <code>unfold</code> otherwise (prior to v3.10.1, it would always be <code>unfold</code>).</p>
+<p>By default, the parameter will match <a href="#newlinessource"><code>newlines.source</code></a> if
+the latter is explicitly specified,
+and <code>unfold</code> otherwise (prior to v3.10.1, it would always be <code>unfold</code>).
+See also <a href="#danglingparenthesesimportsite"><code>danglingParentheses.importSite</code></a>.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">import</span> a.b.{
   c,
   d,
