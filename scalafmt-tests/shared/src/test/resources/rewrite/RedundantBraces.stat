@@ -1474,6 +1474,8 @@ object a {
   } // c8
 }
 <<< init-only secondary ctors
+rewrite.redundantBraces.maxLines = 10
+===
 class a(vi: Int, vs: String) {
   def this() = {
 
@@ -1494,6 +1496,8 @@ class a(vi: Int, vs: String) {
     this(vi, "")
 }
 <<< procedure-style secondary ctors
+rewrite.redundantBraces.maxLines = 10
+===
 class a(vi: Int, vs: String) {
   def this() {
 
@@ -2503,11 +2507,12 @@ class Foo(bar: Bar) {
 }
 >>>
 class Foo(bar: Bar) {
-  def this(baz: Baz) =
+  def this(baz: Baz) = {
     this({
       val bar = baz.toBar
       bar
     })
+  }
 }
 <<< secondary ctor, oneline with comment
 class Foo(bar: Bar) {
@@ -2518,9 +2523,10 @@ class Foo(bar: Bar) {
 }
 >>>
 class Foo(bar: Bar) {
-  def this(baz: Baz) =
+  def this(baz: Baz) = {
     this(baz.toBar)
-  // qux
+    // qux
+  }
 }
 <<< secondary ctor, oneline with comment, procedure-style
 class Foo(bar: Bar) {
@@ -2531,7 +2537,8 @@ class Foo(bar: Bar) {
 }
 >>>
 class Foo(bar: Bar) {
-  def this(baz: Baz) =
+  def this(baz: Baz) {
     this(baz.toBar)
-  // qux
+    // qux
+  }
 }
