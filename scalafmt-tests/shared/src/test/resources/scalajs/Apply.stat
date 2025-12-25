@@ -1415,3 +1415,136 @@ other.exists(tpe match {
   case TypeRef(_, r, _) => r.isTypeParameter
   case _                => false
 })
+<<< sjs classic
+newlines.configStyle.callSite.prefer = true
+danglingParentheses.preset = false
+maxColumn = 80
+binPack {
+  preset = onelineSjs
+  indentCallSiteOnce = true
+  indentCallSiteSingleArg = false
+}
+===
+Seq(
+  List(genStaticConstructorWithStats(jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+  List(genStaticConstructorWithStats(jswkn.StaticInitializerName,
+     js.Block(staticInitializerStats))),
+  List(genStaticConstructorWithStats(
+    jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+  List(
+    genStaticConstructorWithStats(jswkn.StaticInitializerName, js.Block(staticInitializerStats)))
+)
+>>>
+Seq(
+    List(genStaticConstructorWithStats(jswkn.StaticInitializerName,
+        js.Block(staticInitializerStats))),
+    List(genStaticConstructorWithStats(jswkn.StaticInitializerName,
+        js.Block(staticInitializerStats))),
+    List(genStaticConstructorWithStats(jswkn.StaticInitializerName,
+        js.Block(staticInitializerStats))),
+    List(genStaticConstructorWithStats(jswkn.StaticInitializerName,
+        js.Block(staticInitializerStats)))
+)
+<<< sjs fold
+newlines.source = fold
+newlines.configStyle.callSite.prefer = true
+danglingParentheses.preset = false
+maxColumn = 80
+binPack {
+  preset = onelineSjs
+  indentCallSiteOnce = true
+  indentCallSiteSingleArg = false
+}
+===
+Seq(
+  List(genStaticConstructorWithStats(jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+  List(genStaticConstructorWithStats(jswkn.StaticInitializerName,
+     js.Block(staticInitializerStats))),
+  List(genStaticConstructorWithStats(
+    jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+  List(
+    genStaticConstructorWithStats(jswkn.StaticInitializerName, js.Block(staticInitializerStats)))
+)
+>>>
+Seq(
+    List(
+        genStaticConstructorWithStats(
+            jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+    List(
+        genStaticConstructorWithStats(
+            jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+    List(
+        genStaticConstructorWithStats(
+            jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+    List(
+        genStaticConstructorWithStats(
+            jswkn.StaticInitializerName, js.Block(staticInitializerStats))))
+<<< sjs keep
+newlines.source = keep
+newlines.configStyle.callSite.prefer = true
+danglingParentheses.preset = false
+maxColumn = 80
+binPack {
+  preset = onelineSjs
+  indentCallSiteOnce = true
+  indentCallSiteSingleArg = false
+}
+===
+Seq(
+  List(genStaticConstructorWithStats(jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+  List(genStaticConstructorWithStats(jswkn.StaticInitializerName,
+     js.Block(staticInitializerStats))),
+  List(genStaticConstructorWithStats(
+    jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+  List(
+    genStaticConstructorWithStats(jswkn.StaticInitializerName, js.Block(staticInitializerStats)))
+)
+>>>
+Seq(
+    List(
+        genStaticConstructorWithStats(
+            jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+    List(
+        genStaticConstructorWithStats(jswkn.StaticInitializerName,
+            js.Block(staticInitializerStats))),
+    List(
+        genStaticConstructorWithStats(
+            jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+    List(
+        genStaticConstructorWithStats(
+            jswkn.StaticInitializerName, js.Block(staticInitializerStats)))
+)
+<<< sjs unfold
+newlines.source = unfold
+newlines.configStyle.callSite.prefer = true
+danglingParentheses.preset = false
+maxColumn = 80
+binPack {
+  preset = onelineSjs
+  indentCallSiteOnce = true
+  indentCallSiteSingleArg = false
+}
+===
+Seq(
+  List(genStaticConstructorWithStats(jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+  List(genStaticConstructorWithStats(jswkn.StaticInitializerName,
+     js.Block(staticInitializerStats))),
+  List(genStaticConstructorWithStats(
+    jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+  List(
+    genStaticConstructorWithStats(jswkn.StaticInitializerName, js.Block(staticInitializerStats)))
+)
+>>>
+Seq(
+    List(
+        genStaticConstructorWithStats(
+            jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+    List(
+        genStaticConstructorWithStats(
+            jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+    List(
+        genStaticConstructorWithStats(
+            jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+    List(
+        genStaticConstructorWithStats(
+            jswkn.StaticInitializerName, js.Block(staticInitializerStats))))
