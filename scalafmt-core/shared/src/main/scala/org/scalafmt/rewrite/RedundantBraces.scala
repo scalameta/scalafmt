@@ -402,7 +402,8 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
             (ConvertToNewScala3Syntax.enabled ||
               !x.tokens.exists(_.is[T.RightArrow])) => removeToken
       case t: Ctor.Block
-          if t.stats.isEmpty && isDefnBodiesEnabled(noParams = false) =>
+          if t.stats.isEmpty && isDefnBodiesEnabled(noParams = false) &&
+            okLineSpan(t) =>
         val prevIsEquals = ftoks.prevNonComment(ft).left.is[T.Equals]
         if (prevIsEquals) removeToken
         else replaceTokenBy("=", t.parent)(x =>
@@ -425,16 +426,17 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         }
       case _ => false
     }
+    def okSemicolon(t: Tree): Boolean = !braceSeparatesTwoXmlTokens &&
+      (ftoks.prevNonComment(ft) match {
+        case FT(_: T.Semicolon, _, m) =>
+          val plo = m.leftOwner
+          (plo eq t) || !plo.parent.contains(t)
+        case _ => true
+      })
     ft.rightOwner match {
-      case t: Term.Block => left.how match {
+      case t: Tree.Block => left.how match {
           case ReplacementType.Remove
-              if !braceSeparatesTwoXmlTokens &&
-                (ftoks.prevNonComment(ft) match {
-                  case FT(_: T.Semicolon, _, m) =>
-                    val plo = m.leftOwner
-                    (plo eq t) || !plo.parent.contains(t)
-                  case _ => true
-                }) &&
+              if okSemicolon(t) &&
                 ((t.parent match {
                   case Some(_: Term.Block) => true
                   case Some(_: Term.ArgClause) =>
@@ -448,10 +450,14 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
                   case _ => style.dialect.allowSignificantIndentation
                 }) || okComment(ft) && !elseAfterRightBraceThenpOnLeft) =>
             (left, removeToken)
-          case ReplacementType.Replace if left.ft.right.is[T.LeftParen] =>
-            left -> replaceTokenBy(")", t.parent)(x =>
-              new T.RightParen(x.input, x.dialect, x.start),
-            )
+          case ReplacementType.Replace => left.ft.right match {
+              case _: T.LeftParen => left -> replaceTokenBy(")", t.parent)(x =>
+                  new T.RightParen(x.input, x.dialect, x.start),
+                )
+              case _: T.Equals if okSemicolon(t) || okComment(ft) =>
+                (left, removeToken)
+              case _ => null
+            }
           case _ => null
         }
       case _ => (left, removeToken)
