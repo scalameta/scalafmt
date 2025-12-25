@@ -2492,3 +2492,46 @@ object a {
     true
   )
 }
+<<< secondary ctor, multiline
+class Foo(bar: Bar) {
+  def this(baz: Baz) = {
+    this({
+      val bar = baz.toBar
+      bar
+    })
+  }
+}
+>>>
+class Foo(bar: Bar) {
+  def this(baz: Baz) =
+    this({
+      val bar = baz.toBar
+      bar
+    })
+}
+<<< secondary ctor, oneline with comment
+class Foo(bar: Bar) {
+  def this(baz: Baz) = {
+    this(baz.toBar)
+    // qux
+  }
+}
+>>>
+class Foo(bar: Bar) {
+  def this(baz: Baz) =
+    this(baz.toBar)
+  // qux
+}
+<<< secondary ctor, oneline with comment, procedure-style
+class Foo(bar: Bar) {
+  def this(baz: Baz) {
+    this(baz.toBar)
+    // qux
+  }
+}
+>>>
+class Foo(bar: Bar) {
+  def this(baz: Baz) =
+    this(baz.toBar)
+  // qux
+}
