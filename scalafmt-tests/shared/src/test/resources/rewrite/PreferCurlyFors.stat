@@ -269,3 +269,15 @@ for {
   a <- as
   b <- bs if b > 2
 } yield (a, b)
+<<< single generator, ignore if-guard
+rewrite.preferCurlyFors.includeGuards = false
+===
+for (a <- as; if a > 2) yield a
+>>>
+for (a <- as if a > 2) yield a
+<<< single generator, include if-guard
+rewrite.preferCurlyFors.includeGuards = true
+===
+for (a <- as; if a > 2) yield a
+>>>
+for { a <- as if a > 2 } yield a

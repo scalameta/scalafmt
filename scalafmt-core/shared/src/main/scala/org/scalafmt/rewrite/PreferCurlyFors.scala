@@ -15,12 +15,21 @@ object PreferCurlyFors extends Rewrite with FormatTokensRewrite.RuleFactory {
   override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new PreferCurlyFors
 
-  @inline
-  private def hasMultipleNonGuardEnums(t: Term.EnumeratorsBlock): Boolean =
-    // first one is never a guard
-    t.enums.view.drop(1).exists(!_.is[Enumerator.Guard])
+  private def settings(implicit style: ScalafmtConfig): Settings =
+    style.rewrite.preferCurlyFors
 
-  case class Settings(removeTrailingSemicolonsOnly: Boolean = false)
+  @inline
+  private def hasMultipleNonGuardEnums(
+      t: Term.EnumeratorsBlock,
+  )(implicit style: ScalafmtConfig): Boolean =
+    if (settings.includeGuards) t.enums.lengthCompare(1) > 0
+    // first one is never a guard
+    else t.enums.view.drop(1).exists(!_.is[Enumerator.Guard])
+
+  case class Settings(
+      removeTrailingSemicolonsOnly: Boolean = false,
+      includeGuards: Boolean = false,
+  )
 
   object Settings {
     implicit lazy val surface: generic.Surface[Settings] = generic.deriveSurface
@@ -69,7 +78,7 @@ private class PreferCurlyFors(implicit val ftoks: FormatTokens)
           }) => replaceToken("{")(new T.LeftBrace(x.input, x.dialect, x.start))
 
       case _: T.Semicolon
-          if !style.rewrite.preferCurlyFors.removeTrailingSemicolonsOnly ||
+          if !settings.removeTrailingSemicolonsOnly ||
             hasBreakAfterRightBeforeNonComment(ft) =>
         ft.meta.rightOwner match {
           case t: Term.EnumeratorsBlock
