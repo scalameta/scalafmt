@@ -3682,10 +3682,16 @@ for(a <- as; b <- bs if b > 2)
 
 This rule accepts the following settings:
 
-- `rewrite.preferCurlyFors.removeTrailingSemicolonsOnly` (default: `false`):
-  - if `false` (default), replaces all semicolons with a newline
+- `rewrite.preferCurlyFors.removeTrailingSemicolonsOnly`:
+  - if `false`, replaces all semicolons with a newline
   - if `true`, keeps semicolons unless followed by a newline or single-line comment
     - see also [RemoveSemicolons](#removesemicolons)
+- `rewrite.preferCurlyFors.includeGuards`: controls whether if-guards are
+  also counted, in addition to generators, when detecting "multiple enumerators"
+
+```scala mdoc:defaults
+rewrite.preferCurlyFors
+```
 
 ### `Imports`
 
