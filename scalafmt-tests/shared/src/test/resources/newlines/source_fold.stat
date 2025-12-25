@@ -10939,6 +10939,7 @@ object ZStreamSpec extends DefaultRunnableSpec {
         ).runCollect
       )(equalTo(Chunk(List(2, 1, 1, 1, 1), List(2))))
     )),
+
     suite("bufferDropping")(
       testM("buffer the Stream with Error")(
         assertM((ZStream.range(1, 1000) ++ ZStream.fail(e) ++

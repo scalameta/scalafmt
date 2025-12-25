@@ -2347,6 +2347,8 @@ object SplitsAfterComma extends Splits {
       val templ = leftOwner.asInstanceOf[Template]
       typeTemplateSplits(templ, cfg.indent.commaSiteRelativeToExtends)
     } else {
+      val nlMod = Newline2x(ft)
+
       def forBinPack(binPack: BinPack.Site, callSite: Boolean) =
         if (binPack eq BinPack.Site.Never) None
         else optimizationEntities.argument.map { nextArg =>
@@ -2376,8 +2378,11 @@ object SplitsAfterComma extends Splits {
               else None
             }
 
+          val noSpace = nlMod.isDouble || cfg.newlines.keepBreak(hasBreak)
+          val noSjsExclude = (binPack ne BinPack.Site.OnelineSjs) ||
+            noSpace && (!oneline || nextCommaOrParen.isEmpty)
           val sjsExclude =
-            if (binPack ne BinPack.Site.OnelineSjs) TokenRanges.empty
+            if (noSjsExclude) TokenRanges.empty
             else insideBracesBlock(ft, lastFT)
           val onelinePolicy = Policy ? oneline &&
             nextCommaOrParen
@@ -2393,9 +2398,9 @@ object SplitsAfterComma extends Splits {
               }
             }
           val nlSplit =
-            Split(Newline, 1, policy = onelinePolicy & indentOncePolicy)
+            Split(nlMod, 1, policy = onelinePolicy & indentOncePolicy)
           val noSplit =
-            if (cfg.newlines.keepBreak(hasBreak)) Split.ignored
+            if (noSpace) Split.ignored
             else {
               val end = getSlbEndOnLeft(
                 nextCommaOrParen.flatMap(getEndOfResultType).getOrElse(lastFT),
@@ -2410,10 +2415,14 @@ object SplitsAfterComma extends Splits {
 
       def defaultSplits(indent: Length, allowKeepNL: Boolean = true)(implicit
           fileLine: FileLine,
-      ) = Seq(
-        Split(cfg.newlines.keepBreak(allowKeepNL && hasBreak), 0)(Space),
-        Split(Newline, 1, rank = 1).withIndent(indent, next(ft), ExpiresOn.After),
-      )
+      ) = {
+        val noSpace = nlMod.isDouble ||
+          cfg.newlines.keepBreak(allowKeepNL && hasBreak)
+        Seq(
+          Split(noSpace, 0)(Space),
+          Split(nlMod, 1, rank = 1).withIndent(indent, next(ft), ExpiresOn.After),
+        )
+      }
 
       def altSplits = leftOwner match {
         case _: Defn.Val | _: Defn.Var =>

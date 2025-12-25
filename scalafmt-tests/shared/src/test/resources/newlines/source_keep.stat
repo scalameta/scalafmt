@@ -11478,6 +11478,7 @@ object ZStreamSpec extends DefaultRunnableSpec {
             )(equalTo(Chunk(List(2, 1, 1, 1, 1), List(2))))
           )
         ),
+
         suite("bufferDropping")(
           testM("buffer the Stream with Error")(
             assertM(
