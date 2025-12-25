@@ -7353,8 +7353,7 @@ object a:
 >>>
 object a:
    if (args.isEmpty) {
-     run(
-       insertClasspathInArgs(
+     run(insertClasspathInArgs(
          args1,
          List(dottyCompiler, dottyInterfaces, asm, dottyStaging,
            dottyTastyInspector, tastyCore,

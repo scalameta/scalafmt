@@ -1501,15 +1501,12 @@ Seq(
 )
 >>>
 Seq(
-    List(
-        genStaticConstructorWithStats(
-            jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
-    List(
-        genStaticConstructorWithStats(jswkn.StaticInitializerName,
-            js.Block(staticInitializerStats))),
-    List(
-        genStaticConstructorWithStats(
-            jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+    List(genStaticConstructorWithStats(
+        jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
+    List(genStaticConstructorWithStats(jswkn.StaticInitializerName,
+        js.Block(staticInitializerStats))),
+    List(genStaticConstructorWithStats(
+        jswkn.StaticInitializerName, js.Block(staticInitializerStats))),
     List(
         genStaticConstructorWithStats(
             jswkn.StaticInitializerName, js.Block(staticInitializerStats)))

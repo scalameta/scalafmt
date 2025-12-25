@@ -8795,8 +8795,7 @@ object a {
       )
     ).getOrElse(
       Option.when(
-        memberTypeParams.nonEmpty)(
-        Seq(
+        memberTypeParams.nonEmpty)(Seq(
           h2(cls := "h200")(
             "Type parameters"),
           dl(cls := "attributes attributes-small")(
