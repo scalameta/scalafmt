@@ -788,11 +788,10 @@ val memberSel: Elems =
       ))
     )
   ))
->>> { stateVisits = 1905, stateVisits2 = 1414 }
+>>> { stateVisits = 2423, stateVisits2 = 1904 }
 val memberSel: Elems =
   if (valueMembers.forall(_.kind == "package")) NoElems
-  else List(
-      Div(
+  else List(Div(
           id = "mbrsel",
           elems =
             Div(`class` = "toggle") ::
@@ -841,9 +840,8 @@ val memberSel: Elems =
                                         NoElems
                                       else
                                         Li(`class` = "inherit out",
-                                            elems = Span(
-                                                elems = Txt(
-                                                    "By Inheritance"))) :: NoElems
+                                            elems = Span(elems = Txt(
+                                                "By Inheritance"))) :: NoElems
                                     })
                             )
                     ) ++ (
@@ -866,9 +864,8 @@ val memberSel: Elems =
                                                wte =>
                                                  Li(`class` = "in",
                                                      name = wte.qualifiedName,
-                                                     elems = Span(
-                                                         elems = Txt(
-                                                             wte.name))))
+                                                     elems = Span(elems = Txt(
+                                                         wte.name))))
                                          }
                                      )
                              ) :: NoElems) ++
@@ -892,9 +889,8 @@ val memberSel: Elems =
                                                Li(`class` = "in", name = name,
                                                    `data-hidden` =
                                                      hide.toString,
-                                                   elems = Span(
-                                                       elems = Txt(
-                                                           "by " + conv.conversionShortName)))
+                                                   elems = Span(elems = Txt(
+                                                       "by " + conv.conversionShortName)))
                                              }
                                            }
                                        )
@@ -906,13 +902,11 @@ val memberSel: Elems =
                                         Ol(
                                             elems =
                                               Li(`class` = "hideall out",
-                                                  elems = Span(
-                                                      elems = Txt(
-                                                          "Hide All"))) ::
+                                                  elems = Span(elems = Txt(
+                                                      "Hide All"))) ::
                                                 Li(`class` = "showall in",
-                                                    elems = Span(
-                                                        elems = Txt(
-                                                            "Show All")))
+                                                    elems = Span(elems = Txt(
+                                                        "Show All")))
                                         )
                                 ))
                         }) ++ List(
@@ -921,19 +915,17 @@ val memberSel: Elems =
                             elems =
                               Span(`class` = "filtertype",
                                   elems = Txt("Visibility")) ::
-                                Ol(
-                                    elems =
-                                      List(
-                                          Li(`class` = "public in",
-                                              elems = Span(
-                                                  elems = Txt("Public"))),
-                                          Li(`class` = "protected out",
-                                              elems = Span(
-                                                  elems = Txt("Protected")))
-                                      ) ++ List(Li(`class` = "private out",
-                                              elems = Span(
-                                                  elems = Txt(
-                                                      "Private")))).filter(_ =>
+                                Ol(elems =
+                                  List(
+                                      Li(`class` = "public in",
+                                          elems = Span(elems = Txt("Public"))),
+                                      Li(`class` = "protected out",
+                                          elems = Span(
+                                              elems = Txt("Protected")))
+                                  ) ++ List(Li(`class` = "private out",
+                                          elems = Span(
+                                              elems = Txt("Private")))).filter(
+                                      _ =>
                                         universe.settings.visibilityPrivate.value))
                         ))
               )

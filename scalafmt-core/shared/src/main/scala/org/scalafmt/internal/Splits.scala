@@ -1586,7 +1586,7 @@ object SplitsAfterLeftParenOrBracket {
         }
         val optLite = cfg.newlines.keep && preferConfigStyle && !isSingleArg
         val kof = cfg.newlines.keep && preferConfigStyle && isSingleArg &&
-          !dangleCloseDelim && singleArgAsInfix.isEmpty
+          !dangleCloseDelim && singleArgAsInfix.isEmpty && !flags.scalaJsStyle
         baseNoSplit
           .withOptimalToken(opt, recurseOnly = optLite, killOnFail = kof)
           .withPolicy(noSplitPolicy & indentPolicy & noNLPolicy())
