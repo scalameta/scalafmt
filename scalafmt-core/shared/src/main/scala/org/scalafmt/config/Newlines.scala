@@ -611,6 +611,7 @@ object Newlines {
       maxNest: Int = Int.MaxValue,
       minBlankGaps: Int = 0,
       maxBlankGaps: Int = Int.MaxValue,
+      allowNonTop: Boolean = false,
   ) {
     private lazy val matcher = TreePattern(regex, parents).getMatcher
     def checkParams(v: TopStatBlanksParams, tree: Tree): Boolean =
