@@ -3579,3 +3579,81 @@ object a
  *   - foo ({{{bar}}})
  */
 object a
+<<< extended numbered list: a-z
+maxColumn = 15
+docstrings.wrap = yes
+===
+/**
+ * foo
+ * a. bar baz c. qux
+ *
+ * foo bar baz d. qux
+*/
+object a
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,9 +1,9 @@
+ /**
+  * foo
+  *   a. bar baz
+  *      c. qux
+  *
+  * foo bar baz
+- * d. qux
++ *   d. qux
+  */
+ object a
+<<< extended numbered list: 1-99
+maxColumn = 15
+docstrings.wrap = yes
+===
+/**
+ * foo
+ * 12. bar baz 13. qux
+ *
+ * foo bar baz 33. qux 
+*/
+object a
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,11 +1,11 @@
+ /**
+  * foo
+  *   12. bar
+  *       baz
+  *       13.
+  *       qux
+  *
+  * foo bar baz
+- * 33. qux
++ *   33. qux
+  */
+ object a
+<<< extended numbered list: i-x
+maxColumn = 15
+docstrings.wrap = yes
+===
+/**
+ * foo
+ * iv. bar baz v. qux
+ *
+ * foo bar baz ix. qux
+*/
+object a
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,10 +1,10 @@
+ /**
+  * foo
+  *   iv. bar
+  *       baz v.
+  *       qux
+  *
+  * foo bar baz
+- * ix. qux
++ *   ix. qux
+  */
+ object a
