@@ -129,7 +129,7 @@ case class ScalafmtConfig(
 ) {
   import ScalafmtConfig._
 
-  private[scalafmt] lazy val alignMap: Map[String, Seq[AlignToken.Matcher]] =
+  private[scalafmt] lazy val alignMap: Map[String, Seq[TreePattern.Matcher]] =
     align.tokens.map(x => x.code -> x).toMap.map { case (k, v) =>
       k -> v.getMatcher
     }
