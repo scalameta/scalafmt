@@ -688,3 +688,38 @@ def a = {
 
   }
 }
+<<< case match, with alignment
+align.preset = most
+newlines.topLevelStatementBlankLines = [ {
+    blanks = 1
+    allowNonTop = true
+    regex = "Case"
+  }
+]
+===
+def a = {
+  foo match {
+    case pat1 => body1
+    case pat22 => body2
+    case pat333 =>
+     body31
+     body32
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,11 +1,11 @@
+ def a = {
+   foo match {
+-    case pat1   => body1
+-    case pat22  => body2
++    case pat1  => body1
++    case pat22 => body2
+ ∙
+     case pat333 =>
+       body31
+       body32
+ ∙
+   }
+ }
