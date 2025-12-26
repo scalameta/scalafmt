@@ -707,19 +707,14 @@ def a = {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,11 +1,11 @@
- def a = {
-   foo match {
--    case pat1   => body1
--    case pat22  => body2
-+    case pat1  => body1
-+    case pat22 => body2
- ∙
-     case pat333 =>
-       body31
-       body32
- ∙
-   }
- }
+def a = {
+  foo match {
+    case pat1  => body1
+    case pat22 => body2
+
+    case pat333 =>
+      body31
+      body32
+
+  }
+}
