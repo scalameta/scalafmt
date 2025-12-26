@@ -6486,22 +6486,34 @@ scaladoc parser doesn't have proper support of embedded HTML.</p>
 <p>Since v2.6.0. Ignored for <code>docstrings.style = keep</code>.</p>
 </blockquote>
 <p>Default: <code>docstrings.wrap = &quot;unfold&quot;</code></p>
-<pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/** @param d the Double to square, meaning multiply by itself
-  * @return the result of squaring d
+<pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/** @param d
+  *   the Double to square,
+  *   meaning multiply by
+  *   itself
+  * @return
+  *   the result of squaring d
   *
   * Thus
-  * - if [[d]] represents a negative value:
-  *  a. the result will be positive
-  *  a. the value will be {{{d * d}}}
-  *  a. it will be the same as for `-d`
-  * - however, if [[d]] is positive
-  *  - the value will still be {{{d * d}}}
-  *    - i.e., the same as {{{(-d) * (-d)}}}
+  *   - if [[d]] represents a
+  *     negative value:
+  *     a. the result will be
+  *        positive
+  *     a. the value will be
+  *        {{{d * d}}}
+  *     a. it will be the same
+  *        as for `-d`
+  *   - however, if [[d]] is
+  *     positive
+  *     - the value will still
+  *       be {{{d * d}}}
+  *       - i.e., the same as
+  *         {{{(-d) * (-d)}}}
   *
   * In other words:
   * {{{
   *    res = d * d
-  *        = (-d) * (-d) }}}
+  *        = (-d) * (-d)
+  * }}}
   */</span>
 <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">pow2</span></span>(d: <span class="hljs-type">Double</span>): <span class="hljs-type">Double</span>
 </code></pre>
