@@ -1679,6 +1679,9 @@ whether the rule should apply):
   - a regular expression to match the type of the statement
   - if unspecified, will match all valid statements
   - see [align.tokens](#aligntokens) for instructions on how to find the type
+- `parents` (since v3.10.4):
+  - a list of regular expressions to match the parent of the statement
+  - if unspecified or empty, matches any
 - `maxNest` and (since v3.1.2) `minNest`
   - basically, limits indentation level (not actual indentation) of a statement
   - unindented statements (under source-level unindented package) have
