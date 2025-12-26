@@ -584,3 +584,101 @@ def a = {
       body32
   }
 }
+<<< case match, top-level, no blank gaps, !allowNonTop
+newlines.topLevelStatementBlankLines = [ {
+    blanks = 1
+    regex = "Case"
+  }
+]
+===
+object a {
+  foo match {
+    case pat1 => body1
+    case pat2 =>
+     body21
+     body22
+    case pat3 =>
+      body31
+
+      body32
+  }
+}
+>>>
+object a {
+  foo match {
+    case pat1 => body1
+    case pat2 =>
+      body21
+      body22
+    case pat3 =>
+      body31
+
+      body32
+  }
+}
+<<< case match, top-level, no blank gaps, allowNonTop
+newlines.topLevelStatementBlankLines = [ {
+    blanks = 1
+    allowNonTop = true
+    regex = "Case"
+  }
+]
+===
+object a {
+  foo match {
+    case pat1 => body1
+    case pat2 =>
+     body21
+     body22
+    case pat3 =>
+      body31
+
+      body32
+  }
+}
+>>>
+object a {
+  foo match {
+    case pat1 => body1
+    case pat2 =>
+      body21
+      body22
+    case pat3 =>
+      body31
+
+      body32
+  }
+}
+<<< case match, within def, no blank gaps, allowNonTop
+newlines.topLevelStatementBlankLines = [ {
+    blanks = 1
+    allowNonTop = true
+    regex = "Case"
+  }
+]
+===
+def a = {
+  foo match {
+    case pat1 => body1
+    case pat2 =>
+     body21
+     body22
+    case pat3 =>
+      body31
+
+      body32
+  }
+}
+>>>
+def a = {
+  foo match {
+    case pat1 => body1
+    case pat2 =>
+      body21
+      body22
+    case pat3 =>
+      body31
+
+      body32
+  }
+}

@@ -1659,8 +1659,12 @@ are prohibited and will result in an error.
 > Since v3.0.0.
 
 This parameter controls when to add blank lines before and/or after a top-level
-statement (a member of a package or template; nesting is allowed but not within
-a block). Special cases:
+statement, defined as:
+
+- a member of a package or template (or extension group within a template)
+- nesting is allowed if parent is also a top-level statement
+
+Special cases:
 
 - the rules do _not_ directly apply to package statements at the top of the source file; however,
   if this parameter is non-empty, there will be at least one blank line before the first
@@ -1668,6 +1672,7 @@ a block). Special cases:
 - end markers are handled through a setting for the statement they mark
 - imports and exports are processed as a group of consecutive statements
 - also see [Newlines around package or template body](#newlines-around-package-or-template-body)
+- if `allowNonTop` is enabled, this rule will also apply to some other statements
 
 > This parameter might reduce the number of blank lines but will not eliminate
 > them completely unless corresponding value is negative.
@@ -1697,6 +1702,10 @@ whether the rule should apply):
     lines in each gap) that would have been [output](#advanced-formatting-process)
     prior to this rule.
   - if a limit is unspecified, will not constrain on the corresponding end
+- (since v3.10.4) `allowNonTop` (default: false)
+  - allows applying this particular entry to:
+    - a top-level statement that has a non-top-level parent
+    - any matching statement if `regex` or `parents` are specified
 - `blanks`
   - if omitted while the entry matches, serves to exclude another entry
   - `before`: number of lines to be added before a matching statement; if
