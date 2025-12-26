@@ -1210,7 +1210,8 @@ class FormatWriter(formatOps: FormatOps) {
           def processLineEnd(
               wasSlc: Boolean,
           )(implicit floc: FormatLocation): Unit = {
-            val isBlankLine = floc.state.mod.isBlankLine
+            val isBlankLine = floc.state.mod.isBlankLine ||
+              extraBlankTokens.contains(floc.formatToken.idx)
             if (alignContainer ne null) {
               val candidates = columnCandidates.result()
               val block = getOrCreateBlock(alignContainer)
