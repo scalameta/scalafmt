@@ -978,8 +978,18 @@ class FormatWriter(formatOps: FormatOps) {
               word.charAt(0) == '@' && State.nonSpace(word.charAt(1)) || // tag
               word.startsWith("=") || // heading
               word.startsWith("|") || word.startsWith("+-") || // table
-              word == "-" || // list, this and next
-              word.length == 2 && word(1) == '.' && "1aiI".contains(word(0))
+              word == "-" || { // list, this and next
+                val idx = word.length - 1
+                idx > 0 && word(idx) == '.' && {
+                  def chars() = word.iterator.take(idx) // each time new iter
+                  idx == 1 && Character.isLowerCase(word(0)) || // allows `{a-z}.`
+                  idx <= 2 && chars().forall(Character.isDigit) || // allows `{1-99}.`
+                  idx <= 3 && chars().forall { ch => // allows `{i-x}.` using roman numerals
+                    val lch = Character.toLowerCase(ch)
+                    lch == 'i' || lch == 'v' || lch == 'x'
+                  }
+                }
+              }
 
           val wf = new WordFormatter(appendBreak, termIndent, likeNonText)
           val wordIter = text.parts.iterator.buffered
