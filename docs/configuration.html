@@ -2195,6 +2195,11 @@ whether the rule should apply):</p>
 <li>if unspecified, will match all valid statements</li>
 <li>see <a href="#aligntokens">align.tokens</a> for instructions on how to find the type</li>
 </ul></li>
+<li><code>parents</code> (since v3.10.4):
+<ul>
+<li>a list of regular expressions to match the parent of the statement</li>
+<li>if unspecified or empty, matches any</li>
+</ul></li>
 <li><code>maxNest</code> and (since v3.1.2) <code>minNest</code>
 <ul>
 <li>basically, limits indentation level (not actual indentation) of a statement</li>
