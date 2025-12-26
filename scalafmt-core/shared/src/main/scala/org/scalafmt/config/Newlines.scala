@@ -292,10 +292,11 @@ case class Newlines(
         if (topLevelStatements.contains(after)) 1 else 0,
       )
       if (nb.isEmpty) Seq.empty
-      else {
-        val pattern = Some("^Pkg|^Defn\\.|^Decl\\.")
-        Seq(TopStatBlanks(pattern, topLevelStatementsMinBreaks, Some(nb)))
-      }
+      else Seq(TopStatBlanks(
+        regex = Some("^Pkg|^Defn\\.|^Decl\\."),
+        minBreaks = topLevelStatementsMinBreaks,
+        blanks = Some(nb),
+      ))
     } else
       /* minBreaks has to come first; since we'll be adding blanks, this could
        * potentially move us into another setting which didn't match before we
@@ -307,13 +308,11 @@ case class Newlines(
   @inline
   def hasTopStatBlankLines = topStatBlankLinesSorted.nonEmpty
 
-  def getTopStatBlankLines(
-      tree: Tree,
-  )(params: TopStatBlanksParams): Option[NumBlanks] = {
-    val prefix = tree.productPrefix
-    topStatBlankLinesSorted.iterator.takeWhile(_.minBreaks <= params.numBreaks)
-      .find(x => x.checkParams(params, prefix)).flatMap(_.blanks)
-  }
+  def getTopStatBlankLines(tree: Tree)(
+      params: TopStatBlanksParams,
+  ): Option[NumBlanks] = topStatBlankLinesSorted.iterator
+    .takeWhile(_.minBreaks <= params.numBreaks)
+    .find(x => x.checkParams(params, tree)).flatMap(_.blanks)
 
   private def getBeforeOpenParen(bop: BeforeOpenParen): SourceHints =
     Option(bop.src).getOrElse(source)
@@ -605,6 +604,7 @@ object Newlines {
     */
   case class TopStatBlanks(
       regex: Option[String] = None,
+      parents: Seq[String] = Nil,
       minBreaks: Int = 1,
       blanks: Option[NumBlanks] = None,
       minNest: Int = 0,
@@ -612,11 +612,11 @@ object Newlines {
       minBlankGaps: Int = 0,
       maxBlankGaps: Int = Int.MaxValue,
   ) {
-    lazy val pattern = regex.map(_.r.pattern)
-    def checkParams(v: TopStatBlanksParams, prefix: String): Boolean =
+    private lazy val matcher = TreePattern(regex, parents).getMatcher
+    def checkParams(v: TopStatBlanksParams, tree: Tree): Boolean =
       checkRange(v.nest, minNest, maxNest) &&
         checkRange(v.blankGaps, minBlankGaps, maxBlankGaps) &&
-        pattern.forall(_.matcher(prefix).find())
+        matcher.matches(tree)
   }
   object TopStatBlanks {
     implicit val surface: generic.Surface[TopStatBlanks] = generic
