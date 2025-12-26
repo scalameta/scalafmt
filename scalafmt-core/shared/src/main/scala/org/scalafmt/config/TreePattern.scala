@@ -39,6 +39,7 @@ object TreePattern {
             case _ => false
           }),
       ))
+    def isEmpty: Boolean = owner.isEmpty && parents.isEmpty
   }
 
   @inline

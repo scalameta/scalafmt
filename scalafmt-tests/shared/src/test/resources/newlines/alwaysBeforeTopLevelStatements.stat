@@ -640,13 +640,16 @@ object a {
 object a {
   foo match {
     case pat1 => body1
+
     case pat2 =>
       body21
       body22
+
     case pat3 =>
       body31
 
       body32
+
   }
 }
 <<< case match, within def, no blank gaps, allowNonTop
@@ -673,12 +676,15 @@ def a = {
 def a = {
   foo match {
     case pat1 => body1
+
     case pat2 =>
       body21
       body22
+
     case pat3 =>
       body31
 
       body32
+
   }
 }
