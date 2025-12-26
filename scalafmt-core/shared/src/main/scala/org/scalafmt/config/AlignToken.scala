@@ -1,9 +1,5 @@
 package org.scalafmt.config
 
-import org.scalafmt.util.ParamClauseParent
-
-import java.util.regex.{Pattern => jurPattern}
-
 import metaconfig._
 
 /** Configuration option for aligning tokens.
@@ -14,8 +10,8 @@ import metaconfig._
   *   array of owner specs.
   */
 
-case class AlignToken(code: String, owners: Seq[AlignToken.Owner] = Seq.empty) {
-  def getMatcher: Seq[AlignToken.Matcher] = owners.distinct.map(_.getMatcher)
+case class AlignToken(code: String, owners: Seq[TreePattern] = Seq.empty) {
+  def getMatcher: Seq[TreePattern.Matcher] = owners.distinct.map(_.getMatcher)
 }
 
 object AlignToken {
@@ -23,28 +19,10 @@ object AlignToken {
   def apply(code: String, owner: String): AlignToken = {
     val owners = Option(owner) match {
       case None => Seq.empty
-      case x => Seq(AlignToken.Owner(x))
+      case x => Seq(TreePattern(x))
     }
     AlignToken(code, owners)
   }
-
-  private def pattern(value: String): jurPattern = value.r.pattern
-
-  /** @param regex
-    *   regexp for class name of scala.meta.Tree "owner".
-    * @param parents
-    *   optional regexp for class name of owner's parent.
-    */
-  case class Owner(
-      regex: Option[String] = None,
-      parents: Seq[String] = Seq.empty,
-  ) {
-    def getMatcher: Matcher =
-      new Matcher(regex.map(pattern), parents.map(pattern))
-  }
-  implicit val ownerSurface: generic.Surface[Owner] = generic
-    .deriveSurface[Owner]
-  implicit val ownerCodec: ConfCodecEx[Owner] = generic.deriveCodecEx(Owner())
 
   implicit lazy val surface: generic.Surface[AlignToken] = generic
     .deriveSurface[AlignToken]
@@ -84,22 +62,5 @@ object AlignToken {
     AlignToken(":=", applyInfix),
     AlignToken("=", "(Enumerator.Val|Defn.(Va(l|r)|GivenAlias|Def|Type))"),
   )
-
-  class Matcher(val owner: Option[jurPattern], val parents: Seq[jurPattern]) {
-    def matches(tree: meta.Tree): Boolean = owner.forall(check(tree)) &&
-      (parents.isEmpty || tree.parent.exists(p =>
-        parents.forall(check(p)) ||
-          (p match {
-            case ParamClauseParent(pp) => parents.forall(check(pp))
-            case _: meta.Member.SyntaxValuesClause => p.parent
-                .exists(pp => parents.forall(check(pp)))
-            case _ => false
-          }),
-      ))
-  }
-
-  @inline
-  private def check(tree: meta.Tree)(pattern: jurPattern): Boolean = pattern
-    .matcher(tree.productPrefix).find()
 
 }
