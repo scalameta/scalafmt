@@ -307,6 +307,9 @@ case class Newlines(
 
   @inline
   def hasTopStatBlankLines = topStatBlankLinesSorted.nonEmpty
+  @inline
+  def allowNonTopStatBlankLines = topLevelStatementBlankLines
+    .exists(_.allowNonTop)
 
   def getTopStatBlankLines(tree: Tree)(
       params: TopStatBlanksParams,
@@ -616,6 +619,7 @@ object Newlines {
     private lazy val matcher = TreePattern(regex, parents).getMatcher
     def checkParams(v: TopStatBlanksParams, tree: Tree): Boolean =
       checkRange(v.nest, minNest, maxNest) &&
+        (v.isTop || allowNonTop && !matcher.isEmpty) &&
         checkRange(v.blankGaps, minBlankGaps, maxBlankGaps) &&
         matcher.matches(tree)
   }
@@ -629,6 +633,7 @@ object Newlines {
       numBreaks: Int,
       nest: Int,
       blankGaps: Int,
+      isTop: Boolean,
   )
   private def checkRange(v: Int, min: Int, max: Int) = min <= v && v <= max
 

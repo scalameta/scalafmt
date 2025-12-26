@@ -60,7 +60,7 @@ class FormatWriter(formatOps: FormatOps) {
           val label = getEndMarkerLabel(owner)
           if (label != null) {
             val (nest, isTop) = locations.getNest(owner.parent)
-            val numBlanks = locations.getBlanks(owner, owner, nest)
+            val numBlanks = locations.getBlanks(owner, owner, nest, isTop)
               .fold(0) { case (blanks, _, last) =>
                 val numBlanks = blanks.beforeEndMarker
                 if (numBlanks > 0) numBlanks
@@ -1448,6 +1448,7 @@ class FormatWriter(formatOps: FormatOps) {
 
     lazy val extraBlankTokens = {
       val extraBlankMap = new mutable.HashMap[Int, Int]
+      val allowNonTop = initStyle.newlines.allowNonTopStatBlankLines
       def setIdx(idx: Int, cnt: Int) = extraBlankMap.updateWith(idx) {
         case Some(v) if v > cnt => Some(v)
         case _ => Some(cnt)
@@ -1485,7 +1486,7 @@ class FormatWriter(formatOps: FormatOps) {
             statLast: Tree,
             isLast: Boolean,
         ): Option[(Int, Newlines.NumBlanks)] = {
-          val blanksWithEnds = getBlanks(stat, statLast, nest)
+          val blanksWithEnds = getBlanks(stat, statLast, nest, isTop)
           blanksWithEnds.map { case (x, head, last) =>
             val beforeCnt = blanksBefore(x, notUnindentedPkg && idx == 0)
             val beforeFt = leadingComment(head)
@@ -1592,6 +1593,7 @@ class FormatWriter(formatOps: FormatOps) {
               })
               afterBody(t, stats)
             }
+          case _: Template.Body => // it was processed above
           case t: Defn.ExtensionGroup => applySeqWith(t)(t.body match {
               case b: Term.Block => b.stats
               case b => List(b)
@@ -1612,7 +1614,9 @@ class FormatWriter(formatOps: FormatOps) {
               }
               if (ok) beforeBody(stats)(_.hasTopStatBlankLines)
             }
-          case _ => // everything else is not "top-level"
+          case _ if !allowNonTop => // everything else is not "top-level"
+          case t: Tree.Block => applySeq(t)(t.stats)
+          case _ => super.apply(tree)
         }
       }
 
@@ -1642,6 +1646,7 @@ class FormatWriter(formatOps: FormatOps) {
         statHead: Tree,
         statLast: Tree,
         nest: Int,
+        isTop: Boolean,
     ): Option[(Newlines.NumBlanks, FT, FT)] = {
       val head = tokenJustBefore(statHead)
       val last = getLast(statLast)
@@ -1651,6 +1656,7 @@ class FormatWriter(formatOps: FormatOps) {
         numBreaks = getLineDiff(bLoc, eLoc),
         nest = nest,
         blankGaps = getBlankGapsDiff(bLoc, eLoc),
+        isTop = isTop,
       )
       bLoc.style.newlines.getTopStatBlankLines(statHead)(params)
         .map((_, head, last))
