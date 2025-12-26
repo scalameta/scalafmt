@@ -59,8 +59,8 @@ class FormatWriter(formatOps: FormatOps) {
         .foreach { case (indent, owner) =>
           val label = getEndMarkerLabel(owner)
           if (label != null) {
-            val numBlanks = locations
-              .getBlanks(owner, owner, locations.getNest(owner))
+            val (nest, isTop) = locations.getNest(owner.parent)
+            val numBlanks = locations.getBlanks(owner, owner, nest)
               .fold(0) { case (blanks, _, last) =>
                 val numBlanks = blanks.beforeEndMarker
                 if (numBlanks > 0) numBlanks
@@ -1463,7 +1463,7 @@ class FormatWriter(formatOps: FormatOps) {
       def setTopStats(owner: Tree, notUnindentedPkg: Boolean)(
           stats: Seq[Tree],
       ): Unit = {
-        val nest = getNest(stats.head)
+        val (nest, isTop) = getNest(Some(owner))
         if (nest < 0) return
         val end = owner.pos.end
         def setStat(
@@ -1484,8 +1484,9 @@ class FormatWriter(formatOps: FormatOps) {
             stat: Tree,
             statLast: Tree,
             isLast: Boolean,
-        ): Option[(Int, Newlines.NumBlanks)] = getBlanks(stat, statLast, nest)
-          .map { case (x, head, last) =>
+        ): Option[(Int, Newlines.NumBlanks)] = {
+          val blanksWithEnds = getBlanks(stat, statLast, nest)
+          blanksWithEnds.map { case (x, head, last) =>
             val beforeCnt = blanksBefore(x, notUnindentedPkg && idx == 0)
             val beforeFt = leadingComment(head)
             setFtCheck(beforeFt, beforeCnt, head eq beforeFt)
@@ -1495,6 +1496,7 @@ class FormatWriter(formatOps: FormatOps) {
             setIdxCheck(lastIdx, afterCnt, last eq afterFt)
             (lastIdx, x)
           }
+        }
         def setEndMarker(
             stat: Term.EndMarker,
             prevIdx: Int,
@@ -1535,12 +1537,12 @@ class FormatWriter(formatOps: FormatOps) {
               }
               if (!isLast) Some((idxHead, head, t))
               else {
-                setStats(idxHead, head, t, true)
+                setStats(idxHead, head, t, isLast = true)
                 None
               }
             case _ =>
               imports.foreach { case (idxHead, head, last) =>
-                setStats(idxHead, head, last, false)
+                setStats(idxHead, head, last, isLast = false)
               }
               None
           }
@@ -1581,7 +1583,8 @@ class FormatWriter(formatOps: FormatOps) {
         }
         override def apply(tree: Tree): Unit = tree match {
           case t: Source => applySeq(t)(t.stats)
-          case t: Template => applySeqWith(t)(t.body.stats) { stats =>
+          case t: Stat.WithTemplate => apply(t.templ)
+          case t: Template => applySeqWith(t.body)(t.body.stats) { stats =>
               beforeBody(stats)(_.beforeTemplateBodyIfBreakInParentCtors && {
                 val beg = leadingComment(t).meta.idx
                 val end = templateCurlyOrLastNonTrivial(t).meta.idx
@@ -1596,20 +1599,19 @@ class FormatWriter(formatOps: FormatOps) {
               beforeBody(stats)(_ => false)
               afterBody(t, stats)
             }
-          case t: Pkg =>
-            if (indentedPackage(t)) applySeqWith(t)(t.body.stats) { stats =>
+          case t: Pkg => apply(t.body)
+          case t: Pkg.Body =>
+            if (indentedPackage(t)) applySeqWith(t)(t.stats) { stats =>
               beforeBody(stats)(_ => false)
               afterBody(t, stats)
             }
-            else
-              applySeqWith(t, notUnindentedPkg = false)(t.body.stats) { stats =>
-                val ok = stats.head match {
-                  case t: Pkg => indentedPackage(t)
-                  case _ => true
-                }
-                if (ok) beforeBody(stats)(_.hasTopStatBlankLines)
+            else applySeqWith(t, notUnindentedPkg = false)(t.stats) { stats =>
+              val ok = stats.head match {
+                case t: Pkg => indentedPackage(t)
+                case _ => true
               }
-          case t: Stat.WithTemplate => apply(t.templ)
+              if (ok) beforeBody(stats)(_.hasTopStatBlankLines)
+            }
           case _ => // everything else is not "top-level"
         }
       }
@@ -1619,12 +1621,21 @@ class FormatWriter(formatOps: FormatOps) {
     }
 
     @tailrec
-    final def getNest(tree: Tree, curNest: Int = 0): Int = tree.parent match {
-      case Some(_: Source) | None => curNest
-      case Some(t: Pkg.Body) =>
-        if (indentedPackage(t)) getNest(t, curNest) else curNest
-      case Some(t @ (_: Template | _: Template.Body)) => getNest(t, curNest)
-      case Some(t) => getNest(t, curNest + 1)
+    final def getNest(
+        parent: Option[Tree],
+        curNest: Int = 0,
+        isTop: Boolean = true,
+    ): (Int, Boolean) = parent match {
+      case Some(_: Source) | None => (curNest, isTop)
+      case Some(t: Tree.Block) => getNest(t.parent, curNest, isTop)
+      case Some(t: Pkg) =>
+        if (!indentedPackage(t)) (curNest, isTop)
+        else getNest(t.parent, curNest + 1, isTop)
+      case Some(t: Template) => // skip Stat.WithTemplate
+        getNest(t.parent.parent, curNest + 1, isTop)
+      case Some(t @ (_: Defn.ExtensionGroup)) =>
+        getNest(t.parent, curNest + 1, isTop)
+      case Some(t) => getNest(t.parent, curNest + 1, isTop = false)
     }
 
     def getBlanks(
