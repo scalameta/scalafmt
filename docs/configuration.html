@@ -2172,8 +2172,12 @@ are prohibited and will result in an error.</p>
 <p>Since v3.0.0.</p>
 </blockquote>
 <p>This parameter controls when to add blank lines before and/or after a top-level
-statement (a member of a package or template; nesting is allowed but not within
-a block). Special cases:</p>
+statement, defined as:</p>
+<ul>
+<li>a member of a package or template (or extension group within a template)</li>
+<li>nesting is allowed if parent is also a top-level statement</li>
+</ul>
+<p>Special cases:</p>
 <ul>
 <li>the rules do <em>not</em> directly apply to package statements at the top of the source file; however,
 if this parameter is non-empty, there will be at least one blank line before the first
@@ -2181,6 +2185,7 @@ non-package statement, and possibly more if the rules match that statement</li>
 <li>end markers are handled through a setting for the statement they mark</li>
 <li>imports and exports are processed as a group of consecutive statements</li>
 <li>also see <a href="#newlines-around-package-or-template-body">Newlines around package or template body</a></li>
+<li>if <code>allowNonTop</code> is enabled, this rule will also apply to some other statements</li>
 </ul>
 <blockquote>
 <p>This parameter might reduce the number of blank lines but will not eliminate
@@ -2220,6 +2225,14 @@ require at least one line break (that is, a multi-line statement).</li>
 lines in each gap) that would have been <a href="#advanced-formatting-process">output</a>
 prior to this rule.</li>
 <li>if a limit is unspecified, will not constrain on the corresponding end</li>
+</ul></li>
+<li>(since v3.10.4) <code>allowNonTop</code> (default: false)
+<ul>
+<li>allows applying this particular entry to:
+<ul>
+<li>a top-level statement that has a non-top-level parent</li>
+<li>any matching statement if <code>regex</code> or <code>parents</code> are specified</li>
+</ul></li>
 </ul></li>
 <li><code>blanks</code>
 <ul>
