@@ -13072,3 +13072,314 @@ import packagename1.{
   AVeryLongClass3,
   AVeryLongClass4
 }
+<<< mixed nested infixes, with breakOnNested 1
+maxColumn = 49
+newlines.infix.termSite {
+  style = some
+  breakOnNested = true
+}
+===
+object a {
+  if (foo > bar && bar.baz && baz > qux && qux > xyz) {}
+  a = foo > bar && bar.baz && baz > qux && qux > xyz
+  b = (foo > bar && bar.baz && baz > qux && qux > xyz)
+  c = {foo > bar && bar.baz && baz > qux && qux > xyz}
+}
+>>>
+object a {
+  if (
+    foo > bar && bar.baz && baz > qux &&
+    qux > xyz
+  ) {}
+  a = foo > bar && bar.baz && baz > qux &&
+    qux > xyz
+  b =
+    (foo > bar &&
+      bar.baz && baz > qux && qux > xyz)
+  c = {
+    foo > bar && bar.baz && baz > qux &&
+    qux > xyz
+  }
+}
+<<< mixed nested infixes, with breakOnNested 2
+maxColumn = 49
+newlines.infix.termSite {
+  style = some
+  breakOnNested = true
+}
+===
+object a {
+  if ((foo > bar) && bar.baz && baz > qux && qux > xyz) {}
+  a = (foo > bar) && bar.baz && baz > qux && qux > xyz
+  b = ((foo > bar) && bar.baz && baz > qux && qux > xyz)
+  c = {(foo > bar) && bar.baz && baz > qux && qux > xyz}
+}
+>>>
+object a {
+  if (
+    (foo > bar) &&
+    bar.baz && baz > qux && qux > xyz
+  ) {}
+  a =
+    (foo > bar) &&
+      bar.baz &&
+      baz > qux && qux > xyz
+  b =
+    ((foo > bar) &&
+      bar.baz &&
+      baz > qux && qux > xyz)
+  c = {
+    (foo > bar) &&
+    bar.baz && baz > qux && qux > xyz
+  }
+}
+<<< mixed nested infixes, with breakOnNested 3
+maxColumn = 49
+newlines.infix.termSite {
+  style = some
+  breakOnNested = true
+}
+===
+object a {
+  if (foo > bar && (bar.baz) && baz > qux && qux > xyz) {}
+  a = foo > bar && (bar.baz) && baz > qux && qux > xyz
+  b = (foo > bar && (bar.baz) && baz > qux && qux > xyz)
+  c = {foo > bar && (bar.baz) && baz > qux && qux > xyz}
+}
+>>>
+object a {
+  if (
+    foo > bar && (bar.baz) &&
+    baz > qux && qux > xyz
+  ) {}
+  a = foo > bar && (bar.baz) &&
+    baz > qux && qux > xyz
+  b =
+    (foo > bar &&
+      (bar.baz) &&
+      baz > qux && qux > xyz)
+  c = {
+    foo > bar && (bar.baz) &&
+    baz > qux && qux > xyz
+  }
+}
+<<< mixed nested infixes, with breakOnNested 4
+maxColumn = 49
+newlines.infix.termSite {
+  style = some
+  breakOnNested = true
+}
+===
+object a {
+  if (foo > bar && bar.baz && (baz > qux) && qux > xyz) {}
+  a = foo > bar && bar.baz && (baz > qux) && qux > xyz
+  b = (foo > bar && bar.baz && (baz > qux) && qux > xyz)
+  c = {foo > bar && bar.baz && (baz > qux) && qux > xyz}
+}
+>>>
+object a {
+  if (
+    foo > bar && bar.baz && (baz > qux) &&
+    qux > xyz
+  ) {}
+  a = foo > bar && bar.baz && (baz > qux) &&
+    qux > xyz
+  b =
+    (foo > bar &&
+      bar.baz && (baz > qux) &&
+      qux > xyz)
+  c = {
+    foo > bar && bar.baz && (baz > qux) &&
+    qux > xyz
+  }
+}
+<<< mixed nested infixes, with breakOnNested 5
+maxColumn = 49
+newlines.infix.termSite {
+  style = some
+  breakOnNested = true
+}
+===
+object a {
+  if (foo > bar && bar.baz && baz > qux && (qux > xyz)) {}
+  a = foo > bar && bar.baz && baz > qux && (qux > xyz)
+  b = (foo > bar && bar.baz && baz > qux && (qux > xyz))
+  c = {foo > bar && bar.baz && baz > qux && (qux > xyz)}
+}
+>>>
+object a {
+  if (
+    foo > bar && bar.baz && baz > qux &&
+    (qux > xyz)
+  ) {}
+  a = foo > bar && bar.baz && baz > qux &&
+    (qux > xyz)
+  b =
+    (foo > bar &&
+      bar.baz && baz > qux && (qux > xyz))
+  c = {
+    foo > bar && bar.baz && baz > qux &&
+    (qux > xyz)
+  }
+}
+<<< mixed nested infixes, with breakOnNested 6
+maxColumn = 49
+newlines.infix.termSite {
+  style = some
+  breakOnNested = true
+}
+===
+object a {
+  if ((foo > bar) && (bar.baz) && baz > qux && qux > xyz) {}
+  a = (foo > bar) && (bar.baz) && baz > qux && qux > xyz
+  b = ((foo > bar) && (bar.baz) && baz > qux && qux > xyz)
+  c = {(foo > bar) && (bar.baz) && baz > qux && qux > xyz}
+}
+>>>
+object a {
+  if (
+    (foo > bar) && (bar.baz) &&
+    baz > qux && qux > xyz
+  ) {}
+  a = (foo > bar) && (bar.baz) &&
+    baz > qux && qux > xyz
+  b =
+    ((foo > bar) && (bar.baz) &&
+      baz > qux && qux > xyz)
+  c = {
+    (foo > bar) && (bar.baz) &&
+    baz > qux && qux > xyz
+  }
+}
+<<< mixed nested infixes, with breakOnNested 7
+maxColumn = 49
+newlines.infix.termSite {
+  style = some
+  breakOnNested = true
+}
+===
+object a {
+  if ((foo > bar) && (bar.baz) && baz > qux && (qux > xyz)) {}
+  a = (foo > bar) && (bar.baz) && baz > qux && (qux > xyz)
+  b = ((foo > bar) && (bar.baz) && baz > qux && (qux > xyz))
+  c = {(foo > bar) && (bar.baz) && baz > qux && (qux > xyz)}
+}
+>>>
+object a {
+  if (
+    (foo > bar) && (bar.baz) &&
+    baz > qux && (qux > xyz)
+  ) {}
+  a = (foo > bar) && (bar.baz) &&
+    baz > qux && (qux > xyz)
+  b =
+    ((foo > bar) && (bar.baz) &&
+      baz > qux && (qux > xyz))
+  c = {
+    (foo > bar) && (bar.baz) &&
+    baz > qux && (qux > xyz)
+  }
+}
+<<< mixed nested infixes, with breakOnNested 8
+maxColumn = 49
+newlines.infix.termSite {
+  style = some
+  breakOnNested = true
+}
+===
+object a {
+  if ((foo > bar) && bar.baz && (baz > qux) && (qux > xyz)) {}
+  a = (foo > bar) && bar.baz && (baz > qux) && (qux > xyz)
+  b = ((foo > bar) && bar.baz && (baz > qux) && (qux > xyz))
+  c = {(foo > bar) && bar.baz && (baz > qux) && (qux > xyz)}
+}
+>>>
+object a {
+  if (
+    (foo > bar) &&
+    bar.baz && (baz > qux) &&
+    (qux > xyz)
+  ) {}
+  a =
+    (foo > bar) &&
+      bar.baz &&
+      (baz > qux) &&
+      (qux > xyz)
+  b =
+    ((foo > bar) &&
+      bar.baz &&
+      (baz > qux) &&
+      (qux > xyz))
+  c = {
+    (foo > bar) &&
+    bar.baz && (baz > qux) &&
+    (qux > xyz)
+  }
+}
+<<< mixed nested infixes, with breakOnNested 9
+maxColumn = 49
+newlines.infix.termSite {
+  style = some
+  breakOnNested = true
+}
+===
+object a {
+  if (foo > bar && (bar.baz) && (baz > qux) && (qux > xyz)) {}
+  a = foo > bar && (bar.baz) && (baz > qux) && (qux > xyz)
+  b = (foo > bar && (bar.baz) && (baz > qux) && (qux > xyz))
+  c = {foo > bar && (bar.baz) && (baz > qux) && (qux > xyz)}
+}
+>>>
+object a {
+  if (
+    foo > bar && (bar.baz) &&
+    (baz > qux) &&
+    (qux > xyz)
+  ) {}
+  a = foo > bar && (bar.baz) &&
+    (baz > qux) &&
+    (qux > xyz)
+  b =
+    (foo > bar &&
+      (bar.baz) &&
+      (baz > qux) &&
+      (qux > xyz))
+  c = {
+    foo > bar && (bar.baz) &&
+    (baz > qux) &&
+    (qux > xyz)
+  }
+}
+<<< mixed nested infixes, with breakOnNested 10
+maxColumn = 49
+newlines.infix.termSite {
+  style = some
+  breakOnNested = true
+}
+===
+object a {
+  if ((foo > bar) && (bar.baz) && (baz > qux) && (qux > xyz)) {}
+  a = (foo > bar) && (bar.baz) && (baz > qux) && (qux > xyz)
+  b = ((foo > bar) && (bar.baz) && (baz > qux) && (qux > xyz))
+  c = {(foo > bar) && (bar.baz) && (baz > qux) && (qux > xyz)}
+}
+>>>
+object a {
+  if (
+    (foo > bar) && (bar.baz) &&
+    (baz > qux) &&
+    (qux > xyz)
+  ) {}
+  a = (foo > bar) && (bar.baz) &&
+    (baz > qux) &&
+    (qux > xyz)
+  b =
+    ((foo > bar) && (bar.baz) &&
+      (baz > qux) &&
+      (qux > xyz))
+  c = {
+    (foo > bar) && (bar.baz) &&
+    (baz > qux) &&
+    (qux > xyz)
+  }
+}
