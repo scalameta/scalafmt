@@ -422,8 +422,24 @@ class InfixSplits(
       }
 
     def otherSplitsNoDelims = {
-      val nlSplit = Split(nlMod, 1 + breakPenalty)
-      Seq(nlSplit.withIndent(nlIndent).withPolicy(nlPolicy & delayedBreak))
+      val nlSplit = Split(nlMod, 1 + breakPenalty).withIndent(nlIndent)
+        .withPolicy(nlPolicy & delayedBreak)
+      val spaceSplits: Seq[Split] =
+        if (ft.right.is[T.Comment]) Seq.empty
+        else {
+          val nextFT = if (rightAsInfix.isDefined) ftoks.next(ft) else ft
+          expires.filter(_._2 <= breakPenalty).takeRight(3)
+            .map { case (expire, cost) =>
+              val exclude =
+                if (breakMany) TokenRanges.empty
+                else TokenOps.insideBracesBlock(nextFT, expire, true)
+              val ignore = exclude.isEmpty && singleLinePolicy.nonEmpty &&
+                (expire eq fullExpire)
+              Split(ignore, cost)(ModExt(newStmtMod.getOrElse(spaceMod)))
+                .withSingleLine(expire, exclude, noOptimal = cost != 0)
+            }
+        }
+      spaceSplits :+ nlSplit
     }
 
     def otherSplitsWithParens(closeFt: FT) = {
@@ -435,7 +451,7 @@ class InfixSplits(
 
       val nlSplit = Split(nlMod, 0, policy = breakAfterClose & nlPolicy)
         .withIndent(nlIndent)
-      val singleLineSplit = Split(spaceMod, 0).notIf(noSingleLine)
+      val singleLineSplit = Split(noSingleLine, 0)(spaceMod)
         .withSingleLine(endOfNextOp.getOrElse(closeFt))
         .andPolicy(breakAfterClose)
         .andPolicy(InfixSplits.getSingleLineInfixPolicy(closeFt))
@@ -463,24 +479,7 @@ class InfixSplits(
       else otherSplitsWithParens(closeFt),
     )
 
-    val spaceSplits: Seq[Split] =
-      if (ft.right.is[T.Comment]) Seq.empty
-      else if (closeOpt.isDefined) Seq.empty
-      else {
-        val nextFT = if (rightAsInfix.isDefined) ftoks.next(ft) else ft
-        expires.filter(_._2 <= breakPenalty).takeRight(3)
-          .map { case (expire, cost) =>
-            val exclude =
-              if (breakMany) TokenRanges.empty
-              else TokenOps.insideBracesBlock(nextFT, expire, true)
-            val ignore = exclude.isEmpty && singleLinePolicy.nonEmpty &&
-              (expire eq fullExpire)
-            Split(ignore, cost)(ModExt(newStmtMod.getOrElse(spaceMod)))
-              .withSingleLine(expire, exclude, noOptimal = cost != 0)
-          }
-      }
-
-    singleLineSplits ++ spaceSplits ++ otherSplits
+    singleLineSplits ++ otherSplits
   }
 
 }
