@@ -112,43 +112,39 @@ object InfixSplits {
   }
 
   @tailrec
-  private def findNextInfixes(
-      fullTree: Tree,
-      tree: Tree,
-      res: mutable.Buffer[Member.Infix],
-  )(pred: Member.Infix => Boolean)(implicit ftoks: FormatTokens): Boolean =
-    (tree ne fullTree) &&
-      (tree.parent match {
-        case Some(ia: Member.Infix) =>
-          val ok = (ia.lhs ne tree) || pred(ia) && {
-            res += ia
-            findNestedInfixes(res)(pred)(ia.arg)
-          }
-          ok && findNextInfixes(fullTree, ia, res)(pred)
-        case Some(p: Member.ArgClause) => p.parent match {
-            case Some(pp: Member.Infix) =>
-              findNextInfixes(fullTree, pp, res)(pred)
-            case _ => true
-          }
-        case Some(p @ Tree.Block(`tree` :: Nil))
-            if !ftoks.isEnclosedInBraces(p) =>
-          findNextInfixes(fullTree, p, res)(pred)
-        case _ => true
-      })
-
-  private def findNestedInfixes(res: mutable.Buffer[Member.Infix])(
+  private def findNextInfixes(fullTree: Tree, tree: Tree)(
       pred: Member.Infix => Boolean,
-  )(tree: Tree)(implicit ftoks: FormatTokens): Boolean =
+  )(implicit ftoks: FormatTokens, res: mutable.Buffer[Member.Infix]): Unit =
+    if (tree ne fullTree) tree.parent match {
+      case Some(ia: Member.Infix) =>
+        val ok = (ia.lhs ne tree) || pred(ia) && {
+          res += ia
+          findNestedInfixes(pred, ia.arg)
+        }
+        if (ok) findNextInfixes(fullTree, ia)(pred)
+      case Some(p: Member.ArgClause) => p.parent match {
+          case Some(pp: Member.Infix) => findNextInfixes(fullTree, pp)(pred)
+          case _ =>
+        }
+      case Some(p @ Tree.Block(`tree` :: Nil))
+          if !ftoks.isEnclosedInBraces(p) => findNextInfixes(fullTree, p)(pred)
+      case _ =>
+    }
+
+  private def findNestedInfixes(
+      pred: Member.Infix => Boolean,
+      tree: Tree,
+  )(implicit ftoks: FormatTokens, res: mutable.Buffer[Member.Infix]): Boolean =
     TreeOps.getBlockStat(tree) match {
       case Member.ArgClause(arg :: Nil)
           if !ftoks.isEnclosedWithinParensOrBraces(tree) =>
-        findNestedInfixes(res)(pred)(arg)
+        findNestedInfixes(pred, arg)
       case ia: Member.Infix if !ftoks.isEnclosedWithinParens(tree) =>
-        findNestedInfixes(res)(pred)(ia.lhs) && pred(ia) && {
+        findNestedInfixes(pred, ia.lhs) && pred(ia) && {
           res += ia
           ia.singleArg match {
             case None => true
-            case Some(arg) => findNestedInfixes(res)(pred)(arg)
+            case Some(arg) => findNestedInfixes(pred, arg)
           }
         }
       case _ => true
@@ -352,8 +348,8 @@ class InfixSplits(
     val expires =
       if (closeOpt.isDefined) finalExpireCost :: Nil
       else {
-        val res = mutable.Buffer.empty[Member.Infix]
-        InfixSplits.findNextInfixes(fullInfix, app.lhs, res)(
+        implicit val res = mutable.Buffer.empty[Member.Infix]
+        InfixSplits.findNextInfixes(fullInfix, app.lhs)(
           if (!afterInfix.breakOnNested) _ => true
           else x => !ftoks.isEnclosedWithinParensOrBraces(x.lhs),
         )
