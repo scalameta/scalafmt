@@ -72,12 +72,14 @@ object InfixSplits {
     if (noNL) split else apply(app, ft, fullInfix).withNLIndent(split)
   }
 
-  private def getInfixRhsAsInfix(app: Member.Infix)(implicit
+  private def getInfixRhsPossiblyEnclosed(app: Member.Infix)(implicit
       ftoks: FormatTokens,
-  ): Option[Member.Infix] = app.singleArg.map(TreeOps.getBlockStat) match {
-    case Some(t: Member.Infix) if !ftoks.isEnclosedWithinParens(t) => Some(t)
-    case _ => None // multiple parameters to infix are always enclosed
-  }
+  ): Option[Either[Member.Infix, Member.Infix]] = app.singleArg
+    .map(TreeOps.getBlockStat).flatMap {
+      case t: Member.Infix =>
+        Some(Either.cond(ftoks.isEnclosedWithinParens(t), t, t))
+      case _ => None
+    }
 
   private def infixSequenceMaxPrecedence(
       app: Member.Infix,
@@ -413,13 +415,15 @@ class InfixSplits(
       nlSinglelineSplit,
     )
 
-    def getNextOp: Option[Name] =
-      if (!isAfterOp) Some(app.op)
-      else InfixSplits.getInfixRhsAsInfix(app) match {
-        case Some(ia) => Some(InfixSplits.findLeftInfix(ia).op)
-        case _ if app eq fullInfix => None
-        case _ => findNextInfixInParent(app, fullInfix)
-      }
+    val rhsPossiblyEnclosedInfix =
+      if (closeOpt.isEmpty) None
+      else InfixSplits.getInfixRhsPossiblyEnclosed(app)
+
+    def getNextOp: Option[FT] = (rhsPossiblyEnclosedInfix match {
+      case Some(Left(ia)) => Some(InfixSplits.findLeftInfix(ia))
+      case _ if app eq fullInfix => None
+      case _ => findNextInfixInParent(app, fullInfix)
+    }).map(ia => ftoks.getLast(ia.op))
 
     def otherSplitsNoDelims = {
       val nlSplit = Split(nlMod, 1 + breakPenalty).withIndent(nlIndent)
@@ -445,8 +449,7 @@ class InfixSplits(
     def otherSplitsWithParens(closeFt: FT) = {
       val noSingleLine = newStmtMod.isDefined || breakMany ||
         rightAsInfix.exists(10 < infixSequenceLength(_))
-      val nextOp = if (afterInfix.breakOnNested) getNextOp else None
-      val endOfNextOp = nextOp.map(ftoks.getLast)
+      val endOfNextOp = if (afterInfix.breakOnNested) getNextOp else None
       val breakAfterClose: Policy = endOfNextOp.map(breakAfterComment)
 
       val nlSplit = Split(nlMod, 0, policy = breakAfterClose & nlPolicy)
@@ -459,7 +462,7 @@ class InfixSplits(
     }
 
     def otherSplitsWithBraces(closeFt: FT) = {
-      val endOfNextOp = getNextOp.map(ftoks.getLast)
+      val endOfNextOp = getNextOp
       val slbEnd = endOfNextOp.getOrElse(fullExpire)
       val slbPolicy = InfixSplits.getSingleLineInfixPolicy(closeFt)
       // check if enclosed
