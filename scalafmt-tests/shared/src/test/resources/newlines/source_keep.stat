@@ -13178,3 +13178,74 @@ object a {
     (qux > xyz)
   }
 }
+<<< mixed nested infixes, with breakOnNested 11
+maxColumn = 49
+newlines.infix.termSite {
+  style = some
+  breakOnNested = true
+}
+===
+!sym.isStaticOwner || (
+  sym.isModuleClass &&
+  sym.hasAnnotation(JSTypeAnnot) &&
+   !sym.hasAnnotation(JSNativeAnnotation)
+ )
+>>>
+!sym.isStaticOwner ||
+  (
+    sym.isModuleClass &&
+      sym.hasAnnotation(JSTypeAnnot) &&
+      !sym.hasAnnotation(JSNativeAnnotation)
+  )
+<<< blank before nested infix, with breakOnNested 12
+maxColumn = 49
+newlines.infix.termSite {
+  style = some
+  breakOnNested = true
+}
+===
+object a {
+  !sym.isStaticOwner
+
+  (
+    sym.isModuleClass &&
+    sym.hasAnnotation(JSTypeAnnot) &&
+     !sym.hasAnnotation(JSNativeAnnotation)
+  )
+}
+>>>
+object a {
+  !sym.isStaticOwner
+
+  (
+    sym.isModuleClass &&
+      sym.hasAnnotation(JSTypeAnnot) &&
+      !sym.hasAnnotation(JSNativeAnnotation)
+  )
+}
+<<< nested infix as a statement
+maxColumn = 49
+newlines.infix.termSite {
+  style = some
+}
+===
+object a {
+   val thisFile = this.symbol.associatedFile
+   val thatFile = other.associatedFile
+   (  thisFile == null
+   || thatFile == null
+   || thisFile.path == thatFile.path // Cheap possibly wrong check, then expensive normalization
+   || thisFile.canonicalPath == thatFile.canonicalPath
+   )
+}
+>>>
+object a {
+  val thisFile = this.symbol.associatedFile
+  val thatFile = other.associatedFile
+  (thisFile == null || thatFile == null ||
+    thisFile.path ==
+    thatFile.path // Cheap possibly wrong check, then expensive normalization
+    ||
+    thisFile.canonicalPath ==
+    thatFile.canonicalPath)
+}
