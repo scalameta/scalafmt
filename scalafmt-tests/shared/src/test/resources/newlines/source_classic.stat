@@ -13094,8 +13094,8 @@ object a {
   a = foo > bar && bar.baz && baz > qux &&
     qux > xyz
   b =
-    (foo > bar &&
-      bar.baz && baz > qux && qux > xyz)
+    (foo > bar && bar.baz && baz > qux &&
+      qux > xyz)
   c = {
     foo > bar && bar.baz && baz > qux &&
     qux > xyz
@@ -13122,12 +13122,10 @@ object a {
   ) {}
   a =
     (foo > bar) &&
-      bar.baz &&
-      baz > qux && qux > xyz
+      bar.baz && baz > qux && qux > xyz
   b =
     ((foo > bar) &&
-      bar.baz &&
-      baz > qux && qux > xyz)
+      bar.baz && baz > qux && qux > xyz)
   c = {
     (foo > bar) &&
     bar.baz && baz > qux && qux > xyz
@@ -13149,18 +13147,17 @@ object a {
 >>>
 object a {
   if (
-    foo > bar && (bar.baz) &&
-    baz > qux && qux > xyz
+    foo > bar && (bar.baz) && baz > qux &&
+    qux > xyz
   ) {}
-  a = foo > bar && (bar.baz) &&
-    baz > qux && qux > xyz
+  a = foo > bar && (bar.baz) && baz > qux &&
+    qux > xyz
   b =
-    (foo > bar &&
-      (bar.baz) &&
-      baz > qux && qux > xyz)
+    (foo > bar && (bar.baz) && baz > qux &&
+      qux > xyz)
   c = {
-    foo > bar && (bar.baz) &&
-    baz > qux && qux > xyz
+    foo > bar && (bar.baz) && baz > qux &&
+    qux > xyz
   }
 }
 <<< mixed nested infixes, with breakOnNested 4
@@ -13179,17 +13176,20 @@ object a {
 >>>
 object a {
   if (
-    foo > bar && bar.baz && (baz > qux) &&
+    foo > bar && bar.baz &&
+    (baz > qux) &&
     qux > xyz
   ) {}
-  a = foo > bar && bar.baz && (baz > qux) &&
+  a = foo > bar && bar.baz &&
+    (baz > qux) &&
     qux > xyz
   b =
-    (foo > bar &&
-      bar.baz && (baz > qux) &&
+    (foo > bar && bar.baz &&
+      (baz > qux) &&
       qux > xyz)
   c = {
-    foo > bar && bar.baz && (baz > qux) &&
+    foo > bar && bar.baz &&
+    (baz > qux) &&
     qux > xyz
   }
 }
@@ -13215,8 +13215,8 @@ object a {
   a = foo > bar && bar.baz && baz > qux &&
     (qux > xyz)
   b =
-    (foo > bar &&
-      bar.baz && baz > qux && (qux > xyz))
+    (foo > bar && bar.baz && baz > qux &&
+      (qux > xyz))
   c = {
     foo > bar && bar.baz && baz > qux &&
     (qux > xyz)
@@ -13238,17 +13238,18 @@ object a {
 >>>
 object a {
   if (
-    (foo > bar) && (bar.baz) &&
-    baz > qux && qux > xyz
+    (foo > bar) &&
+    (bar.baz) && baz > qux && qux > xyz
   ) {}
-  a = (foo > bar) && (bar.baz) &&
-    baz > qux && qux > xyz
+  a =
+    (foo > bar) &&
+      (bar.baz) && baz > qux && qux > xyz
   b =
-    ((foo > bar) && (bar.baz) &&
-      baz > qux && qux > xyz)
+    ((foo > bar) &&
+      (bar.baz) && baz > qux && qux > xyz)
   c = {
-    (foo > bar) && (bar.baz) &&
-    baz > qux && qux > xyz
+    (foo > bar) &&
+    (bar.baz) && baz > qux && qux > xyz
   }
 }
 <<< mixed nested infixes, with breakOnNested 7
@@ -13267,17 +13268,22 @@ object a {
 >>>
 object a {
   if (
-    (foo > bar) && (bar.baz) &&
-    baz > qux && (qux > xyz)
+    (foo > bar) &&
+    (bar.baz) && baz > qux &&
+    (qux > xyz)
   ) {}
-  a = (foo > bar) && (bar.baz) &&
-    baz > qux && (qux > xyz)
+  a =
+    (foo > bar) &&
+      (bar.baz) && baz > qux &&
+      (qux > xyz)
   b =
-    ((foo > bar) && (bar.baz) &&
-      baz > qux && (qux > xyz))
+    ((foo > bar) &&
+      (bar.baz) && baz > qux &&
+      (qux > xyz))
   c = {
-    (foo > bar) && (bar.baz) &&
-    baz > qux && (qux > xyz)
+    (foo > bar) &&
+    (bar.baz) && baz > qux &&
+    (qux > xyz)
   }
 }
 <<< mixed nested infixes, with breakOnNested 8
@@ -13297,7 +13303,8 @@ object a {
 object a {
   if (
     (foo > bar) &&
-    bar.baz && (baz > qux) &&
+    bar.baz &&
+    (baz > qux) &&
     (qux > xyz)
   ) {}
   a =
@@ -13312,7 +13319,8 @@ object a {
       (qux > xyz))
   c = {
     (foo > bar) &&
-    bar.baz && (baz > qux) &&
+    bar.baz &&
+    (baz > qux) &&
     (qux > xyz)
   }
 }
@@ -13340,8 +13348,7 @@ object a {
     (baz > qux) &&
     (qux > xyz)
   b =
-    (foo > bar &&
-      (bar.baz) &&
+    (foo > bar && (bar.baz) &&
       (baz > qux) &&
       (qux > xyz))
   c = {
@@ -13366,19 +13373,24 @@ object a {
 >>>
 object a {
   if (
-    (foo > bar) && (bar.baz) &&
+    (foo > bar) &&
+    (bar.baz) &&
     (baz > qux) &&
     (qux > xyz)
   ) {}
-  a = (foo > bar) && (bar.baz) &&
-    (baz > qux) &&
-    (qux > xyz)
+  a =
+    (foo > bar) &&
+      (bar.baz) &&
+      (baz > qux) &&
+      (qux > xyz)
   b =
-    ((foo > bar) && (bar.baz) &&
+    ((foo > bar) &&
+      (bar.baz) &&
       (baz > qux) &&
       (qux > xyz))
   c = {
-    (foo > bar) && (bar.baz) &&
+    (foo > bar) &&
+    (bar.baz) &&
     (baz > qux) &&
     (qux > xyz)
   }

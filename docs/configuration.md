@@ -2521,6 +2521,22 @@ newlines.infix.termSite.breakOnNested
 If enabled, will force line breaks around a nested parenthesized sub-expression
 in a multi-line infix expression.
 
+This logic, however, will not apply if the precedence of the inner expression
+is lower than the outer; that is, we _had_ to put it in parentheses, not because
+we _chose_ to, for readability. This is to prevent breaking like this:
+
+```scala
+// original
+(a + b) * c
+(a + b) < c
+
+// formatted
+(a + b) *
+c // ok to force
+(a + b) <
+c // not ok by default
+```
+
 ### `newlines.avoidForSimpleOverflow`
 
 A list parameter (of comma-separated flags), with possible flags described
