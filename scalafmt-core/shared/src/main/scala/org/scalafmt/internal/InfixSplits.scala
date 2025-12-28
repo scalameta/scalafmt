@@ -424,9 +424,10 @@ class InfixSplits(
       nlSinglelineSplit,
     )
 
-    val rhsPossiblyEnclosedInfix =
-      if (closeOpt.isEmpty) None
-      else InfixSplits.getInfixRhsPossiblyEnclosed(app)
+    val rhsPossiblyEnclosedInfix = closeOpt.flatMap(closeFt =>
+      if (beforeLhs) Some(Either.cond(closeFt.idx >= fullExpire.idx, app, app))
+      else InfixSplits.getInfixRhsPossiblyEnclosed(app),
+    )
 
     // returns end of next LHS, really
     def getNextOp: Option[FT] = (rhsPossiblyEnclosedInfix match {
