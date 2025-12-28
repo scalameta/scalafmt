@@ -12305,9 +12305,8 @@ object a {
     (foo > bar) &&
     bar.baz && baz > qux && qux > xyz
   ) {}
-  a =
-    (foo > bar) &&
-      bar.baz && baz > qux && qux > xyz
+  a = (foo > bar) &&
+    bar.baz && baz > qux && qux > xyz
   b =
     ((foo > bar) &&
       bar.baz && baz > qux && qux > xyz)
@@ -12426,9 +12425,8 @@ object a {
     (foo > bar) &&
     (bar.baz) && baz > qux && qux > xyz
   ) {}
-  a =
-    (foo > bar) &&
-      (bar.baz) && baz > qux && qux > xyz
+  a = (foo > bar) &&
+    (bar.baz) && baz > qux && qux > xyz
   b =
     ((foo > bar) &&
       (bar.baz) && baz > qux && qux > xyz)
@@ -12457,10 +12455,9 @@ object a {
     (bar.baz) && baz > qux &&
     (qux > xyz)
   ) {}
-  a =
-    (foo > bar) &&
-      (bar.baz) && baz > qux &&
-      (qux > xyz)
+  a = (foo > bar) &&
+    (bar.baz) && baz > qux &&
+    (qux > xyz)
   b =
     ((foo > bar) &&
       (bar.baz) && baz > qux &&
@@ -12492,11 +12489,10 @@ object a {
     (baz > qux) &&
     (qux > xyz)
   ) {}
-  a =
-    (foo > bar) &&
-      bar.baz &&
-      (baz > qux) &&
-      (qux > xyz)
+  a = (foo > bar) &&
+    bar.baz &&
+    (baz > qux) &&
+    (qux > xyz)
   b =
     ((foo > bar) &&
       bar.baz &&
@@ -12563,11 +12559,10 @@ object a {
     (baz > qux) &&
     (qux > xyz)
   ) {}
-  a =
-    (foo > bar) &&
-      (bar.baz) &&
-      (baz > qux) &&
-      (qux > xyz)
+  a = (foo > bar) &&
+    (bar.baz) &&
+    (baz > qux) &&
+    (qux > xyz)
   b =
     ((foo > bar) &&
       (bar.baz) &&
