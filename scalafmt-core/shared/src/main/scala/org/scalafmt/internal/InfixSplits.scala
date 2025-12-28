@@ -81,6 +81,15 @@ object InfixSplits {
       case _ => None
     }
 
+  @tailrec
+  private def findRightmostArgIfEnclosedInfix(app: Member.Infix)(implicit
+      ftoks: FormatTokens,
+  ): Option[Member.Infix] = getInfixRhsPossiblyEnclosed(app) match {
+    case Some(Left(ia)) => findRightmostArgIfEnclosedInfix(ia)
+    case Some(Right(ia)) => Some(ia)
+    case _ => None
+  }
+
   private def infixSequenceMaxPrecedence(
       app: Member.Infix,
   )(implicit ftoks: FormatTokens): Int = {
@@ -339,9 +348,13 @@ class InfixSplits(
       newStmtMod: Option[Modification] = None,
       spaceMod: Modification = Space,
   ): Seq[Split] = {
-    val maxPrecedence =
-      if (isAfterOp) InfixSplits.infixSequenceMaxPrecedence(fullInfix) else 0 // 0 unused
-    val breakPenalty = if (isAfterOp) maxPrecedence - app.precedence else 1
+    val (maxPrecedence, appPrecedence, breakPenalty) =
+      if (isAfterOp) {
+        val maxPrecedence = InfixSplits.infixSequenceMaxPrecedence(fullInfix)
+        val appPrecedence = app.precedence
+        val breakPenalty = maxPrecedence - appPrecedence
+        (maxPrecedence, appPrecedence, breakPenalty)
+      } else (0, Int.MaxValue, 1)
 
     val closeOpt = ftoks.matchingOptRight(ft)
     val finalExpireCost = fullExpire -> 0
@@ -415,17 +428,29 @@ class InfixSplits(
       if (closeOpt.isEmpty) None
       else InfixSplits.getInfixRhsPossiblyEnclosed(app)
 
+    // returns end of next LHS, really
     def getNextOp: Option[FT] = (rhsPossiblyEnclosedInfix match {
       case Some(Left(ia)) => Some(InfixSplits.findLeftInfix(ia))
       case _ if app eq fullInfix => None
       case _ => findNextInfixInParent(app, fullInfix)
-    }).map(ia => ftoks.getLast(ia.op))
+    }).map(ia => ftoks.tokenBefore(ia.op))
+
+    val isAfterOpBreakOnNested = isAfterOp && afterInfix.breakOnNested
+    def mustBreakAfterNested = isAfterOpBreakOnNested &&
+      (app.lhs match {
+        case ia: Member.Infix =>
+          val iaOpt =
+            if (isLeftInfix) Some(ia)
+            else InfixSplits.findRightmostArgIfEnclosedInfix(ia)
+          iaOpt.exists(_.precedence <= appPrecedence)
+        case _ => false
+      })
 
     def otherSplitsNoDelims = {
       val nlSplit = Split(nlMod, 1 + breakPenalty).withIndent(nlIndent)
         .withPolicy(nlPolicy & delayedBreak)
       val spaceSplits: Seq[Split] =
-        if (ft.right.is[T.Comment]) Seq.empty
+        if (ft.right.is[T.Comment] || mustBreakAfterNested) Seq.empty
         else {
           val nextFT = if (rightAsInfix.isDefined) ftoks.next(ft) else ft
           expires.filter(_._2 <= breakPenalty).takeRight(3)
@@ -444,25 +469,25 @@ class InfixSplits(
 
     def otherSplitsWithParens(closeFt: FT) = {
       val noSingleLine = newStmtMod.isDefined || breakMany ||
+        isAfterOpBreakOnNested && rhsPossiblyEnclosedInfix.exists {
+          case Right(ia) => ia.precedence <= appPrecedence
+          case _ => false
+        } || mustBreakAfterNested ||
         rightAsInfix.exists(10 < infixSequenceLength(_))
       val endOfNextOp = if (afterInfix.breakOnNested) getNextOp else None
-      val breakAfterClose: Policy = endOfNextOp.map(breakAfterComment)
 
-      val nlSplit = Split(nlMod, 0, policy = breakAfterClose & nlPolicy)
-        .withIndent(nlIndent)
+      val nlSplit = Split(nlMod, 0, policy = nlPolicy).withIndent(nlIndent)
       val singleLineSplit = Split(noSingleLine, 0)(spaceMod)
         .withSingleLine(endOfNextOp.getOrElse(closeFt))
-        .andPolicy(breakAfterClose)
         .andPolicy(InfixSplits.getSingleLineInfixPolicy(closeFt))
       Seq(singleLineSplit, nlSplit)
     }
 
     def otherSplitsWithBraces(closeFt: FT) = {
-      val endOfNextOp = getNextOp
-      val slbEnd = endOfNextOp.getOrElse(fullExpire)
+      val slbEnd = getNextOp.getOrElse(fullExpire)
       val slbPolicy = InfixSplits.getSingleLineInfixPolicy(closeFt)
       // check if enclosed
-      if (endOfNextOp.fold(slbEnd)(ftoks.prevNonCommentBefore) eq closeFt) Seq(
+      if (slbEnd eq closeFt) Seq(
         Split(spaceMod, 0),
         Split(nlMod, 1).withSingleLineNoOptimal(slbEnd)
           .andPolicy(nlPolicy & slbPolicy).withIndent(nlIndent),
