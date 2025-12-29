@@ -13191,12 +13191,11 @@ newlines.infix.termSite {
    !sym.hasAnnotation(JSNativeAnnotation)
  )
 >>>
-!sym.isStaticOwner ||
-  (
-    sym.isModuleClass &&
-      sym.hasAnnotation(JSTypeAnnot) &&
-      !sym.hasAnnotation(JSNativeAnnotation)
-  )
+!sym.isStaticOwner || (
+  sym.isModuleClass &&
+    sym.hasAnnotation(JSTypeAnnot) &&
+    !sym.hasAnnotation(JSNativeAnnotation)
+)
 <<< blank before nested infix, with breakOnNested 12
 maxColumn = 49
 newlines.infix.termSite {

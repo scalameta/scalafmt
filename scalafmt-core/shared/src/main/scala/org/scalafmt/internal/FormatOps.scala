@@ -1056,10 +1056,12 @@ class FormatOps(
       if (tokens.isEmpty(body)) Seq(Split(Space, 0))
       else foldedNonEmptyNonComment(body, nlSplitFunc, isKeep, spaceIndents)
 
-    private def unfoldedSpaceNonEmptyNonComment(body: Tree, slbOnly: Boolean)(
-        implicit style: ScalafmtConfig,
-    ): Split = {
-      val expire = nextNonCommentSameLine(getLastNonTrivial(body))
+    private def unfoldedSpaceNonEmptyNonComment(
+        body: Tree,
+        slbOnly: Boolean,
+        last: FT,
+    )(implicit style: ScalafmtConfig): Split = {
+      val expire = nextNonCommentSameLine(last)
       def slbSplit(end: FT)(implicit fileLine: FileLine) = Split(Space, 0)
         .withSingleLine(end, noSyntaxNL = true)
       if (slbOnly) slbSplit(expire)
@@ -1079,11 +1081,27 @@ class FormatOps(
         nlSplitFunc: Int => Split,
         spaceIndents: Seq[Indent],
         slbOnly: Boolean,
-    )(implicit style: ScalafmtConfig): Seq[Split] =
+    )(implicit style: ScalafmtConfig, ft: FT): Seq[Split] =
       if (tokens.isEmpty(body)) Seq(Split(Space, 0).withIndents(spaceIndents))
       else {
-        val spaceSplit = unfoldedSpaceNonEmptyNonComment(body, slbOnly)
-        Seq(spaceSplit.withIndents(spaceIndents), nlSplitFunc(1).forThisLine)
+        val nextFt = nextNonCommentSameLineAfter(ft)
+        val last = getLastNonTrivial(body)
+        getClosingIfWithinParens(last)(nextFt).fold {
+          val spaceSplit = unfoldedSpaceNonEmptyNonComment(body, slbOnly, last)
+          Seq(spaceSplit.withIndents(spaceIndents), nlSplitFunc(1).forThisLine)
+        } { _ =>
+          val policy = Policy.onlyFor(nextFt, "CTRLUF")(ss =>
+            ss.map(s =>
+              if (s.isNL) s
+              else s.withSingleLine(last, extend = true, noOptimal = !s.noCost),
+            ),
+          )
+          Seq(
+            Split(Space, 0, policy = policy),
+            nlSplitFunc(1).forThisLine
+              .withSingleLineNoOptimal(last, extend = true),
+          )
+        }
       }
 
     def checkComment(

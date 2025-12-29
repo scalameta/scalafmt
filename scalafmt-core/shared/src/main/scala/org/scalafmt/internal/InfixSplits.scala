@@ -355,7 +355,10 @@ class InfixSplits(
         (maxPrecedence, appPrecedence, breakPenalty)
       } else (0, Int.MaxValue, 1)
 
-    val closeOpt = ftoks.matchingOptRight(ft)
+    val closeOpt = ft.right match {
+      case _: T.OpenDelim => ftoks.matchingOptRight(ft)
+      case _ => None // exclude Xml.Start and similar pairs
+    }
     val finalExpireCost = fullExpire -> 0
     val expires =
       if (closeOpt.isDefined) finalExpireCost :: Nil
@@ -465,6 +468,14 @@ class InfixSplits(
     }
 
     def otherSplitsWithParens(closeFt: FT) = {
+      val nextFt = ftoks.nextNonCommentSameLineAfter(ft)
+      val bracesLike = newStmtMod.isEmpty &&
+        (style.newlines.source match {
+          case Newlines.fold => false
+          case Newlines.unfold => !ft.hasBlankLine
+          case _ => ft.noBreak && nextFt.hasBreak
+        })
+
       val noSingleLine = newStmtMod.isDefined || breakMany ||
         isAfterOpBreakOnNested && rhsPossiblyEnclosedInfix.exists {
           case Right(ia) => ia.precedence <= appPrecedence
@@ -473,11 +484,15 @@ class InfixSplits(
         rightAsInfix.exists(10 < infixSequenceLength(_))
       val endOfNextOp = if (afterInfix.breakOnNested) getNextOp else None
 
+      val slbPolicy = InfixSplits.getSingleLineInfixPolicy(closeFt)
       val nlSplit = Split(nlMod, 0, policy = nlPolicy).withIndent(nlIndent)
+        .andPolicy(slbPolicy | PolicyOps.SingleLineBlock(closeFt), !bracesLike)
+        .withOptimalToken(closeFt, killOnFail = false, ignore = !bracesLike)
       val singleLineSplit = Split(noSingleLine, 0)(spaceMod)
-        .withSingleLine(endOfNextOp.getOrElse(closeFt))
-        .andPolicy(InfixSplits.getSingleLineInfixPolicy(closeFt))
-      Seq(singleLineSplit, nlSplit)
+        .withSingleLine(endOfNextOp.getOrElse(closeFt)).andPolicy(slbPolicy)
+      val noSplit = Split(!bracesLike, 1)(spaceMod)
+        .withPolicy(PolicyOps.decideNewlinesOnlyAfterClose(nextFt))
+      Seq(singleLineSplit, nlSplit, noSplit)
     }
 
     def otherSplitsWithBraces(closeFt: FT) = {
