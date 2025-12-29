@@ -938,21 +938,23 @@ object a {
 >>>
 object a {
   val terminaters =
-    Set() ++
-      (for (i ← 1 to n)
+    Set() ++ (
+      for (i ← 1 to n)
         yield {
           val man = context.watch(context.system.actorOf(Props[Terminater]))
           man ! "run"
           man
-        })
+        }
+    )
   terminaters =
-    Set() ++
-      (for (i ← 1 to n)
+    Set() ++ (
+      for (i ← 1 to n)
         yield {
           val man = context.watch(context.system.actorOf(Props[Terminater]))
           man ! "run"
           man
-        })
+        }
+    )
 }
 <<< 3.11 enclosed, by itself
 maxColumn = 80
@@ -968,12 +970,14 @@ object a {
 }
 >>>
 object a {
-  (for (i ← 1 to n)
-    yield {
-      val man = context.watch(context.system.actorOf(Props[Terminater]))
-      man ! "run"
-      man
-    })
+  (
+    for (i ← 1 to n)
+      yield {
+        val man = context.watch(context.system.actorOf(Props[Terminater]))
+        man ! "run"
+        man
+      }
+  )
 }
 <<< 3.12 enclosed, followed by select
 maxColumn = 80
@@ -1040,9 +1044,11 @@ object a {
 }
 >>>
 object a {
-  val a = (intercept[java.lang.IllegalStateException] {
-    in.readObject
-  })
+  val a = (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  )
 }
 <<< 3.15 enclosed, assignment, infix on left
 maxColumn = 80
@@ -1058,9 +1064,11 @@ object a {
 >>>
 object a {
   val a =
-    (intercept[java.lang.IllegalStateException] {
-      in.readObject
-    }) ++ 2
+    (
+      intercept[java.lang.IllegalStateException] {
+        in.readObject
+      }
+    ) ++ 2
 }
 <<< 3.16 enclosed, assignment, infix on right
 maxColumn = 80
@@ -1076,10 +1084,11 @@ object a {
 >>>
 object a {
   val a =
-    2 ++
-      (intercept[java.lang.IllegalStateException] {
+    2 ++ (
+      intercept[java.lang.IllegalStateException] {
         in.readObject
-      })
+      }
+    )
 }
 <<< 3.17 enclosed, assignment, infix in middle
 maxColumn = 80
@@ -1095,10 +1104,11 @@ object a {
 >>>
 object a {
   val a =
-    2 ++
-      (intercept[java.lang.IllegalStateException] {
+    2 ++ (
+      intercept[java.lang.IllegalStateException] {
         in.readObject
-      }) ++ 3
+      }
+    ) ++ 3
 }
 <<< 3.18 enclosed, assignment, by itself, narrower
 maxColumn = 60
@@ -1111,9 +1121,11 @@ object a {
 }
 >>>
 object a {
-  val a = (intercept[java.lang.IllegalStateException] {
-    in.readObject
-  })
+  val a = (
+    intercept[java.lang.IllegalStateException] {
+      in.readObject
+    }
+  )
 }
 <<< 3.19 enclosed, assignment, infix on left, narrower
 maxColumn = 60
@@ -1129,9 +1141,11 @@ object a {
 >>>
 object a {
   val a =
-    (intercept[java.lang.IllegalStateException] {
-      in.readObject
-    }) ++ 2
+    (
+      intercept[java.lang.IllegalStateException] {
+        in.readObject
+      }
+    ) ++ 2
 }
 <<< 3.20 enclosed, assignment, infix on right, narrower
 maxColumn = 60
@@ -1147,10 +1161,11 @@ object a {
 >>>
 object a {
   val a =
-    2 ++
-      (intercept[java.lang.IllegalStateException] {
+    2 ++ (
+      intercept[java.lang.IllegalStateException] {
         in.readObject
-      })
+      }
+    )
 }
 <<< 3.21 enclosed, assignment, infix in middle, narrower
 maxColumn = 60
@@ -1166,10 +1181,11 @@ object a {
 >>>
 object a {
   val a =
-    2 ++
-      (intercept[java.lang.IllegalStateException] {
+    2 ++ (
+      intercept[java.lang.IllegalStateException] {
         in.readObject
-      }) ++ 3
+      }
+    ) ++ 3
 }
 <<< 3.22 enclosed, assignment, by itself, narrow
 maxColumn = 40
@@ -1184,11 +1200,12 @@ object a {
 }
 >>>
 object a {
-  val a =
-    (intercept[
+  val a = (
+    intercept[
       java.lang.IllegalStateException] {
       in.readObject
-    })
+    }
+  )
 }
 <<< 3.23 enclosed, assignment, infix on left, narrow
 maxColumn = 40
@@ -1204,10 +1221,12 @@ object a {
 >>>
 object a {
   val a =
-    (intercept[
-      java.lang.IllegalStateException] {
-      in.readObject
-    }) ++ 2
+    (
+      intercept[
+        java.lang.IllegalStateException] {
+        in.readObject
+      }
+    ) ++ 2
 }
 <<< 3.24 enclosed, assignment, infix on right, narrow
 maxColumn = 40
@@ -1223,11 +1242,12 @@ object a {
 >>>
 object a {
   val a =
-    2 ++
-      (intercept[
+    2 ++ (
+      intercept[
         java.lang.IllegalStateException] {
         in.readObject
-      })
+      }
+    )
 }
 <<< 3.25 enclosed, assignment, infix in middle, narrow
 maxColumn = 40
@@ -1243,11 +1263,12 @@ object a {
 >>>
 object a {
   val a =
-    2 ++
-      (intercept[
+    2 ++ (
+      intercept[
         java.lang.IllegalStateException] {
         in.readObject
-      }) ++ 3
+      }
+    ) ++ 3
 }
 <<< 3.26 enclosed, def, chain follows
 maxColumn = 80
@@ -1810,14 +1831,14 @@ created filter (ref ⇒
 }
 >>>
 object a {
-  created filter
-    (ref ⇒
+  created filter (
+    ref ⇒
       !ref.isTerminated &&
         !ref
           .asInstanceOf[ActorRefWithCell]
           .underlying
           .isInstanceOf[UnstartedCell]
-    ) should ===(Seq.empty[ActorRef])
+  ) should ===(Seq.empty[ActorRef])
 }
 <<< 6.5: chain with delayed indent after break
 maxColumn = 70
@@ -2027,16 +2048,15 @@ for {
 for {
   nu <- rand.gaussian(0, 1)
   y = nu * nu
-  x =
-    (
-      mean +
-        mean * mean * y * 0.5 / shape -
-        0.5 * mean / shape *
-        math.sqrt(
-          4 * mean * shape * y +
-            mean * mean * y * y
-        )
-    )
+  x = (
+    mean +
+      mean * mean * y * 0.5 / shape -
+      0.5 * mean / shape *
+      math.sqrt(
+        4 * mean * shape * y +
+          mean * mean * y * y
+      )
+  )
   z <- rand.uniform
 } yield {
   if (z <= mean / (mean + x))
@@ -2063,14 +2083,14 @@ for {
 for {
   nu <- rand.gaussian(0, 1)
   y = nu * nu
-  x =
-    (mean +
-      mean * mean * y * 0.5 / shape) -
-      0.5 * mean / shape *
-      math.sqrt(
-        4 * mean * shape * y +
-          mean * mean * y * y
-      )
+  x = (
+    mean + mean * mean * y * 0.5 / shape
+  ) -
+    0.5 * mean / shape *
+    math.sqrt(
+      4 * mean * shape * y +
+        mean * mean * y * y
+    )
   z <- rand.uniform
 } yield {
   if (z <= mean / (mean + x))
@@ -2097,16 +2117,17 @@ for {
 for {
   nu <- rand.gaussian(0, 1)
   y = nu * nu
-  x =
+  x = (
     (
-      (mean +
-        mean * mean * y * 0.5 / shape) -
-        0.5 * mean / shape *
-        math.sqrt(
-          4 * mean * shape * y +
-            mean * mean * y * y
-        )
-    )
+      mean +
+        mean * mean * y * 0.5 / shape
+    ) -
+      0.5 * mean / shape *
+      math.sqrt(
+        4 * mean * shape * y +
+          mean * mean * y * y
+      )
+  )
   z <- rand.uniform
 } yield {
   if (z <= mean / (mean + x))
@@ -2270,14 +2291,19 @@ val json =
     ("entityId" -> data("userId")) ~
     ("targetEntityType" -> "item") ~
     ("targetEntityId" -> data("itemId")) ~
-    ("eventTime" -> data("timestamp")) ~
-    ("properties" ->
-      (("context" ->
-        (("ip" -> data("context[ip]")) ~
-          ("prop1" -> data("context[prop1]").toDouble) ~
-          ("prop2" -> data("context[prop2]")))) ~
-        ("anotherPropertyA" -> data.get("anotherPropertyA").map(_.toDouble)) ~
-        ("anotherPropertyB" -> data.get("anotherPropertyB").map(_.toBoolean))))
+    ("eventTime" -> data("timestamp")) ~ (
+      "properties" -> (
+        (
+          "context" -> (
+            ("ip" -> data("context[ip]")) ~
+              ("prop1" -> data("context[prop1]").toDouble) ~
+              ("prop2" -> data("context[prop2]"))
+          )
+        ) ~
+          ("anotherPropertyA" -> data.get("anotherPropertyA").map(_.toDouble)) ~
+          ("anotherPropertyB" -> data.get("anotherPropertyB").map(_.toBoolean))
+      )
+    )
 <<< 8.8
 maxColumn = 80
 ===
@@ -2349,9 +2375,9 @@ val json = (estype -> ("properties" -> ("status" ->
           ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("status" ->
           ("type" -> "string") ~ ("index" -> "not_analyzed"))))
 >>>
-val json =
-  (estype ->
-    ("properties" ->
+val json = (
+  estype -> (
+    "properties" ->
       ("status" -> ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
       ("startTime" -> ("type" -> "date")) ~
       ("endTime" -> ("type" -> "date")) ~
@@ -2359,18 +2385,17 @@ val json =
       ("engineVersion" -> ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
       ("engineVariant" -> ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
       ("engineFactory" -> ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
-      ("batch" -> ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
-      ("dataSourceParams" ->
-        ("type" -> "string") ~
-        ("index" -> "not_analyzed")) ~
-      ("preparatorParams" ->
-        ("type" -> "string") ~
-        ("index" -> "not_analyzed")) ~
-      ("algorithmsParams" ->
-        ("type" -> "string") ~
-        ("index" -> "not_analyzed")) ~
+      ("batch" -> ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ (
+        "dataSourceParams" -> ("type" -> "string") ~ ("index" -> "not_analyzed")
+      ) ~ (
+        "preparatorParams" -> ("type" -> "string") ~ ("index" -> "not_analyzed")
+      ) ~ (
+        "algorithmsParams" -> ("type" -> "string") ~ ("index" -> "not_analyzed")
+      ) ~
       ("servingParams" -> ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
-      ("status" -> ("type" -> "string") ~ ("index" -> "not_analyzed"))))
+      ("status" -> ("type" -> "string") ~ ("index" -> "not_analyzed"))
+  )
+)
 <<< 8.13
 maxColumn = 80
 ===
@@ -2446,16 +2471,20 @@ private lazy val subNode: Parser[SubNode] = rep(' ') ~>
    '^' ~ '^' ^^ (a => SelectThisNode(false)))
 >>>
 private lazy val subNode: Parser[SubNode] =
-  rep(' ') ~>
-    ((opt('*') ~ '[' ~> attrName <~ '+' ~ ']' ^^ { name =>
-      AttrAppendSubNode(name)
-    }) |
-      (opt('*') ~ '[' ~> attrName <~ '!' ~ ']' ^^ { name =>
+  rep(' ') ~> (
+    (
+      opt('*') ~ '[' ~> attrName <~ '+' ~ ']' ^^ { name =>
+        AttrAppendSubNode(name)
+      }
+    ) | (
+      opt('*') ~ '[' ~> attrName <~ '!' ~ ']' ^^ { name =>
         AttrRemoveSubNode(name)
-      }) |
-      (opt('*') ~ '[' ~> attrName <~ ']' ^^ { name =>
+      }
+    ) | (
+      opt('*') ~ '[' ~> attrName <~ ']' ^^ { name =>
         AttrSubNode(name)
-      }) |
+      }
+    ) |
       ('!' ~ '!' ^^ (a => DontMergeAttributes)) |
       ('<' ~ '*' ~ '>') ^^
       (a => SurroundKids()) |
@@ -2468,7 +2497,8 @@ private lazy val subNode: Parser[SubNode] =
       '^' ~ '*' ^^
       (a => SelectThisNode(true)) |
       '^' ~ '^' ^^
-      (a => SelectThisNode(false)))
+      (a => SelectThisNode(false))
+  )
 <<< 8.15
 maxColumn = 80
 ===
@@ -2503,17 +2533,21 @@ object a {
         ("entityId" -> data("data[id]")) ~
         ("targetEntityType" -> "list") ~
         ("targetEntityId" -> data("data[list_id]")) ~
-        ("eventTime" -> eventTime) ~
-        ("properties" ->
-          (("email" -> data("data[email]")) ~
-            ("email_type" -> data("data[email_type]")) ~
-            ("merges" ->
-              (("EMAIL" -> data("data[merges][EMAIL]")) ~
-                ("FNAME" -> data("data[merges][FNAME]"))) ~
-              ("LNAME" -> data("data[merges][LNAME]")) ~
-              ("INTERESTS" -> data.get("data[merges][INTERESTS]")))) ~
-          ("ip_opt" -> data("data[ip_opt]")) ~
-          ("ip_signup" -> data("data[ip_signup]")))
+        ("eventTime" -> eventTime) ~ (
+          "properties" -> (
+            ("email" -> data("data[email]")) ~
+              ("email_type" -> data("data[email_type]")) ~ (
+                "merges" -> (
+                  ("EMAIL" -> data("data[merges][EMAIL]")) ~
+                    ("FNAME" -> data("data[merges][FNAME]"))
+                ) ~
+                  ("LNAME" -> data("data[merges][LNAME]")) ~
+                  ("INTERESTS" -> data.get("data[merges][INTERESTS]"))
+              )
+          ) ~
+            ("ip_opt" -> data("data[ip_opt]")) ~
+            ("ip_signup" -> data("data[ip_signup]"))
+        )
     json
   }
 }
@@ -2588,12 +2622,14 @@ object a {
 }
 >>>
 object a {
-  (people.map(p => (p.name, p.age))
-  // c1
-  returning people.map(_.id)
-  // c2
-  into
-    ((nameAge, id) => Person(id, nameAge._1, nameAge._2)))
+  (
+    people.map(p => (p.name, p.age))
+    // c1
+    returning people.map(_.id)
+    // c2
+    into
+      ((nameAge, id) => Person(id, nameAge._1, nameAge._2))
+  )
 }
 <<< 8.19
 maxColumn = 80
@@ -2637,13 +2673,12 @@ private val allParams: Map[String, String] = mandatoryParams +
     )
 >>>
 private val allParams: Map[String, String] =
-  mandatoryParams +
-    (
-      "data-config" -> dummyOptionalConfigPath,
-      "max-sales-mappers" -> "10",
-      "overwrite" -> null,
-      "keep" -> dummyOptionalMaxVersionCount
-    )
+  mandatoryParams + (
+    "data-config" -> dummyOptionalConfigPath,
+    "max-sales-mappers" -> "10",
+    "overwrite" -> null,
+    "keep" -> dummyOptionalMaxVersionCount
+  )
 <<< 8.22
 maxColumn = 40
 ===
@@ -2655,13 +2690,13 @@ maxColumn = 40
                         "   |    toDie: ", "\n" + indent + "   |           ", ""
                      ))
 >>>
-"Terminating(" + reason + ")" +
-  (toDie.toSeq.sorted mkString
-    (
-      "\n" + indent + "   |    toDie: ",
-      "\n" + indent + "   |           ",
-      ""
-    ))
+"Terminating(" + reason + ")" + (
+  toDie.toSeq.sorted mkString (
+    "\n" + indent + "   |    toDie: ",
+    "\n" + indent + "   |           ",
+    ""
+  )
+)
 <<< 8.23
 maxColumn = 80
 ===
@@ -2674,14 +2709,15 @@ val ret = (if (dailyStats.isEmpty)
                      yestNav) / nav - 1
                  })
 >>>
-val ret =
-  (if (dailyStats.isEmpty)
-     0
-   else {
-     val yestStats = dailyStats.last
-     val yestNav = yestStats.nav
-     (nav - yestNav) / nav - 1
-   })
+val ret = (
+  if (dailyStats.isEmpty)
+    0
+  else {
+    val yestStats = dailyStats.last
+    val yestNav = yestStats.nav
+    (nav - yestNav) / nav - 1
+  }
+)
 <<< 8.24
 maxColumn = 80
 ===
@@ -3959,10 +3995,12 @@ a match {
         Root / "foo" | Root / "bar" |
         Root / "baz" / _ / "qux"
       ) =>
-    (if (foo)
-       (foo) + bar
-     else
-       foo + (bar)) + (baz)
+    (
+      if (foo)
+        (foo) + bar
+      else
+        foo + (bar)
+    ) + (baz)
   case (
         Root / "foo" | Root / "bar" |
         Root / "baz" / _ / "qux"
@@ -3990,10 +4028,12 @@ a match {
         Root / "foo" | Root / "bar" |
         Root / "baz" / _ / "qux"
       ) =>
-    ( if ( foo )
+    (
+      if ( foo )
         ( foo ) + bar
       else
-        foo + ( bar ) ) + ( baz )
+        foo + ( bar )
+    ) + ( baz )
   case (
         Root / "foo" | Root / "bar" |
         Root / "baz" / _ / "qux"
@@ -6940,10 +6980,9 @@ object a {
 >>>
 object a {
   val expected = Map(
-    "foos" ->
-      (
-        ("xyz", "1")
-      ), // the "cas unique" values are predictable from a fresh memcached
+    "foos" -> (
+      ("xyz", "1")
+    ), // the "cas unique" values are predictable from a fresh memcached
     a -> b
   )
 }
@@ -6991,9 +7030,11 @@ object a {
 >>>
 object a {
   val ui = LiftRules.jsArtifacts
-  (<span>{
-    rs % ("onclick" -> (ui.hide(sid).cmd & ui.showAndFocus(hid).cmd & JsRaw("return false;")))
-  }</span>)
+  (
+    <span>{
+      rs % ("onclick" -> (ui.hide(sid).cmd & ui.showAndFocus(hid).cmd & JsRaw("return false;")))
+    }</span>
+  )
 }
 <<< SM 4.7.0: 10
 object a {
@@ -7039,14 +7080,15 @@ foo match {
           ScInfixExpr(
             (
               ref: ScReferenceExpression
-            ) &&
-            (ResolvesTo(
-              target @ Parent(
-                Parent(
-                  entity: ScVariable
+            ) && (
+              ResolvesTo(
+                target @ Parent(
+                  Parent(
+                    entity: ScVariable
+                  )
                 )
               )
-            )),
+            ),
             ElementText(operator),
             _
           )
@@ -7102,10 +7144,10 @@ object a {
 >>>
 object a {
   foldedTopics + shortStringLength(topic) + 4 + /* partition count */
-    partitionFetchInfos.size *
-    (4 + /* partition id */
-      8 + /* offset */
-      4 /* fetch size */
+    partitionFetchInfos.size * (
+      4 + /* partition id */
+        8 + /* offset */
+        4 /* fetch size */
     )
 }
 <<< SM 4.7.0: 15
@@ -7582,16 +7624,17 @@ object a {
 }
 >>>
 object a {
-  val acceptableMimeTypes =
+  val acceptableMimeTypes = (
     (
-      (Seq(ApplicationJson, XJsonStream, TextCSV).map { mt =>
+      Seq(ApplicationJson, XJsonStream, TextCSV).map { mt =>
         mt -> (mt, mt)
-      }) ++
-        Seq(
-          AnyMimeType -> (XJsonStream, XJsonStream),
-          OctetStream -> (XJsonStream, OctetStream)
-        )
-    ).toMap
+      }
+    ) ++
+      Seq(
+        AnyMimeType -> (XJsonStream, XJsonStream),
+        OctetStream -> (XJsonStream, OctetStream)
+      )
+  ).toMap
 }
 <<< SM 7.4.0: 33
 maxColumn = 80
@@ -7606,16 +7649,17 @@ object a {
 }
 >>>
 object a {
-  val acceptableMimeTypes =
+  val acceptableMimeTypes = (
     (
-      (Seq(ApplicationJson, XJsonStream, TextCSV).map { mt =>
+      Seq(ApplicationJson, XJsonStream, TextCSV).map { mt =>
         mt -> (mt, mt)
-      }) ++
-        Seq(
-          AnyMimeType -> (XJsonStream, XJsonStream),
-          OctetStream -> (XJsonStream, OctetStream)
-        )
-    ).toMap
+      }
+    ) ++
+      Seq(
+        AnyMimeType -> (XJsonStream, XJsonStream),
+        OctetStream -> (XJsonStream, OctetStream)
+      )
+  ).toMap
 }
 <<< SM 7.4.0: 34.1
 maxColumn = 80
@@ -7647,12 +7691,11 @@ object a {
 >>>
 object a {
   val default =
-    methodSym newValueParameter
-      (
-        newTermName("default"),
-        tree.pos.focus,
-        SYNTHETIC
-      ) setInfo functionType(List(A1.tpe), B1.tpe)
+    methodSym newValueParameter (
+      newTermName("default"),
+      tree.pos.focus,
+      SYNTHETIC
+    ) setInfo functionType(List(A1.tpe), B1.tpe)
 }
 <<< SM 7.4.0: 35
 maxColumn = 76
@@ -7908,11 +7951,10 @@ object a {
 >>>
 object a {
   assert(
-    t21 ==
-      (
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
-        20, 21
-      )
+    t21 == (
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+      21
+    )
   )
 }
 <<< SM 7.4.0: 44
@@ -8146,11 +8188,12 @@ object a {
   """ +
       opts.map { case (value, text) =>
         "y=document.createElement('option'); " + "y.text = " + text.encJs +
-          "; " + "y.value = " + value.encJs + "; " +
-          (if (Full(value) == dflt)
-             "y.selected = true; "
-           else
-             "") +
+          "; " + "y.value = " + value.encJs + "; " + (
+            if (Full(value) == dflt)
+              "y.selected = true; "
+            else
+              ""
+          ) +
           " try {x.add(y, null);} catch(e) {if (typeof(e) == 'object' && typeof(e.number) == 'number' && (e.number & 0xFFFF) == 5){ x.add(y,x.options.length); } } "
       }
 }
@@ -9553,22 +9596,23 @@ trait Infer {
       else
         accessible match {
           case sym =>
-            tree setSymbol sym1 setType
-              (pre match {
+            tree setSymbol sym1 setType (
+              pre match {
                 // OPT: avoid lambda allocation and Type.map for super constructor calls
                 case _: SuperType
                     if !sym.isConstructor &&
                       !owntype.isInstanceOf[OverloadedType] =>
-                  owntype map
-                    ((tp: Type) =>
+                  owntype map (
+                    (tp: Type) =>
                       if (tp eq pre)
                         site.symbol.thisType
                       else
                         tp
-                    )
+                  )
                 case _ =>
                   owntype
-              })
+              }
+            )
         }
     }
   }
@@ -9962,14 +10006,15 @@ class ClassEmitter {
       } yield
         // Real constructor
         js.JSDocConstructor(realCtorDef.head) :: realCtorDef.tail :::
-          chainProto :::
-          (genIdentBracketSelect(prototypeFor(ctorVar), "constructor") :=
-            ctorVar) ::
+          chainProto ::: (
+            genIdentBracketSelect(prototypeFor(ctorVar), "constructor") :=
+              ctorVar
+          ) ::
           // Inheritable constructor
           js.JSDocConstructor(inheritableCtorDef.head) ::
-          inheritableCtorDef.tail :::
-          (globalVar(VarField.h, className).prototype :=
-            prototypeFor(ctorVar)) :: Nil
+          inheritableCtorDef.tail ::: (
+            globalVar(VarField.h, className).prototype := prototypeFor(ctorVar)
+          ) :: Nil
     }
 
 }
@@ -10192,37 +10237,36 @@ private object MemoMap {
               map.get(layer) match {
                 case None =>
                   for {
-                    memoized =
+                    memoized = (
+                      promise
+                        .await
+                        .onExit {
+                          case Exit
+                                .Failure(
+                                  _
+                                ) =>
+                            ZIO.unit
+                          case Exit
+                                .Success(
+                                  _
+                                ) =>
+                            observers
+                              .update(
+                                _ + 1
+                              )
+                        },
                       (
-                        promise
-                          .await
-                          .onExit {
-                            case Exit
-                                  .Failure(
-                                    _
-                                  ) =>
-                              ZIO.unit
-                            case Exit
-                                  .Success(
-                                    _
-                                  ) =>
-                              observers
-                                .update(
-                                  _ + 1
-                                )
-                          },
-                        (
-                          exit: Exit[
-                            Any,
-                            Any
-                          ]
-                        ) =>
-                          finalizerRef
-                            .get
-                            .flatMap(
-                              _(exit)
-                            )
-                      )
+                        exit: Exit[
+                          Any,
+                          Any
+                        ]
+                      ) =>
+                        finalizerRef
+                          .get
+                          .flatMap(
+                            _(exit)
+                          )
+                    )
                   } yield (
                     resource,
                     if (layer.isFresh)
@@ -10391,19 +10435,18 @@ object a {
                         } yield tp
                       }
 
-                      memoized =
-                        (
-                          promise
-                            .await
-                            .onExit {
-                              case Exit.Failure(_) =>
-                                ZIO.unit
-                              case Exit.Success(_) =>
-                                observers.update(_ + 1)
-                            },
-                          (exit: Exit[Any, Any]) =>
-                            finalizerRef.get.flatMap(_(exit))
-                        )
+                      memoized = (
+                        promise
+                          .await
+                          .onExit {
+                            case Exit.Failure(_) =>
+                              ZIO.unit
+                            case Exit.Success(_) =>
+                              observers.update(_ + 1)
+                          },
+                        (exit: Exit[Any, Any]) =>
+                          finalizerRef.get.flatMap(_(exit))
+                      )
                     } yield (
                       resource,
                       if (layer.isFresh)
@@ -11612,8 +11655,8 @@ def stop(step: Double, ndir: Double, nx: Double): Boolean = {
   )
 }
 >>>
-def stop(step: Double, ndir: Double, nx: Double): Boolean =
-  ((step.isNaN) // NaN
+def stop(step: Double, ndir: Double, nx: Double): Boolean = (
+  (step.isNaN) // NaN
   ||
     (step < 1e-7) // too small or negative
     ||
@@ -11622,7 +11665,7 @@ def stop(step: Double, ndir: Double, nx: Double): Boolean =
     (ndir < 1e-12 * nx) // gradient relatively too small
     ||
     (ndir < 1e-32) // gradient absolutely too small; numerical issues may lurk
-  )
+)
 <<< #4542 narrow
 maxColumn = 40
 binPack.parentConstructors = source
@@ -13393,11 +13436,10 @@ object a {
   a =
     foo > bar && bar.baz && baz > qux &&
       qux > xyz
-  b =
-    (
-      foo > bar && bar.baz && baz > qux &&
-        qux > xyz
-    )
+  b = (
+    foo > bar && bar.baz && baz > qux &&
+      qux > xyz
+  )
   c = {
     foo > bar && bar.baz && baz > qux &&
     qux > xyz
@@ -13424,11 +13466,10 @@ object a {
   ) {}
   a = (foo > bar) &&
     bar.baz && baz > qux && qux > xyz
-  b =
-    (
-      (foo > bar) &&
-        bar.baz && baz > qux && qux > xyz
-    )
+  b = (
+    (foo > bar) &&
+      bar.baz && baz > qux && qux > xyz
+  )
   c = {
     (foo > bar) &&
     bar.baz && baz > qux && qux > xyz
@@ -13456,11 +13497,10 @@ object a {
   a =
     foo > bar && (bar.baz) && baz > qux &&
       qux > xyz
-  b =
-    (
-      foo > bar && (bar.baz) && baz > qux &&
-        qux > xyz
-    )
+  b = (
+    foo > bar && (bar.baz) && baz > qux &&
+      qux > xyz
+  )
   c = {
     foo > bar && (bar.baz) && baz > qux &&
     qux > xyz
@@ -13490,12 +13530,11 @@ object a {
     foo > bar && bar.baz &&
       (baz > qux) &&
       qux > xyz
-  b =
-    (
-      foo > bar && bar.baz &&
-        (baz > qux) &&
-        qux > xyz
-    )
+  b = (
+    foo > bar && bar.baz &&
+      (baz > qux) &&
+      qux > xyz
+  )
   c = {
     foo > bar && bar.baz &&
     (baz > qux) &&
@@ -13524,11 +13563,10 @@ object a {
   a =
     foo > bar && bar.baz && baz > qux &&
       (qux > xyz)
-  b =
-    (
-      foo > bar && bar.baz && baz > qux &&
-        (qux > xyz)
-    )
+  b = (
+    foo > bar && bar.baz && baz > qux &&
+      (qux > xyz)
+  )
   c = {
     foo > bar && bar.baz && baz > qux &&
     (qux > xyz)
@@ -13555,11 +13593,10 @@ object a {
   ) {}
   a = (foo > bar) &&
     (bar.baz) && baz > qux && qux > xyz
-  b =
-    (
-      (foo > bar) &&
-        (bar.baz) && baz > qux && qux > xyz
-    )
+  b = (
+    (foo > bar) &&
+      (bar.baz) && baz > qux && qux > xyz
+  )
   c = {
     (foo > bar) &&
     (bar.baz) && baz > qux && qux > xyz
@@ -13588,12 +13625,11 @@ object a {
   a = (foo > bar) &&
     (bar.baz) && baz > qux &&
     (qux > xyz)
-  b =
-    (
-      (foo > bar) &&
-        (bar.baz) && baz > qux &&
-        (qux > xyz)
-    )
+  b = (
+    (foo > bar) &&
+      (bar.baz) && baz > qux &&
+      (qux > xyz)
+  )
   c = {
     (foo > bar) &&
     (bar.baz) && baz > qux &&
@@ -13625,13 +13661,12 @@ object a {
     bar.baz &&
     (baz > qux) &&
     (qux > xyz)
-  b =
-    (
-      (foo > bar) &&
-        bar.baz &&
-        (baz > qux) &&
-        (qux > xyz)
-    )
+  b = (
+    (foo > bar) &&
+      bar.baz &&
+      (baz > qux) &&
+      (qux > xyz)
+  )
   c = {
     (foo > bar) &&
     bar.baz &&
@@ -13663,12 +13698,11 @@ object a {
     foo > bar && (bar.baz) &&
       (baz > qux) &&
       (qux > xyz)
-  b =
-    (
-      foo > bar && (bar.baz) &&
-        (baz > qux) &&
-        (qux > xyz)
-    )
+  b = (
+    foo > bar && (bar.baz) &&
+      (baz > qux) &&
+      (qux > xyz)
+  )
   c = {
     foo > bar && (bar.baz) &&
     (baz > qux) &&
@@ -13700,13 +13734,12 @@ object a {
     (bar.baz) &&
     (baz > qux) &&
     (qux > xyz)
-  b =
-    (
-      (foo > bar) &&
-        (bar.baz) &&
-        (baz > qux) &&
-        (qux > xyz)
-    )
+  b = (
+    (foo > bar) &&
+      (bar.baz) &&
+      (baz > qux) &&
+      (qux > xyz)
+  )
   c = {
     (foo > bar) &&
     (bar.baz) &&
@@ -13727,10 +13760,11 @@ newlines.infix.termSite {
    !sym.hasAnnotation(JSNativeAnnotation)
  )
 >>>
-!sym.isStaticOwner ||
-  (sym.isModuleClass &&
+!sym.isStaticOwner || (
+  sym.isModuleClass &&
     sym.hasAnnotation(JSTypeAnnot) &&
-    !sym.hasAnnotation(JSNativeAnnotation))
+    !sym.hasAnnotation(JSNativeAnnotation)
+)
 <<< blank before nested infix, with breakOnNested 12
 maxColumn = 49
 newlines.infix.termSite {
@@ -13751,9 +13785,11 @@ object a {
 object a {
   !sym.isStaticOwner
 
-  (sym.isModuleClass &&
-    sym.hasAnnotation(JSTypeAnnot) &&
-    !sym.hasAnnotation(JSNativeAnnotation))
+  (
+    sym.isModuleClass &&
+      sym.hasAnnotation(JSTypeAnnot) &&
+      !sym.hasAnnotation(JSNativeAnnotation)
+  )
 }
 <<< nested infix as a statement
 maxColumn = 49
@@ -13774,11 +13810,13 @@ object a {
 object a {
   val thisFile = this.symbol.associatedFile
   val thatFile = other.associatedFile
-  (thisFile == null || thatFile == null ||
-    thisFile.path ==
-    thatFile
-      .path // Cheap possibly wrong check, then expensive normalization
-    ||
-    thisFile.canonicalPath ==
-    thatFile.canonicalPath)
+  (
+    thisFile == null || thatFile == null ||
+      thisFile.path ==
+      thatFile
+        .path // Cheap possibly wrong check, then expensive normalization
+      ||
+      thisFile.canonicalPath ==
+      thatFile.canonicalPath
+  )
 }

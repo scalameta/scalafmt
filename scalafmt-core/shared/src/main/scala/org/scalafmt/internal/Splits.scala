@@ -2084,13 +2084,7 @@ object SplitsAfterLeftParen extends Splits {
       case Newlines.keep =>
         Seq(if (hasBreak) newlineSplit(0, isConfig) else spaceSplit)
       case _ =>
-        val singleLine = enclosed.forall(x =>
-          cfg.newlines.unfold && findTreeWithParent(x) {
-            case _: Template.Body | _: Defn | _: Member.Infix => Some(true)
-            case t: Term.Block if !isEnclosedInBraces(t) => None
-            case _ => Some(false)
-          }.isEmpty,
-        )
+        val singleLine = enclosed.isEmpty || cfg.newlines.unfold
         Seq(
           if (!singleLine) spaceSplit
           else spaceSplitWithoutPolicy.withSingleLine(close).andPolicy(

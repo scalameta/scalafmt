@@ -7227,8 +7227,8 @@ object a:
   )
 >>>
 object a:
-   def foo =
-     (bar match
+   def foo = (
+     bar match
         case _ =>
           (
             baz match
@@ -7236,7 +7236,7 @@ object a:
                  TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[Object]
                    .toArray_asInstanceOf[IArray_Object] // TODO
           ).asInstanceOf[Tuple]
-     )
+   )
 <<< #4133 enclosed match within enclosed match, with overflow and comment, and rewrite
 rewrite.scala3.removeOptionalBraces = yes
 ===
@@ -7249,8 +7249,8 @@ object a:
   })
 >>>
 object a:
-   def foo =
-     (bar match
+   def foo = (
+     bar match
         case _ =>
           (
             baz match
@@ -7258,7 +7258,7 @@ object a:
                  TupleXXL_fromIArray_xs_productIterator_map_asInstanceOf[Object]
                    .toArray_asInstanceOf[IArray_Object] // TODO
           ).asInstanceOf[Tuple]
-     )
+   )
 <<< rewrite opt-braces match as apply arg
 rewrite.scala3.removeOptionalBraces = yes
 ===
@@ -7906,15 +7906,15 @@ processTreeOpt(s) { s match
 processTreeOpt(s) {
   s match
      case td: TypeDef
-         if !td.symbol.flags.is(Flags.Synthetic) &&
-           (!td.symbol.flags.is(Flags.Case) ||
-             !td.symbol.flags.is(Flags.Enum)) =>
+         if !td.symbol.flags.is(Flags.Synthetic) && (
+           !td.symbol.flags.is(Flags.Case) || !td.symbol.flags.is(Flags.Enum)
+         ) =>
        Some(parseTypeDef(td, c))
 
      case vd: ValDef
-         if !isSyntheticField(vd.symbol) &&
-           (!vd.symbol.flags.is(Flags.Case) ||
-             !vd.symbol.flags.is(Flags.Enum)) =>
+         if !isSyntheticField(vd.symbol) && (
+           !vd.symbol.flags.is(Flags.Case) || !vd.symbol.flags.is(Flags.Enum)
+         ) =>
        Some(parseValDef(c, vd))
 
      case c: ClassDef if c.symbol.shouldDocumentClasslike =>
@@ -8523,18 +8523,19 @@ rewrite.rules = [RedundantBraces, RedundantParens]
 >>>
 val simpleVersionString: String = {
   val v = scalaPropOrElse("version.number", "(unknown)")
-  v +
-    (if (
-       v.contains {
-         "SNAPSHOT"
-       } ||
-       v.contains {
-         "NIGHTLY"
-       }
-     )
-       "-git-" + scalaPropOrElse("git.hash", "(unknown)")
-     else
-       "")
+  v + (
+    if (
+      v.contains {
+        "SNAPSHOT"
+      } ||
+      v.contains {
+        "NIGHTLY"
+      }
+    )
+      "-git-" + scalaPropOrElse("git.hash", "(unknown)")
+    else
+      ""
+  )
 }
 <<< don't rewrite complex infix to parens
 rewrite.redundantBraces.oneStatApply.parensMaxSpan = 500
@@ -8566,9 +8567,10 @@ rewrite.rules = [RedundantBraces, RedundantParens]
 val privateFlag = !sym.isClass && (sym.is(Private) || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
 >>>
 val privateFlag =
-  !sym.isClass &&
-    (sym.is(Private) ||
-      (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
+  !sym.isClass && (
+    sym.is(Private) ||
+      (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass)
+  )
 <<< do not rewrite infix to braces
 rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -8576,10 +8578,11 @@ rewrite.rules = [RedundantBraces, RedundantParens]
 val privateFlag = !sym.isClass && (sym.is(Private) || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
 >>>
 val privateFlag =
-  !sym.isClass &&
-    (sym.is {
+  !sym.isClass && (
+    sym.is {
       Private
-    } || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
+    } || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass)
+  )
 <<< rewrite infix function to braces
 rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
 rewrite.rules = [RedundantBraces, RedundantParens]
