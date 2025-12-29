@@ -421,6 +421,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
       @inline
       def goon = Left(next(xft))
       xft.right match {
+        case _ if xft.hasBlankLine => done
         case _: T.Comment =>
           if (xft.hasBreak) done
           else if (xft.rightHasNewline) null
