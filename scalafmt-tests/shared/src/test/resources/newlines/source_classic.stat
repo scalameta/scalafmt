@@ -12920,8 +12920,7 @@ object a {
 }
 >>>
 object a {
-  val cursor = (" " * index) +
-    "^"
+  val cursor = (" " * index) + "^"
 
   s"""|$desc near index $index
        |$regex
