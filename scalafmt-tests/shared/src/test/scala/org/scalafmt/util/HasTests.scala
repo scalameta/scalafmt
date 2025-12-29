@@ -25,11 +25,12 @@ trait HasTests extends FormatAssertions {
 
   def testsToRun: Seq[DiffTest] = {
     val evalTests = tests
-    val onlyTests = evalTests.filter(_.only)
+    val onlyTests = evalTests.filter(_.only.isDefined)
     if (onlyTests.nonEmpty) onlyTests else tests
   }
 
-  def isOnly(name: String) = isPrefix(name, onlyPrefix)
+  def getOnly(name: String, flag: Boolean) =
+    if (isPrefix(name, onlyPrefix)) Some(flag) else None
 
   def isSkip(name: String) = isPrefix(name, skipPrefix)
 
@@ -49,16 +50,17 @@ trait HasTests extends FormatAssertions {
   def parseDiffTests(path: Path, notOnly: Boolean): Seq[DiffTest] = {
     val filename = path.toString
     val content = PlatformFileOps.readFile(path)
-    val moduleOnly = isOnly(content)
+    val moduleOnly = getOnly(content, flag = false)
     val moduleSkip = isSkip(content)
     val sep =
       if (content.contains(System.lineSeparator)) System.lineSeparator else "\n"
-    if (notOnly) if (moduleOnly || content.contains(s"$sep<<< $onlyPrefix")) sys
-      .error(
-        s"""|Please remove ONLY from file '$filename'.
-            |Tests with ONLY will not be merged, this feature is only meant to be used for local development.
-            |           """.stripMargin,
-      )
+    val badOnly = notOnly &&
+      (moduleOnly.isDefined || content.contains(s"$sep<<< $onlyPrefix"))
+    if (badOnly) sys.error(
+      s"""|Please remove ONLY from file '$filename'.
+          |Tests with ONLY will not be merged, this feature is only meant to be used for local development.
+          |           """.stripMargin,
+    )
     val spec = BuildInfo.resourceDirectory.toPath.relativize(path).getName(0)
       .toString
 
@@ -134,7 +136,7 @@ trait HasTests extends FormatAssertions {
         original,
         trimmed(expected),
         moduleSkip || isSkip(name),
-        moduleOnly || isOnly(name),
+        getOnly(name, flag = true).orElse(moduleOnly),
         testStyle,
         stateVisits = getExtraNum("stateVisits"),
         stateVisits2 = getExtraNum("stateVisits2"),
