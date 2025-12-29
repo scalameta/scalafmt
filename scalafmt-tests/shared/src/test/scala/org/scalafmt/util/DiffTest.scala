@@ -13,7 +13,7 @@ case class DiffTest(
     original: String,
     expected: String,
     skip: Boolean,
-    only: Boolean,
+    only: Option[Boolean],
     style: ScalafmtConfig,
     stateVisits: Option[Int] = None,
     stateVisits2: Option[Int] = None,

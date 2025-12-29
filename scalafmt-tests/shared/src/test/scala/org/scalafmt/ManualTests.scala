@@ -27,7 +27,7 @@ object ManualTests extends HasTests {
             original,
             original,
             isSkip(name),
-            isOnly(name),
+            getOnly(name, flag = true),
             style,
           )
         }
@@ -43,7 +43,7 @@ object ManualTests extends HasTests {
         content,
         content,
         false,
-        false,
+        None,
         style,
       )
     }
