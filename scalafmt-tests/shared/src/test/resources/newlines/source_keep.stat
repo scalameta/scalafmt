@@ -12681,6 +12681,25 @@ bar(
         |xyzzy
         |""".stripMargin
 )
+<<< expr with multiline after blank, !ignoreInSyntax
+newlines.ignoreInSyntax = false
+===
+object a {
+  val cursor = (" " * index) + "^"
+ 
+   s"""|$desc near index $index
+       |$regex
+       |$cursor""".stripMargin
+}
+>>>
+object a {
+  val cursor = (" " * index) +
+    "^"
+
+  s"""|$desc near index $index
+       |$regex
+       |$cursor""".stripMargin
+}
 <<< `if` as single-arg of apply, openParenCallSite
 align.openParenCallSite = true
 newlines.configStyle.callSite.prefer = false
