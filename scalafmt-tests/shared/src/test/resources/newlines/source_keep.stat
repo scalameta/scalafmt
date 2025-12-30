@@ -192,7 +192,7 @@ object a {
     have message """Cannot resolve column name "user" among (segment_id);"""
 }
 <<< 1.c.3: block followed by an infix, break before, overflowing if no break
-newlines.afterInfix = keep
+newlines.infix.termSite.maxCountPerFile = 0
 maxColumn = 80
 ===
 object a {
@@ -207,7 +207,7 @@ object a {
     have message """Cannot resolve column name "user" among (segment_id);"""
 }
 <<< 1.c.4: block followed by an infix, no break before, overflowing if no break
-newlines.afterInfix = keep
+newlines.infix.termSite.maxCountPerFile = 0
 maxColumn = 80
 ===
 object a {
@@ -5629,7 +5629,7 @@ object a {
       a
 }
 <<< #2019 infix
-newlines.afterInfix = keep
+newlines.infix.termSite.maxCountPerFile = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -5659,7 +5659,7 @@ object a {
   }
 }
 <<< #2019 if-else !alwaysBeforeElseAfterCurlyIf
-newlines.afterInfix = keep
+newlines.infix.termSite.maxCountPerFile = 0
 newlines.alwaysBeforeElseAfterCurlyIf = false
 rewrite.insertBraces.minLines = 2
 ===
@@ -5714,7 +5714,7 @@ object a {
   }
 }
 <<< #2019 if-else alwaysBeforeElseAfterCurlyIf
-newlines.afterInfix = keep
+newlines.infix.termSite.maxCountPerFile = 0
 newlines.alwaysBeforeElseAfterCurlyIf = true
 rewrite.insertBraces.minLines = 2
 ===
@@ -5774,7 +5774,7 @@ object a {
 }
 <<< #2019 try !alwaysBeforeElseAfterCurlyIf !allBlocks
 maxColumn = 12
-newlines.afterInfix = keep
+newlines.infix.termSite.maxCountPerFile = 0
 newlines.alwaysBeforeElseAfterCurlyIf = false
 rewrite.insertBraces.minLines = 2
 ===
@@ -5801,7 +5801,7 @@ object a {
 }
 <<< #2019 try !alwaysBeforeElseAfterCurlyIf allBlocks
 maxColumn = 12
-newlines.afterInfix = keep
+newlines.infix.termSite.maxCountPerFile = 0
 newlines.alwaysBeforeElseAfterCurlyIf = false
 rewrite.insertBraces.minLines = 2
 rewrite.insertBraces.allBlocks = true
@@ -5830,7 +5830,7 @@ object a {
 }
 <<< #2019 try alwaysBeforeElseAfterCurlyIf !allBlocks
 maxColumn = 12
-newlines.afterInfix = keep
+newlines.infix.termSite.maxCountPerFile = 0
 newlines.alwaysBeforeElseAfterCurlyIf = true
 rewrite.insertBraces.minLines = 2
 ===
@@ -5858,7 +5858,7 @@ object a {
 }
 <<< #2019 try alwaysBeforeElseAfterCurlyIf allBlocks
 maxColumn = 12
-newlines.afterInfix = keep
+newlines.infix.termSite.maxCountPerFile = 0
 newlines.alwaysBeforeElseAfterCurlyIf = true
 rewrite.insertBraces.minLines = 2
 rewrite.insertBraces.allBlocks = true
@@ -5889,7 +5889,7 @@ object a {
 }
 <<< #2019 function
 maxColumn = 12
-newlines.afterInfix = keep
+newlines.infix.termSite.maxCountPerFile = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -5923,7 +5923,7 @@ object a {
 }
 <<< #2019 partial function
 maxColumn = 25
-newlines.afterInfix = keep
+newlines.infix.termSite.maxCountPerFile = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -5941,7 +5941,7 @@ object a {
 }
 <<< #2019 for-yield !allBlocks
 maxColumn = 12
-newlines.afterInfix = keep
+newlines.infix.termSite.maxCountPerFile = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -5970,7 +5970,7 @@ object a {
 }
 <<< #2019 for-yield allBlocks
 maxColumn = 12
-newlines.afterInfix = keep
+newlines.infix.termSite.maxCountPerFile = 0
 rewrite.insertBraces.minLines = 2
 rewrite.insertBraces.allBlocks = true
 ===
@@ -6001,7 +6001,7 @@ object a {
 }
 <<< #2019 for-do !allBlocks
 maxColumn = 12
-newlines.afterInfix = keep
+newlines.infix.termSite.maxCountPerFile = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -6069,7 +6069,7 @@ object a {
 }
 <<< #2019 for-do allBlocks
 maxColumn = 12
-newlines.afterInfix = keep
+newlines.infix.termSite.maxCountPerFile = 0
 rewrite.insertBraces.minLines = 2
 rewrite.insertBraces.allBlocks = true
 ===
@@ -11680,7 +11680,7 @@ object Foo {
 <<< #4705 term=some, type=keep
 maxColumn = 80
 newlines.infix.termSite.style = some
-newlines.infix.typeSite.style = keep
+newlines.infix.typeSite.maxCountPerFile = 0
 ===
 object Foo {
   def oldStyle: Traverse[Option] with MonadError[Option, Unit] with Alternative[Option] with CommutativeMonad[Option] with CoflatMap[Option] with Align[Option] =
@@ -11707,7 +11707,7 @@ object Foo {
 }
 <<< #4705 term=keep, type=some
 maxColumn = 80
-newlines.infix.termSite.style = keep
+newlines.infix.termSite.maxCountPerFile = 0
 newlines.infix.typeSite.style = some
 ===
 object Foo {

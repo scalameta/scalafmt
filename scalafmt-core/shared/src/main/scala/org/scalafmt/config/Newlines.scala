@@ -405,6 +405,10 @@ object Newlines {
     }
 
     def keep(tree: Tree): Boolean = get(tree).isKeep
+
+    private[config] def sourceIgnoredIfSet: Boolean =
+      termSite.sourceIgnoredIfSet && typeSite.forall(_.sourceIgnoredIfSet) &&
+        patSite.forall(_.sourceIgnoredIfSet)
   }
 
   object Infix {
@@ -413,10 +417,18 @@ object Newlines {
     implicit lazy val codec: ConfCodecEx[Infix] = generic.deriveCodecEx(default)
       .noTypos
 
-    sealed abstract class Style
-    case object keep extends Style
-    case object some extends Style
-    case object many extends Style
+    sealed abstract class Style {
+      def sourceIgnored: Boolean
+    }
+    case object keep extends Style {
+      def sourceIgnored: Boolean = false
+    }
+    case object some extends Style {
+      def sourceIgnored: Boolean = true
+    }
+    case object many extends Style {
+      def sourceIgnored: Boolean = true
+    }
     implicit val styleReader: ConfCodecEx[Style] = ConfCodecEx
       .oneOf[Style](keep, some, many)
 
@@ -445,10 +457,14 @@ object Newlines {
           infixCount: Int,
       )(orElseStyle: => Option[Style])(implicit cfg: ScalafmtConfig): Site =
         if (maxCountPerFile < infixCount) copy(style = keep)
-        else if (style eq null) Infix.defaultStyle(cfg.newlines.source)
-          .orElse(orElseStyle).fold(this)(x => copy(style = x))
-        else this
-      def isKeep: Boolean = (style eq keep) || (style eq null)
+        else if (style eq null) {
+          val opt = Infix.defaultStyle(cfg.newlines.source).orElse(orElseStyle)
+          copy(style = opt.getOrElse(keep))
+        } else this
+      def isKeep: Boolean = style eq keep
+      def sourceIgnored: Boolean = style.sourceIgnored
+      private[config] def sourceIgnoredIfSet: Boolean =
+        (style eq null) || sourceIgnored
     }
     object Site {
       private[Infix] val default = Site()
