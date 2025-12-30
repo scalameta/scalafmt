@@ -2467,12 +2467,18 @@ Each of these groups has several parameters of its own (replacing deprecated
 
 #### `newlines.infix: style=keep`
 
-This approach preserves line breaks in the input. This is the original
-behaviour, and default for `newlines.source=classic,keep`.
+This approach preserves existence or absence of line breaks in the input. This
+is the original behaviour, and default for `newlines.source=classic,keep`.
 
 One caveat is: for `classic` type infixes with Scala3 (or if the dialect
 [enables](#runnerdialectoverride) the `useInfixTypePrecedence` flag),
 `some` is the default.
+
+#### `newlines.infix: style=keepNL`
+
+Added in v3.10.4, this approach preserves line breaks in the input, but doesn't
+necessarily preserve their absence (and thus could add additional line breaks
+after some infix operators).
 
 #### `newlines.infix: style=many,some`
 

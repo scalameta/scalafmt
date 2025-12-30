@@ -188,8 +188,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         def useDelim = settings.oneStatApply.changeDelim(lp, ftoks.getLast(ta))
         def shouldReplaceWithBrace(s: Stat): Boolean = s match {
           case x: Term.ApplyInfix
-              if style.newlines.infix.keep(x) &&
-                !style.dialect.allowInfixOperatorAfterNL &&
+              if !style.dialect.allowInfixOperatorAfterNL &&
                 RedundantParens.breaksBeforeOp(x) => false
           case _ => useDelim eq T.LeftBrace
         }
@@ -591,7 +590,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       def checkAfterRight(wasNonComment: => Boolean) = {
         val nrft = ftoks.nextNonComment(rft)
         !nrft.right.is[T.Ident] || !isInfixOp(nrft.rightOwner) ||
-        wasNonComment && !style.newlines.infix.keep(p) ||
+        wasNonComment && style.newlines.infix.sourceIgnoredAt(nrft)(p) ||
         findTreeWithParent(p) { // check if infix is in parens
           case pp: Member.ArgClause => ftoks.getClosingIfWithinParensOrBraces(pp)
               .map(_.isRight)

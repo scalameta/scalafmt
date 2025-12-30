@@ -64,9 +64,9 @@ class FormatOps(
         if (start.rightOwner.is[Member.ParamClauseGroup]) start else null
       case _ if start.hasBlankLine => start
       case _
-          if AsInfixOp(start.rightOwner)
+          if !AsInfixOp(start.rightOwner)
             .orElse(AsInfixOp(prevNonComment(start).leftOwner))
-            .exists(style.newlines.infix.keep) =>
+            .forall(style.newlines.infix.sourceIgnored) =>
         if (start.hasBreak) start else null
       case _: T.LeftParen if (start.rightOwner match {
             case _: Member.ArgClause =>
@@ -333,7 +333,7 @@ class FormatOps(
       def spaceMod = Space(useSpaceAroundOp && (isBeforeOp || useSpaceBeforeArg))
 
       val afterInfix = style.newlines.infix.get(app)
-      if (!afterInfix.isKeep)
+      if (afterInfix.sourceIgnoredAt(ft))
         if (isBeforeOp) Seq(Split(spaceMod, 0))
         else {
           val (fullInfix, enclosedIn) = InfixSplits.findMaybeEnclosingInfix(app)

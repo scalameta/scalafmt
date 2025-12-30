@@ -26,9 +26,8 @@ object InfixSplits {
     new InfixSplits(app, ft, fullInfix, leftInfix)
   }
 
-  private def switch(splits: Seq[Split], triggers: T*): Seq[Split] = splits.map(
-    x => triggers.foldLeft(x) { case (y, trigger) => y.switch(trigger, false) },
-  )
+  private def switch(splits: Seq[Split], triggers: T*): Seq[Split] = splits
+    .map(triggers.foldLeft(_)(_.switch(_, on = false)))
 
   @tailrec
   private def findMaybeEnclosingInfix(child: Member.Infix, childTree: Tree)(
@@ -184,7 +183,7 @@ object InfixSplits {
   )(implicit style: ScalafmtConfig, ft: FT, ftoks: FormatTokens): Seq[Split] =
     asInfixApp(ft.meta.rightOwner).fold(nonInfixSplits) { ia =>
       val infixSite = style.newlines.infix.get(ia)
-      if (infixSite.isKeep) nonInfixSplits
+      if (infixSite.style eq Newlines.Infix.keep) nonInfixSplits
       else getInfixSplitsBeforeLhs(ia, infixSite, mod)
     }
 
@@ -312,13 +311,15 @@ class InfixSplits(
       Policy.onLeft(fullExpire, prefix = "INF") {
         case Decision(FT(_: T.Ident, _, m), s) if isInfixOp(m.leftOwner) =>
           InfixSplits.switch(s, triggers: _*)
-        case Decision(FT(_, _: T.Ident, m), s)
-            if AsInfixOp(m.rightOwner).exists(style.newlines.infix.keep) =>
+        case Decision(xft @ FT(_, _: T.Ident, m), s)
+            if !AsInfixOp(m.rightOwner)
+              .forall(style.newlines.infix.sourceIgnoredAt(xft)) =>
           InfixSplits.switch(s, triggers: _*)
-        case Decision(xft @ FT(_, _: T.Comment, _), s)
-            if AsInfixOp(ftoks.nextNonCommentAfter(xft).rightOwner)
-              .exists(style.newlines.infix.keep) =>
-          InfixSplits.switch(s, triggers: _*)
+        case Decision(xft @ FT(_, _: T.Comment, _), s) if {
+              val nft = ftoks.nextNonCommentAfter(xft)
+              !AsInfixOp(nft.rightOwner)
+                .forall(style.newlines.infix.sourceIgnoredAt(nft))
+            } => InfixSplits.switch(s, triggers: _*)
       }
 
     val fullTok = TokenOps.getIndentTrigger(fullInfix)
