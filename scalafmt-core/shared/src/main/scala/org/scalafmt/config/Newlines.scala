@@ -404,7 +404,9 @@ object Newlines {
       case _ => termSite
     }
 
-    def keep(tree: Tree): Boolean = get(tree).isKeep
+    def sourceIgnored(tree: Tree): Boolean = get(tree).sourceIgnored
+    def sourceIgnoredAt(ft: FT)(tree: Tree): Boolean = get(tree)
+      .sourceIgnoredAt(ft)
 
     private[config] def sourceIgnoredIfSet: Boolean =
       termSite.sourceIgnoredIfSet && typeSite.forall(_.sourceIgnoredIfSet) &&
@@ -423,6 +425,9 @@ object Newlines {
     case object keep extends Style {
       def sourceIgnored: Boolean = false
     }
+    case object keepNL extends Style {
+      def sourceIgnored: Boolean = false
+    }
     case object some extends Style {
       def sourceIgnored: Boolean = true
     }
@@ -430,7 +435,7 @@ object Newlines {
       def sourceIgnored: Boolean = true
     }
     implicit val styleReader: ConfCodecEx[Style] = ConfCodecEx
-      .oneOf[Style](keep, some, many)
+      .oneOf[Style](keep, some, many, keepNL)
 
     /** @param style
       *   Controls how line breaks around infix operations are handled
@@ -461,7 +466,8 @@ object Newlines {
           val opt = Infix.defaultStyle(cfg.newlines.source).orElse(orElseStyle)
           copy(style = opt.getOrElse(keep))
         } else this
-      def isKeep: Boolean = style eq keep
+      def sourceIgnoredAt(ft: FT): Boolean =
+        if (ft.noBreak) style ne keep else sourceIgnored
       def sourceIgnored: Boolean = style.sourceIgnored
       private[config] def sourceIgnoredIfSet: Boolean =
         (style eq null) || sourceIgnored
