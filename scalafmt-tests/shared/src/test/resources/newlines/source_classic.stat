@@ -12908,20 +12908,46 @@ bar(
         |xyzzy
         |""".stripMargin
 )
-<<< expr with multiline after blank, !ignoreInSyntax
+<<< apply with nested interpolations, !ignoreInSyntax
+maxColumn = 50
+align.stripMargin = true
+newlines.ignoreInSyntax = false
+assumeStandardLibraryStripMargin = true
+===
+bar(
+  "bar" -> s"""|qux ${foo}""".stripMargin,
+  "bar" -> s"""|qux ${"""aaa
+               |xyzzy
+               |""".stripMargin}""".stripMargin,
+  "bar" -> s"""|qux ${s"foo"}""".stripMargin,
+  "bar" -> s"""|qux ${s"""foo
+               |xyzzy
+               |""".stripMargin}""".stripMargin
+)
+>>>
+bar(
+  "bar" -> s"""|qux ${foo}""".stripMargin,
+  "bar" -> s"""|qux ${"""aaa
+                        |xyzzy
+                        |""".stripMargin}""".stripMargin,
+  "bar" -> s"""|qux ${s"foo"}""".stripMargin,
+  "bar" -> s"""|qux ${s"""foo
+                         |xyzzy
+                         |""".stripMargin}""".stripMargin
+)
+<<< expr before multiline, !ignoreInSyntax
 newlines.ignoreInSyntax = false
 ===
 object a {
   val cursor = (" " * index) + "^"
- 
    s"""|$desc near index $index
        |$regex
        |$cursor""".stripMargin
 }
 >>>
 object a {
-  val cursor = (" " * index) + "^"
-
+  val cursor = (" " * index) +
+    "^"
   s"""|$desc near index $index
        |$regex
        |$cursor""".stripMargin
