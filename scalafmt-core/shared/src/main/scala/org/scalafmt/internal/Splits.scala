@@ -668,7 +668,7 @@ object SplitsAfterEquals extends Splits {
       case _: Term.TryClause => Split.ignored
       case _
           if !cfg.newlines.ignoreInSyntax &&
-            tokens.getNonMultilineEnd(ft).isLeft => Split.ignored
+            tokens.getNonMultilineEnd(ft).isEmpty => Split.ignored
       case _ => baseSpaceSplit
           .withOptimalToken(optimalWithComment, killOnFail = false)
     }
@@ -722,7 +722,7 @@ object SplitsAfterEqualsLeftArrow {
             val noSlbOpt =
               if (!noSlb) None
               else if (cfg.newlines.ignoreInSyntax) Some(next(ft))
-              else tokens.getNonMultilineEnd(ft).toOption
+              else tokens.getNonMultilineEnd(ft)
             noSlbOpt.fold(Split(Space, 0).withSingleLine(endFt))(xft =>
               Split(Space, 0).withOptimalToken(xft, killOnFail = false),
             )

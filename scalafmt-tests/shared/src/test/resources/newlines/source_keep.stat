@@ -12700,13 +12700,15 @@ bar(
 >>>
 bar(
   "bar" -> s"""|qux ${foo}""".stripMargin,
-  "bar" -> s"""|qux ${"""aaa
-                        |xyzzy
-                        |""".stripMargin}""".stripMargin,
+  "bar" ->
+    s"""|qux ${"""aaa
+                 |xyzzy
+                 |""".stripMargin}""".stripMargin,
   "bar" -> s"""|qux ${s"foo"}""".stripMargin,
-  "bar" -> s"""|qux ${s"""foo
-                         |xyzzy
-                         |""".stripMargin}""".stripMargin
+  "bar" ->
+    s"""|qux ${s"""foo
+                  |xyzzy
+                  |""".stripMargin}""".stripMargin
 )
 <<< expr before multiline, !ignoreInSyntax
 newlines.ignoreInSyntax = false
@@ -12719,8 +12721,7 @@ object a {
 }
 >>>
 object a {
-  val cursor = (" " * index) +
-    "^"
+  val cursor = (" " * index) + "^"
   s"""|$desc near index $index
        |$regex
        |$cursor""".stripMargin
