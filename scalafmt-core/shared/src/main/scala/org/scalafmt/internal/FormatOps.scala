@@ -353,7 +353,7 @@ class FormatOps(
           .findMaybeEnclosingInfix(app)
         val fullInfixEnclosedInParens = fullInfixEnclosedIn.exists(_.isRight)
         val okSpace = isBeforeOp || style.newlines.ignoreInSyntax ||
-          tokens.getNonMultilineEnd(ft).isRight
+          tokens.getNonMultilineEnd(ft).isDefined
         def okToBreak: Boolean = !isBeforeOp || fullInfixEnclosedInParens ||
           initStyle.dialect.allowInfixOperatorAfterNL ||
           (fullInfix.parent match {
