@@ -110,13 +110,13 @@ object InfixSplits {
         SplitTag.InfixChainNoNL.activateOnly(s)
     }
 
-  private def getMidInfixToken(
-      app: Member.Infix,
-  )(implicit ftoks: FormatTokens): FT = {
+  private def getMidInfixToken(app: Member.Infix, isKeep: Boolean)(implicit
+      ftoks: FormatTokens,
+  ): FT = {
     val opToken = ftoks.getHead(app.op)
     val beforeOp = ftoks.prev(opToken)
     val lhsLast = ftoks.prevNonComment(beforeOp)
-    if (beforeOp eq lhsLast) opToken else lhsLast
+    if (isKeep || (beforeOp ne lhsLast)) lhsLast else opToken
   }
 
   @tailrec
@@ -348,11 +348,13 @@ class InfixSplits(
       newStmtMod: Option[Modification] = None,
       spaceMod: Modification = Space,
   ): Seq[Split] = {
+    val isKeep = !afterInfix.style.sourceIgnored
     val (maxPrecedence, appPrecedence, breakPenalty) =
       if (isAfterOp) {
         val maxPrecedence = InfixSplits.infixSequenceMaxPrecedence(fullInfix)
         val appPrecedence = app.precedence
-        val breakPenalty = maxPrecedence - appPrecedence
+        val nlBefore = isKeep && ftoks.prevNonCommentSameLineBefore(ft).hasBreak
+        val breakPenalty = maxPrecedence - (if (nlBefore) 1 else appPrecedence)
         (maxPrecedence, appPrecedence, breakPenalty)
       } else (0, Int.MaxValue, 1)
 
@@ -374,7 +376,7 @@ class InfixSplits(
           infixes.foreach { ia =>
             val cost = maxPrecedence - ia.precedence
             if (cost < minCost) {
-              out += InfixSplits.getMidInfixToken(ia) -> cost
+              out += InfixSplits.getMidInfixToken(ia, isKeep) -> cost
               minCost = cost
             }
           }
