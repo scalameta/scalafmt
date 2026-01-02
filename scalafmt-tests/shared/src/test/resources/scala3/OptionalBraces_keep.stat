@@ -2518,9 +2518,8 @@ object a:
 >>>
 object a:
    def foo =
-     bar = baz + baz(
-       qux
-     ) // c1
+     bar = baz +
+       baz(qux) // c1
 <<< #2561 no forced dangle in tuples
 newlines {
   beforeOpenParenDefnSite = source
@@ -6193,9 +6192,8 @@ object a:
        Context
    ): List[Symbol] =
      if (!sym.owner.isClass) Nil
-     else sym.allOverriddenSymbols.toList.filter(
-       _ != NoSymbol
-     ) // TODO: could also be `sym.owner.allOverrid..`
+     else sym.allOverriddenSymbols.toList.filter(_ !=
+       NoSymbol) // TODO: could also be `sym.owner.allOverrid..`
      // else sym.owner.ancestors map (sym overriddenSymbol _) filter (_ != NoSymbol)
 <<< braceless catch, single multi-line case, empty body
 object a:
@@ -7407,8 +7405,8 @@ object a:
    lazy val `stdlib-bootstrapped` = project.in(
      file("stdlib-bootstrapped")).
    withCommonSettings(Bootstrapped).
-   dependsOn(dottyCompiler(
-     Bootstrapped) % "provided; compile->runtime; test->test").
+   dependsOn(dottyCompiler(Bootstrapped) %
+     "provided; compile->runtime; test->test").
    settings(
      moduleName := "scala-library"
    )
@@ -7423,12 +7421,12 @@ object a:
     )
 >>>
 object a:
-   lazy val `stdlib-bootstrapped` = project.in(
-     file("stdlib-bootstrapped")).withCommonSettings(
-     Bootstrapped).dependsOn(dottyCompiler(
-     Bootstrapped) % "provided; compile->runtime; test->test").settings(
-     moduleName := "scala-library"
-   )
+   lazy val `stdlib-bootstrapped` =
+     project.in(file("stdlib-bootstrapped")).withCommonSettings(
+       Bootstrapped).dependsOn(dottyCompiler(Bootstrapped) %
+       "provided; compile->runtime; test->test").settings(
+       moduleName := "scala-library"
+     )
 <<< #4133 overflow selects/applies, break-dot-nobreak, binpack + !dangling
 maxColumn = 70
 binPack.preset = always
@@ -7446,8 +7444,8 @@ object a:
    lazy val `stdlib-bootstrapped` = project.in(
      file("stdlib-bootstrapped"))
      .withCommonSettings(Bootstrapped)
-     .dependsOn(dottyCompiler(
-       Bootstrapped) % "provided; compile->runtime; test->test")
+     .dependsOn(dottyCompiler(Bootstrapped) %
+       "provided; compile->runtime; test->test")
      .settings(
        moduleName := "scala-library"
      )
@@ -7549,9 +7547,8 @@ object a:
        prevCtx: Context
    )(using Context): Type =
 
-     if Feature.enabled(
-          Feature.relaxedExtensionImports
-        ) && altImports != null && ctx.isImportContext
+     if Feature.enabled(Feature.relaxedExtensionImports) &&
+        altImports != null && ctx.isImportContext
      then
         val curImport = ctx.importInfo.uncheckedNN
         namedImportRef(curImport) match
@@ -7627,15 +7624,15 @@ processTreeOpt(s) { s match
 processTreeOpt(s) {
   s match
      case td: TypeDef
-         if !td.symbol.flags.is(Flags.Synthetic) && (!td.symbol.flags.is(
-           Flags.Case
-         ) || !td.symbol.flags.is(Flags.Enum)) =>
+         if !td.symbol.flags.is(Flags.Synthetic) &&
+           (!td.symbol.flags.is(Flags.Case) ||
+             !td.symbol.flags.is(Flags.Enum)) =>
        Some(parseTypeDef(td, c))
 
      case vd: ValDef
-         if !isSyntheticField(vd.symbol) && (!vd.symbol.flags.is(
-           Flags.Case
-         ) || !vd.symbol.flags.is(Flags.Enum)) =>
+         if !isSyntheticField(vd.symbol) &&
+           (!vd.symbol.flags.is(Flags.Case) ||
+             !vd.symbol.flags.is(Flags.Enum)) =>
        Some(parseValDef(c, vd))
 
      case c: ClassDef if c.symbol.shouldDocumentClasslike =>
@@ -8241,18 +8238,18 @@ rewrite.rules = [RedundantBraces, RedundantParens]
 ===
 val privateFlag = !sym.isClass && (sym.is(Private) || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
 >>>
-val privateFlag = !sym.isClass && (sym.is(
-  Private
-) || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
+val privateFlag = !sym.isClass &&
+  (sym.is(Private) ||
+    (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
 <<< do not rewrite infix to braces
 rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
 rewrite.rules = [RedundantBraces, RedundantParens]
 ===
 val privateFlag = !sym.isClass && (sym.is(Private) || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
 >>>
-val privateFlag = !sym.isClass && (sym.is {
-  Private
-} || (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
+val privateFlag = !sym.isClass &&
+  (sym.is { Private } ||
+    (sym.isPrimaryConstructor && sym.owner.isTopLevelModuleClass))
 <<< rewrite infix function to braces
 rewrite.redundantBraces.oneStatApply.bracesMinSpan = 1
 rewrite.rules = [RedundantBraces, RedundantParens]
@@ -8342,10 +8339,9 @@ object a {
 object a {
   sortedRegionEntries.zipWithIndex.collectFirst {
     case (RegionEntry(region, _, shards), i)
-        if shards.contains { neighbor } && shards.size < optimalNumberOfShards(
-          i,
-          sortedRegionEntries.size
-        ) + overfill =>
+        if shards.contains { neighbor } &&
+          shards.size <
+          optimalNumberOfShards(i, sortedRegionEntries.size) + overfill =>
       region
   }
 }
@@ -8588,9 +8584,8 @@ object Foo {
   def newStyle: Traverse[Option] & MonadError[Option, Unit] &
     Alternative[Option] & CommutativeMonad[Option] & CoflatMap[Option] &
     Align[Option] =
-    Traverse[Option] & MonadError[Option, Unit] & Alternative[
-      Option
-    ] & CommutativeMonad[Option] & CoflatMap[Option] & Align[Option]
+    Traverse[Option] & MonadError[Option, Unit] & Alternative[Option] &
+      CommutativeMonad[Option] & CoflatMap[Option] & Align[Option]
 }
 <<< grouped context bounds: before = always, within = always
 runner.parser = source

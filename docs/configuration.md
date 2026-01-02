@@ -2465,20 +2465,20 @@ Each of these groups has several parameters of its own (replacing deprecated
 - `maxCountPerExprForSome`
 - `breakOnNested`
 
-#### `newlines.infix: style=keep`
+#### `newlines.infix: style=none,keep`
 
-This approach preserves existence or absence of line breaks in the input. This
-is the original behaviour, and default for `newlines.source=classic,keep`.
+`none` (renamed from `keep` in v3.10.4) makes no attempt to alter breaks around
+infix operators (preserving both existence and absence of a line break in the
+input). This is the original behaviour, and default for `newlines.source=classic`.
+
+`keep` (consistently with other parameters having this value as an option, and
+default for `newlines.source=keep`), since v3.10.4 preserves only the existence
+of a line break but reserves the right to introduce additional breaks after some
+infix operators (that is, exactly as `some` would have done).
 
 One caveat is: for `classic` type infixes with Scala3 (or if the dialect
 [enables](#runnerdialectoverride) the `useInfixTypePrecedence` flag),
 `some` is the default.
-
-#### `newlines.infix: style=keepNL`
-
-Added in v3.10.4, this approach preserves line breaks in the input, but doesn't
-necessarily preserve their absence (and thus could add additional line breaks
-after some infix operators).
 
 #### `newlines.infix: style=many,some`
 
