@@ -543,3 +543,45 @@ object a {
   foo +
       bar + baz
 }
+<<< infix style=keepNL break before op within arg clause, RedundantParens
+maxColumn = 75
+rewrite.rules = [RedundantParens]
+rewrite.redundantParens.preset = all
+newlines.infix.termSite.style = keepNL
+===
+require(
+  fraction >= (0.0 - RandomSampler.roundingEpsilon)
+    && fraction <= (1.0 + RandomSampler.roundingEpsilon),
+  s"Sampling fraction ($fraction) must be on interval [0, 1]")
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,3 +1,4 @@
+-require(fraction >= 0.0 - RandomSampler.roundingEpsilon && fraction <=
++require(fraction >= 0.0 - RandomSampler.roundingEpsilon &&
++          fraction <=
+           1.0 + RandomSampler.roundingEpsilon,
+         s"Sampling fraction ($fraction) must be on interval [0, 1]")
+<<< infix style=keepNL no break before op but after brace, within arg clause, RedundantBraces
+maxColumn = 75
+rewrite.rules = [RedundantBraces]
+rewrite.redundantParens.preset = all
+newlines.infix.termSite.style = keepNL
+===
+require(
+  fraction >= {
+    0.0 - RandomSampler.roundingEpsilon
+  } && fraction <= {
+    1.0 + RandomSampler.roundingEpsilon
+  },
+  s"Sampling fraction ($fraction) must be on interval [0, 1]")
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,4 +1,5 @@
+ require(fraction >=
+-          0.0 - RandomSampler.roundingEpsilon && fraction <=
++          0.0 - RandomSampler.roundingEpsilon &&
++          fraction <=
+           1.0 + RandomSampler.roundingEpsilon,
+         s"Sampling fraction ($fraction) must be on interval [0, 1]")
