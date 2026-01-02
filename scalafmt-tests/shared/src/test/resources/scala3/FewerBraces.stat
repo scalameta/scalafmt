@@ -2790,28 +2790,34 @@ foo
 <<< fewer braces: apply with braces and leading infix after
 object a:
    mtd1 { x =>
-     x + 1
+     x + 11
    }
    + mtd2: x =>
-      x + 1
-      x + 2
-   + mtd3 { x =>
-      x + 1
-      x + 2
-      x + 3
+      x + 21
+      x + 22
+   + mtd3: x =>
+      x + 31
+      x + 32
+   + mtd4 { x =>
+      x + 41
+      x + 42
+      x + 43
    }
 >>>
 object a:
    mtd1 { x =>
-     x + 1
+     x + 11
    }
    + mtd2: x =>
-      x + 1
-      x + 2
-   + mtd3 { x =>
-     x + 1
-     x + 2
-     x + 3
+      x + 21
+      x + 22
+   + mtd3: x =>
+      x + 31
+      x + 32
+   + mtd4 { x =>
+     x + 41
+     x + 42
+     x + 43
    }
 <<< single arg with parens
 rewrite.scala3.removeOptionalBraces {

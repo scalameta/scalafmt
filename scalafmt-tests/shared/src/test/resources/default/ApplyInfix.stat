@@ -593,3 +593,32 @@ fraction >=
   0.0 - RandomSampler.roundingEpsilon &&
   fraction <=
   1.0 + RandomSampler.roundingEpsilon
+<<< infix style=keepNL 1
+maxColumn = 60
+newlines.infix.termSite.style = keepNL
+===
+{
+  val info = new DefaultParamInfo(m)
+  !info.isForConstructor && info.attachedMethod.hasAnnotation(JSNativeAnnotation)
+}
+>>>
+{
+  val info = new DefaultParamInfo(m)
+  !info.isForConstructor &&
+  info.attachedMethod.hasAnnotation(JSNativeAnnotation)
+}
+<<< infix style=keepNL 2
+maxColumn = 60
+newlines.infix.termSite.style = keepNL
+===
+List(
+  str("esVersion") -> int(esVersion.edition),
+  str("assumingES6") -> bool(useECMAScript2015Semantics), // different name for historical reasons
+)
+>>>
+List(
+    str("esVersion") -> int(esVersion.edition),
+    str("assumingES6") -> bool(
+        useECMAScript2015Semantics
+    ) // different name for historical reasons
+)
