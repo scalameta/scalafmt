@@ -8817,3 +8817,9 @@ object a:
       line1
 
       line2
+<<< #5111
+runner.dialect = scala3future
+===
+val foo: Int ?->{a} List[Int] = _ ?=> List(1, 2, 3)
+>>>
+val foo: Int ?->{a} List [Int] = _ ?=> List(1, 2, 3)
