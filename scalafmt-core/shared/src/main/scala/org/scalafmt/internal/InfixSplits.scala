@@ -116,7 +116,8 @@ object InfixSplits {
     val opToken = ftoks.getHead(app.op)
     val beforeOp = ftoks.prev(opToken)
     val lhsLast = ftoks.prevNonComment(beforeOp)
-    if (isKeep || (beforeOp ne lhsLast)) lhsLast else opToken
+    if (!isKeep && (beforeOp eq lhsLast)) opToken
+    else ftoks.nextNonCommentSameLine(lhsLast)
   }
 
   @tailrec
@@ -183,7 +184,7 @@ object InfixSplits {
   )(implicit style: ScalafmtConfig, ft: FT, ftoks: FormatTokens): Seq[Split] =
     asInfixApp(ft.meta.rightOwner).fold(nonInfixSplits) { ia =>
       val infixSite = style.newlines.infix.get(ia)
-      if (infixSite.style eq Newlines.Infix.keep) nonInfixSplits
+      if (infixSite.style eq Newlines.Infix.none) nonInfixSplits
       else getInfixSplitsBeforeLhs(ia, infixSite, mod)
     }
 
@@ -372,15 +373,23 @@ class InfixSplits(
         if (infixes.isEmpty) finalExpireCost :: Nil
         else {
           val out = new mutable.ListBuffer[(FT, Int)]
-          var minCost = Int.MaxValue
-          infixes.foreach { ia =>
-            val cost = maxPrecedence - ia.precedence
-            if (cost < minCost) {
-              out += InfixSplits.getMidInfixToken(ia, isKeep) -> cost
-              minCost = cost
-            }
+          @tailrec
+          def iter(seq: Seq[Member.Infix], minCost: Int): Unit = seq match {
+            case ia +: rest =>
+              val expire = InfixSplits.getMidInfixToken(ia, isKeep)
+              if (isKeep && expire.hasBreak) out += expire -> 0 // done
+              else {
+                val cost = maxPrecedence - ia.precedence
+                val newcost =
+                  if (cost < minCost) {
+                    out += expire -> cost
+                    cost
+                  } else minCost
+                iter(rest, newcost)
+              }
+            case _ => if (minCost > 0) out += finalExpireCost
           }
-          if (0 < minCost) out += finalExpireCost
+          iter(infixes, Int.MaxValue)
           out.toList
         }
       }

@@ -11141,11 +11141,11 @@ object Foo {
     with CoflatMap[Option]
     with Align[Option] = ???
 
-  def newStyle: Traverse[Option] & MonadError[Option, Unit] & Alternative[
-    Option
-  ] & CommutativeMonad[Option] & CoflatMap[Option] & Align[Option] =
-    Traverse[Option] & MonadError[Option, Unit] & Alternative[Option] &
-      CommutativeMonad[Option] & CoflatMap[Option] & Align[Option]
+  def newStyle: Traverse[Option] & MonadError[Option, Unit] &
+    Alternative[Option] & CommutativeMonad[Option] & CoflatMap[Option] &
+    Align[Option] = Traverse[Option] & MonadError[Option, Unit] &
+    Alternative[Option] & CommutativeMonad[Option] & CoflatMap[Option] &
+    Align[Option]
 }
 <<< #4705 term=keep, type=some
 maxColumn = 80
@@ -11170,9 +11170,9 @@ object Foo {
 
   def newStyle: Traverse[Option] & MonadError[Option, Unit] &
     Alternative[Option] & CommutativeMonad[Option] & CoflatMap[Option] &
-    Align[Option] = Traverse[Option] & MonadError[Option, Unit] & Alternative[
-    Option
-  ] & CommutativeMonad[Option] & CoflatMap[Option] & Align[Option]
+    Align[Option] = Traverse[Option] & MonadError[Option, Unit] &
+    Alternative[Option] & CommutativeMonad[Option] & CoflatMap[Option] &
+    Align[Option]
 }
 <<< consistency between string and interpolation: stripMargin, ignoreInSyntax
 maxColumn = 40
@@ -12688,3 +12688,33 @@ object a {
     thisFile.canonicalPath ==
     thatFile.canonicalPath)
 }
+<<< infix 1
+maxColumn = 60
+newlines.infix.termSite.maxCountPerFile = 0
+===
+{
+  val info = new DefaultParamInfo(m)
+  !info.isForConstructor && info.attachedMethod.hasAnnotation(JSNativeAnnotation)
+}
+>>>
+{
+  val info = new DefaultParamInfo(m)
+  !info.isForConstructor &&
+  info.attachedMethod.hasAnnotation(JSNativeAnnotation)
+}
+<<< infix 2
+maxColumn = 60
+newlines.infix.termSite.maxCountPerFile = 0
+===
+List(
+  str("esVersion") -> int(esVersion.edition),
+  str("assumingES6") -> bool(useECMAScript2015Semantics), // different name for historical reasons
+)
+>>>
+List(
+  str("esVersion") -> int(esVersion.edition),
+  str("assumingES6") ->
+    bool(
+      useECMAScript2015Semantics
+    ) // different name for historical reasons
+)

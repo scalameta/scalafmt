@@ -392,7 +392,7 @@ object Newlines {
     ): Infix = copy(
       termSite = termSite.checkConfig(termCnt)(None),
       typeSite = Some(typeSite.getOrElse(termSite).checkConfig(typeInfix) {
-        val useSome = !cfg.newlines.keep && cfg.dialect.useInfixTypePrecedence
+        val useSome = cfg.newlines.classic && cfg.dialect.useInfixTypePrecedence
         if (useSome) Some(Infix.some) else None
       }),
       patSite = Some(patSite.getOrElse(termSite).checkConfig(patInfix)(None)),
@@ -425,7 +425,7 @@ object Newlines {
     case object keep extends Style {
       def sourceIgnored: Boolean = false
     }
-    case object keepNL extends Style {
+    case object none extends Style {
       def sourceIgnored: Boolean = false
     }
     case object some extends Style {
@@ -435,7 +435,7 @@ object Newlines {
       def sourceIgnored: Boolean = true
     }
     implicit val styleReader: ConfCodecEx[Style] = ConfCodecEx
-      .oneOf[Style](keep, some, many, keepNL)
+      .oneOf[Style](keep, some, many, none)
 
     /** @param style
       *   Controls how line breaks around infix operations are handled
@@ -461,13 +461,20 @@ object Newlines {
       def checkConfig(
           infixCount: Int,
       )(orElseStyle: => Option[Style])(implicit cfg: ScalafmtConfig): Site =
-        if (maxCountPerFile < infixCount) copy(style = keep)
-        else if (style eq null) {
-          val opt = Infix.defaultStyle(cfg.newlines.source).orElse(orElseStyle)
-          copy(style = opt.getOrElse(keep))
-        } else this
+        if ((style eq none) || (style eq keep)) this
+        else if (maxCountPerFile < infixCount) copy(style =
+          if (cfg.newlines.classic && (style eq null)) none else keep,
+        )
+        else if (style eq null) copy(style = cfg.newlines.source match {
+          case Newlines.unfold => many
+          case Newlines.fold => some
+          case Newlines.keep => orElseStyle.getOrElse(keep)
+          case Newlines.classic => orElseStyle.getOrElse(none)
+        })
+        else this
+
       def sourceIgnoredAt(ft: FT): Boolean =
-        if (ft.noBreak) style ne keep else sourceIgnored
+        if (ft.noBreak) style ne none else sourceIgnored
       def sourceIgnored: Boolean = style.sourceIgnored
       private[config] def sourceIgnoredIfSet: Boolean =
         (style eq null) || sourceIgnored
@@ -479,11 +486,6 @@ object Newlines {
         .noTypos
     }
 
-    def defaultStyle(source: SourceHints): Option[Style] = source match {
-      case Newlines.unfold => Some(many)
-      case Newlines.fold => Some(some)
-      case _ => None
-    }
   }
 
   sealed abstract class BeforeAfter
