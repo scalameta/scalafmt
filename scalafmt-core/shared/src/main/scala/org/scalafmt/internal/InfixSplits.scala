@@ -116,7 +116,8 @@ object InfixSplits {
     val opToken = ftoks.getHead(app.op)
     val beforeOp = ftoks.prev(opToken)
     val lhsLast = ftoks.prevNonComment(beforeOp)
-    if (isKeep || (beforeOp ne lhsLast)) lhsLast else opToken
+    val mid = if (isKeep || (beforeOp ne lhsLast)) lhsLast else opToken
+    ftoks.nextNonCommentSameLine(mid)
   }
 
   @tailrec
@@ -199,7 +200,8 @@ class InfixSplits(
   private val isAfterOp = ft.meta.leftOwner eq app.op
   private val beforeLhs = !isAfterOp && ft.left.start < app.pos.start
   private val isFirstOp = beforeLhs || isLeftInfix && isAfterOp
-  private val fullExpire = ftoks.getLastExceptParen(fullInfix)
+  private val fullExpire = ftoks
+    .nextNonCommentSameLine(ftoks.getLastExceptParen(fullInfix))
 
   private val assignBodyExpire = {
     val prevFt = ftoks.tokenBefore(fullInfix)
