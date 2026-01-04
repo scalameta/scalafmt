@@ -5892,9 +5892,8 @@ object a:
        sym: Symbol
    )(using Context): List[Symbol] =
      if (!sym.owner.isClass) Nil
-     else
-       sym.allOverriddenSymbols.toList
-         .filter(_ != NoSymbol) // TODO: could also be `sym.owner.allOverrid..`
+     else sym.allOverriddenSymbols.toList
+       .filter(_ != NoSymbol) // TODO: could also be `sym.owner.allOverrid..`
      // else sym.owner.ancestors map (sym overriddenSymbol _) filter (_ != NoSymbol)
 <<< braceless catch, single multi-line case, empty body
 object a:
@@ -6763,9 +6762,8 @@ object a:
     val hashbangClasspathJars = hashbangJars.map { _.name }.sorted.distinct // get jar basenames, remove duplicates
 >>>
 object a:
-   val hashbangClasspathJars =
-     hashbangJars.map(_.name).sorted
-       .distinct // get jar basenames, remove duplicates
+   val hashbangClasspathJars = hashbangJars.map(_.name).sorted
+     .distinct // get jar basenames, remove duplicates
 <<< #4133 avoid braces to parens rewrite when overflow 2
 rewrite.rules = [RedundantBraces]
 ===
@@ -6773,9 +6771,8 @@ object a:
     val hashbangClasspathJars = hashbangJars_map { _.name }.sorted_distinct // get jar basenames, remove duplicates
 >>>
 object a:
-   val hashbangClasspathJars =
-     hashbangJars_map(_.name)
-       .sorted_distinct // get jar basenames, remove duplicates
+   val hashbangClasspathJars = hashbangJars_map(_.name)
+     .sorted_distinct // get jar basenames, remove duplicates
 <<< redundant block within block, outer semicolon-terminated
 rewrite {
   rules = [RedundantBraces]

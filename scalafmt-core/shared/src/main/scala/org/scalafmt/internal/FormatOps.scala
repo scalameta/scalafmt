@@ -980,7 +980,7 @@ class FormatOps(
                 style.binPack.callSite == BinPack.Site.Never
               case _ => true
             })
-          val opt = if (style.newlines.keep) miniSlbEnd else blast
+          val opt = if (style.newlines.keep) miniSlbEnd else expire
           Split(Space, 0, policy = slbPolicy & (policy | penalize(penalty)))
             .withOptimalToken(opt, killOnFail = slbLite, recurseOnly = slbLite)
         }
