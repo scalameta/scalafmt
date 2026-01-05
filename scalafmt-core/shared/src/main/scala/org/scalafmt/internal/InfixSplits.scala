@@ -169,7 +169,7 @@ object InfixSplits {
   )(implicit style: ScalafmtConfig, ft: FT, ftoks: FormatTokens): Seq[Split] =
     asInfixApp(ft.meta.rightOwner).fold(nonInfixSplits) { ia =>
       val infixSite = style.newlines.infix.get(ia)
-      if (infixSite.style eq Newlines.Infix.keep) nonInfixSplits
+      if (infixSite.isNone) nonInfixSplits
       else getInfixSplitsBeforeLhs(ia, infixSite, mod)
     }
 
