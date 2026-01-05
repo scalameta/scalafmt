@@ -305,70 +305,82 @@ class FormatOps(
   def insideInfixSplit(
       app: Member.Infix,
   )(implicit style: ScalafmtConfig, ft: FT): Seq[Split] = {
+    // we'll be RETURNING!!!
     val op = app.op.value
     if (app.is[Type] && style.spaces.neverAroundInfixTypes.contains(op))
-      Seq(Split(NoSplit, 0))
-    else {
-      val isBeforeOp = ft.meta.leftOwner ne app.op
-      // RETURNING!!!
-      if (isBeforeOp && isFewerBracesLhs(app.lhs)) return Seq(Split(Newline, 0))
-      def useSpaceBeforeArg = style.spaces.beforeInfixArgInParens(op) ||
-        (app.arg match {
-          case _: Lit.Unit => false
-          case x: Member.ArgClause if x.values.lengthCompare(1) != 0 => false
-          case x => !isEnclosedWithinParensOrBraces(x)
-        })
-      def useSpaceAroundOp = app.isAssignment || !isOperatorPart(op.head) ||
-        op.length != 1 && !isOperatorPart(op.last) ||
-        style.spaces.aroundSymbolicInfixOperators.forall(_.matches(op)) || {
-          if (isBeforeOp) prevNonComment(ft).left match {
-            case x: T.Ident => isOperatorPart(x.value.last)
-            case _ => false
-          }
-          else nextNonComment(ft).right match {
-            case x: T.Ident => isOperatorPart(x.value.head)
-            case _ => false
-          }
-        }
-      def spaceMod = Space(useSpaceAroundOp && (isBeforeOp || useSpaceBeforeArg))
+      return Seq(Split(NoSplit, 0))
 
-      val afterInfix = style.newlines.infix.get(app)
-      if (afterInfix.sourceIgnoredAt(ft))
-        if (isBeforeOp) Seq(Split(spaceMod, 0))
-        else {
-          val (fullInfix, enclosedIn) = InfixSplits.findMaybeEnclosingInfix(app)
-          val ok = enclosedIn.isDefined || fullInfix.parent.forall {
-            case t: Defn.Val => t.rhs eq fullInfix
-            case t: Defn.Var => t.body eq fullInfix
-            case _ => true
-          }
-          if (ok) InfixSplits(app, ft, fullInfix)
-            .getBeforeLhsOrRhs(afterInfix, spaceMod = spaceMod)
-          else Seq(Split(spaceMod, 0))
+    val isBeforeOp = ft.meta.leftOwner ne app.op
+    if (isBeforeOp && isFewerBracesLhs(app.lhs)) return Seq(Split(Newline, 0))
+
+    def useSpaceBeforeArg = style.spaces.beforeInfixArgInParens(op) ||
+      (app.arg match {
+        case _: Lit.Unit => false
+        case x: Member.ArgClause if x.values.lengthCompare(1) != 0 => false
+        case x => !isEnclosedWithinParensOrBraces(x)
+      })
+    def useSpaceAroundOp = app.isAssignment || !isOperatorPart(op.head) ||
+      op.length != 1 && !isOperatorPart(op.last) ||
+      style.spaces.aroundSymbolicInfixOperators.forall(_.matches(op)) || {
+        if (isBeforeOp) prevNonComment(ft).left match {
+          case x: T.Ident => isOperatorPart(x.value.last)
+          case _ => false
         }
-      else {
-        // we don't modify line breaks generally around infix expressions
-        // TODO: if that ever changes, modify how rewrite rules handle infix
-        val (fullInfix, fullInfixEnclosedIn) = InfixSplits
-          .findMaybeEnclosingInfix(app)
-        val fullInfixEnclosedInParens = fullInfixEnclosedIn.exists(_.isRight)
-        val okSpace = isBeforeOp || style.newlines.ignoreInSyntax ||
-          tokens.getNonMultilineEnd(ft).isDefined
-        def okToBreak: Boolean = !isBeforeOp || fullInfixEnclosedInParens ||
-          initStyle.dialect.allowInfixOperatorAfterNL ||
-          (fullInfix.parent match {
-            case Some(p: Case) => p.cond.contains(fullInfix)
-            case Some(p: Member.ArgClause) => isEnclosedWithinParens(p)
-            case _ => false
-          }) || app.op.tokens.rfindWideNot(_.is[T.HTrivia], -1, Int.MinValue)
-            .exists(_.is[T.AtEOL]) // had a break in the original code
-        val mod =
-          if (ft.noBreak && okSpace || !okToBreak) spaceMod
-          else Newline2x(fullInfixEnclosedInParens && ft.hasBlankLine)
-        def split(implicit fl: FileLine) = Split(mod, 0)
-        if (isBeforeOp && isFewerBracesRhs(app.arg)) Seq(split)
-        else Seq(InfixSplits.withNLIndent(split, app, fullInfix))
+        else nextNonComment(ft).right match {
+          case x: T.Ident => isOperatorPart(x.value.head)
+          case _ => false
+        }
       }
+    def spaceMod = Space(useSpaceAroundOp && (isBeforeOp || useSpaceBeforeArg))
+    def spc(implicit fl: FileLine) = Split(spaceMod, 0)
+    def spaceSplits(implicit fl: FileLine) = Seq(spc)
+
+    val afterInfix = style.newlines.infix.get(app)
+    val sourceIgnored = afterInfix.sourceIgnoredAt(ft)
+    if (isBeforeOp && sourceIgnored) return spaceSplits
+
+    val (fullInfix, fullInfixEnclosedIn) = InfixSplits
+      .findMaybeEnclosingInfix(app)
+
+    if (sourceIgnored) return {
+      val ok = fullInfixEnclosedIn.isDefined || fullInfix.parent.forall {
+        case t: Defn.Val => t.rhs eq fullInfix
+        case t: Defn.Var => t.body eq fullInfix
+        case _ => true
+      }
+      if (ok) InfixSplits(app, ft, fullInfix)
+        .getBeforeLhsOrRhs(afterInfix, spaceMod = spaceMod)
+      else spaceSplits
+    }
+
+    // we don't modify line breaks generally around infix expressions
+    // TODO: if that ever changes, modify how rewrite rules handle infix
+    val fullInfixEnclosedInParens = fullInfixEnclosedIn.exists(_.isRight)
+    def okSpaceAfterOp(xft: FT) = xft.noBreak &&
+      (style.newlines.ignoreInSyntax || tokens.getNonMultilineEnd(xft).isDefined)
+    def okBreakBeforeOp: Boolean = fullInfixEnclosedInParens ||
+      initStyle.dialect.allowInfixOperatorAfterNL ||
+      (fullInfix.parent match {
+        case Some(p: Case) => p.cond.contains(fullInfix)
+        case Some(p: Member.ArgClause) => isEnclosedWithinParens(p)
+        case _ => false
+      }) || app.op.tokens.rfindWideNot(_.is[T.HTrivia], -1, Int.MinValue)
+        .exists(_.is[T.AtEOL]) // had a break in the original code
+
+    def modNL = Newline2x(fullInfixEnclosedInParens && ft.hasBlankLine)
+    def nl(cost: Int)(implicit fl: FileLine) = Split(modNL, cost)
+    def withIndent(split: Split) =
+      Seq(InfixSplits.withNLIndent(split, app, fullInfix))
+
+    if (isBeforeOp)
+      if (ft.noBreak) withIndent(spc) // !sourceIgnored
+      else if (!okBreakBeforeOp) spaceSplits
+      else if (isFewerBracesRhs(app.arg)) Seq(nl(0))
+      else withIndent(nl(0))
+    else {
+      // now are after the op
+      val useSpace = okSpaceAfterOp(ft)
+      withIndent(if (useSpace) spc else nl(0))
     }
   }
 
