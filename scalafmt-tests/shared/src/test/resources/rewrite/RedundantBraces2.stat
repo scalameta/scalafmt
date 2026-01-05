@@ -505,7 +505,8 @@ Switch(
     str("boolean") ->
       Return(constantClassResult(BoxedBooleanClass)),
     str("undefined") ->
-      Return(constantClassResult(BoxedUnitClass)) + 1
+      Return(constantClassResult(BoxedUnitClass))
+      + 1
   )
 )
 <<< closing brace between comment and comma
