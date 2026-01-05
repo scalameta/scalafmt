@@ -358,12 +358,10 @@ class FormatOps(
           initStyle.dialect.allowInfixOperatorAfterNL ||
           (fullInfix.parent match {
             case Some(p: Case) => p.cond.contains(fullInfix)
+            case Some(p: Member.ArgClause) => isEnclosedWithinParens(p)
             case _ => false
-          }) || { // check if the break was in the original code
-            val optokens = app.op.tokens
-            val idx = optokens.rskipWideIf(_.is[T.Trivia], -1, Int.MinValue)
-            optokens.getWideOpt(idx).contains(ft.left) // no rewritten tokens
-          }
+          }) || app.op.tokens.rfindWideNot(_.is[T.HTrivia], -1, Int.MinValue)
+            .exists(_.is[T.AtEOL]) // had a break in the original code
         val mod =
           if (ft.noBreak && okSpace || !okToBreak) spaceMod
           else Newline2x(fullInfixEnclosedInParens && ft.hasBlankLine)
