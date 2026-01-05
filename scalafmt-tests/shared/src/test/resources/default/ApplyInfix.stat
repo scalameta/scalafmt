@@ -573,7 +573,8 @@ require(
 >>>
 require(fraction >=
           0.0 - RandomSampler.roundingEpsilon
-          && fraction <=
+          &&
+          fraction <=
           1.0 + RandomSampler.roundingEpsilon,
         s"Sampling fraction ($fraction) must be on interval [0, 1]")
 <<< infix style=keepNL no break before op but after brace, no arg clause, RedundantBraces
@@ -588,11 +589,7 @@ fraction >= {
   1.0 + RandomSampler.roundingEpsilon
 }
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,3 +1,4 @@
- fraction >=
--  0.0 - RandomSampler.roundingEpsilon && fraction <=
-+  0.0 - RandomSampler.roundingEpsilon &&
-+  fraction <=
-   1.0 + RandomSampler.roundingEpsilon
+fraction >=
+  0.0 - RandomSampler.roundingEpsilon &&
+  fraction <=
+  1.0 + RandomSampler.roundingEpsilon
