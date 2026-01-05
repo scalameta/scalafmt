@@ -89,21 +89,6 @@ object InfixSplits {
     case _ => None
   }
 
-  private def infixSequenceMaxPrecedence(
-      app: Member.Infix,
-  )(implicit ftoks: FormatTokens): Int = {
-    val queue = new mutable.Queue[Member.Infix]()
-    queue += app
-    var maxPrecedence = 0
-    while (queue.nonEmpty) {
-      val elem = queue.dequeue()
-      val elemPrecedence = elem.precedence
-      if (maxPrecedence < elemPrecedence) maxPrecedence = elemPrecedence
-      queue ++= elem.nestedInfixApps.filter(x => !ftoks.isEnclosedWithinParens(x))
-    }
-    maxPrecedence
-  }
-
   def getSingleLineInfixPolicy(end: FT) = Policy
     .onLeft(end, prefix = "INFSLB", terminal = true) {
       case Decision(t: FT, s) if isInfixOp(t.meta.leftOwner) =>
@@ -350,42 +335,61 @@ class InfixSplits(
       newStmtMod: Option[Modification] = None,
       spaceMod: Modification = Space,
   ): Seq[Split] = {
-    val isKeep = !afterInfix.style.sourceIgnored
-    val (maxPrecedence, appPrecedence, breakPenalty) =
-      if (isAfterOp) {
-        val maxPrecedence = InfixSplits.infixSequenceMaxPrecedence(fullInfix)
-        val appPrecedence = app.precedence
-        val nlBefore = isKeep && ftoks.prevNonCommentSameLineBefore(ft).hasBreak
-        val breakPenalty = maxPrecedence - (if (nlBefore) 1 else appPrecedence)
-        (maxPrecedence, appPrecedence, breakPenalty)
-      } else (0, Int.MaxValue, 1)
+    val appPrecedence = if (isAfterOp) app.precedence else 1
 
     val closeOpt = ft.right match {
       case _: T.OpenDelim => ftoks.matchingOptRight(ft)
       case _ => None // exclude Xml.Start and similar pairs
     }
-    val finalExpireCost = fullExpire -> 0
-    val expires =
-      if (closeOpt.isDefined) finalExpireCost :: Nil
+    val fullPrecedence = fullInfix.precedence
+    val fullExpirePrecedence = fullExpire -> fullPrecedence
+    val (firstExpire, expires, maxPrecedence) = {
+      if (closeOpt.isDefined) None
       else {
-        implicit val res = mutable.Buffer.empty[Member.Infix]
-        InfixSplits.findNextInfixes(fullInfix, app.lhs)
-        val infixes = if (isAfterOp) res.toSeq.drop(1) else res.toSeq
-        if (infixes.isEmpty) finalExpireCost :: Nil
+        val infixes = {
+          implicit val infixes = new mutable.ListBuffer[Member.Infix]
+          if (isAfterOp) {
+            InfixSplits.findNestedInfixes(app.arg)
+            InfixSplits.findNextInfixes(fullInfix, app)
+          } else InfixSplits.findNextInfixes(fullInfix, app.lhs)
+          infixes.toList
+        }
+        if (infixes.isEmpty) None
         else {
+          val isKeep = !afterInfix.style.sourceIgnored
+          var maxPrecedence = appPrecedence - 1
+          var firstExpire: FT = null
           val out = new mutable.ListBuffer[(FT, Int)]
-          var minCost = Int.MaxValue
-          infixes.foreach { ia =>
-            val cost = maxPrecedence - ia.precedence
-            if (cost < minCost) {
-              out += InfixSplits.getMidInfixToken(ia, isKeep) -> cost
-              minCost = cost
-            }
+          def add(elem: (FT, Int)): Unit = {
+            if (out.length == 3) out.remove(0)
+            out += elem
           }
-          if (0 < minCost) out += finalExpireCost
-          out.toList
+          @tailrec
+          def iter(seq: List[Member.Infix]): Unit = seq match {
+            case ia :: rest =>
+              val precedence = ia.precedence
+              val expire = InfixSplits.getMidInfixToken(ia, isKeep)
+              if (firstExpire eq null) firstExpire = expire
+              if (isKeep && expire.hasBreak) {
+                if (maxPrecedence < precedence) maxPrecedence = precedence
+                add(expire -> precedence)
+              } else {
+                if (maxPrecedence < precedence) {
+                  maxPrecedence = precedence
+                  add(expire -> precedence)
+                }
+                iter(rest)
+              }
+            case _ => if (maxPrecedence < fullPrecedence) {
+                maxPrecedence = fullPrecedence
+                add(fullExpirePrecedence)
+              }
+          }
+          iter(infixes)
+          Some((firstExpire, out.toList, maxPrecedence))
         }
       }
+    }.getOrElse((fullExpire, fullExpirePrecedence :: Nil, fullPrecedence))
 
     val infixTooLong = infixSequenceLength(fullInfix) >
       afterInfix.maxCountPerExprForSome
@@ -407,10 +411,9 @@ class InfixSplits(
       val skip = skipInfixIndent
       if (isFirstOp) (fullExpire, if (skip) Indent.Empty else fullIndent)
       else {
-        val expire = expires.head._1
         val indentLen = if (skip) 0 else style.indent.main
-        val indent = Indent(indentLen, expire, ExpiresOn.After)
-        (expire, indent)
+        val indent = Indent(indentLen, firstExpire, ExpiresOn.After)
+        (firstExpire, indent)
       }
     }
 
@@ -452,22 +455,22 @@ class InfixSplits(
       })
 
     def otherSplitsNoDelims = {
-      val nlSplit = Split(nlMod, 1 + breakPenalty).withIndent(nlIndent)
-        .withPolicy(nlPolicy & delayedBreak)
+      val nlSplit = Split(nlMod, 1 + maxPrecedence - appPrecedence)
+        .withIndent(nlIndent).withPolicy(nlPolicy & delayedBreak)
       val spaceSplits: Seq[Split] =
         if (ft.right.is[T.Comment] || mustBreakAfterNested) Seq.empty
         else {
           val nextFT = if (rightAsInfix.isDefined) ftoks.next(ft) else ft
-          expires.filter(_._2 <= breakPenalty).takeRight(3)
-            .map { case (expire, cost) =>
-              val exclude =
-                if (breakMany) TokenRanges.empty
-                else TokenOps.insideBracesBlock(nextFT, expire, true)
-              val ignore = exclude.isEmpty && singleLinePolicy.nonEmpty &&
-                (expire eq fullExpire)
-              Split(ignore, cost)(ModExt(newStmtMod.getOrElse(spaceMod)))
-                .withSingleLine(expire, exclude, noOptimal = cost != 0)
-            }
+          expires.map { case (expire, precedence) =>
+            val cost = maxPrecedence - precedence
+            val exclude =
+              if (breakMany) TokenRanges.empty
+              else TokenOps.insideBracesBlock(nextFT, expire, true)
+            val ignore = exclude.isEmpty && singleLinePolicy.nonEmpty &&
+              (expire eq fullExpire)
+            Split(ignore, cost)(ModExt(newStmtMod.getOrElse(spaceMod)))
+              .withSingleLine(expire, exclude, noOptimal = cost != 0)
+          }
         }
       spaceSplits :+ nlSplit
     }
