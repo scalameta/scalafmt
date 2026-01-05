@@ -2881,7 +2881,8 @@ object SplitsBeforeIdent extends Splits {
         Seq(Split(Space.orNL(noNL), 0))
       case _: Tree.Repeated | _: Pat.SeqWildcard if getIdent == "*" =>
         Seq(Split(NoSplit, 0))
-      case _: Type.Capturing if getIdent == "^" => Seq(Split(NoSplit, 0))
+      case _: Type.Capturing | _: Type.CapSetName if getIdent == "^" =>
+        Seq(Split(NoSplit, 0))
       case _: Type.Name if leftOwner.is[Type.Project] =>
         Seq(Split(Space(isSymbolicName(getIdent)), 0))
       case t: Name => t.parent match {
