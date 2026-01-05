@@ -461,13 +461,18 @@ object Newlines {
       def checkConfig(
           infixCount: Int,
       )(orElseStyle: => Option[Style])(implicit cfg: ScalafmtConfig): Site =
-        if (maxCountPerFile < infixCount) copy(style = keep)
-        else if (style eq null) {
-          val opt = Infix.defaultStyle(cfg.newlines.source).orElse(orElseStyle)
-          copy(style = opt.getOrElse(keep))
-        } else this
+        if (isNone || (style eq keepNL)) this
+        else if (maxCountPerFile < infixCount) copy(style = keep)
+        else if (style eq null) copy(style = cfg.newlines.source match {
+          case Newlines.unfold => many
+          case Newlines.fold => some
+          case _ => orElseStyle.getOrElse(keep)
+        })
+        else this
+
+      def isNone: Boolean = style eq keep
       def sourceIgnoredAt(ft: FT): Boolean =
-        if (ft.noBreak) style ne keep else sourceIgnored
+        if (ft.noBreak) !isNone else sourceIgnored
       def sourceIgnored: Boolean = style.sourceIgnored
       private[config] def sourceIgnoredIfSet: Boolean =
         (style eq null) || sourceIgnored
@@ -479,11 +484,6 @@ object Newlines {
         .noTypos
     }
 
-    def defaultStyle(source: SourceHints): Option[Style] = source match {
-      case Newlines.unfold => Some(many)
-      case Newlines.fold => Some(some)
-      case _ => None
-    }
   }
 
   sealed abstract class BeforeAfter
