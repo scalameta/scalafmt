@@ -64,9 +64,9 @@ class FormatOps(
         if (start.rightOwner.is[Member.ParamClauseGroup]) start else null
       case _ if start.hasBlankLine => start
       case _
-          if !AsInfixOp(start.rightOwner)
+          if AsInfixOp(start.rightOwner)
             .orElse(AsInfixOp(prevNonComment(start).leftOwner))
-            .forall(style.newlines.infix.sourceIgnored) =>
+            .exists(style.newlines.infix.get(_).isNone) =>
         if (start.hasBreak) start else null
       case _: T.LeftParen if (start.rightOwner match {
             case _: Member.ArgClause =>
