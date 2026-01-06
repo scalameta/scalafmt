@@ -622,3 +622,33 @@ List(
         useECMAScript2015Semantics
     ) // different name for historical reasons
 )
+<<< infix style=keepNL turn space to break after infix op
+maxColumn = 60
+rewrite.rules = [RedundantParens]
+rewrite.redundantParens.preset = all
+newlines.infix.termSite.style = keepNL
+===
+  typedPrimaryConstrBody(templ) {
+    ctor setType supertpe // this is an essential hack, otherwise it will occasionally fail to typecheck
+    atPos(supertpt.pos.focus)(supercall)
+  } match {
+    case EmptyTree => MissingTypeArgumentsParentTpeError(supertpt); supertpt
+    case tpt       => TypeTree(tpt.tpe) setPos supertpt.pos  // scala/bug#7224: don't .focus positions of the TypeTree of a parent that exists in source
+  }
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,12 +1,11 @@
+ typedPrimaryConstrBody(templ) {
+   ctor setType
+     supertpe // this is an essential hack, otherwise it will occasionally fail to typecheck
+   atPos(supertpt.pos.focus)(supercall)
+ } match {
+   case EmptyTree =>
+     MissingTypeArgumentsParentTpeError(supertpt); supertpt
+   case tpt =>
+-    TypeTree(
+-        tpt.tpe) setPos
++    TypeTree(tpt.tpe) setPos
+       supertpt.pos // scala/bug#7224: don't .focus positions of the TypeTree of a parent that exists in source
+ }
