@@ -647,3 +647,22 @@ typedPrimaryConstrBody(templ) {
     TypeTree(tpt.tpe) setPos
       supertpt.pos // scala/bug#7224: don't .focus positions of the TypeTree of a parent that exists in source
 }
+<<< infix style=keepNL with scala.js
+maxColumn = 75
+preset = scala.js
+newlines.source = keep
+newlines.infix.termSite.style = keepNL
+===
+def scalaOrdering[A: Order: SOrdering: Arbitrary]: Prop = forAll((a1: A, a2: A) => Order[A].order(a1, a2) == Ordering.fromInt(SOrdering[A].compare(a1, a2)))
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,4 +1,4 @@
+-def scalaOrdering[A: Order: SOrdering: Arbitrary]: Prop = forAll(
+-    (a1: A, a2: A) =>
+-      Order[A].order(a1, a2) ==
+-        Ordering.fromInt(SOrdering[A].compare(a1, a2)))
++def scalaOrdering[A: Order: SOrdering: Arbitrary]: Prop =
++  forAll((a1: A, a2: A) =>
++    Order[A].order(a1, a2) ==
++      Ordering.fromInt(SOrdering[A].compare(a1, a2)))
