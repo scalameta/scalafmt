@@ -357,7 +357,9 @@ class InfixSplits(
         if (infixes.isEmpty) None
         else {
           val isKeep = !afterInfix.style.sourceIgnored
-          var maxPrecedence = appPrecedence - 1
+          var maxPrecedence =
+            if (isKeep && isAfterOp && ftoks.prev(ft).hasBreak) 0
+            else appPrecedence - 1
           var firstExpire: FT = null
           val out = new mutable.ListBuffer[(FT, Int)]
           def add(elem: (FT, Int)): Unit = {
@@ -370,7 +372,7 @@ class InfixSplits(
               val precedence = ia.precedence
               val expire = InfixSplits.getMidInfixToken(ia, isKeep)
               if (firstExpire eq null) firstExpire = expire
-              if (isKeep && expire.hasBreak) {
+              if (isKeep && (expire.hasBreak || ftoks.next(expire).hasBreak)) {
                 if (maxPrecedence < precedence) maxPrecedence = precedence
                 add(expire -> precedence)
               } else {

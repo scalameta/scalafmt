@@ -342,7 +342,7 @@ class FormatOps(
     val (fullInfix, fullInfixEnclosedIn) = InfixSplits
       .findMaybeEnclosingInfix(app)
 
-    if (sourceIgnored) return {
+    def sourceIgnoredSplits(implicit fl: FileLine) = {
       val ok = fullInfixEnclosedIn.isDefined || fullInfix.parent.forall {
         case t: Defn.Val => t.rhs eq fullInfix
         case t: Defn.Var => t.body eq fullInfix
@@ -352,6 +352,8 @@ class FormatOps(
         .getBeforeLhsOrRhs(afterInfix, spaceMod = spaceMod)
       else spaceSplits
     }
+
+    if (sourceIgnored) return sourceIgnoredSplits
 
     // we don't modify line breaks generally around infix expressions
     // TODO: if that ever changes, modify how rewrite rules handle infix
@@ -376,11 +378,20 @@ class FormatOps(
       if (ft.noBreak) withIndent(spc) // !sourceIgnored
       else if (!okBreakBeforeOp) spaceSplits
       else if (isFewerBracesRhs(app.arg)) Seq(nl(0))
+      else if (!afterInfix.isNone) withIndent {
+        val nft = next(ft) // if we break before, let's not break immediately after
+        if (okSpaceAfterOp(nft)) nl(0).withSingleLine(nft)
+          .andPolicy(penalizeOneNewline(nft, Constants.ShouldBeSingleLine))
+        else nl(0)
+      }
       else withIndent(nl(0))
     else {
       // now are after the op
       val useSpace = okSpaceAfterOp(ft)
-      withIndent(if (useSpace) spc else nl(0))
+      if (afterInfix.isNone) withIndent(if (useSpace) spc else nl(0))
+      else if (!useSpace) withIndent(nl(1))
+      else if (prev(ft).hasBreak && okBreakBeforeOp) spaceSplits
+      else sourceIgnoredSplits
     }
   }
 

@@ -573,8 +573,7 @@ require(
 >>>
 require(fraction >=
           0.0 - RandomSampler.roundingEpsilon
-          &&
-          fraction <=
+          && fraction <=
           1.0 + RandomSampler.roundingEpsilon,
         s"Sampling fraction ($fraction) must be on interval [0, 1]")
 <<< infix style=keepNL no break before op but after brace, no arg clause, RedundantBraces
@@ -655,14 +654,7 @@ newlines.infix.termSite.style = keepNL
 ===
 def scalaOrdering[A: Order: SOrdering: Arbitrary]: Prop = forAll((a1: A, a2: A) => Order[A].order(a1, a2) == Ordering.fromInt(SOrdering[A].compare(a1, a2)))
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,4 +1,4 @@
--def scalaOrdering[A: Order: SOrdering: Arbitrary]: Prop = forAll(
--    (a1: A, a2: A) =>
--      Order[A].order(a1, a2) ==
--        Ordering.fromInt(SOrdering[A].compare(a1, a2)))
-+def scalaOrdering[A: Order: SOrdering: Arbitrary]: Prop =
-+  forAll((a1: A, a2: A) =>
-+    Order[A].order(a1, a2) ==
-+      Ordering.fromInt(SOrdering[A].compare(a1, a2)))
+def scalaOrdering[A: Order: SOrdering: Arbitrary]: Prop = forAll(
+    (a1: A, a2: A) =>
+      Order[A].order(a1, a2) ==
+        Ordering.fromInt(SOrdering[A].compare(a1, a2)))
