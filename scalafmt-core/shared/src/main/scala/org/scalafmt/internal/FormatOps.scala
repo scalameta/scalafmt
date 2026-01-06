@@ -336,8 +336,7 @@ class FormatOps(
     def spaceSplits(implicit fl: FileLine) = Seq(spc)
 
     val afterInfix = style.newlines.infix.get(app)
-    val sourceIgnored = afterInfix.sourceIgnoredAt(ft)
-    if (isBeforeOp && sourceIgnored) return spaceSplits
+    if (isBeforeOp && afterInfix.sourceIgnoredAt(ft)) return spaceSplits
 
     val (fullInfix, fullInfixEnclosedIn) = InfixSplits
       .findMaybeEnclosingInfix(app)
@@ -353,7 +352,7 @@ class FormatOps(
       else spaceSplits
     }
 
-    if (sourceIgnored) return sourceIgnoredSplits
+    if (afterInfix.sourceIgnored) return sourceIgnoredSplits
 
     // we don't modify line breaks generally around infix expressions
     // TODO: if that ever changes, modify how rewrite rules handle infix
