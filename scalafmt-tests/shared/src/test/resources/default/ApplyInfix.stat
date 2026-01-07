@@ -680,26 +680,18 @@ object a {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,16 +1,19 @@
- object a {
-   object b {
-     val implicitInformation =
-       mbr.byConversion match {
-         case Some(conv) =>
-           Dt(`class` = "implicit", elems = Txt("Implicit")) ++
-             {
-               Dd(elems = (
-                   Txt("This member is added by an implicit conversion from ") ::
--                    (typeToHtml(inTpl.resultType, hasLinks = true) :+ Txt(" to"))
-+                    (
-+                        typeToHtml(inTpl.resultType, hasLinks = true) :+
-+                          Txt(" to")
-+                    )
-               ) ++
-                 constraintText)
-             }
-       }
-   }
- }
+object a {
+  object b {
+    val implicitInformation =
+      mbr.byConversion match {
+        case Some(conv) =>
+          Dt(`class` = "implicit", elems = Txt("Implicit")) ++ {
+            Dd(elems = (
+                Txt("This member is added by an implicit conversion from ") ::
+                  (typeToHtml(inTpl.resultType, hasLinks = true) :+ Txt(" to"))
+            ) ++
+              constraintText)
+          }
+      }
+  }
+}

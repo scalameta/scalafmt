@@ -388,7 +388,7 @@ class FormatOps(
       // now are after the op
       val useSpace = okSpaceAfterOp(ft)
       if (afterInfix.isNone) withIndent(if (useSpace) spc else nl(0))
-      else if (!useSpace) withIndent(nl(1))
+      else if (!useSpace && !isEnclosedInBraces(app.arg)) withIndent(nl(1))
       else if (prev(ft).hasBreak && okBreakBeforeOp) spaceSplits
       else sourceIgnoredSplits
     }
