@@ -483,7 +483,7 @@ Def.settings(
 )
 <<< braces at end of infix expressions
 newlines.source = fold
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 ===
 Switch(typeof(instance), List(
     str("string") -> {
@@ -511,7 +511,7 @@ Switch(
 )
 <<< closing brace between comment and comma
 newlines.source = fold
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 ===
 dataFrameCachingWrapper(
   (args: FnArgsWithId) => {

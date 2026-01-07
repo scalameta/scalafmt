@@ -11123,7 +11123,7 @@ object Foo {
 <<< #4705 term=some, type=keep
 maxColumn = 80
 newlines.infix.termSite.style = some
-newlines.infix.typeSite.maxCountPerFile = 0
+newlines.infix.typeSite.maxCountPerFileForKeep = 0
 ===
 object Foo {
   def oldStyle: Traverse[Option] with MonadError[Option, Unit] with Alternative[Option] with CommutativeMonad[Option] with CoflatMap[Option] with Align[Option] =
@@ -11141,15 +11141,15 @@ object Foo {
     with CoflatMap[Option]
     with Align[Option] = ???
 
-  def newStyle: Traverse[Option] & MonadError[Option, Unit] & Alternative[
-    Option
-  ] & CommutativeMonad[Option] & CoflatMap[Option] & Align[Option] =
-    Traverse[Option] & MonadError[Option, Unit] & Alternative[Option] &
-      CommutativeMonad[Option] & CoflatMap[Option] & Align[Option]
+  def newStyle: Traverse[Option] & MonadError[Option, Unit] &
+    Alternative[Option] & CommutativeMonad[Option] & CoflatMap[Option] &
+    Align[Option] = Traverse[Option] & MonadError[Option, Unit] &
+    Alternative[Option] & CommutativeMonad[Option] & CoflatMap[Option] &
+    Align[Option]
 }
 <<< #4705 term=keep, type=some
 maxColumn = 80
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 newlines.infix.typeSite.style = some
 ===
 object Foo {
@@ -11170,9 +11170,9 @@ object Foo {
 
   def newStyle: Traverse[Option] & MonadError[Option, Unit] &
     Alternative[Option] & CommutativeMonad[Option] & CoflatMap[Option] &
-    Align[Option] = Traverse[Option] & MonadError[Option, Unit] & Alternative[
-    Option
-  ] & CommutativeMonad[Option] & CoflatMap[Option] & Align[Option]
+    Align[Option] = Traverse[Option] & MonadError[Option, Unit] &
+    Alternative[Option] & CommutativeMonad[Option] & CoflatMap[Option] &
+    Align[Option]
 }
 <<< consistency between string and interpolation: stripMargin, ignoreInSyntax
 maxColumn = 40
