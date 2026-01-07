@@ -2462,6 +2462,7 @@ Each of these groups has several parameters of its own (replacing deprecated
 
 - `style`:
 - `maxCountPerFile`
+- `maxCountPerFileForKeep`
 - `maxCountPerExprForSome`
 - `breakOnNested`
 
@@ -2506,6 +2507,10 @@ newlines.infix.termSite.maxCountPerFile
 If the total number of matching infix operations in the _entire file_ exceeds
 `newlines.infix.xxxSite.maxCountPerFile`, the formatter automatically switches to
 `newlines.infix.xxxSite.style=keep` for this file.
+
+Otherwise, if the number of infix expressions exceeds `maxCountPerFileForKeep`,
+the formatter automatically switches to `newlines.infix.xxxSite.style=keepNL`.
+This optional parameter was added in v3.10.4.
 
 #### `newlines.infix: maxCountPerExprForSome`
 

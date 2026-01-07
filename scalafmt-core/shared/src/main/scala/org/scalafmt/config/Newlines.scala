@@ -456,13 +456,17 @@ object Newlines {
         style: Style = null,
         breakOnNested: Boolean = false,
         maxCountPerFile: Int = 500,
+        maxCountPerFileForKeep: Option[Int] = None,
         maxCountPerExprForSome: Int = 10,
     ) {
       def checkConfig(
           infixCount: Int,
       )(orElseStyle: => Option[Style])(implicit cfg: ScalafmtConfig): Site =
-        if (isNone || (style eq keepNL)) this
+        if (isNone) this
         else if (maxCountPerFile < infixCount) copy(style = keep)
+        else if (style eq keepNL) this
+        else if (maxCountPerFileForKeep.exists(_ < infixCount))
+          copy(style = keepNL)
         else if (style eq null) copy(style = cfg.newlines.source match {
           case Newlines.unfold => many
           case Newlines.fold => some
@@ -478,7 +482,7 @@ object Newlines {
         (style eq null) || sourceIgnored
     }
     object Site {
-      private[Infix] val default = Site()
+      private[scalafmt] val default = Site()
       implicit lazy val surface: generic.Surface[Site] = generic.deriveSurface
       implicit lazy val codec: ConfCodecEx[Site] = generic.deriveCodecEx(default)
         .noTypos

@@ -17,6 +17,11 @@ private[community] object TestStyles {
       project = base.project
         .copy(git = true, layout = Some(ProjectFiles.Layout.StandardConvention)),
       lineEndings = Some(if (isWin) LineEndings.windows else LineEndings.unix),
+      newlines = base.newlines.copy(infix =
+        base.newlines.infix.copy(termSite =
+          Newlines.Infix.Site.default.copy(maxCountPerFileForKeep = Some(300)),
+        ),
+      ),
       runner = base.runner.copy(
         maxStateVisits = None,
         optimizer = base.runner.optimizer.copy(escapeInPathologicalCases = false),
