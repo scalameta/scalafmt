@@ -388,9 +388,18 @@ class FormatOps(
       // now are after the op
       val useSpace = okSpaceAfterOp(ft)
       if (afterInfix.isNone) withIndent(if (useSpace) spc else nl(0))
-      else if (!useSpace && !isEnclosedInBraces(app.arg)) withIndent(nl(1))
-      else if (prev(ft).hasBreak && okBreakBeforeOp) spaceSplits
-      else sourceIgnoredSplits
+      else if (useSpace)
+        if (prev(ft).hasBreak && okBreakBeforeOp) spaceSplits
+        else sourceIgnoredSplits
+      else (ft.right match {
+        case _: T.LeftBrace => matchingOptRight(ft)
+        case _ => None
+      }) match {
+        case Some(cft) if cft.right.end >= app.arg.pos.end =>
+          sourceIgnoredSplits
+            .map(s => if (s.isNL) s.copy(cost = 0, rank = -1) else s)
+        case _ => withIndent(nl(1))
+      }
     }
   }
 
