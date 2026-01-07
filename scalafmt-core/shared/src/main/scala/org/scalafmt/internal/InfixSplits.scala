@@ -347,7 +347,7 @@ class InfixSplits(
     }
     val fullPrecedence = fullInfix.precedence
     val fullExpirePrecedence = fullExpire -> fullPrecedence
-    val (firstExpire, expires, maxPrecedence) = {
+    val (firstExpire, expires, minPrecedence) = {
       if (closeOpt.isDefined) None
       else {
         val infixes = {
@@ -361,9 +361,9 @@ class InfixSplits(
         if (infixes.isEmpty) None
         else {
           val isKeep = !afterInfix.style.sourceIgnored
-          var maxPrecedence =
-            if (isKeep && isAfterOp && ftoks.prev(ft).hasBreak) 0
-            else appPrecedence - 1
+          var minPrecedence =
+            if (isKeep && isAfterOp && ftoks.prev(ft).hasBreak) Int.MaxValue
+            else appPrecedence + 1
           var firstExpire: FT = null
           val out = new mutable.ListBuffer[(FT, Int)]
           def add(elem: (FT, Int)): Unit = {
@@ -377,22 +377,22 @@ class InfixSplits(
               val expire = InfixSplits.getMidInfixToken(ia, isKeep)
               if (firstExpire eq null) firstExpire = expire
               if (isKeep && (expire.hasBreak || ftoks.next(expire).hasBreak)) {
-                if (maxPrecedence < precedence) maxPrecedence = precedence
+                if (minPrecedence > precedence) minPrecedence = precedence
                 add(expire -> precedence)
               } else {
-                if (maxPrecedence < precedence) {
-                  maxPrecedence = precedence
+                if (minPrecedence > precedence) {
+                  minPrecedence = precedence
                   add(expire -> precedence)
                 }
                 iter(rest)
               }
-            case _ => if (maxPrecedence < fullPrecedence) {
-                maxPrecedence = fullPrecedence
+            case _ => if (minPrecedence > fullPrecedence) {
+                minPrecedence = fullPrecedence
                 add(fullExpirePrecedence)
               }
           }
           iter(infixes)
-          Some((firstExpire, out.toList, maxPrecedence))
+          Some((firstExpire, out.toList, minPrecedence))
         }
       }
     }.getOrElse((fullExpire, fullExpirePrecedence :: Nil, fullPrecedence))
@@ -456,19 +456,19 @@ class InfixSplits(
           val iaOpt =
             if (isLeftInfix) Some(ia)
             else InfixSplits.findRightmostArgIfEnclosedInfix(ia)
-          iaOpt.exists(_.precedence <= appPrecedence)
+          iaOpt.exists(_.precedence >= appPrecedence)
         case _ => false
       })
 
     def otherSplitsNoDelims = {
-      val nlSplit = Split(nlMod, 1 + maxPrecedence - appPrecedence)
+      val nlSplit = Split(nlMod, 1 + appPrecedence - minPrecedence)
         .withIndent(nlIndent).withPolicy(nlPolicy & delayedBreak)
       val spaceSplits: Seq[Split] =
         if (ft.right.is[T.Comment] || mustBreakAfterNested) Seq.empty
         else {
           val nextFT = if (rightAsInfix.isDefined) ftoks.next(ft) else ft
           expires.map { case (expire, precedence) =>
-            val cost = maxPrecedence - precedence
+            val cost = precedence - minPrecedence
             val exclude =
               if (breakMany) TokenRanges.empty
               else TokenOps.insideBracesBlock(nextFT, expire, true)
@@ -492,7 +492,7 @@ class InfixSplits(
 
       val noSingleLine = newStmtMod.isDefined || breakMany ||
         isAfterOpBreakOnNested && rhsPossiblyEnclosedInfix.exists {
-          case Right(ia) => ia.precedence <= appPrecedence
+          case Right(ia) => ia.precedence >= appPrecedence
           case _ => false
         } || mustBreakAfterNested ||
         rightAsInfix.exists(10 < infixSequenceLength(_))

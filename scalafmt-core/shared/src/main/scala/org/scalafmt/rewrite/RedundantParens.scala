@@ -185,12 +185,12 @@ class RedundantParens(implicit val ftoks: FormatTokens)
       case RedundantParensSettings.InfixSide.many
           if tia.op.value != pia.op.value =>
         val tiaPrecedence = tia.precedence
-        tiaPrecedence <= precedenceHigh ||
-        tiaPrecedence < precedenceLowest && pia.precedence >= precedenceLowest
+        tiaPrecedence >= precedenceHigh ||
+        tiaPrecedence > precedenceLowest && pia.precedence <= precedenceLowest
       case RedundantParensSettings.InfixSide.some =>
         val tiaPrecedence = tia.precedence
-        tiaPrecedence <= precedenceVeryHigh ||
-        tiaPrecedence <= precedenceMedium && pia.precedence >= precedenceLowest
+        tiaPrecedence >= precedenceVeryHigh ||
+        tiaPrecedence >= precedenceMedium && pia.precedence <= precedenceLowest
       case _ => true
     }
 

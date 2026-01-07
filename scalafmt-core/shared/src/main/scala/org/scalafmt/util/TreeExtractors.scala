@@ -30,33 +30,15 @@ object InfixApp {
   }
 
   // https://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations
-  // The precedence of an assignment ... is lower than the precedence of any other ...
-  private val infixOpPrecedence: Map[Char, Int] = {
-    val builder = Map.newBuilder[Char, Int]
-    def add(precedence: Int, ops: Char*): Unit = addSeq(precedence, ops)
-    def addSeq(precedence: Int, ops: Iterable[Char]): Unit = ops
-      .foreach(builder += _ -> precedence)
-    // start with 1; all other special characters will get 0 by omission
-    add(1, '*', '/', '%')
-    add(2, '+', '-')
-    add(3, ':')
-    add(4, '<', '>')
-    add(5, '=', '!')
-    add(6, '&')
-    add(7, '^')
-    add(8, '|')
-    addSeq(9, 'a' to 'z')
-    addSeq(9, 'A' to 'Z')
-    builder.result()
-  }
-
-  // https://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations
   // Operators ending in a colon `:' are right-associative. All other operators are left-associative.
   @inline
   def isLeftAssoc(op: String): Boolean = op.isLeftAssoc
 
   @inline
-  def getPrecedence(op: String): Int = infixOpPrecedence.getOrElse(op.head, 0)
+  def getPrecedence(op: String): Int = {
+    val idx = op.lastIndexWhere(_ != '=')
+    if (idx < 0) op else op.substring(0, idx + 1)
+  }.precedence
 
 }
 
