@@ -690,13 +690,13 @@ trait EntityPage extends HtmlPage {
         id = "search",
         elems =
           Span(id = "doc-title",
-              elems = Txt(universe.settings.doctitle.value) :: Span(
-                  id = "doc-version",
-                  elems = Txt(universe.settings.docversion.value))) ::
+              elems = Txt(universe.settings.doctitle.value) ::
+                Span(id = "doc-version",
+                    elems = Txt(universe.settings.docversion.value))) ::
             Txt(" ") ::
             Span(`class` = "close-results",
-                elems = Span(`class` = "left", elems = Txt("<")) :: Txt(
-                    " Back")) ::
+                elems = Span(`class` = "left", elems = Txt("<")) ::
+                  Txt(" Back")) ::
             Div(
                 id = "textfilter",
                 elems =
@@ -788,7 +788,7 @@ val memberSel: Elems =
       ))
     )
   ))
->>> { stateVisits = 2423, stateVisits2 = 1904 }
+>>> { stateVisits = 2897, stateVisits2 = 2235 }
 val memberSel: Elems =
   if (valueMembers.forall(_.kind == "package")) NoElems
   else List(Div(
@@ -820,33 +820,34 @@ val memberSel: Elems =
                             Ol(
                                 elems = {
                                   if (
-                                      !universe.settings.docGroups.value || tpl.members.map(
-                                          _.group).distinct.forall(
+                                      !universe.settings.docGroups.value ||
+                                      tpl.members.map(_.group).distinct.forall(
                                           _ == ModelFactory.defaultGroup)
                                   )
                                     NoElems
                                   else
                                     Li(`class` = "group out",
-                                        elems = Span(
-                                            elems = Txt("Grouped"))) :: NoElems
+                                        elems = Span(elems = Txt("Grouped"))) ::
+                                      NoElems
                                 } ++
                                   (Li(`class` = "alpha in",
                                       elems = Span(
-                                          elems = Txt("Alphabetic"))) ::
-                                    {
-                                      if (
-                                          tpl.linearizationTemplates.isEmpty && tpl.conversions.isEmpty
-                                      )
-                                        NoElems
-                                      else
-                                        Li(`class` = "inherit out",
-                                            elems = Span(elems = Txt(
-                                                "By Inheritance"))) :: NoElems
-                                    })
+                                          elems = Txt("Alphabetic"))) :: {
+                                    if (
+                                        tpl.linearizationTemplates.isEmpty &&
+                                        tpl.conversions.isEmpty
+                                    )
+                                      NoElems
+                                    else
+                                      Li(`class` = "inherit out",
+                                          elems = Span(elems = Txt(
+                                              "By Inheritance"))) :: NoElems
+                                  })
                             )
                     ) ++ (
                         if (
-                            tpl.linearizationTemplates.isEmpty && tpl.conversions.isEmpty
+                            tpl.linearizationTemplates.isEmpty &&
+                            tpl.conversions.isEmpty
                         ) NoElems
                         else {
                           (if (tpl.linearizationTemplates.isEmpty) NoElems
@@ -855,12 +856,13 @@ val memberSel: Elems =
                                  `class` = "ancestors",
                                  elems =
                                    Span(`class` = "filtertype",
-                                       elems = Txt(
-                                           "Inherited") :: Br :: NoElems) ::
+                                       elems = Txt("Inherited") :: Br ::
+                                         NoElems) ::
                                      Ol(
                                          id = "linearization",
                                          elems = {
-                                           (tpl :: tpl.linearizationTemplates).map(
+                                           (tpl ::
+                                             tpl.linearizationTemplates).map(
                                                wte =>
                                                  Li(`class` = "in",
                                                      name = wte.qualifiedName,
@@ -875,8 +877,8 @@ val memberSel: Elems =
                                    `class` = "ancestors",
                                    elems =
                                      Span(`class` = "filtertype",
-                                         elems = Txt(
-                                             "Implicitly") :: Br :: NoElems) ::
+                                         elems = Txt("Implicitly") :: Br ::
+                                           NoElems) ::
                                        Ol(
                                            id = "implicits",
                                            elems = {
@@ -889,8 +891,8 @@ val memberSel: Elems =
                                                Li(`class` = "in", name = name,
                                                    `data-hidden` =
                                                      hide.toString,
-                                                   elems = Span(elems = Txt(
-                                                       "by " + conv.conversionShortName)))
+                                                   elems = Span(elems = Txt("by " +
+                                                     conv.conversionShortName)))
                                              }
                                            }
                                        )
@@ -922,11 +924,11 @@ val memberSel: Elems =
                                       Li(`class` = "protected out",
                                           elems = Span(
                                               elems = Txt("Protected")))
-                                  ) ++ List(Li(`class` = "private out",
-                                          elems = Span(
-                                              elems = Txt("Private")))).filter(
-                                      _ =>
-                                        universe.settings.visibilityPrivate.value))
+                                  ) ++
+                                    List(Li(`class` = "private out",
+                                            elems = Span(elems = Txt(
+                                                "Private")))).filter(_ =>
+                                      universe.settings.visibilityPrivate.value))
                         ))
               )
       ))

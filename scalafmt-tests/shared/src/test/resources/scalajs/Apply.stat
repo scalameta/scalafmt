@@ -600,7 +600,7 @@ optDef.getOrElse {
     bar, foo &&
     bar, baz) )
 }
->>> { stateVisits = 2070, stateVisits2 = 2038 }
+>>> { stateVisits = 2085, stateVisits2 = 2053 }
 optDef.getOrElse {
   abort(foo &&
     bar)

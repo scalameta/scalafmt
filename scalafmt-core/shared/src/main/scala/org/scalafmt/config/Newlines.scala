@@ -392,7 +392,7 @@ object Newlines {
     ): Infix = copy(
       termSite = termSite.checkConfig(termCnt)(None),
       typeSite = Some(typeSite.getOrElse(termSite).checkConfig(typeInfix) {
-        val useSome = !cfg.newlines.keep && cfg.dialect.useInfixTypePrecedence
+        val useSome = cfg.newlines.classic && cfg.dialect.useInfixTypePrecedence
         if (useSome) Some(Infix.some) else None
       }),
       patSite = Some(patSite.getOrElse(termSite).checkConfig(patInfix)(None)),
@@ -425,7 +425,7 @@ object Newlines {
     case object keep extends Style {
       def sourceIgnored: Boolean = false
     }
-    case object keepNL extends Style {
+    case object none extends Style {
       def sourceIgnored: Boolean = false
     }
     case object some extends Style {
@@ -435,7 +435,7 @@ object Newlines {
       def sourceIgnored: Boolean = true
     }
     implicit val styleReader: ConfCodecEx[Style] = ConfCodecEx
-      .oneOf[Style](keep, some, many, keepNL)
+      .oneOf[Style](keep, some, many, none)
 
     /** @param style
       *   Controls how line breaks around infix operations are handled
@@ -463,18 +463,19 @@ object Newlines {
           infixCount: Int,
       )(orElseStyle: => Option[Style])(implicit cfg: ScalafmtConfig): Site =
         if (isNone) this
-        else if (maxCountPerFile < infixCount) copy(style = keep)
-        else if (style eq keepNL) this
+        else if (maxCountPerFile < infixCount) copy(style = none)
+        else if (style eq keep) this
         else if (maxCountPerFileForKeep.exists(_ < infixCount))
-          copy(style = keepNL)
+          copy(style = keep)
         else if (style eq null) copy(style = cfg.newlines.source match {
           case Newlines.unfold => many
           case Newlines.fold => some
-          case _ => orElseStyle.getOrElse(keep)
+          case Newlines.keep => orElseStyle.getOrElse(keep)
+          case Newlines.classic => orElseStyle.getOrElse(none)
         })
         else this
 
-      def isNone: Boolean = style eq keep
+      def isNone: Boolean = style eq none
       def sourceIgnoredAt(ft: FT): Boolean =
         if (ft.noBreak) !isNone else sourceIgnored
       def sourceIgnored: Boolean = style.sourceIgnored

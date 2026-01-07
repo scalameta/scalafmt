@@ -3262,7 +3262,7 @@ object a {
     a
 }
 <<< #2019 infix
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -3292,7 +3292,7 @@ object a {
   }
 }
 <<< #2019 if-else !alwaysBeforeElseAfterCurlyIf
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 newlines.alwaysBeforeElseAfterCurlyIf = false
 rewrite.insertBraces.minLines = 2
 ===
@@ -3351,7 +3351,7 @@ object a {
   }
 }
 <<< #2019 if-else alwaysBeforeElseAfterCurlyIf
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 newlines.alwaysBeforeElseAfterCurlyIf = true
 rewrite.insertBraces.minLines = 2
 ===
@@ -3415,7 +3415,7 @@ object a {
 }
 <<< #2019 try !alwaysBeforeElseAfterCurlyIf !allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 newlines.alwaysBeforeElseAfterCurlyIf = false
 rewrite.insertBraces.minLines = 2
 rewrite.scala3.removeOptionalBraces = no
@@ -3444,7 +3444,7 @@ object a {
 }
 <<< #2019 try !alwaysBeforeElseAfterCurlyIf allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 newlines.alwaysBeforeElseAfterCurlyIf = false
 rewrite.insertBraces.minLines = 2
 rewrite.insertBraces.allBlocks = true
@@ -3475,7 +3475,7 @@ object a {
 }
 <<< #2019 try alwaysBeforeElseAfterCurlyIf !allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 newlines.alwaysBeforeElseAfterCurlyIf = true
 rewrite.insertBraces.minLines = 2
 rewrite.scala3.removeOptionalBraces = no
@@ -3505,7 +3505,7 @@ object a {
 }
 <<< #2019 try alwaysBeforeElseAfterCurlyIf allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 newlines.alwaysBeforeElseAfterCurlyIf = true
 rewrite.insertBraces.minLines = 2
 rewrite.insertBraces.allBlocks = true
@@ -3538,7 +3538,7 @@ object a {
 }
 <<< #2019 function
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -3572,7 +3572,7 @@ object a {
 }
 <<< #2019 function with param in parens
 maxColumn = 14
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -3606,7 +3606,7 @@ object a {
 }
 <<< #2019 contextual function
 maxColumn = 13
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -3640,7 +3640,7 @@ object a {
 }
 <<< #2019 poly function
 maxColumn = 14
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -3674,7 +3674,7 @@ object a {
 }
 <<< #2019 partial function
 maxColumn = 25
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -3692,7 +3692,7 @@ object a {
 }
 <<< #2019 for-yield !allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -3721,7 +3721,7 @@ object a {
 }
 <<< #2019 for-yield allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 rewrite.insertBraces.allBlocks = true
 ===
@@ -3752,7 +3752,7 @@ object a {
 }
 <<< #2019 for-do !allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 rewrite.scala3.removeOptionalBraces = no
 indent.significant = null
@@ -3824,7 +3824,7 @@ object a {
 }
 <<< #2019 for-do allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 rewrite.insertBraces.allBlocks = true
 rewrite.scala3.removeOptionalBraces = no

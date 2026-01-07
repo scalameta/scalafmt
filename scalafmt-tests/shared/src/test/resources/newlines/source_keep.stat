@@ -163,9 +163,8 @@ object a {
 }
 >>>
 object a {
-  the[Exception] thrownBy {
-    SizeUtils.calculate(segments, "user")
-  } should have message """Cannot resolve column name "user" among (segment_id);"""
+  the[Exception] thrownBy { SizeUtils.calculate(segments, "user") } should
+    have message """Cannot resolve column name "user" among (segment_id);"""
 }
 <<< 1.c.1: block followed by an infix, overflowing if no break
 maxColumn = 80
@@ -175,9 +174,8 @@ object a {
 }
 >>>
 object a {
-  the[Exception] thrownBy {
-    SizeUtils.calculate(segments, "user")
-  } should have message """Cannot resolve column name "user" among (segment_id);"""
+  the[Exception] thrownBy { SizeUtils.calculate(segments, "user") } should
+    have message """Cannot resolve column name "user" among (segment_id);"""
 }
 <<< 1.c.2: block followed by an infix, overflowing if no break
 maxColumn = 80
@@ -867,18 +865,20 @@ object a {
 }
 >>>
 object a {
-  val terminaters = Set() ++ (for (i ← 1 to n)
-    yield {
-      val man = context.watch(context.system.actorOf(Props[Terminater]))
-      man ! "run"
-      man
-    })
-  terminaters = Set() ++ (for (i ← 1 to n)
-    yield {
-      val man = context.watch(context.system.actorOf(Props[Terminater]))
-      man ! "run"
-      man
-    })
+  val terminaters = Set() ++
+    (for (i ← 1 to n)
+      yield {
+        val man = context.watch(context.system.actorOf(Props[Terminater]))
+        man ! "run"
+        man
+      })
+  terminaters = Set() ++
+    (for (i ← 1 to n)
+      yield {
+        val man = context.watch(context.system.actorOf(Props[Terminater]))
+        man ! "run"
+        man
+      })
 }
 <<< 3.11 enclosed, by itself
 maxColumn = 80
@@ -1016,8 +1016,8 @@ object a {
 }
 >>>
 object a {
-  val a =
-    2 ++ (intercept[java.lang.IllegalStateException] { in.readObject }) ++ 3
+  val a = 2 ++ (intercept[java.lang.IllegalStateException] { in.readObject }) ++
+    3
 }
 <<< 3.18 enclosed, assignment, by itself, narrower
 maxColumn = 60
@@ -1127,10 +1127,11 @@ object a {
 }
 >>>
 object a {
-  val a = 2 ++ (intercept[
-    java.lang.IllegalStateException] {
-    in.readObject
-  })
+  val a = 2 ++
+    (intercept[
+      java.lang.IllegalStateException] {
+      in.readObject
+    })
 }
 <<< 3.25 enclosed, assignment, infix in middle, narrow
 maxColumn = 40
@@ -1143,10 +1144,11 @@ object a {
 }
 >>>
 object a {
-  val a = 2 ++ (intercept[
-    java.lang.IllegalStateException] {
-    in.readObject
-  }) ++ 3
+  val a = 2 ++
+    (intercept[
+      java.lang.IllegalStateException] {
+      in.readObject
+    }) ++ 3
 }
 <<< 3.26 enclosed, def, chain follows
 maxColumn = 80
@@ -1689,13 +1691,15 @@ created filter (ref ⇒
 }
 >>>
 object a {
-  created filter (ref ⇒
-    !ref.isTerminated && !ref
-      .asInstanceOf[ActorRefWithCell]
-      .underlying.isInstanceOf[UnstartedCell]
-  ) should ===(
-    Seq.empty[ActorRef]
-  )
+  created filter
+    (ref ⇒
+      !ref.isTerminated &&
+        !ref
+          .asInstanceOf[ActorRefWithCell]
+          .underlying.isInstanceOf[UnstartedCell]
+    ) should ===(
+      Seq.empty[ActorRef]
+    )
 }
 <<< 6.5: chain with delayed indent after break
 maxColumn = 70
@@ -1887,12 +1891,13 @@ for {
 for {
   nu <- rand.gaussian(0, 1)
   y = nu * nu
-  x = (mean
-    + mean * mean * y * 0.5 / shape
-    - 0.5 * mean / shape * math
-      .sqrt(
-        4 * mean * shape * y + mean * mean * y * y
-      ))
+  x =
+    (mean
+      + mean * mean * y * 0.5 / shape
+      - 0.5 * mean / shape *
+      math
+        .sqrt(4 * mean * shape * y +
+          mean * mean * y * y))
   z <- rand.uniform
 } yield {
   if (z <= mean / (mean + x))
@@ -1922,10 +1927,10 @@ for {
   x =
     (mean
       + mean * mean * y * 0.5 / shape) -
-      0.5 * mean / shape * math
-        .sqrt(
-          4 * mean * shape * y + mean * mean * y * y
-        )
+      0.5 * mean / shape *
+      math
+        .sqrt(4 * mean * shape * y +
+          mean * mean * y * y)
   z <- rand.uniform
 } yield {
   if (z <= mean / (mean + x))
@@ -1952,12 +1957,13 @@ for {
 for {
   nu <- rand.gaussian(0, 1)
   y = nu * nu
-  x = ((mean
-    + mean * mean * y * 0.5 / shape) -
-    0.5 * mean / shape * math
-      .sqrt(
-        4 * mean * shape * y + mean * mean * y * y
-      ))
+  x =
+    ((mean
+      + mean * mean * y * 0.5 / shape) -
+      0.5 * mean / shape *
+      math
+        .sqrt(4 * mean * shape * y +
+          mean * mean * y * y))
   z <- rand.uniform
 } yield {
   if (z <= mean / (mean + x))
@@ -2010,18 +2016,17 @@ val a =
 <<< 8.2: infix with shorter left ||
 val a = 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map { 8 % 9 }
 >>>
-val a =
-  1 + 2 * 3 || 4 ^ 5 && 6 op 7 map {
-    8 % 9
-  }
+val a = 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map
+  { 8 % 9 }
 <<< 8.3: infix with longer left ||, narrow
 maxColumn = 20
 indent.main = 3
 ===
 val a = 1 + 2 * 3 && 4 ^ 5 || 6 op 7 map { 8 % 9 }
 >>>
-val a =
-   1 + 2 * 3 && 4 ^ 5 || 6 op 7 map {
+val a = 1 +
+   2 * 3 && 4 ^ 5 ||
+   6 op 7 map {
       8 % 9
    }
 <<< 8.4: infix with shorter left ||, narrow
@@ -2033,14 +2038,19 @@ val b = { 1 + 2 * 3 || 4 ^ 5 && 6 op 7 map { 8 % 9 } || somethinglong }
 }
 >>>
 {
-  val a =
-    1 + 2 * 3 || 4 ^ 5 && 6 op 7 map {
+  val a = 1 +
+    2 * 3 ||
+    4 ^ 5 && 6 op
+    7 map {
       8 % 9
     }
   val b = {
-    1 + 2 * 3 || 4 ^ 5 && 6 op 7 map {
-      8 % 9
-    } || somethinglong
+    1 + 2 * 3 ||
+    4 ^ 5 && 6 op
+      7 map {
+        8 % 9
+      } ||
+      somethinglong
   }
 }
 <<< 8.5: sequences of infix operations
@@ -2084,9 +2094,8 @@ object a {
 }
 >>>
 object a {
-  plugins(
-    service.pluginType
-  ) += service.pluginName -> service
+  plugins(service.pluginType) +=
+    service.pluginName -> service
 }
 <<< 8.7
 maxColumn = 80
@@ -2100,14 +2109,20 @@ val json = ("event" -> data("event")) ~ ("entityType" -> "user") ~
        ("anotherPropertyA" -> data.get("anotherPropertyA").map(_.toDouble)) ~
        ("anotherPropertyB" -> data.get("anotherPropertyB").map(_.toBoolean))))
 >>>
-val json = ("event" -> data("event")) ~ ("entityType" -> "user") ~
-  ("entityId" -> data("userId")) ~ ("targetEntityType" -> "item") ~
-  ("targetEntityId" -> data("itemId")) ~
-  ("eventTime" -> data("timestamp")) ~ ("properties" -> (("context" ->
-    (("ip" -> data("context[ip]")) ~ ("prop1" -> data("context[prop1]")
-      .toDouble) ~ ("prop2" -> data("context[prop2]")))) ~
-    ("anotherPropertyA" -> data.get("anotherPropertyA").map(_.toDouble)) ~
-    ("anotherPropertyB" -> data.get("anotherPropertyB").map(_.toBoolean))))
+val json =
+  ("event" -> data("event")) ~
+    ("entityType" -> "user") ~
+    ("entityId" -> data("userId")) ~
+    ("targetEntityType" -> "item") ~
+    ("targetEntityId" -> data("itemId")) ~
+    ("eventTime" -> data("timestamp")) ~
+    ("properties" ->
+      (("context" ->
+        (("ip" -> data("context[ip]")) ~
+          ("prop1" -> data("context[prop1]")
+            .toDouble) ~ ("prop2" -> data("context[prop2]")))) ~
+        ("anotherPropertyA" -> data.get("anotherPropertyA").map(_.toDouble)) ~
+        ("anotherPropertyB" -> data.get("anotherPropertyB").map(_.toBoolean))))
 <<< 8.8
 maxColumn = 80
 ===
@@ -2180,20 +2195,36 @@ val json = (estype -> ("properties" -> ("status" ->
           ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("status" ->
           ("type" -> "string") ~ ("index" -> "not_analyzed"))))
 >>>
-val json = (estype -> ("properties" -> ("status" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("startTime" ->
-  ("type" -> "date")) ~ ("endTime" -> ("type" -> "date")) ~ ("engineId" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("engineVersion" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("engineVariant" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("engineFactory" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("batch" ->
-  ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
-  ("dataSourceParams" -> ("type" -> "string") ~ ("index" ->
-    "not_analyzed")) ~ ("preparatorParams" -> ("type" -> "string") ~
-    ("index" -> "not_analyzed")) ~ ("algorithmsParams" -> ("type" ->
-    "string") ~ ("index" -> "not_analyzed")) ~ ("servingParams" ->
-    ("type" -> "string") ~ ("index" -> "not_analyzed")) ~ ("status" ->
-    ("type" -> "string") ~ ("index" -> "not_analyzed"))))
+val json =
+  (estype ->
+    ("properties" ->
+      ("status" ->
+        ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+      ("startTime" ->
+        ("type" -> "date")) ~
+      ("endTime" -> ("type" -> "date")) ~
+      ("engineId" ->
+        ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+      ("engineVersion" ->
+        ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+      ("engineVariant" ->
+        ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+      ("engineFactory" ->
+        ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+      ("batch" ->
+        ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+      ("dataSourceParams" -> ("type" -> "string") ~
+        ("index" ->
+          "not_analyzed")) ~
+      ("preparatorParams" -> ("type" -> "string") ~
+        ("index" -> "not_analyzed")) ~
+      ("algorithmsParams" ->
+        ("type" ->
+          "string") ~ ("index" -> "not_analyzed")) ~
+      ("servingParams" ->
+        ("type" -> "string") ~ ("index" -> "not_analyzed")) ~
+      ("status" ->
+        ("type" -> "string") ~ ("index" -> "not_analyzed"))))
 <<< 8.13
 val a = b match {
   case i: EngineInstance =>
@@ -2314,19 +2345,24 @@ private lazy val subNode: Parser[SubNode] = rep(' ') ~>
   }) |
     (opt('*') ~ '[' ~> attrName <~ '!' ~ ']' ^^ {
       name => AttrRemoveSubNode(name)
-    }) | (opt('*') ~ '[' ~> attrName <~ ']' ^^ {
+    }) |
+    (opt('*') ~ '[' ~> attrName <~ ']' ^^ {
       name => AttrSubNode(name)
     }) |
 
     ('!' ~ '!' ^^ (a => DontMergeAttributes)) |
-    ('<' ~ '*' ~ '>') ^^ (a => SurroundKids()) |
+    ('<' ~ '*' ~ '>') ^^
+    (a => SurroundKids()) |
     ('-' ~ '*' ^^ (a => PrependKidsSubNode())) |
     ('>' ~ '*' ^^ (a => PrependKidsSubNode())) |
     ('*' ~ '+' ^^ (a => AppendKidsSubNode())) |
     ('*' ~ '<' ^^ (a => AppendKidsSubNode())) |
-    '*' ^^ (a => KidsSubNode()) |
-    '^' ~ '*' ^^ (a => SelectThisNode(true)) |
-    '^' ~ '^' ^^ (a => SelectThisNode(false)))
+    '*' ^^
+    (a => KidsSubNode()) |
+    '^' ~ '*' ^^
+    (a => SelectThisNode(true)) |
+    '^' ~ '^' ^^
+    (a => SelectThisNode(false)))
 <<< 8.15
 maxColumn = 80
 ===
@@ -2362,12 +2398,14 @@ object a {
         ("targetEntityType" -> "list") ~
         ("targetEntityId" -> data("data[list_id]")) ~
         ("eventTime" -> eventTime) ~
-        ("properties" -> (("email" -> data("data[email]")) ~
-          ("email_type" -> data("data[email_type]")) ~
-          ("merges" -> (("EMAIL" -> data("data[merges][EMAIL]")) ~
-            ("FNAME" -> data("data[merges][FNAME]"))) ~
-            ("LNAME" -> data("data[merges][LNAME]")) ~
-            ("INTERESTS" -> data.get("data[merges][INTERESTS]")))) ~
+        ("properties" ->
+          (("email" -> data("data[email]")) ~
+            ("email_type" -> data("data[email_type]")) ~
+            ("merges" ->
+              (("EMAIL" -> data("data[merges][EMAIL]")) ~
+                ("FNAME" -> data("data[merges][FNAME]"))) ~
+              ("LNAME" -> data("data[merges][LNAME]")) ~
+              ("INTERESTS" -> data.get("data[merges][INTERESTS]")))) ~
           ("ip_opt" -> data("data[ip_opt]")) ~
           ("ip_signup" -> data("data[ip_signup]")))
     json
@@ -2592,8 +2630,9 @@ object a {
   val b = qual1 op1 {
     1 + 2 + 3 + 4 + 5
   } op2
-    111 * 222 * 333 * 444 * 555 op3
-    { "1 / 2 / 3 / 4 / 5 / 6 / 7" }
+    111 * 222 * 333 * 444 * 555 op3 {
+      "1 / 2 / 3 / 4 / 5 / 6 / 7"
+    }
 }
 <<< 8.28 no break before block
 object a {
@@ -3426,8 +3465,8 @@ object a {
 >>>
 object a {
   a match {
-    case a =>
-      d.name should be("dir" + step)
+    case a => d.name should
+        be("dir" + step)
   }
 }
 <<< #2113 case 6
@@ -3754,8 +3793,8 @@ object a {
 }
 >>>
 object a {
-  for (method <- e.getMethods
-    if break && method.hasModifierProperty("static")) {
+  for (method <- e.getMethods if break &&
+      method.hasModifierProperty("static")) {
     // noop
   }
 }
@@ -4448,28 +4487,20 @@ type T = A1 & A2 | A3 & A4 | A5 & A6 | A7 & A8 | A9 & A10[T10] |
   A51 & A52 | A53 & A54 | A55 & A56 | A57 & A58 | A59 & A60[T60] |
   A61 & A62 | A63 & A64 | A65 & A66 | A67 & A68 | A69 & A70[T70]
 >>>
-type T =
-  A1 & A2 | A3 & A4 | A5 & A6 | A7 & A8 | A9 & A10[
-    T10
-  ] |
-    A11 & A12 | A13 & A14 | A15 & A16 | A17 & A18 | A19 & A20[
-      T20
-    ] |
-    A21 & A22 | A23 & A24 | A25 & A26 | A27 & A28 | A29 & A30[
-      T30
-    ] |
-    A31 & A32 | A33 & A34 | A35 & A36 | A37 & A38 | A39 & A40[
-      T40
-    ] |
-    A41 & A42 | A43 & A44 | A45 & A46 | A47 & A48 | A49 & A50[
-      T50
-    ] |
-    A51 & A52 | A53 & A54 | A55 & A56 | A57 & A58 | A59 & A60[
-      T60
-    ] |
-    A61 & A62 | A63 & A64 | A65 & A66 | A67 & A68 | A69 & A70[
-      T70
-    ]
+type T = A1 & A2 | A3 & A4 | A5 & A6 |
+  A7 & A8 | A9 & A10[T10] |
+  A11 & A12 | A13 & A14 | A15 & A16 |
+  A17 & A18 | A19 & A20[T20] |
+  A21 & A22 | A23 & A24 | A25 & A26 |
+  A27 & A28 | A29 & A30[T30] |
+  A31 & A32 | A33 & A34 | A35 & A36 |
+  A37 & A38 | A39 & A40[T40] |
+  A41 & A42 | A43 & A44 | A45 & A46 |
+  A47 & A48 | A49 & A50[T50] |
+  A51 & A52 | A53 & A54 | A55 & A56 |
+  A57 & A58 | A59 & A60[T60] |
+  A61 & A62 | A63 & A64 | A65 & A66 |
+  A67 & A68 | A69 & A70[T70]
 <<< #2422 with comments
 runner.dialect = scala3
 ===
@@ -4481,28 +4512,27 @@ type T = A1 & A2 | A3 & A4 | A5 & A6 /* c1 */ | /* c2 */ A7 & A8 | A9 & A10[T10]
   A51 & A52 | A53 & A54 | A55 & A56 /* c1 */ | /* c2 */ A57 & A58 | A59 & A60[T60] |
   A61 & A62 | A63 & A64 | A65 & A66 /* c1 */ | /* c2 */ A67 & A68 | A69 & A70[T70]
 >>>
-type T =
-  A1 & A2 | A3 & A4 | A5 & A6 /* c1 */ | /* c2 */ A7 & A8 | A9 & A10[
-    T10
-  ] |
-    A11 & A12 | A13 & A14 | A15 & A16 /* c1 */ | /* c2 */ A17 & A18 | A19 & A20[
-      T20
-    ] |
-    A21 & A22 | A23 & A24 | A25 & A26 /* c1 */ | /* c2 */ A27 & A28 | A29 & A30[
-      T30
-    ] |
-    A31 & A32 | A33 & A34 | A35 & A36 /* c1 */ | /* c2 */ A37 & A38 | A39 & A40[
-      T40
-    ] |
-    A41 & A42 | A43 & A44 | A45 & A46 /* c1 */ | /* c2 */ A47 & A48 | A49 & A50[
-      T50
-    ] |
-    A51 & A52 | A53 & A54 | A55 & A56 /* c1 */ | /* c2 */ A57 & A58 | A59 & A60[
-      T60
-    ] |
-    A61 & A62 | A63 & A64 | A65 & A66 /* c1 */ | /* c2 */ A67 & A68 | A69 & A70[
-      T70
-    ]
+type T = A1 & A2 | A3 & A4 |
+  A5 & A6 /* c1 */ | /* c2 */
+  A7 & A8 | A9 & A10[T10] |
+  A11 & A12 | A13 & A14 |
+  A15 & A16 /* c1 */ | /* c2 */
+  A17 & A18 | A19 & A20[T20] |
+  A21 & A22 | A23 & A24 |
+  A25 & A26 /* c1 */ | /* c2 */
+  A27 & A28 | A29 & A30[T30] |
+  A31 & A32 | A33 & A34 |
+  A35 & A36 /* c1 */ | /* c2 */
+  A37 & A38 | A39 & A40[T40] |
+  A41 & A42 | A43 & A44 |
+  A45 & A46 /* c1 */ | /* c2 */
+  A47 & A48 | A49 & A50[T50] |
+  A51 & A52 | A53 & A54 |
+  A55 & A56 /* c1 */ | /* c2 */
+  A57 & A58 | A59 & A60[T60] |
+  A61 & A62 | A63 & A64 |
+  A65 & A66 /* c1 */ | /* c2 */
+  A67 & A68 | A69 & A70[T70]
 <<< #2226
 object Class extends Base
    with Trait1
@@ -5629,7 +5659,7 @@ object a {
       a
 }
 <<< #2019 infix
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -5659,7 +5689,7 @@ object a {
   }
 }
 <<< #2019 if-else !alwaysBeforeElseAfterCurlyIf
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 newlines.alwaysBeforeElseAfterCurlyIf = false
 rewrite.insertBraces.minLines = 2
 ===
@@ -5714,7 +5744,7 @@ object a {
   }
 }
 <<< #2019 if-else alwaysBeforeElseAfterCurlyIf
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 newlines.alwaysBeforeElseAfterCurlyIf = true
 rewrite.insertBraces.minLines = 2
 ===
@@ -5774,7 +5804,7 @@ object a {
 }
 <<< #2019 try !alwaysBeforeElseAfterCurlyIf !allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 newlines.alwaysBeforeElseAfterCurlyIf = false
 rewrite.insertBraces.minLines = 2
 ===
@@ -5801,7 +5831,7 @@ object a {
 }
 <<< #2019 try !alwaysBeforeElseAfterCurlyIf allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 newlines.alwaysBeforeElseAfterCurlyIf = false
 rewrite.insertBraces.minLines = 2
 rewrite.insertBraces.allBlocks = true
@@ -5830,7 +5860,7 @@ object a {
 }
 <<< #2019 try alwaysBeforeElseAfterCurlyIf !allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 newlines.alwaysBeforeElseAfterCurlyIf = true
 rewrite.insertBraces.minLines = 2
 ===
@@ -5858,7 +5888,7 @@ object a {
 }
 <<< #2019 try alwaysBeforeElseAfterCurlyIf allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 newlines.alwaysBeforeElseAfterCurlyIf = true
 rewrite.insertBraces.minLines = 2
 rewrite.insertBraces.allBlocks = true
@@ -5889,7 +5919,7 @@ object a {
 }
 <<< #2019 function
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -5923,7 +5953,7 @@ object a {
 }
 <<< #2019 partial function
 maxColumn = 25
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -5941,7 +5971,7 @@ object a {
 }
 <<< #2019 for-yield !allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -5970,7 +6000,7 @@ object a {
 }
 <<< #2019 for-yield allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 rewrite.insertBraces.allBlocks = true
 ===
@@ -6001,7 +6031,7 @@ object a {
 }
 <<< #2019 for-do !allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 ===
 object a {
@@ -6069,7 +6099,7 @@ object a {
 }
 <<< #2019 for-do allBlocks
 maxColumn = 12
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 rewrite.insertBraces.minLines = 2
 rewrite.insertBraces.allBlocks = true
 ===
@@ -6200,9 +6230,8 @@ object a {
     project.in(file("sbt-bridge/src")).
         // We cannot depend on any bootstrapped project to compile the bridge, since the
         // bridge is needed to compile these projects.
-      dependsOn(
-        `scala3-compiler` % Provided
-      ).
+      dependsOn(`scala3-compiler` %
+        Provided).
       settings(commonJavaSettings).
       settings(foo)
 }
@@ -6473,10 +6502,11 @@ object A {
     IO.delay {
       ds // c1
         .headOption /* c1 */ infix /* c2 */ {
-          case Some(Row(value: Long)) =>
-            value
-          case _ => 0
-        }
+            case Some(
+                  Row(value: Long)
+                ) => value
+            case _ => 0
+          }
     }
 }
 <<< #3327 infix 2
@@ -6501,14 +6531,16 @@ object A {
     IO.delay {
       ds // c1
         .headOption /* c1 */ infix /* c2 */ {
-          case Some(Row(value: Long)) =>
-            value
-          case _ => 0
-        } /* c3 */ infix /* c4 */ {
-          case Some(Row(value: Long)) =>
-            value
-          case _ => 0
-        }
+            case Some(
+                  Row(value: Long)
+                ) => value
+            case _ => 0
+          } /* c3 */ infix /* c4 */ {
+            case Some(
+                  Row(value: Long)
+                ) => value
+            case _ => 0
+          }
     }
 }
 <<< #3369 always
@@ -6737,10 +6769,11 @@ object a {
 >>>
 object a {
   val expected = Map(
-    "foos" -> ((
-      "xyz",
-      "1"
-    )), // the "cas unique" values are predictable from a fresh memcached
+    "foos" ->
+      ((
+        "xyz",
+        "1"
+      )), // the "cas unique" values are predictable from a fresh memcached
     a -> b
   )
 }
@@ -6772,7 +6805,8 @@ foo match {
 }
 >>>
 foo match {
-  case (exp: ScReferenceExpression) childOf ((_: ScGenericCall) childOf (_: ScMethodCall)) =>
+  case (exp: ScReferenceExpression) childOf
+      ((_: ScGenericCall) childOf (_: ScMethodCall)) =>
 }
 <<< SM 4.7.0: 9
 maxColumn = 100
@@ -6788,8 +6822,10 @@ object a {
 object a {
   val ui = LiftRules.jsArtifacts
   (<span>{
-    rs % ("onclick" -> (ui.hide(sid).cmd &
-      ui.showAndFocus(hid).cmd & JsRaw("return false;")))
+    rs %
+      ("onclick" ->
+        (ui.hide(sid).cmd &
+          ui.showAndFocus(hid).cmd & JsRaw("return false;")))
   }</span>)
 }
 <<< SM 4.7.0: 10
@@ -6832,7 +6868,8 @@ foo match {
   case ScWhileStmt(
         Some(
           ScInfixExpr(
-            (ref: ScReferenceExpression) && (ResolvesTo(
+            (ref: ScReferenceExpression) &&
+            (ResolvesTo(
               target @ Parent(Parent(
                 entity: ScVariable
               ))
@@ -6943,7 +6980,8 @@ object a {
 object a {
   info(
     "ZKConsumerConnector shutdown completed in " +
-      (System.nanoTime() - startTime) / 1000000 + " ms"
+      (System.nanoTime() - startTime) /
+      1000000 + " ms"
   )
 }
 <<< SM 4.7.0: 18
@@ -7869,7 +7907,8 @@ object a {
     while (x.length > 0) {x.remove(0);}
     var y = null;
   """ + opts.map { case (value, text) =>
-    "y=document.createElement('option'); " + "y.text = " + text.encJs + "; " +
+    "y=document.createElement('option'); " + "y.text = " + text.encJs +
+      "; " +
       "y.value = " + value.encJs + "; " +
       (if (Full(value) == dflt) "y.selected = true; " else "") +
       " try {x.add(y, null);} catch(e) {if (typeof(e) == 'object' && typeof(e.number) == 'number' && (e.number & 0xFFFF) == 5){ x.add(y,x.options.length); } } "
@@ -8798,7 +8837,8 @@ object a {
         memberTypeParams.nonEmpty)(Seq(
           h2(cls := "h200")(
             "Type parameters"),
-          dl(cls := "attributes attributes-small")(
+          dl(cls :=
+            "attributes attributes-small")(
             memberTypeParams *)
         )).toSeq.flatten ++
         Option.when(
@@ -8806,12 +8846,14 @@ object a {
           Seq(
             h2(cls := "h200")(
               "Value parameters"),
-            dl(cls := "attributes attributes-small")(
+            dl(cls :=
+              "attributes attributes-small")(
               memberValueParams *)
           )).toSeq.flatten :+
         h2(cls := "h200")(
           "Attributes") :+
-        dl(cls := "attributes attributes-small")(
+        dl(cls :=
+          "attributes attributes-small")(
           attributes *)
     )
   )
@@ -8893,7 +8935,8 @@ object a {
             "Type parameters"
           ),
           dl(
-            cls := "attributes attributes-small"
+            cls :=
+              "attributes attributes-small"
           )(memberTypeParams *)
         )).toSeq.flatten ++
         Option.when(
@@ -8903,15 +8946,17 @@ object a {
               "Value parameters"
             ),
             dl(
-              cls := "attributes attributes-small"
+              cls :=
+                "attributes attributes-small"
             )(memberValueParams *)
           )).toSeq.flatten :+
         h2(cls := "h200")(
           "Attributes"
         ) :+
-        dl(
-          cls := "attributes attributes-small"
-        )(attributes *)
+        dl(cls :=
+          "attributes attributes-small")(
+          attributes *
+        )
     )
   )
 }
@@ -9231,10 +9276,10 @@ trait Infer {
             pre match {
               // OPT: avoid lambda allocation and Type.map for super constructor calls
               case _: SuperType
-                  if !sym.isConstructor && !owntype.isInstanceOf[OverloadedType] =>
-                owntype map ((tp: Type) =>
-                  if (tp eq pre) site.symbol.thisType else tp
-                )
+                  if !sym.isConstructor &&
+                    !owntype.isInstanceOf[OverloadedType] =>
+                owntype map
+                  ((tp: Type) => if (tp eq pre) site.symbol.thisType else tp)
               case _ => owntype
             }
           )
@@ -9308,49 +9353,70 @@ class UDFRegistration private[sql] (
       Option[ExpressionEncoder[_]]
     ] = Try(
       ExpressionEncoder[A1]()
-    ).toOption :: Try(
-      ExpressionEncoder[A2]()
-    ).toOption :: Try(
-      ExpressionEncoder[A3]()
-    ).toOption :: Try(
-      ExpressionEncoder[A4]()
-    ).toOption :: Try(
-      ExpressionEncoder[A5]()
-    ).toOption :: Try(
-      ExpressionEncoder[A6]()
-    ).toOption :: Try(
-      ExpressionEncoder[A7]()
-    ).toOption :: Try(
-      ExpressionEncoder[A8]()
-    ).toOption :: Try(
-      ExpressionEncoder[A9]()
-    ).toOption :: Try(
-      ExpressionEncoder[A10]()
-    ).toOption :: Try(
-      ExpressionEncoder[A11]()
-    ).toOption :: Try(
-      ExpressionEncoder[A12]()
-    ).toOption :: Try(
-      ExpressionEncoder[A13]()
-    ).toOption :: Try(
-      ExpressionEncoder[A14]()
-    ).toOption :: Try(
-      ExpressionEncoder[A15]()
-    ).toOption :: Try(
-      ExpressionEncoder[A16]()
-    ).toOption :: Try(
-      ExpressionEncoder[A17]()
-    ).toOption :: Try(
-      ExpressionEncoder[A18]()
-    ).toOption :: Try(
-      ExpressionEncoder[A19]()
-    ).toOption :: Try(
-      ExpressionEncoder[A20]()
-    ).toOption :: Try(
-      ExpressionEncoder[A21]()
-    ).toOption :: Try(
-      ExpressionEncoder[A22]()
-    ).toOption :: Nil
+    ).toOption ::
+      Try(
+        ExpressionEncoder[A2]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A3]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A4]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A5]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A6]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A7]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A8]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A9]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A10]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A11]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A12]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A13]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A14]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A15]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A16]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A17]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A18]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A19]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A20]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A21]()
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A22]()
+      ).toOption :: Nil
   }
 }
 <<< #4133 very long one-liner with chain of infixes
@@ -9366,49 +9432,29 @@ class UDFRegistration {
   def foo = {
     val inputEncoders
         : Seq_Option_ExpressionEncoder_____ =
-      Try(ExpressionEncoder_A1_) :: Try(
-        ExpressionEncoder_A2_
-      ) :: Try(
-        ExpressionEncoder_A3_
-      ) :: Try(
-        ExpressionEncoder_A4_
-      ) :: Try(
-        ExpressionEncoder_A5_
-      ) :: Try(
-        ExpressionEncoder_A6_
-      ) :: Try(
-        ExpressionEncoder_A7_
-      ) :: Try(
-        ExpressionEncoder_A8_
-      ) :: Try(
-        ExpressionEncoder_A9_
-      ) :: Try(
-        ExpressionEncoder_A10_
-      ) :: Try(
-        ExpressionEncoder_A11_
-      ) :: Try(
-        ExpressionEncoder_A12_
-      ) :: Try(
-        ExpressionEncoder_A13_
-      ) :: Try(
-        ExpressionEncoder_A14_
-      ) :: Try(
-        ExpressionEncoder_A15_
-      ) :: Try(
-        ExpressionEncoder_A16_
-      ) :: Try(
-        ExpressionEncoder_A17_
-      ) :: Try(
-        ExpressionEncoder_A18_
-      ) :: Try(
-        ExpressionEncoder_A19_
-      ) :: Try(
-        ExpressionEncoder_A20_
-      ) :: Try(
-        ExpressionEncoder_A21_
-      ) :: Try(
-        ExpressionEncoder_A22_
-      ) :: Nil
+      Try(ExpressionEncoder_A1_) ::
+        Try(ExpressionEncoder_A2_) ::
+        Try(ExpressionEncoder_A3_) ::
+        Try(ExpressionEncoder_A4_) ::
+        Try(ExpressionEncoder_A5_) ::
+        Try(ExpressionEncoder_A6_) ::
+        Try(ExpressionEncoder_A7_) ::
+        Try(ExpressionEncoder_A8_) ::
+        Try(ExpressionEncoder_A9_) ::
+        Try(ExpressionEncoder_A10_) ::
+        Try(ExpressionEncoder_A11_) ::
+        Try(ExpressionEncoder_A12_) ::
+        Try(ExpressionEncoder_A13_) ::
+        Try(ExpressionEncoder_A14_) ::
+        Try(ExpressionEncoder_A15_) ::
+        Try(ExpressionEncoder_A16_) ::
+        Try(ExpressionEncoder_A17_) ::
+        Try(ExpressionEncoder_A18_) ::
+        Try(ExpressionEncoder_A19_) ::
+        Try(ExpressionEncoder_A20_) ::
+        Try(ExpressionEncoder_A21_) ::
+        Try(ExpressionEncoder_A22_) ::
+        Nil
   }
 }
 <<< #4133 very long one-liner with chain of infixes, with selects
@@ -9426,49 +9472,70 @@ class UDFRegistration {
         : Seq_Option_ExpressionEncoder_____ =
       Try(
         ExpressionEncoder_A1_
-      ).toOption :: Try(
-        ExpressionEncoder_A2_
-      ).toOption :: Try(
-        ExpressionEncoder_A3_
-      ).toOption :: Try(
-        ExpressionEncoder_A4_
-      ).toOption :: Try(
-        ExpressionEncoder_A5_
-      ).toOption :: Try(
-        ExpressionEncoder_A6_
-      ).toOption :: Try(
-        ExpressionEncoder_A7_
-      ).toOption :: Try(
-        ExpressionEncoder_A8_
-      ).toOption :: Try(
-        ExpressionEncoder_A9_
-      ).toOption :: Try(
-        ExpressionEncoder_A10_
-      ).toOption :: Try(
-        ExpressionEncoder_A11_
-      ).toOption :: Try(
-        ExpressionEncoder_A12_
-      ).toOption :: Try(
-        ExpressionEncoder_A13_
-      ).toOption :: Try(
-        ExpressionEncoder_A14_
-      ).toOption :: Try(
-        ExpressionEncoder_A15_
-      ).toOption :: Try(
-        ExpressionEncoder_A16_
-      ).toOption :: Try(
-        ExpressionEncoder_A17_
-      ).toOption :: Try(
-        ExpressionEncoder_A18_
-      ).toOption :: Try(
-        ExpressionEncoder_A19_
-      ).toOption :: Try(
-        ExpressionEncoder_A20_
-      ).toOption :: Try(
-        ExpressionEncoder_A21_
-      ).toOption :: Try(
-        ExpressionEncoder_A22_
-      ).toOption :: Nil
+      ).toOption ::
+        Try(
+          ExpressionEncoder_A2_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A3_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A4_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A5_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A6_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A7_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A8_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A9_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A10_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A11_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A12_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A13_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A14_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A15_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A16_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A17_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A18_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A19_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A20_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A21_
+        ).toOption ::
+        Try(
+          ExpressionEncoder_A22_
+        ).toOption :: Nil
   }
 }
 <<< #4133 very long one-liner with chain of infixes, with select and types
@@ -9486,49 +9553,70 @@ class UDFRegistration {
       Option[ExpressionEncoder[_]]
     ] = Try(
       ExpressionEncoder[A1]
-    ).toOption :: Try(
-      ExpressionEncoder[A2]
-    ).toOption :: Try(
-      ExpressionEncoder[A3]
-    ).toOption :: Try(
-      ExpressionEncoder[A4]
-    ).toOption :: Try(
-      ExpressionEncoder[A5]
-    ).toOption :: Try(
-      ExpressionEncoder[A6]
-    ).toOption :: Try(
-      ExpressionEncoder[A7]
-    ).toOption :: Try(
-      ExpressionEncoder[A8]
-    ).toOption :: Try(
-      ExpressionEncoder[A9]
-    ).toOption :: Try(
-      ExpressionEncoder[A10]
-    ).toOption :: Try(
-      ExpressionEncoder[A11]
-    ).toOption :: Try(
-      ExpressionEncoder[A12]
-    ).toOption :: Try(
-      ExpressionEncoder[A13]
-    ).toOption :: Try(
-      ExpressionEncoder[A14]
-    ).toOption :: Try(
-      ExpressionEncoder[A15]
-    ).toOption :: Try(
-      ExpressionEncoder[A16]
-    ).toOption :: Try(
-      ExpressionEncoder[A17]
-    ).toOption :: Try(
-      ExpressionEncoder[A18]
-    ).toOption :: Try(
-      ExpressionEncoder[A19]
-    ).toOption :: Try(
-      ExpressionEncoder[A20]
-    ).toOption :: Try(
-      ExpressionEncoder[A21]
-    ).toOption :: Try(
-      ExpressionEncoder[A22]
-    ).toOption :: Nil
+    ).toOption ::
+      Try(
+        ExpressionEncoder[A2]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A3]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A4]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A5]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A6]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A7]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A8]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A9]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A10]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A11]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A12]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A13]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A14]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A15]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A16]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A17]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A18]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A19]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A20]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A21]
+      ).toOption ::
+      Try(
+        ExpressionEncoder[A22]
+      ).toOption :: Nil
   }
 }
 <<< #4133 infix after xml block
@@ -9549,16 +9637,15 @@ object a {
 >>>
 object a {
   private def waitingBatchRow(batch: BatchUIData): Seq[Node] = {
-    baseRow(batch) ++ createOutputOperationProgressBar(
-      batch
-    ) ++ <td>queued</td> ++ {
-      if (firstFailureReason.nonEmpty) {
-        // Waiting batches have not run yet, so must have no failure reasons.
-        <td>-</td>
-      } else {
-        Nil
+    baseRow(batch) ++ createOutputOperationProgressBar(batch) ++
+      <td>queued</td> ++ {
+        if (firstFailureReason.nonEmpty) {
+          // Waiting batches have not run yet, so must have no failure reasons.
+          <td>-</td>
+        } else {
+          Nil
+        }
       }
-    }
   }
 }
 <<< #4133 applies and selects with a partial function 1
@@ -9647,17 +9734,13 @@ class ClassEmitter {
         js.JSDocConstructor(realCtorDef.head) ::
           realCtorDef.tail :::
           chainProto :::
-          (genIdentBracketSelect(
-            prototypeFor(ctorVar),
-            "constructor"
-          ) := ctorVar) ::
+          (genIdentBracketSelect(prototypeFor(ctorVar), "constructor") :=
+            ctorVar) ::
           // Inheritable constructor
           js.JSDocConstructor(inheritableCtorDef.head) ::
           inheritableCtorDef.tail :::
-          (globalVar(
-            VarField.h,
-            className
-          ).prototype := prototypeFor(ctorVar)) :: Nil
+          (globalVar(VarField.h, className).prototype :=
+            prototypeFor(ctorVar)) :: Nil
     }
 
 }
@@ -9683,9 +9766,8 @@ val finalProperties = properties.get(SupportsNamespaces.PROP_LOCATION).map { loc
 >>>
 val finalProperties =
   properties.get(SupportsNamespaces.PROP_LOCATION).map { loc =>
-    properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(
-      loc
-    ))
+    properties +
+      (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(loc))
   }
 <<< #4133 contextual lambda in braces, overflow after brace 2
 maxColumn = 74
@@ -9697,9 +9779,8 @@ val finalProperties = properties.get(SupportsNamespaces.PROP_LOCATION).map { loc
 >>>
 val finalProperties =
   properties.get(SupportsNamespaces.PROP_LOCATION).map { loc ?=>
-    properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(
-      loc
-    ))
+    properties +
+      (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(loc))
   }
 <<< #4133 poly lambda in braces, overflow after brace 2
 maxColumn = 74
@@ -9711,9 +9792,8 @@ val finalProperties = properties.get(SupportsNamespaces.PROP_LOCATION).map { [lo
 >>>
 val finalProperties =
   properties.get(SupportsNamespaces.PROP_LOCATION).map { [loc] =>
-    properties + (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(
-      loc
-    ))
+    properties +
+      (SupportsNamespaces.PROP_LOCATION -> makeQualifiedDBObjectPath(loc))
   }
 <<< #4133 lambda in parens rewritten to braces
 maxColumn = 80
@@ -10029,10 +10109,10 @@ object a {
                                 .flatMap(_.apply(self).diffFiberRefs)
                             ).exit.flatMap {
                               case e @ Exit.Failure(cause) =>
-                                promise.failCause(cause) *> innerScope.close(
-                                  e
-                                ) *> ZIO
-                                  .failCause(cause)
+                                promise.failCause(cause) *>
+                                  innerScope.close(e) *>
+                                  ZIO
+                                    .failCause(cause)
 
                               case Exit.Success((patch, b)) =>
                                 for {
@@ -10348,9 +10428,8 @@ newlines.avoidForSimpleOverflow = [tooLong, punct, slc]
 fraction.fold(" " * 6)(p => f"${100.0 * p}%5.1f%%") + " [" + ("#" * decile) +
   (" " * (10 - decile)) + "] " + downloaded + " source files formatted"
 >>>
-fraction.fold(" " * 6)(p =>
-  f"${100.0 * p}%5.1f%%"
-) + " [" + ("#" * decile) +
+fraction.fold(" " * 6)(p => f"${100.0 * p}%5.1f%%") + " [" +
+  ("#" * decile) +
   (" " * (10 - decile)) + "] " + downloaded + " source files formatted"
 <<< #4133 multiple annotations
 maxColumn = 80
@@ -11376,17 +11455,18 @@ val sym1 = sym filter (alt =>
   || alt.tpe.params.exists(_.hasDefault)
 )
 >>>
-val sym1 = sym filter (alt =>
-  isApplicableBasedOnArity(
-    pre memberType alt,
-    argtypes.length,
-    varargsStar = false,
-    tuplingAllowed = false
+val sym1 = sym filter
+  (alt =>
+    isApplicableBasedOnArity(
+      pre memberType alt,
+      argtypes.length,
+      varargsStar = false,
+      tuplingAllowed = false
+    )
+      || alt.tpe.params.exists {
+        _.hasDefault
+      }
   )
-    || alt.tpe.params.exists {
-      _.hasDefault
-    }
-)
 <<< zio, nested tests and suites, with redundant braces to parens rewrite
 maxColumn = 80
 runner.optimizer.maxVisitsPerToken = 20000
@@ -11482,19 +11562,18 @@ object ZStreamSpec extends DefaultRunnableSpec {
         suite("bufferDropping")(
           testM("buffer the Stream with Error")(
             assertM(
-              (ZStream.range(1, 1000) ++ ZStream.fail(e) ++ ZStream.range(
-                1001,
-                2000
-              ))
+              (ZStream.range(1, 1000) ++ ZStream.fail(e) ++
+                ZStream.range(1001, 2000))
             )(fails(equalTo(e)))
           ),
           testM("fast producer progress independently")(
             for {
-              s1 = ZStream(0) ++ ZStream
-                .fromEffect(latch1.await)
-                .flatMap(_ =>
-                  ZStream.range(1, 17).chunkN(1).ensuring(latch2.succeed(()))
-                )
+              s1 = ZStream(0) ++
+                ZStream
+                  .fromEffect(latch1.await)
+                  .flatMap(_ =>
+                    ZStream.range(1, 17).chunkN(1).ensuring(latch2.succeed(()))
+                  )
               snapshots <- s.process.use(as =>
                 for {
                   _ <- latch1.succeed(())
@@ -11506,11 +11585,10 @@ object ZStreamSpec extends DefaultRunnableSpec {
                   snapshot2 <- ref.get
                 } yield (zero, snapshot1, snapshot2)
               )
-            } yield assert(snapshots._1)(equalTo(Chunk.single(0))) && assert(
-              snapshots._2
-            )(
-              equalTo(List(8, 7, 6, 5, 4, 3, 2, 1))
-            ) &&
+            } yield assert(snapshots._1)(equalTo(Chunk.single(0))) &&
+              assert(snapshots._2)(
+                equalTo(List(8, 7, 6, 5, 4, 3, 2, 1))
+              ) &&
               assert(snapshots._3)(
                 equalTo(List(
                   24, 23, 22, 21, 20, 19, 18, 17, 8, 7, 6, 5, 4, 3, 2, 1
@@ -11668,19 +11746,16 @@ object Foo {
     Alternative[Option] &
     CommutativeMonad[Option] &
     CoflatMap[Option] & Align[Option] =
-    Traverse[Option] & MonadError[
-      Option,
-      Unit
-    ] & Alternative[
-      Option
-    ] & CommutativeMonad[
-      Option
-    ] & CoflatMap[Option] & Align[Option]
+    Traverse[Option] &
+      MonadError[Option, Unit] &
+      Alternative[Option] &
+      CommutativeMonad[Option] &
+      CoflatMap[Option] & Align[Option]
 }
 <<< #4705 term=some, type=keep
 maxColumn = 80
 newlines.infix.termSite.style = some
-newlines.infix.typeSite.maxCountPerFile = 0
+newlines.infix.typeSite.maxCountPerFileForKeep = 0
 ===
 object Foo {
   def oldStyle: Traverse[Option] with MonadError[Option, Unit] with Alternative[Option] with CommutativeMonad[Option] with CoflatMap[Option] with Align[Option] =
@@ -11699,15 +11774,15 @@ object Foo {
     with Align[Option] =
     ???
 
-  def newStyle: Traverse[Option] & MonadError[Option, Unit] & Alternative[
-    Option
-  ] & CommutativeMonad[Option] & CoflatMap[Option] & Align[Option] =
+  def newStyle: Traverse[Option] & MonadError[Option, Unit] &
+    Alternative[Option] & CommutativeMonad[Option] & CoflatMap[Option] &
+    Align[Option] =
     Traverse[Option] & MonadError[Option, Unit] & Alternative[Option] &
       CommutativeMonad[Option] & CoflatMap[Option] & Align[Option]
 }
 <<< #4705 term=keep, type=some
 maxColumn = 80
-newlines.infix.termSite.maxCountPerFile = 0
+newlines.infix.termSite.maxCountPerFileForKeep = 0
 newlines.infix.typeSite.style = some
 ===
 object Foo {
@@ -11730,9 +11805,8 @@ object Foo {
   def newStyle: Traverse[Option] & MonadError[Option, Unit] &
     Alternative[Option] & CommutativeMonad[Option] & CoflatMap[Option] &
     Align[Option] =
-    Traverse[Option] & MonadError[Option, Unit] & Alternative[
-      Option
-    ] & CommutativeMonad[Option] & CoflatMap[Option] & Align[Option]
+    Traverse[Option] & MonadError[Option, Unit] & Alternative[Option] &
+      CommutativeMonad[Option] & CoflatMap[Option] & Align[Option]
 }
 <<< consistency between string and interpolation: stripMargin, ignoreInSyntax
 maxColumn = 40
@@ -11781,15 +11855,17 @@ object a {
   val foo3si =
     """|bar
        |baz
-       |qux""".stripMargin + s"""|bar
-                                |baz
-                                |qux""".stripMargin
+       |qux""".stripMargin +
+      s"""|bar
+          |baz
+          |qux""".stripMargin
   val foo3is =
     s"""|bar
         |baz
-        |qux""".stripMargin + """|bar
-                                |baz
-                                |qux""".stripMargin
+        |qux""".stripMargin +
+      """|bar
+         |baz
+         |qux""".stripMargin
 }
 <<< consistency between string and interpolation: stripMargin, !ignoreInSyntax
 maxColumn = 40
@@ -11987,7 +12063,8 @@ def foo = {
   next.offset = begCharOffset
   do putCharAndNext()
   while (
-    ch != CR && ch != LF && ch != FF && ch != SU
+    ch != CR && ch != LF && ch != FF &&
+      ch != SU
   )
 }
 <<< `do` starts a new statement, wide, danglingParentheses.ctrlSite
@@ -12017,7 +12094,8 @@ def foo = {
 def foo = {
   next.offset = begCharOffset
   do putCharAndNext()
-  while (ch != CR && ch != LF && ch != FF && ch != SU)
+  while (ch != CR && ch != LF &&
+      ch != FF && ch != SU)
 }
 <<< `do` starts a new statement, wide, !danglingParentheses.ctrlSite
 maxColumn = 60

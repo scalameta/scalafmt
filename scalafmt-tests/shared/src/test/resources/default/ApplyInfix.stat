@@ -543,11 +543,11 @@ object a {
   foo +
       bar + baz
 }
-<<< infix style=keepNL break before op within arg clause, RedundantParens
+<<< infix style=keep break before op within arg clause, RedundantParens
 maxColumn = 75
 rewrite.rules = [RedundantParens]
 rewrite.redundantParens.preset = all
-newlines.infix.termSite.style = keepNL
+newlines.infix.termSite.style = keep
 ===
 require(
   fraction >= (0.0 - RandomSampler.roundingEpsilon)
@@ -557,11 +557,11 @@ require(
 require(fraction >= 0.0 - RandomSampler.roundingEpsilon
           && fraction <= 1.0 + RandomSampler.roundingEpsilon,
         s"Sampling fraction ($fraction) must be on interval [0, 1]")
-<<< infix style=keepNL no break before op but after brace, within arg clause, RedundantBraces
+<<< infix style=keep no break before op but after brace, within arg clause, RedundantBraces
 maxColumn = 75
 rewrite.rules = [RedundantBraces]
 rewrite.redundantParens.preset = all
-newlines.infix.termSite.style = keepNL
+newlines.infix.termSite.style = keep
 ===
 require(
   fraction >= {
@@ -576,11 +576,11 @@ require(fraction >=
           && fraction <=
           1.0 + RandomSampler.roundingEpsilon,
         s"Sampling fraction ($fraction) must be on interval [0, 1]")
-<<< infix style=keepNL no break before op but after brace, no arg clause, RedundantBraces
+<<< infix style=keep no break before op but after brace, no arg clause, RedundantBraces
 maxColumn = 75
 rewrite.rules = [RedundantBraces]
 rewrite.redundantParens.preset = all
-newlines.infix.termSite.style = keepNL
+newlines.infix.termSite.style = keep
 ===
 fraction >= {
   0.0 - RandomSampler.roundingEpsilon
@@ -592,9 +592,9 @@ fraction >=
   0.0 - RandomSampler.roundingEpsilon &&
   fraction <=
   1.0 + RandomSampler.roundingEpsilon
-<<< infix style=keepNL 1
+<<< infix style=keep 1
 maxColumn = 60
-newlines.infix.termSite.style = keepNL
+newlines.infix.termSite.style = keep
 ===
 {
   val info = new DefaultParamInfo(m)
@@ -606,9 +606,9 @@ newlines.infix.termSite.style = keepNL
   !info.isForConstructor &&
   info.attachedMethod.hasAnnotation(JSNativeAnnotation)
 }
-<<< infix style=keepNL 2
+<<< infix style=keep 2
 maxColumn = 60
-newlines.infix.termSite.style = keepNL
+newlines.infix.termSite.style = keep
 ===
 List(
   str("esVersion") -> int(esVersion.edition),
@@ -621,11 +621,11 @@ List(
         useECMAScript2015Semantics
     ) // different name for historical reasons
 )
-<<< infix style=keepNL turn space to break after infix op
+<<< infix style=keep turn space to break after infix op
 maxColumn = 60
 rewrite.rules = [RedundantParens]
 rewrite.redundantParens.preset = all
-newlines.infix.termSite.style = keepNL
+newlines.infix.termSite.style = keep
 ===
   typedPrimaryConstrBody(templ) {
     ctor setType supertpe // this is an essential hack, otherwise it will occasionally fail to typecheck
@@ -646,11 +646,11 @@ typedPrimaryConstrBody(templ) {
     TypeTree(tpt.tpe) setPos
       supertpt.pos // scala/bug#7224: don't .focus positions of the TypeTree of a parent that exists in source
 }
-<<< infix style=keepNL with scala.js
+<<< infix style=keep with scala.js
 maxColumn = 75
 preset = scala.js
 newlines.source = keep
-newlines.infix.termSite.style = keepNL
+newlines.infix.termSite.style = keep
 ===
 def scalaOrdering[A: Order: SOrdering: Arbitrary]: Prop = forAll((a1: A, a2: A) => Order[A].order(a1, a2) == Ordering.fromInt(SOrdering[A].compare(a1, a2)))
 >>>
@@ -658,7 +658,7 @@ def scalaOrdering[A: Order: SOrdering: Arbitrary]: Prop = forAll(
     (a1: A, a2: A) =>
       Order[A].order(a1, a2) ==
         Ordering.fromInt(SOrdering[A].compare(a1, a2)))
-<<< infix style=keepNL with arg in braces, unfold
+<<< infix style=keep with arg in braces, unfold
 maxColumn = 80
 align.openParenCallSite = false
 align.openParenDefnSite = false
