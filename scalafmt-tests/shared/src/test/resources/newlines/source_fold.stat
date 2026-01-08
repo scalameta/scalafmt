@@ -10136,8 +10136,8 @@ rewrite.rules = [RedundantBraces]
 if (buf.nonEmpty || privateWithin != "")
   buf += {"TypeName(\"" + privateWithin + "\")"}
 >>>
-if (buf.nonEmpty || privateWithin != "") buf += "TypeName(\"" +
-  privateWithin + "\")"
+if (buf.nonEmpty || privateWithin != "") buf +=
+  "TypeName(\"" + privateWithin + "\")"
 <<< #4133 redundant braces around inner infix with overflow
 maxColumn = 78
 runner.dialect = scala3

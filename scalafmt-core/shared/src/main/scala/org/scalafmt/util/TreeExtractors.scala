@@ -35,10 +35,7 @@ object InfixApp {
   def isLeftAssoc(op: String): Boolean = op.isLeftAssoc
 
   @inline
-  def getPrecedence(op: String): Int = {
-    val idx = op.lastIndexWhere(_ != '=')
-    if (idx < 0) op else op.substring(0, idx + 1)
-  }.precedence
+  def getPrecedence(op: String): Int = op.precedence
 
 }
 

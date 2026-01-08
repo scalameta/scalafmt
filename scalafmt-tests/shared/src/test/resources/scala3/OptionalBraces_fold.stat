@@ -7342,10 +7342,9 @@ private[this] def __computeSerializedSize(): _root_.scala.Int =
    var __size = 0
    if sealedValue.nullConstant.isDefined then
       val __value = sealedValue.nullConstant.get
-      __size += 1 +
-        SemanticdbOutputStream
-          .computeUInt32SizeNoTag(__value.serializedSize) +
-        __value.serializedSize;
+      __size += 1 + SemanticdbOutputStream.computeUInt32SizeNoTag(
+        __value.serializedSize
+      ) + __value.serializedSize;
    end if
    __size
 <<< expression with long `then` block and multi-line `else` block
