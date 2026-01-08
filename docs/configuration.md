@@ -886,7 +886,7 @@ If you wish to disable this functionality, set
 #### `indent.infix.exemptScope`
 
 Added in 3.4.0, this parameter determines when an infix operator can be exempted from applying
-continuation indentation.
+continuation indentation. Since 3.10.4, it takes multiple values, and expects each to apply.
 
 It accepts the following values, to determine the context in which infix operators are eligible
 to be exempted from the default indentation rule:

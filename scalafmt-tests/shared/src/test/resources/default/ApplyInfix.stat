@@ -700,7 +700,7 @@ maxColumn = 45
 newlines.source = keep
 newlines.infix.termSite.style = keep
 indent.infix {
-  exemptScope = aloneArgOrBody
+  exemptScope = [ aloneArgOrBody, notWithinAssign ]
   excludeRegex = "^[\\p{Punct}](?:|.*?[^=])$" # non-assignment operators
 }
 ===
@@ -719,9 +719,9 @@ lazy val sharedSettings = Def.settings(
     foo / bar / baz +=
       "qux' -> 'foo / bar / baz += qux",
     foo / bar / baz += "qux" ->
-    "foo / bar / baz += qux",
+      "foo / bar / baz += qux",
     foo / bar / baz +=
       "qux' -> 'foo / bar / baz += foo / bar / baz",
     foo / bar / baz += "qux" ->
-    "foo / bar / baz += foo / bar / baz"
+      "foo / bar / baz += foo / bar / baz"
 )
