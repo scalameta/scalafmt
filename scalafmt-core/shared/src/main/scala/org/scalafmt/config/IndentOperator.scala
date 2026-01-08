@@ -72,16 +72,18 @@ object IndentOperator {
     generic.deriveSurface
   implicit lazy val encoder: ConfEncoder[IndentOperator] = generic.deriveEncoder
 
+  private val exemptScopeName = Conf.nameOf(default.exemptScope).value
+
   implicit val decoder: ConfDecoderEx[IndentOperator] = Presets.contramapDecoder {
     case Conf.Str("spray" | "akka-http") => Conf.nameOf(akka)
-  }(generic.deriveDecoderEx(default).noTypos, "indentOperator") {
+  }(generic.deriveDecoderEx(default).noTypos, "indents.infix") {
     case Conf.Str("akka") => akka
     case Conf.Str("default") => default
   }.withSectionRenames(
     // deprecated since v3.4.0
     annotation.SectionRename { case Conf.Bool(value) =>
-      Conf.Str(if (value) "oldTopLevel" else "all")
-    }("topLevelOnly", "exemptScope"),
+      if (value) Conf.nameOf(Exempt.oldTopLevel) else Conf.nameOf(Exempt.all)
+    }("topLevelOnly", exemptScopeName),
   )
 
   sealed abstract class Exempt
@@ -105,8 +107,8 @@ object IndentOperator {
 
   val boolToAssign: PartialFunction[Conf, Conf] = { case Conf.Bool(value) =>
     if (value) Conf.Obj(
-      "exemptScope" -> Conf.nameOf(Exempt.notAssign),
-      "excludeRegex" -> Conf.Str(".*"),
+      exemptScopeName -> Conf.nameOf(Exempt.notAssign),
+      Conf.nameOf(default.excludeRegex).value -> Conf.Str(".*"),
     )
     else Conf.Obj.empty
   }
