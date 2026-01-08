@@ -203,76 +203,78 @@ class InfixSplits(
     }
   }
 
+  @tailrec
+  private def isOldTopLevelWithParent(tree: Tree)(p: Tree): Boolean = p match {
+    case _: Term.If | _: Term.While | _: Source => true
+    case Term.Block(_ :: rest) => rest.nonEmpty ||
+      (p.parent match {
+        case Some(pp) => p.tokens.head match { // check brace was not rewritten
+            case head: T.LeftBrace => (ftoks.before(head).left eq head) ||
+              isOldTopLevelWithParent(p)(pp)
+            case _ => true
+          }
+        case None => true
+      })
+    case p: Member.Function => isBlockFunction(p)
+    case p: Case => p.pat.eq(tree) || p.body.eq(tree)
+    case SingleArgInBraces(_, arg, _) => tree eq arg
+    case _ => false
+  }
+  private def isOldTopLevel(tree: Tree) = tree.parent
+    .exists(isOldTopLevelWithParent(tree))
+  @tailrec
+  private def isAloneEnclosed(tree: Tree): Boolean = tree.parent.orNull match {
+    case p: Case => p.pat eq tree
+    case p: Term.If => p.cond eq tree
+    case p: Term.While => p.expr eq tree
+    case p: Term.Do => p.expr eq tree
+    case p: Term.Block => hasSingleElement(p, tree) &&
+      (p.tokens.head match {
+        case head: T.LeftBrace => // check brace was not rewritten
+          (ftoks.before(head).left eq head) || isAloneEnclosed(p)
+        case _ => true
+      })
+    case p: Member.Function => isBlockFunction(p)
+    case p @ Member.ArgClause(`tree` :: Nil) => ftoks.isEnclosedInMatching(p)
+    case Member.Tuple(`tree` :: Nil) => true
+    case _ => false
+  }
+  @tailrec
+  private def isAloneArgOrBody(tree: Tree): Boolean = tree.parent.orNull match {
+    case p: Case => p.pat.eq(tree) || p.body.eq(tree)
+    case _: Term.If | _: Term.While | _: Term.Do => true
+    case _: Member.ArgClause => true
+    case p: Term.Block => hasSingleElement(p, tree) &&
+      (p.tokens.head match {
+        case head: T.LeftBrace => // check brace was not rewritten
+          (ftoks.before(head).left eq head) || isAloneArgOrBody(p)
+        case _ => true
+      })
+    case _: Init | _: Term.Super | _: Member.Tuple => true
+    case p: Tree.WithBody => p.body eq tree
+    case p: Term.Param => p.default.contains(tree)
+    case _ => false
+  }
+  @tailrec
+  private def getFullPat(t: Tree): Tree = t.parent match {
+    case Some(p @ (_: Pat | _: Pat.ArgClause)) => getFullPat(p)
+    case _ => t
+  }
+
   private val skipInfixIndent: Boolean = {
-    @tailrec
-    def getLastPat(t: Tree): Tree = t.parent match {
-      case Some(p @ (_: Pat | _: Pat.ArgClause)) => getLastPat(p)
-      case _ => t
-    }
-    def getChild = fullInfix match {
-      case t: Pat => getLastPat(t)
+    import IndentOperator.Exempt
+    def full = fullInfix match {
+      case t: Pat => getFullPat(t)
       case t => t
-    }
-    @tailrec
-    def isOldTopLevelWithParent(child: Tree)(p: Tree): Boolean = p match {
-      case _: Term.If | _: Term.While | _: Source => true
-      case Term.Block(_ :: rest) => rest.nonEmpty ||
-        (p.parent match {
-          case Some(pp) => p.tokens.head match { // check brace was not rewritten
-              case head: T.LeftBrace => (ftoks.before(head).left eq head) ||
-                isOldTopLevelWithParent(p)(pp)
-              case _ => true
-            }
-          case None => true
-        })
-      case fun: Member.Function => isBlockFunction(fun)
-      case t: Case => t.pat.eq(child) || t.body.eq(child)
-      case SingleArgInBraces(_, arg, _) => child eq arg
-      case _ => false
-    }
-    def isOldTopLevel(child: Tree) = child.parent
-      .exists(isOldTopLevelWithParent(child))
-    @tailrec
-    def isAloneEnclosed(child: Tree): Boolean = child.parent.orNull match {
-      case p: Case => p.pat eq child
-      case p: Term.If => p.cond eq child
-      case p: Term.While => p.expr eq child
-      case p: Term.Do => p.expr eq child
-      case p: Term.Block => hasSingleElement(p, child) &&
-        (p.tokens.head match {
-          case head: T.LeftBrace => // check brace was not rewritten
-            (ftoks.before(head).left eq head) || isAloneEnclosed(p)
-          case _ => true
-        })
-      case p: Member.Function => isBlockFunction(p)
-      case p @ Member.ArgClause(`child` :: Nil) => ftoks.isEnclosedInMatching(p)
-      case Member.Tuple(`child` :: Nil) => true
-      case _ => false
-    }
-    @tailrec
-    def isAloneArgOrBody(child: Tree): Boolean = child.parent.orNull match {
-      case t: Case => t.pat.eq(child) || t.body.eq(child)
-      case _: Term.If | _: Term.While | _: Term.Do => true
-      case _: Member.ArgClause => true
-      case p: Term.Block => hasSingleElement(p, child) &&
-        (p.tokens.head match {
-          case head: T.LeftBrace => // check brace was not rewritten
-            (ftoks.before(head).left eq head) || isAloneArgOrBody(p)
-          case _ => true
-        })
-      case _: Init | _: Term.Super | _: Member.Tuple => true
-      case t: Tree.WithBody => t.body eq child
-      case t: Term.Param => t.default.contains(child)
-      case _ => false
     }
     val cfg = style.indent.infix
     def allowNoIndent = cfg.exemptScope match {
-      case IndentOperator.Exempt.all => true
-      case IndentOperator.Exempt.oldTopLevel => isOldTopLevel(getChild)
-      case IndentOperator.Exempt.aloneEnclosed => isAloneEnclosed(getChild)
-      case IndentOperator.Exempt.aloneArgOrBody => isAloneArgOrBody(getChild)
-      case IndentOperator.Exempt.notAssign => isAfterAssignmentOp(false)
-      case IndentOperator.Exempt.notWithinAssign => !app.isAssignment &&
+      case Exempt.all => true
+      case Exempt.oldTopLevel => isOldTopLevel(full)
+      case Exempt.aloneEnclosed => isAloneEnclosed(full)
+      case Exempt.aloneArgOrBody => isAloneArgOrBody(full)
+      case Exempt.notAssign => isAfterAssignmentOp(false)
+      case Exempt.notWithinAssign => !app.isAssignment &&
         // fullInfix itself is never an assignment
         fullInfix.parent.exists {
           case _: Member.Infix => false
