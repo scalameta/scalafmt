@@ -42,14 +42,11 @@ object Imports extends RewriteFactory {
   object Settings {
     implicit val surface: generic.Surface[Settings] = generic.deriveSurface
     implicit val codec: ConfCodecEx[Settings] = generic
-      .deriveCodecEx(new Settings).noTypos
-      .withSectionRenames(annotation.SectionRename(
-        "expand",
-        "selectors",
-        { case Conf.Bool(value) =>
+      .deriveCodecEx(new Settings).noTypos.withSectionRenames(
+        annotation.SectionRename { case Conf.Bool(value) =>
           if (value) Conf.nameOf(Newlines.unfold) else Conf.Null()
-        },
-      ))
+        }("expand", "selectors"),
+      )
 
   }
 
