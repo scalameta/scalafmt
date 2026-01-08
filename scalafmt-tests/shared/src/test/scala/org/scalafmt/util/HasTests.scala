@@ -253,11 +253,12 @@ object HasTests {
   private[scalafmt] val skipPrefix = "SKIP"
 
   private def isPrefix(name: String, prefix: String) = name
-    .startsWith(prefix) && !name.charAt(prefix.length).isLetterOrDigit
+    .startsWith(prefix) && {
+    name.length == prefix.length || !name.charAt(prefix.length).isLetterOrDigit
+  }
 
   private def stripPrefixOpt(name: String, prefix: String) =
-    if (isPrefix(name, prefix)) Some(name.substring(prefix.length).trim)
-    else None
+    if (isPrefix(name, prefix)) Some(name.substring(prefix.length)) else None
 
   def scalafmtRunner(sr: RunnerSettings, dg: Debug): RunnerSettings = sr.copy(
     debug = true,
