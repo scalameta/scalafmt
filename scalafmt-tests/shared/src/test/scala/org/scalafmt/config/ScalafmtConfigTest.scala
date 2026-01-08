@@ -108,7 +108,7 @@ class ScalafmtConfigTest extends FunSuite {
   test("convert") {
     ConfParsed.fromString {
       """|binPack.unsafeCallSite = false # callSite = never
-         |indentOperator.topLevelOnly = true # exemptScope = all
+         |indentOperator.topLevelOnly = true # exemptScope = oldTopLevel
          |newlines.alwaysBeforeMultilineDef = true # forceBeforeMultilineAssign = def
          |importSelectors = false # binPack.importSelectors = unfold
          |fileOverride {
@@ -129,7 +129,9 @@ class ScalafmtConfigTest extends FunSuite {
              |fileOverride.pat1 = "scala213"
              |fileOverride.pat2.binPack.callSite = Always
              |fileOverride.pat3.binPack.importSelectors = fold
-             |indent.infix.exemptScope = oldTopLevel
+             |indent.infix.exemptScope = [
+             |  oldTopLevel
+             |]
              |newlines.forceBeforeMultilineAssign = def""".stripMargin,
         )
       case Configured.NotOk(err) => fail(err.msg)

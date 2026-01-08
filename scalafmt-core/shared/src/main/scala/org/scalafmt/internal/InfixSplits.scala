@@ -263,12 +263,14 @@ class InfixSplits(
 
   private val skipInfixIndent: Boolean = {
     import IndentOperator.Exempt
-    def full = fullInfix match {
+    lazy val full = fullInfix match {
       case t: Pat => getFullPat(t)
       case t => t
     }
     val cfg = style.indent.infix
-    def allowNoIndent = cfg.exemptScope match {
+    def allowNoIndent = {
+      if (cfg.exemptScope.isEmpty) Seq(Exempt.oldTopLevel) else cfg.exemptScope
+    }.forall {
       case Exempt.all => true
       case Exempt.oldTopLevel => isOldTopLevel(full)
       case Exempt.aloneEnclosed => isAloneEnclosed(full)
