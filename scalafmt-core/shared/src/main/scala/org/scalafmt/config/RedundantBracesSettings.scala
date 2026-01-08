@@ -38,12 +38,11 @@ object RedundantBracesSettings {
     generic.deriveEncoder
   implicit lazy val decoder: ConfDecoderEx[RedundantBracesSettings] = Presets
     .mapDecoder(
-      generic.deriveDecoderEx(default).noTypos
-        .withSectionRenames(annotation.SectionRename(
-          "parensForOneLineApply",
-          "oneStatApply.parensMaxSpan",
-          { case Conf.Bool(value) => Conf.Num(if (value) 0 else -1) },
-        )),
+      generic.deriveDecoderEx(default).noTypos.withSectionRenames(
+        annotation.SectionRename { case Conf.Bool(value) =>
+          Conf.Num(if (value) 0 else -1)
+        }("parensForOneLineApply", "oneStatApply.parensMaxSpan"),
+      ),
       "RedundantBraces",
     )
 
