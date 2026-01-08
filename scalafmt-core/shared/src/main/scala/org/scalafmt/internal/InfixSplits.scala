@@ -183,6 +183,7 @@ class InfixSplits(
 )(implicit style: ScalafmtConfig, ftoks: FormatTokens) {
   private val isLeftInfix = leftInfix eq app
   private val isAfterOp = ft.meta.leftOwner eq app.op
+  private val appPrecedence = app.precedence
   private val beforeLhs = !isAfterOp && ft.left.start < app.pos.start
   private val isFirstOp = beforeLhs || isLeftInfix && isAfterOp
   private val fullExpire = ftoks
@@ -275,8 +276,8 @@ class InfixSplits(
       case Exempt.oldTopLevel => isOldTopLevel(full)
       case Exempt.aloneEnclosed => isAloneEnclosed(full)
       case Exempt.aloneArgOrBody => isAloneArgOrBody(full)
-      case Exempt.notAssign => isAfterAssignmentOp(false)
-      case Exempt.notWithinAssign => !app.isAssignment &&
+      case Exempt.notAssign => isAfterOp && !isAssignmentOp
+      case Exempt.notWithinAssign => !isAssignmentOp &&
         // fullInfix itself is never an assignment
         fullInfix.parent.exists {
           case _: Member.Infix => false
@@ -290,7 +291,7 @@ class InfixSplits(
 
   private val fullIndent: Indent = assignBodyExpire match {
     case Some(x) if beforeLhs => Indent(style.indent.main, x, ExpiresOn.After)
-    case None if isLeftInfix && isAfterAssignmentOp(true) =>
+    case None if isFirstOp && isAssignmentOp =>
       Indent(style.indent.main, fullExpire, ExpiresOn.After)
     case _ =>
       val len = style.indent.getAfterInfixSite
@@ -328,8 +329,7 @@ class InfixSplits(
   }
 
   @inline
-  private def isAfterAssignmentOp(isAssignment: Boolean): Boolean = isAfterOp &&
-    app.isAssignment == isAssignment
+  private def isAssignmentOp: Boolean = appPrecedence == 0
 
   private def withNLIndent(split: Split): Split = split.withIndent(nlIndent)
     .andPolicy(nlPolicy)
@@ -339,8 +339,6 @@ class InfixSplits(
       newStmtMod: Option[Modification] = None,
       spaceMod: Modification = Space,
   ): Seq[Split] = {
-    val appPrecedence = if (isAfterOp) app.precedence else 1
-
     val closeOpt = ft.right match {
       case _: T.OpenDelim => ftoks.matchingOptRight(ft)
       case _ => None // exclude Xml.Start and similar pairs
@@ -361,9 +359,10 @@ class InfixSplits(
         if (infixes.isEmpty) None
         else {
           val isKeep = !afterInfix.style.sourceIgnored
+          val anyPrecedence = isAssignmentOp ||
+            isKeep && isAfterOp && ftoks.prev(ft).hasBreak
           var minPrecedence =
-            if (isKeep && isAfterOp && ftoks.prev(ft).hasBreak) Int.MaxValue
-            else appPrecedence + 1
+            if (anyPrecedence) Int.MaxValue else appPrecedence + 1
           var firstExpire: FT = null
           val out = new mutable.ListBuffer[(FT, Int)]
           def add(elem: (FT, Int)): Unit = {
@@ -423,17 +422,18 @@ class InfixSplits(
       }
     }
 
-    val singleLinePolicy = Policy ? (infixTooLong || !isFirstOp) ||
+    val singleLinePolicy = Policy ?
+      (infixTooLong || !isFirstOp && !isAssignmentOp) ||
       InfixSplits.getSingleLineInfixPolicy(fullExpire)
     val nlSinglelineSplit = Split(nlMod, 0)
-      .onlyIf(singleLinePolicy.nonEmpty && !isAfterOp)
+      .notIf(singleLinePolicy.isEmpty || isAfterOp && !isAssignmentOp)
       .withIndent(singleLineIndent).withSingleLine(singleLineExpire)
       .andPolicy(singleLinePolicy).andPolicy(delayedBreak)
     val spaceSingleLine = Split(spaceMod, 0).onlyIf(newStmtMod.isEmpty)
       .withSingleLine(singleLineExpire).andPolicy(singleLinePolicy)
     val singleLineSplits = Seq(
       spaceSingleLine.onlyFor(SplitTag.InfixChainNoNL),
-      spaceSingleLine.onlyIf(singleLinePolicy.nonEmpty),
+      spaceSingleLine.notIf(singleLinePolicy.isEmpty),
       nlSinglelineSplit,
     )
 
@@ -461,7 +461,8 @@ class InfixSplits(
       })
 
     def otherSplitsNoDelims = {
-      val nlSplit = Split(nlMod, 1 + appPrecedence - minPrecedence)
+      val nlPrecedence = if (isAssignmentOp) expires.head._2 else appPrecedence
+      val nlSplit = Split(nlMod, 1 + nlPrecedence - minPrecedence)
         .withIndent(nlIndent).withPolicy(nlPolicy & delayedBreak)
       val spaceSplits: Seq[Split] =
         if (ft.right.is[T.Comment] || mustBreakAfterNested) Seq.empty
