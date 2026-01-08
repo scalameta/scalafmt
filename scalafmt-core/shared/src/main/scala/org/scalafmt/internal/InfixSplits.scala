@@ -16,14 +16,25 @@ object InfixSplits {
   def apply(app: Member.Infix, ft: FT)(implicit
       style: ScalafmtConfig,
       ftoks: FormatTokens,
-  ): InfixSplits = apply(app, ft, findEnclosingInfix(app))
+  ): InfixSplits = apply(app, ft, findMaybeEnclosingInfix(app))
 
-  def apply(app: Member.Infix, ft: FT, fullInfix: Member.Infix)(implicit
-      style: ScalafmtConfig,
-      ftoks: FormatTokens,
-  ): InfixSplits = {
+  def apply(
+      app: Member.Infix,
+      ft: FT,
+      fullInfixWithEnclosedIn: => (Member.Infix, Option[Either[FT, FT]]),
+  )(implicit style: ScalafmtConfig, ftoks: FormatTokens): InfixSplits = {
+    val (fullInfix, fullInfixEnclosed) = findMaybeEnclosingInfix(app)
+    apply(app, ft, fullInfix, fullInfixEnclosed)
+  }
+
+  def apply(
+      app: Member.Infix,
+      ft: FT,
+      fullInfix: Member.Infix,
+      fullInfixEnclosedIn: Option[Either[FT, FT]],
+  )(implicit style: ScalafmtConfig, ftoks: FormatTokens): InfixSplits = {
     val leftInfix = findLeftInfix(fullInfix)
-    new InfixSplits(app, ft, fullInfix, leftInfix)
+    new InfixSplits(app, ft, fullInfix, leftInfix, fullInfixEnclosedIn)
   }
 
   private def switch(splits: Seq[Split], triggers: T*): Seq[Split] = splits
@@ -50,25 +61,22 @@ object InfixSplits {
       ftoks: FormatTokens,
   ): (Member.Infix, Option[Either[FT, FT]]) = findMaybeEnclosingInfix(app, app)
 
-  private def findEnclosingInfix(app: Member.Infix)(implicit
-      ftoks: FormatTokens,
-  ): Member.Infix = findMaybeEnclosingInfix(app)._1
-
   def withNLIndent(split: Split)(
       app: Member.Infix,
   )(implicit ft: FT, style: ScalafmtConfig, ftoks: FormatTokens): Split =
-    withNLIndent(split, app, findEnclosingInfix(app))
+    withNLIndent(split, app, findMaybeEnclosingInfix(app))
 
   def withNLIndent(
       split: Split,
       app: Member.Infix,
-      fullInfix: => Member.Infix,
+      fullInfixWithEnclosedIn: => (Member.Infix, Option[Either[FT, FT]]),
   )(implicit ft: FT, style: ScalafmtConfig, ftoks: FormatTokens): Split = {
     val noNL = !split.isNL && {
       val nextFt = ftoks.nextNonCommentSameLine(ft)
       nextFt.eq(ft) || nextFt.noBreak
     }
-    if (noNL) split else apply(app, ft, fullInfix).withNLIndent(split)
+    if (noNL) split
+    else apply(app, ft, fullInfixWithEnclosedIn).withNLIndent(split)
   }
 
   private def getInfixRhsPossiblyEnclosed(app: Member.Infix)(implicit
@@ -160,7 +168,7 @@ object InfixSplits {
     val fullInfix = findTreeWithParentSimple(lhsApp, false)(isInfixApp)
       .flatMap(asInfixApp).getOrElse(lhsApp)
     val app = findLeftInfix(fullInfix)
-    new InfixSplits(app, ft, fullInfix, app)
+    new InfixSplits(app, ft, fullInfix, app, fullInfixEnclosedIn = None)
       .getBeforeLhsOrRhs(afterInfix, newStmtMod)
   }
 
@@ -180,6 +188,7 @@ class InfixSplits(
     ft: FT,
     fullInfix: Member.Infix,
     leftInfix: Member.Infix,
+    fullInfixEnclosedIn: Option[Either[FT, FT]],
 )(implicit style: ScalafmtConfig, ftoks: FormatTokens) {
   private val isLeftInfix = leftInfix eq app
   private val isAfterOp = ft.meta.leftOwner eq app.op

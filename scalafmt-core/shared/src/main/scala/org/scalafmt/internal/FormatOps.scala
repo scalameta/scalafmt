@@ -347,7 +347,7 @@ class FormatOps(
         case t: Defn.Var => t.body eq fullInfix
         case _ => true
       }
-      if (ok) InfixSplits(app, ft, fullInfix)
+      if (ok) InfixSplits(app, ft, fullInfix, fullInfixEnclosedIn)
         .getBeforeLhsOrRhs(afterInfix, spaceMod = spaceMod)
       else spaceSplits
     }
@@ -371,7 +371,7 @@ class FormatOps(
     def modNL = Newline2x(fullInfixEnclosedInParens && ft.hasBlankLine)
     def nl(cost: Int)(implicit fl: FileLine) = Split(modNL, cost)
     def withIndent(split: Split) =
-      Seq(InfixSplits.withNLIndent(split, app, fullInfix))
+      Seq(InfixSplits.withNLIndent(split, app, (fullInfix, fullInfixEnclosedIn)))
 
     if (isBeforeOp)
       if (ft.noBreak) withIndent(spc) // !sourceIgnored
