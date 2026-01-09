@@ -153,7 +153,9 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             if (cost <= maxCost) {
               val stateToQueue = split.optimalAt match {
                 case Some(opt) if handleOptimalTokens =>
-                  if (cost > 0) killOnFail(opt)
+                  val costToCheck =
+                    if (opt.ignorePenalty) split.costWithoutPenalty else cost
+                  if (costToCheck > 0) killOnFail(opt)
                   else processOptimalToken(opt) match {
                     case Left(x) => x
                     case Right(x) => optimalFound = true; x
