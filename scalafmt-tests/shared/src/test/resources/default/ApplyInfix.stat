@@ -1220,15 +1220,15 @@ foo(
   foo1 / foo2 / foo3 / foo4 := foo5 / foo6 / foo7 / foo8 / foo9 / fooA / fooB / fooC / fooD / fooE,
   foo1 / foo2 / foo3 / foo4 := foo5 / foo6 / foo7 / foo8 / foo9 / fooA / fooB / fooC / fooD / fooE / fooF,
 )
->>> { stateVisits = 326, stateVisits2 = 294 }
+>>> { stateVisits = 352, stateVisits2 = 285 }
 foo(
     foo1 / foo2 / foo3 / foo4 := foo5,
-    foo1 / foo2 / foo3 / foo4 := foo5 /
-        foo6,
-    foo1 / foo2 / foo3 / foo4 := foo5 /
-        foo6 / foo7,
-    foo1 / foo2 / foo3 / foo4 := foo5 /
-        foo6 / foo7 / foo8,
+    foo1 / foo2 / foo3 / foo4 :=
+        foo5 / foo6,
+    foo1 / foo2 / foo3 / foo4 :=
+        foo5 / foo6 / foo7,
+    foo1 / foo2 / foo3 / foo4 :=
+        foo5 / foo6 / foo7 / foo8,
     foo1 / foo2 / foo3 / foo4 := foo5 /
         foo6 / foo7 / foo8 / foo9,
     foo1 / foo2 / foo3 / foo4 := foo5 /

@@ -431,9 +431,10 @@ class InfixSplits(
       InfixSplits.getSingleLineInfixPolicy(fullExpire)
     val nlSinglelineSplit = Split(nlMod, 0)
       .notIf(singleLinePolicy.isEmpty || isAfterOp && !isAssignmentOp)
-      .withIndent(singleLineIndent, ignore = skipInfixIndent)
-      .withSingleLine(singleLineExpire).andPolicy(singleLinePolicy)
-      .andPolicy(delayedBreak)
+      .withIndent(singleLineIndent, ignore = skipInfixIndent).withSingleLine(
+        singleLineExpire,
+        ignorePenalty = isAssignmentOp && nextInfixes.nonEmpty,
+      ).andPolicy(singleLinePolicy).andPolicy(delayedBreak)
     val spaceSingleLine = Split(spaceMod, 0).onlyIf(newStmtMod.isEmpty)
       .withSingleLine(singleLineExpire).andPolicy(singleLinePolicy)
     val singleLineSplits = Seq(
