@@ -8366,7 +8366,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 4702, stateVisits2 = 4702 }
+>>> { stateVisits = 4702 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -8453,7 +8453,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 3882, stateVisits2 = 3882 }
+>>> { stateVisits = 3882 }
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),

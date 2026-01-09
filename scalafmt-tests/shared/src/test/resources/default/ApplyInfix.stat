@@ -1220,7 +1220,7 @@ foo(
   foo1 / foo2 / foo3 / foo4 := foo5 / foo6 / foo7 / foo8 / foo9 / fooA / fooB / fooC / fooD / fooE,
   foo1 / foo2 / foo3 / foo4 := foo5 / foo6 / foo7 / foo8 / foo9 / fooA / fooB / fooC / fooD / fooE / fooF,
 )
->>> { stateVisits = 380, stateVisits2 = 294 }
+>>> { stateVisits = 326, stateVisits2 = 294 }
 foo(
     foo1 / foo2 / foo3 / foo4 := foo5,
     foo1 / foo2 / foo3 / foo4 := foo5 /
@@ -1288,31 +1288,32 @@ indent.infix {
   foo1 / foo2 / foo3 / foo4 := foo5 / foo6 / foo7 / foo8 / foo9 / fooA / fooB / fooC / fooD / fooE
   foo1 / foo2 / foo3 / foo4 := foo5 / foo6 / foo7 / foo8 / foo9 / fooA / fooB / fooC / fooD / fooE / fooF
 }
->>> { stateVisits = 371, stateVisits2 = 276 }
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,20 +1,20 @@
- {
-   foo1 / foo2 / foo3 / foo4 := foo5
-   foo1 / foo2 / foo3 / foo4 :=
--    foo5 / foo6
-+      foo5 / foo6
-   foo1 / foo2 / foo3 / foo4 :=
--    foo5 / foo6 / foo7
-+      foo5 / foo6 / foo7
-   foo1 / foo2 / foo3 / foo4 :=
--    foo5 / foo6 / foo7 / foo8
-+      foo5 / foo6 / foo7 / foo8
-   foo1 / foo2 / foo3 / foo4 :=
--    foo5 / foo6 / foo7 / foo8 / foo9
-+      foo5 / foo6 / foo7 / foo8 / foo9
-   foo1 / foo2 / foo3 / foo4 := foo5 /
-       foo6 / foo7 / foo8 / foo9 / fooA
-   foo1 / foo2 / foo3 / foo4 := foo5 /
-       foo6 / foo7 / foo8 / foo9 / fooA /
-       fooB
-   foo1 / foo2 / foo3 / foo4 := foo5 /
-       foo6 / foo7 / foo8 / foo9 / fooA /
-       fooB / fooC
-   foo1 / foo2 / foo3 / foo4 := foo5 /
-       foo6 / foo7 / foo8 / foo9 / fooA /
+>>> { stateVisits = 307, stateVisits2 = 276 }
+{
+  foo1 / foo2 / foo3 / foo4 := foo5
+  foo1 / foo2 / foo3 / foo4 :=
+      foo5 / foo6
+  foo1 / foo2 / foo3 / foo4 :=
+      foo5 / foo6 / foo7
+  foo1 / foo2 / foo3 / foo4 :=
+      foo5 / foo6 / foo7 / foo8
+  foo1 / foo2 / foo3 / foo4 :=
+      foo5 / foo6 / foo7 / foo8 / foo9
+  foo1 / foo2 / foo3 / foo4 := foo5 /
+      foo6 / foo7 / foo8 / foo9 / fooA
+  foo1 / foo2 / foo3 / foo4 := foo5 /
+      foo6 / foo7 / foo8 / foo9 / fooA /
+      fooB
+  foo1 / foo2 / foo3 / foo4 := foo5 /
+      foo6 / foo7 / foo8 / foo9 / fooA /
+      fooB / fooC
+  foo1 / foo2 / foo3 / foo4 := foo5 /
+      foo6 / foo7 / foo8 / foo9 / fooA /
+      fooB / fooC / fooD
+  foo1 / foo2 / foo3 / foo4 := foo5 /
+      foo6 / foo7 / foo8 / foo9 / fooA /
+      fooB / fooC / fooD / fooE
+  foo1 / foo2 / foo3 / foo4 := foo5 /
+      foo6 / foo7 / foo8 / foo9 / fooA /
+      fooB / fooC / fooD / fooE / fooF
+}

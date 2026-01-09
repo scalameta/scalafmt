@@ -5,6 +5,7 @@ import org.scalafmt.util.InfixApp._
 import org.scalafmt.util.TreeOps._
 import org.scalafmt.util.{PolicyOps, TokenOps, TreeOps}
 
+import org.scalameta.FileLine
 import scala.meta._
 import scala.meta.tokens.{Token => T}
 
@@ -298,18 +299,18 @@ class InfixSplits(
     else app.is[Pat] || allowNoIndent && cfg.noindent(app.op.value)
   }
 
-  private val fullIndent: Indent = assignBodyExpire match {
-    case Some(x) if beforeLhs => Indent(style.indent.main, x, ExpiresOn.After)
-    case None if isFirstOp && isAssignmentOp =>
-      Indent(style.indent.main, fullExpire, ExpiresOn.After)
-    case _ =>
-      val len = style.indent.getAfterInfixSite
-      Indent(len, fullExpire, ExpiresOn.After)
+  private val (fullIndentLength, fullIndentExpire) = assignBodyExpire match {
+    case Some(x) if beforeLhs => (style.indent.main, x)
+    case None if isFirstOp && isAssignmentOp => (style.indent.main, fullExpire)
+    case _ => (style.indent.getAfterInfixSite, fullExpire)
   }
 
+  private val fullIndent: Indent =
+    Indent(fullIndentLength, fullIndentExpire, ExpiresOn.After)
+
   val (nlIndent, nlPolicy) = {
-    def policy(triggers: T*) = Policy ? triggers.isEmpty ||
-      Policy.onLeft(fullExpire, prefix = "INF") {
+    def policy(triggers: T*)(implicit fl: FileLine) =
+      Policy ? triggers.isEmpty || Policy.onLeft(fullExpire, prefix = "INF") {
         case Decision(FT(_: T.Ident, _, m), s) if isInfixOp(m.leftOwner) =>
           InfixSplits.switch(s, triggers: _*)
         case Decision(xft @ FT(_, _: T.Ident, m), s)
@@ -421,23 +422,19 @@ class InfixSplits(
       .getOrElse(Space.orNL(ft.noBreak && ft.right.is[T.Comment]))
     val delayedBreak = Policy ? nlMod.isNL || breakAfterComment(ft)
 
-    val (singleLineExpire, singleLineIndent) = {
-      val skip = skipInfixIndent
-      if (isFirstOp) (fullExpire, if (skip) Indent.Empty else fullIndent)
-      else {
-        val indentLen = if (skip) 0 else style.indent.main
-        val indent = Indent(indentLen, firstExpire, ExpiresOn.After)
-        (firstExpire, indent)
-      }
-    }
+    val isFirstOrAssignOp = isFirstOp || isAssignmentOp
+    val singleLineExpire = if (isFirstOrAssignOp) fullExpire else firstExpire
+    def singleLineIndent =
+      if (isFirstOrAssignOp) fullIndent
+      else Indent(fullIndentLength, firstExpire, ExpiresOn.After)
 
-    val singleLinePolicy = Policy ?
-      (infixTooLong || !isFirstOp && !isAssignmentOp) ||
+    val singleLinePolicy = Policy ? (infixTooLong || !isFirstOrAssignOp) ||
       InfixSplits.getSingleLineInfixPolicy(fullExpire)
     val nlSinglelineSplit = Split(nlMod, 0)
       .notIf(singleLinePolicy.isEmpty || isAfterOp && !isAssignmentOp)
-      .withIndent(singleLineIndent).withSingleLine(singleLineExpire)
-      .andPolicy(singleLinePolicy).andPolicy(delayedBreak)
+      .withIndent(singleLineIndent, ignore = skipInfixIndent)
+      .withSingleLine(singleLineExpire).andPolicy(singleLinePolicy)
+      .andPolicy(delayedBreak)
     val spaceSingleLine = Split(spaceMod, 0).onlyIf(newStmtMod.isEmpty)
       .withSingleLine(singleLineExpire).andPolicy(singleLinePolicy)
     val singleLineSplits = Seq(
