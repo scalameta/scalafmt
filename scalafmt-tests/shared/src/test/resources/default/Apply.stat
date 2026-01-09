@@ -5,7 +5,7 @@ List(Split(Space, 0).withPolicy(SingleLineBlock(close)),
              case Decision(t@FormatToken(_, `close`, _), s) =>
                Decision(t, List(Split(Newline, 0)))
            }).withIndent(2, close, Right))
->>> { stateVisits = 626, stateVisits2 = 626 }
+>>>
 List(Split(Space, 0).withPolicy(SingleLineBlock(close)),
      Split(nl, 1)
        .withPolicy({ case Decision(t @ FormatToken(_, `close`, _), s) =>
@@ -154,7 +154,7 @@ Seq(
               .withIndent(2, lastToken, Left) // case body indented by 2.
               .withIndent(2, arrow, Left) // cond body indented by 4.
         )
->>> { stateVisits = 703, stateVisits2 = 703 }
+>>>
 Seq(
     // Either everything fits in one line or break on =>
     Split(Space, 0).withPolicy(SingleLineBlock(lastToken)),
@@ -574,7 +574,7 @@ newlines.avoidForSimpleOverflow = [punct]
         }
       }
 }}}
->>> { stateVisits = 1126, stateVisits2 = 1123 }
+>>>
 {
   {
     {
@@ -1792,7 +1792,7 @@ object a {
     nme.scala_), scalajs), js), nme.annotation, x, y, z), internal_, a, b, c),
     wasPublicBeforeTyperXxx)
 }
->>> { stateVisits = 1321 }
+>>> { stateVisits = 1293 }
 object a {
   val cls = Select(
     Select(

@@ -1203,7 +1203,7 @@ danglingParentheses.preset = false
 ===
 case class AttributeInfo(symbol : Symbol, typeRef : Type, value : Option[Any],
   values : Seq[String ~ Any]) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
->>> { stateVisits = 45, stateVisits2 = 30 }
+>>>
 case class AttributeInfo(
     symbol: Symbol,
     typeRef: Type,
@@ -9925,7 +9925,7 @@ private object MemoMap {
         }
       }
 }
->>> { stateVisits = 260, stateVisits2 = 215 }
+>>>
 private object MemoMap {
   def make(implicit
       trace: Trace
@@ -10060,7 +10060,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 790, stateVisits2 = 702 }
+>>>
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] =
@@ -10193,7 +10193,7 @@ object a {
       .map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 839, stateVisits2 = 516 }
+>>>
 object a {
   private def ignoreUndocumentedPackages(packages: Seq[Seq[File]])
       : Seq[Seq[File]] = {
@@ -10306,7 +10306,7 @@ object a {
       .map(filterNot(getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 619, stateVisits2 = 412 }
+>>>
 object a {
   private def ignoreUndocumentedPackages(packages: Seq[Seq[File]])
       : Seq[Seq[File]] = {

@@ -703,7 +703,7 @@ object Application {
 
   def main(args: Array[String]): Unit = app.run(args)
 }
->>> { stateVisits = 804, stateVisits2 = 804 }
+>>>
 object Application {
   val app = reactiveWebApplication(a =>
     a.beans(b => b.bean(classOf[SampleHandler]).bean(classOf[SampleService]))
@@ -764,7 +764,7 @@ object Application {
 
   def main(args: Array[String]): Unit = app.run(args)
 }
->>> { stateVisits = 804, stateVisits2 = 804 }
+>>>
 object Application {
   val app = reactiveWebApplication(a =>
     a.beans(b => b.bean(classOf[SampleHandler]).bean(classOf[SampleService]))
