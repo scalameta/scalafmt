@@ -11,6 +11,7 @@ case class OptimalToken(
     token: FT,
     killOnFail: Boolean,
     recurseOnly: Boolean = false,
+    ignorePenalty: Boolean = false,
 ) {
   override def toString: String = {
     val kof = if (killOnFail) "!" else ""
@@ -64,6 +65,9 @@ case class Split(
       copy(modExt = modExt.copy(mod = x.copy(noIndent = true)))
     case _ => this
   }
+
+  @inline
+  def costWithoutPenalty: Int = cost
 
   @inline
   def costWithPenalty: Int = cost + penalty.max(0)
@@ -146,8 +150,14 @@ case class Split(
       killOnFail: Boolean,
       extend: Boolean = false,
       recurseOnly: Boolean = false,
+      ignorePenalty: Boolean = false,
   ): Split = withOptimalAt(
-    token.map(OptimalToken(_, killOnFail = killOnFail, recurseOnly = recurseOnly)),
+    token.map(OptimalToken(
+      _,
+      killOnFail = killOnFail,
+      recurseOnly = recurseOnly,
+      ignorePenalty = ignorePenalty,
+    )),
     extend = extend,
   )
 
@@ -157,8 +167,14 @@ case class Split(
       ignore: Boolean = false,
       extend: Boolean = false,
       recurseOnly: Boolean = false,
+      ignorePenalty: Boolean = false,
   ): Split = withOptimalAt(
-    Some(OptimalToken(token, killOnFail = killOnFail, recurseOnly = recurseOnly)),
+    Some(OptimalToken(
+      token,
+      killOnFail = killOnFail,
+      recurseOnly = recurseOnly,
+      ignorePenalty = ignorePenalty,
+    )),
     ignore,
     extend = extend,
   )
@@ -206,6 +222,7 @@ case class Split(
       ignore: Boolean = false,
       noOptimal: Boolean = false,
       recurseOnly: Boolean = false,
+      ignorePenalty: Boolean = false,
   )(implicit fileLine: FileLine, style: ScalafmtConfig): Split =
     if (isIgnored || ignore) this
     else {
@@ -217,6 +234,7 @@ case class Split(
         extend = extend,
         ignore = noOptimal,
         recurseOnly = recurseOnly,
+        ignorePenalty = ignorePenalty,
       ).withSingleLineNoOptimal(
         expireEval,
         excludeEval,
