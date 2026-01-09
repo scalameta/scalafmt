@@ -70,15 +70,16 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
         val actual1 = completedEvent.totalExplored
         val actual2 = dbgOpt2.flatMap(_.completedEvent)
           .fold(actual1)(_.totalExplored)
-        if (actual1 > 2000 || actual2 > 2000) {
-          def error = s"stateVisits = $actual1, stateVisits2 = $actual2"
-          visitsOpt1 match {
-            case Some(visits1) =>
-              val actual = (actual1, actual2)
-              val expected = (visits1, visitsOpt2.getOrElse(visits1))
-              assertEquals(actual, expected, error)
-            case None => fail(s"\nExpected test to assert: $error")
-          }
+        def error =
+          if (actual1 == actual2) s"stateVisits = $actual1"
+          else s"stateVisits = $actual1, stateVisits2 = $actual2"
+        visitsOpt1 match {
+          case Some(visits1) =>
+            val actual = (actual1, actual2)
+            val expected = (visits1, visitsOpt2.getOrElse(visits1))
+            assertEquals(actual, expected, error)
+          case None => if (actual1 > 2000 || actual2 > 2000)
+              fail(s"\nExpected test to assert: $error")
         }
       }
     var debug2Opt: Option[Debug] = None

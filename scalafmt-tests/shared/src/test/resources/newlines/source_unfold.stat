@@ -1321,7 +1321,7 @@ danglingParentheses.preset = false
 ===
 case class AttributeInfo(symbol : Symbol, typeRef : Type, value : Option[Any],
   values : Seq[String ~ Any]) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
->>> { stateVisits = 62, stateVisits2 = 62 }
+>>>
 case class AttributeInfo(
     symbol: Symbol,
     typeRef: Type,
@@ -9059,7 +9059,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 477, stateVisits2 = 477 }
+>>>
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -9163,7 +9163,7 @@ object a {
     )
   )
 }
->>> { stateVisits = 432, stateVisits2 = 432 }
+>>>
 object a {
   div(cls := "cover")(
     div(cls := "doc")(bodyContents),
@@ -9624,7 +9624,7 @@ class UDFRegistration private[sql] (functionRegistry: FunctionRegistry) extends 
     val inputEncoders: Seq[Option[ExpressionEncoder[_]]] = Try(ExpressionEncoder[A1]()).toOption :: Try(ExpressionEncoder[A2]()).toOption :: Try(ExpressionEncoder[A3]()).toOption :: Try(ExpressionEncoder[A4]()).toOption :: Try(ExpressionEncoder[A5]()).toOption :: Try(ExpressionEncoder[A6]()).toOption :: Try(ExpressionEncoder[A7]()).toOption :: Try(ExpressionEncoder[A8]()).toOption :: Try(ExpressionEncoder[A9]()).toOption :: Try(ExpressionEncoder[A10]()).toOption :: Try(ExpressionEncoder[A11]()).toOption :: Try(ExpressionEncoder[A12]()).toOption :: Try(ExpressionEncoder[A13]()).toOption :: Try(ExpressionEncoder[A14]()).toOption :: Try(ExpressionEncoder[A15]()).toOption :: Try(ExpressionEncoder[A16]()).toOption :: Try(ExpressionEncoder[A17]()).toOption :: Try(ExpressionEncoder[A18]()).toOption :: Try(ExpressionEncoder[A19]()).toOption :: Try(ExpressionEncoder[A20]()).toOption :: Try(ExpressionEncoder[A21]()).toOption :: Try(ExpressionEncoder[A22]()).toOption :: Nil
   }
 }
->>> { stateVisits = 702, stateVisits2 = 702 }
+>>>
 class UDFRegistration private[sql] (
     functionRegistry: FunctionRegistry
 ) extends Logging {
@@ -10217,7 +10217,7 @@ private object MemoMap {
         }
       }
 }
->>> { stateVisits = 333, stateVisits2 = 333 }
+>>>
 private object MemoMap {
   def make(implicit
       trace: Trace
@@ -10361,7 +10361,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 940, stateVisits2 = 940 }
+>>>
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] = Ref
@@ -10504,7 +10504,7 @@ object a {
       .map(_.filterNot(_.getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 1162, stateVisits2 = 1162 }
+>>>
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
@@ -10643,7 +10643,7 @@ object a {
       .map(filterNot(getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 733, stateVisits2 = 733 }
+>>>
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]

@@ -824,7 +824,7 @@ object a {
       })(result)))))))
   }).getMessage should ===("Ur state be b0rked")
 }
->>> { stateVisits = 623, stateVisits2 = 623 }
+>>>
 object a {
   (intercept[java.lang.IllegalStateException] {
     wrap(result ⇒
@@ -1103,7 +1103,7 @@ danglingParentheses.preset = false
 ===
 case class AttributeInfo(symbol : Symbol, typeRef : Type, value : Option[Any],
   values : Seq[String ~ Any]) // sym_Ref info_Ref {constant_Ref} {nameRef constantRef}
->>> { stateVisits = 62, stateVisits2 = 62 }
+>>>
 case class AttributeInfo(
     symbol: Symbol,
     typeRef: Type,
@@ -6789,7 +6789,7 @@ object a {
   sb.append((if (lsb < 10) ('0' + lsb).asInstanceOf[Char]
              else ('a' + (lsb - 10)).asInstanceOf[Char]))
 }
->>> { stateVisits = 527, stateVisits2 = 527 }
+>>>
 object a {
   sb.append((if (msb < 10) ('0' + msb).asInstanceOf[Char]
              else ('a' + (msb - 10)).asInstanceOf[Char]))
@@ -6906,7 +6906,7 @@ object a {
     }
   ))
 }
->>> { stateVisits = 968, stateVisits2 = 968 }
+>>>
 object a {
   buffer
     .append((if (!fetchContent) {
@@ -7475,7 +7475,7 @@ class a {
     case _ => stepNoBreak(inner)(in)
   }
 }
->>> { stateVisits = 868, stateVisits2 = 868 }
+>>>
 class a {
   def step(
       inner: Iteratee[E, A]
@@ -8852,7 +8852,7 @@ class UDFRegistration private[sql] (functionRegistry: FunctionRegistry) extends 
     val inputEncoders: Seq[Option[ExpressionEncoder[_]]] = Try(ExpressionEncoder[A1]()).toOption :: Try(ExpressionEncoder[A2]()).toOption :: Try(ExpressionEncoder[A3]()).toOption :: Try(ExpressionEncoder[A4]()).toOption :: Try(ExpressionEncoder[A5]()).toOption :: Try(ExpressionEncoder[A6]()).toOption :: Try(ExpressionEncoder[A7]()).toOption :: Try(ExpressionEncoder[A8]()).toOption :: Try(ExpressionEncoder[A9]()).toOption :: Try(ExpressionEncoder[A10]()).toOption :: Try(ExpressionEncoder[A11]()).toOption :: Try(ExpressionEncoder[A12]()).toOption :: Try(ExpressionEncoder[A13]()).toOption :: Try(ExpressionEncoder[A14]()).toOption :: Try(ExpressionEncoder[A15]()).toOption :: Try(ExpressionEncoder[A16]()).toOption :: Try(ExpressionEncoder[A17]()).toOption :: Try(ExpressionEncoder[A18]()).toOption :: Try(ExpressionEncoder[A19]()).toOption :: Try(ExpressionEncoder[A20]()).toOption :: Try(ExpressionEncoder[A21]()).toOption :: Try(ExpressionEncoder[A22]()).toOption :: Nil
   }
 }
->>> { stateVisits = 732, stateVisits2 = 732 }
+>>>
 class UDFRegistration private[sql] (
     functionRegistry: FunctionRegistry
 ) extends Logging {
@@ -9306,7 +9306,7 @@ object Build {
       }.evaluated,
     )
 }
->>> { stateVisits = 2300, stateVisits2 = 1144 }
+>>>
 object Build {
   lazy val scaladoc = project.in(file("scaladoc"))
     .settings(generateScalaDocumentation := Def.inputTaskDyn {
@@ -9419,7 +9419,7 @@ private object MemoMap {
         }
       }
 }
->>> { stateVisits = 847, stateVisits2 = 847 }
+>>>
 private object MemoMap {
   def make(implicit
       trace: Trace
@@ -9553,7 +9553,7 @@ object a {
         }
   }
 }
->>> { stateVisits = 2151, stateVisits2 = 2151 }
+>>> { stateVisits = 1560 }
 object a {
   private object MemoMap {
     def make(implicit trace: Trace): UIO[MemoMap] = Ref.Synchronized
@@ -9765,7 +9765,7 @@ object a {
       .map(filterNot(getCanonicalPath.contains("SSLOptions")))
   }
 }
->>> { stateVisits = 12046, stateVisits2 = 12046 }
+>>> { stateVisits = 1845 }
 object a {
   private def ignoreUndocumentedPackages(
       packages: Seq[Seq[File]]
@@ -10829,7 +10829,7 @@ object a {
 f) + ", " + pool(nameAndTypeRef)
   }
 }
->>> { stateVisits = 161, stateVisits2 = 161 }
+>>>
 object a {
   def memberRef(description: String) = u2 ~ u2 ^^ add1 {
     case classRef ~ nameAndTypeRef =>
