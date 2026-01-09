@@ -352,58 +352,57 @@ class InfixSplits(
       case _: T.OpenDelim => ftoks.matchingOptRight(ft)
       case _ => None // exclude Xml.Start and similar pairs
     }
+    val nextInfixes =
+      if (closeOpt.isEmpty) {
+        implicit val infixes = new mutable.ListBuffer[Member.Infix]
+        if (isAfterOp) {
+          InfixSplits.findNestedInfixes(app.arg)
+          InfixSplits.findNextInfixes(fullInfix, app)
+        } else InfixSplits.findNextInfixes(fullInfix, app.lhs)
+        infixes.toList
+      } else Nil
+
     val fullPrecedence = fullInfix.precedence
     val fullExpirePrecedence = fullExpire -> fullPrecedence
-    val (firstExpire, expires, minPrecedence) = {
-      if (closeOpt.isDefined) None
+    val (firstExpire, expires, minPrecedence) =
+      if (nextInfixes.isEmpty)
+        (fullExpire, fullExpirePrecedence :: Nil, fullPrecedence)
       else {
-        val infixes = {
-          implicit val infixes = new mutable.ListBuffer[Member.Infix]
-          if (isAfterOp) {
-            InfixSplits.findNestedInfixes(app.arg)
-            InfixSplits.findNextInfixes(fullInfix, app)
-          } else InfixSplits.findNextInfixes(fullInfix, app.lhs)
-          infixes.toList
+        val isKeep = !afterInfix.style.sourceIgnored
+        val anyPrecedence = isAssignmentOp ||
+          isKeep && isAfterOp && ftoks.prev(ft).hasBreak
+        var minPrecedence =
+          if (anyPrecedence) Int.MaxValue else appPrecedence + 1
+        var firstExpire: FT = null
+        val out = new mutable.ListBuffer[(FT, Int)]
+        def add(elem: (FT, Int)): Unit = {
+          if (out.length == 3) out.remove(0)
+          out += elem
         }
-        if (infixes.isEmpty) None
-        else {
-          val isKeep = !afterInfix.style.sourceIgnored
-          val anyPrecedence = isAssignmentOp ||
-            isKeep && isAfterOp && ftoks.prev(ft).hasBreak
-          var minPrecedence =
-            if (anyPrecedence) Int.MaxValue else appPrecedence + 1
-          var firstExpire: FT = null
-          val out = new mutable.ListBuffer[(FT, Int)]
-          def add(elem: (FT, Int)): Unit = {
-            if (out.length == 3) out.remove(0)
-            out += elem
-          }
-          @tailrec
-          def iter(seq: List[Member.Infix]): Unit = seq match {
-            case ia :: rest =>
-              val precedence = ia.precedence
-              val expire = InfixSplits.getMidInfixToken(ia, isKeep)
-              if (firstExpire eq null) firstExpire = expire
-              if (isKeep && (expire.hasBreak || ftoks.next(expire).hasBreak)) {
-                if (minPrecedence > precedence) minPrecedence = precedence
+        @tailrec
+        def iter(seq: List[Member.Infix]): Unit = seq match {
+          case ia :: rest =>
+            val precedence = ia.precedence
+            val expire = InfixSplits.getMidInfixToken(ia, isKeep)
+            if (firstExpire eq null) firstExpire = expire
+            if (isKeep && (expire.hasBreak || ftoks.next(expire).hasBreak)) {
+              if (minPrecedence > precedence) minPrecedence = precedence
+              add(expire -> precedence)
+            } else {
+              if (minPrecedence > precedence) {
+                minPrecedence = precedence
                 add(expire -> precedence)
-              } else {
-                if (minPrecedence > precedence) {
-                  minPrecedence = precedence
-                  add(expire -> precedence)
-                }
-                iter(rest)
               }
-            case _ => if (minPrecedence > fullPrecedence) {
-                minPrecedence = fullPrecedence
-                add(fullExpirePrecedence)
-              }
-          }
-          iter(infixes)
-          Some((firstExpire, out.toList, minPrecedence))
+              iter(rest)
+            }
+          case _ => if (minPrecedence > fullPrecedence) {
+              minPrecedence = fullPrecedence
+              add(fullExpirePrecedence)
+            }
         }
+        iter(nextInfixes)
+        (firstExpire, out.toList, minPrecedence)
       }
-    }.getOrElse((fullExpire, fullExpirePrecedence :: Nil, fullPrecedence))
 
     val infixTooLong = infixSequenceLength(fullInfix) >
       afterInfix.maxCountPerExprForSome
