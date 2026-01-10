@@ -451,7 +451,7 @@ object Policy {
 
     override def unexpired(split: Split, nextft: FT): Policy =
       if (trigger(split, nextft)) after.unexpired(split, nextft)
-      else if (!triggerEnd.notExpiredBy(nextft)) NoPolicy
+      else if (!triggerEnd.notExpiredBy(nextft)) before.unexpired(split, nextft)
       else super.unexpired(split, nextft)
 
     override protected def withBefore(before: Policy)(
