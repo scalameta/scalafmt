@@ -1027,15 +1027,20 @@ class FormatOps(
       )
       def hasStateColumn = spaceIndents.exists(_.hasStateColumn)
       val adjustedBody = getBlockStat(body)
+      def getExprBeg(expr: Tree): FT = {
+        val exprBeg = getHead(expr)
+        val exprHasLB = exprBeg.left.is[T.LeftBrace]
+        if (exprHasLB) exprBeg else prevNonCommentBefore(exprBeg)
+      }
       val (spaceSplit, nlSplit) = adjustedBody match {
-        case t: Term.If if isKeep || ifWithoutElse(t) || hasStateColumn =>
-          val thenBeg = getHead(t.thenp)
-          val thenHasLB = thenBeg.left.is[T.LeftBrace]
-          val end = if (thenHasLB) thenBeg else prevNonCommentBefore(thenBeg)
-          getSplits(getSlbSplit(end))
-        case _: Term.If => getSlbSplits()
-        case _: Term.TryClause =>
-          if (hasStateColumn) getSplits(getSpaceSplit(1)) else getSlbSplits()
+        case t: Term.If =>
+          if (isKeep || ifWithoutElse(t) || hasStateColumn)
+            getSplits(getSlbSplit(getExprBeg(t.thenp)))
+          else getSlbSplits()
+        case t: Term.TryClause =>
+          if (hasStateColumn) getSplits(getSpaceSplit(1))
+          else if (isKeep) getSplits(getSlbSplit(getExprBeg(t.expr)))
+          else getSlbSplits()
         case _: Term.Block | _: Term.MatchLike | _: Type.Match |
             _: Term.NewAnonymous => getSplits(getSpaceSplit(1))
         case t: Term.ForYield => getDelimsIfEnclosed(t.enumsBlock) match {
