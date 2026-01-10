@@ -368,3 +368,103 @@ object a {
           _ <- b
         } yield ())
 }
+<<< beforeParenLambdaParams = never
+newlines.beforeParenLambdaParams = never
+newlines.beforeCurlyLambdaParams = always
+===
+object a {
+  x.map(x => s"${x._1} -> ${x._2}")
+  x.zipWithIndex.map(x => s"${x._1} -> ${x._2}")
+  x.flatMap(result => for {
+      _ <- a
+      _ <- b
+    } yield ()
+  )
+}
+>>>
+object a {
+  x.map(
+      x => s"${x._1} -> ${x._2}")
+  x.zipWithIndex.map(
+      x => s"${x._1} -> ${x._2}")
+  x.flatMap(
+      result =>
+        for {
+          _ <- a
+          _ <- b
+        } yield ())
+}
+<<< beforeParenLambdaParams = always
+newlines.beforeParenLambdaParams = always
+newlines.beforeCurlyLambdaParams = never
+===
+object a {
+  x.map(x => s"${x._1} -> ${x._2}")
+  x.zipWithIndex.map(x => s"${x._1} -> ${x._2}")
+  x.flatMap(result => for {
+      _ <- a
+      _ <- b
+    } yield ()
+  )
+}
+>>>
+object a {
+  x.map(x => s"${x._1} -> ${x._2}")
+  x.zipWithIndex.map(x =>
+    s"${x._1} -> ${x._2}")
+  x.flatMap(result =>
+    for {
+      _ <- a
+      _ <- b
+    } yield ())
+}
+<<< beforeParenLambdaParams = multilineWithCaseOnly
+newlines.beforeParenLambdaParams = multilineWithCaseOnly
+newlines.beforeCurlyLambdaParams = always
+===
+object a {
+  x.map(x => s"${x._1} -> ${x._2}")
+  x.zipWithIndex.map(x => s"${x._1} -> ${x._2}")
+  x.flatMap(result => for {
+      _ <- a
+      _ <- b
+    } yield ()
+  )
+}
+>>>
+object a {
+  x.map(
+      x => s"${x._1} -> ${x._2}")
+  x.zipWithIndex.map(
+      x => s"${x._1} -> ${x._2}")
+  x.flatMap(
+      result =>
+        for {
+          _ <- a
+          _ <- b
+        } yield ())
+}
+<<< beforeParenLambdaParams = multiline
+newlines.beforeParenLambdaParams = multiline
+newlines.beforeCurlyLambdaParams = never
+===
+object a {
+  x.map(x => s"${x._1} -> ${x._2}")
+  x.zipWithIndex.map(x => s"${x._1} -> ${x._2}")
+  x.flatMap(result => for {
+      _ <- a
+      _ <- b
+    } yield ()
+  )
+}
+>>>
+object a {
+  x.map(x => s"${x._1} -> ${x._2}")
+  x.zipWithIndex.map(x =>
+    s"${x._1} -> ${x._2}")
+  x.flatMap(result =>
+    for {
+      _ <- a
+      _ <- b
+    } yield ())
+}

@@ -2224,6 +2224,9 @@ This parameter controls whether a newline is forced between the opening curly
 brace and the parameters of a lambda or partial function. Added in 2.7.0,
 replacing boolean `alwaysBeforeCurlyBraceLambdaParams` (removed in 3.4.0).
 
+In 3.4.10, `beforeParenLambdaParams` was added to allow overriding this parameter
+specifically for lambdas in parentheses.
+
 ```scala mdoc:defaults
 newlines.beforeCurlyLambdaParams
 ```
