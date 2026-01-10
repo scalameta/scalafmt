@@ -249,20 +249,15 @@ object PolicyOps {
   )(implicit fileLine: FileLine): Policy =
     DecideNewlinesOnlyAfterToken(token, None, rank = rank, ifAny = ifAny)
 
-  def unindentAtExclude(exclude: TokenRanges, indent: Length): Policy = exclude
+  def unindentAtExclude(exclude: TokenRanges, indent: Int): Policy = exclude
     .ranges.foldLeft(Policy.noPolicy) { case (policy, range) =>
       val (lt, rt) = (range.lt, range.rt)
-      val trigger = rt.left
-      val unindent = Indent(indent, rt, ExpiresOn.After)
-      val triggeredIndent = Indent.before(unindent, trigger)
-      val triggerUnindent = Policy
-        .onlyFor(lt, prefix = "UNIND{")(_.map(_.withIndent(triggeredIndent)))
-      val cancelUnindent = delayedBreakPolicy(Policy.End <= lt)(
-        Policy.onlyFor(lt, rank = 1, prefix = "UNIND}")( // use rank to apply after policy above
-          _.map(_.switch(trigger, false)),
-        ),
-      )
-      policy ==> triggerUnindent & cancelUnindent
+      val unindent = Indent(-indent, rt, ExpiresOn.After)
+      val indentPolicy = Policy
+        .onlyFor(lt, prefix = s"UNIND[$unindent]")(_.map(_.withIndent(unindent)))
+      Policy.RelayOnSplit.by(Policy.End <= lt)((s, _) => s.isNL)(
+        indentPolicy ==> (Policy.End >= rt ==> policy),
+      )(Policy.NoPolicy)
     }
 
 }

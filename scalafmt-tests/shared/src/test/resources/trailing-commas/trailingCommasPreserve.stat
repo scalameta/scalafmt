@@ -501,8 +501,8 @@ object a {
 object a {
   foo.mtd(bar(
       x => {
-      x + 1
-    },
+        x + 1
+      },
     ))
   foo.mtd(
     bar(x => {
@@ -531,8 +531,8 @@ object a {
 object a {
   foo.mtd(bar(
       x => {
-      x + 1
-    },
+        x + 1
+      },
     ))
   foo.mtd(
     bar(x => {
