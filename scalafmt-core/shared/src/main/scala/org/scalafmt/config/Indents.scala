@@ -65,8 +65,8 @@ case class Indents(
   }).getOrElse(defnSite)
 
   def getAfterInfixSite: Int = afterInfixSite.getOrElse(main)
-  def getBinPackCallSites: (Int, Int) =
-    (callSite, binPackCallSite.getOrElse(callSite))
+  def getBinPackCallSite: Int = binPackCallSite.getOrElse(callSite)
+  def getBinPackCallSites: (Int, Int) = (callSite, getBinPackCallSite)
   def getBinPackDefnSites(tree: meta.Tree): (Int, Int) = {
     val len = getDefnSite(tree)
     (len, binPackDefnSite.getOrElse(len))
