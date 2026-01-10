@@ -165,8 +165,6 @@ case class Newlines(
     private[config] val beforeOpenParenDefnSite: Option[BeforeOpenParen] = None,
     private[config] val beforeOpenParenCallSite: Option[BeforeOpenParen] = None,
     penalizeSingleSelectMultiArgList: Boolean = true,
-    beforeCurlyLambdaParams: BeforeCurlyLambdaParams =
-      BeforeCurlyLambdaParams.never,
     private val topLevelStatementBlankLines: Seq[TopStatBlanks] = Seq.empty,
     @DeprecatedName(
       "topLevelStatementsMinBreaks",
@@ -183,6 +181,9 @@ case class Newlines(
     beforeTemplateBodyIfBreakInParentCtors: Boolean = false,
     topLevelBodyIfMinStatements: Seq[BeforeAfter] = Seq.empty,
     topLevelBodyMinStatements: Int = 2,
+    private val beforeParenLambdaParams: Option[BeforeCurlyLambdaParams] = None,
+    beforeCurlyLambdaParams: BeforeCurlyLambdaParams =
+      BeforeCurlyLambdaParams.never,
     @ExtraName("afterCurlyLambda")
     afterCurlyLambdaParams: AfterCurlyLambdaParams =
       AfterCurlyLambdaParams.never,
