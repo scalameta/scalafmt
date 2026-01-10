@@ -5550,13 +5550,12 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
-      a
-    catch
-      bar
-    finally
-      a
+  def foo = try
+    a
+  catch
+    bar
+  finally
+    a
 }
 <<< TryWithHandler: newline after catch, short
 maxColumn = 12
@@ -5590,13 +5589,12 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
-      a
-    catch /* c1 */
-      bar
-    finally
-      a
+  def foo = try
+    a
+  catch /* c1 */
+    bar
+  finally
+    a
 }
 <<< TryWithHandler: newline after catch, break comment
 object a {
@@ -5610,14 +5608,13 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
-      a
-    catch
-      /* c2 */
-      bar
-    finally
-      a
+  def foo = try
+    a
+  catch
+    /* c2 */
+    bar
+  finally
+    a
 }
 <<< TryWithHandler: newline after catch, comments
 object a {
@@ -5631,14 +5628,13 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
-      a
-    catch /* c1 */
-      /* c2 */
-      bar
-    finally
-      a
+  def foo = try
+    a
+  catch /* c1 */
+    /* c2 */
+    bar
+  finally
+    a
 }
 <<< TryWithHandler: newline after catch, comments
 object a {
@@ -5650,12 +5646,11 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
-      a
-    catch /* c1 */ bar
-    finally
-      a
+  def foo = try
+    a
+  catch /* c1 */ bar
+  finally
+    a
 }
 <<< #2019 infix
 newlines.infix.termSite.maxCountPerFileForKeep = 0
@@ -13359,12 +13354,11 @@ val foo = try {
   case baz => qux
 }
 >>>
-val foo =
-  try {
-    bar
-  } catch {
-    case baz => qux
-  }
+val foo = try {
+  bar
+} catch {
+  case baz => qux
+}
 <<< tucked for-yield
 val foo = for {
   bar <- baz

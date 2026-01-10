@@ -13511,12 +13511,11 @@ val foo = try {
   case baz => qux
 }
 >>>
-val foo =
-  try {
-    bar
-  } catch {
-    case baz => qux
-  }
+val foo = try {
+  bar
+} catch {
+  case baz => qux
+}
 <<< tucked for-yield
 val foo = for {
   bar <- baz

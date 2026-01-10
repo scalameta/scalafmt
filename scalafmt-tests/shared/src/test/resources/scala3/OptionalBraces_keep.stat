@@ -1361,22 +1361,21 @@ enum IndentWidth {
 }
 >>>
 enum IndentWidth:
-   def foo =
-     try foo
-     catch
-        case a =>
-          that match
-             case b => bb
-             case c => cc
-          end match
-        case b =>
-          that match
-             case c => cc
-             case _ => dd
+   def foo = try foo
+   catch
+      case a =>
+        that match
+           case b => bb
+           case c => cc
+        end match
+      case b =>
+        that match
+           case c => cc
+           case _ => dd
 
-     finally
-        foo
-        bar
+   finally
+      foo
+      bar
 <<< rewrite with catch, format-off
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
@@ -1453,23 +1452,22 @@ enum IndentWidth {
 }
 >>>
 enum IndentWidth:
-   def foo =
-     try foo
-     catch
-        case a =>
-          that match
-             // scalafmt: { indent { significant = 1 } }
-             case b => bb
-             case c => cc
-          end match
-        case b =>
-          that match
+   def foo = try foo
+   catch
+      case a =>
+        that match
+           // scalafmt: { indent { significant = 1 } }
+           case b => bb
            case c => cc
-           case _ => dd
+        end match
+      case b =>
+        that match
+         case c => cc
+         case _ => dd
 
-     finally
-      foo
-      bar
+   finally
+    foo
+    bar
 <<< rewrite with try/finally
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
@@ -1484,12 +1482,11 @@ object a {
 }
 >>>
 object a:
-   def foo =
-     try foo
-     catch
-        case a => baz
-     finally
-        bar
+   def foo = try foo
+   catch
+      case a => baz
+   finally
+      bar
 <<< rewrite with end markers: this; with equals, only init
 rewrite.scala3.removeOptionalBraces = oldSyntaxToo
 ===
@@ -3164,13 +3161,12 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
-      a
-    catch
-      bar
-    finally
-      a
+  def foo = try
+    a
+  catch
+    bar
+  finally
+    a
 }
 <<< TryWithHandler: newline after catch, short
 maxColumn = 12
@@ -3204,13 +3200,12 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
-      a
-    catch /* c1 */
-      bar
-    finally
-      a
+  def foo = try
+    a
+  catch /* c1 */
+    bar
+  finally
+    a
 }
 <<< TryWithHandler: newline after catch, break comment
 object a {
@@ -3224,14 +3219,13 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
-      a
-    catch
-      /* c2 */
-      bar
-    finally
-      a
+  def foo = try
+    a
+  catch
+    /* c2 */
+    bar
+  finally
+    a
 }
 <<< TryWithHandler: newline after catch, comments
 object a {
@@ -3245,14 +3239,13 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
-      a
-    catch /* c1 */
-      /* c2 */
-      bar
-    finally
-      a
+  def foo = try
+    a
+  catch /* c1 */
+    /* c2 */
+    bar
+  finally
+    a
 }
 <<< TryWithHandler: newline after catch, comments
 object a {
@@ -3264,12 +3257,11 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
-      a
-    catch /* c1 */ bar
-    finally
-      a
+  def foo = try
+    a
+  catch /* c1 */ bar
+  finally
+    a
 }
 <<< #2019 infix
 newlines.infix.termSite.maxCountPerFileForKeep = 0
@@ -6771,10 +6763,9 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try
-       bar
-    catch case baz => qux
+  def foo = try
+     bar
+  catch case baz => qux
 
   /** c1 */
   def quux = ???

@@ -664,8 +664,7 @@ object SplitsAfterEquals extends Splits {
       case _ if hasBreak && leftOwner.is[Defn] => Split.ignored
       case _: Term.If => twoBranches
       case _: Term.ForYield => twoBranches
-      // we force newlines in try/catch/finally
-      case _: Term.TryClause => Split.ignored
+      case _: Term.TryClause => twoBranches
       case _
           if !cfg.newlines.ignoreInSyntax &&
             tokens.getNonMultilineEnd(ft).isEmpty => Split.ignored
