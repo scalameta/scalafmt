@@ -1545,3 +1545,24 @@ Seq(
     List(
         genStaticConstructorWithStats(
             jswkn.StaticInitializerName, js.Block(staticInitializerStats))))
+<<< binpack with single-arg lambda
+maxColumn = 70
+binPack.preset = onelineSjs
+indent {
+  callSite = 4
+  binPackCallSite = 2
+}
+===
+object a {
+   genCallDefaultGetter(tree.ctor.sym, i, tree.ctor.sym.pos, static = false,
+       captures = captureParamsInfosAndArgs.map(_._1._1))(
+       prevArgsCount => normalParamsInfosAndArgs.take(prevArgsCount).map(_._1._1))
+}
+>>>
+object a {
+  genCallDefaultGetter(tree.ctor.sym, i, tree.ctor.sym.pos,
+    static = false,
+    captures = captureParamsInfosAndArgs.map(_._1._1))(
+      prevArgsCount =>
+        normalParamsInfosAndArgs.take(prevArgsCount).map(_._1._1))
+}
