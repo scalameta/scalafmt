@@ -1566,3 +1566,55 @@ object a {
     prevArgsCount =>
       normalParamsInfosAndArgs.take(prevArgsCount).map(_._1._1))
 }
+<<< onelineSjs unindent with multiple block args
+maxColumn = 70
+binPack.preset = onelineSjs
+===
+foo(bar, {
+  baz
+}, {
+  qux
+})(quux)
+>>>
+foo(bar, {
+      baz
+    }, {
+      qux
+    })(quux)
+<<< onelineSjs unindent with multiple block args, nested
+maxColumn = 70
+binPack.preset = onelineSjs
+===
+xyz(foo(bar, {
+  baz
+}, {
+  qux
+})(quux))
+>>>
+xyz(foo(bar, {
+      baz
+    }, {
+      qux
+    })(quux))
+<<< onelineSjs unindent with single block arg
+maxColumn = 70
+binPack.preset = onelineSjs
+===
+foo(bar, {
+  baz
+})(quux)
+>>>
+foo(bar, {
+  baz
+})(quux)
+<<< onelineSjs unindent with single block arg, nested
+maxColumn = 70
+binPack.preset = onelineSjs
+===
+xyz(foo(bar, {
+  baz
+})(quux))
+>>>
+xyz(foo(bar, {
+  baz
+})(quux))
