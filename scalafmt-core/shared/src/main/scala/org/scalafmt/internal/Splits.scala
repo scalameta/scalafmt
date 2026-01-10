@@ -1573,7 +1573,7 @@ object SplitsAfterLeftParenOrBracket {
         val noSplitPolicy = slbPolicy ==> onelinePolicy & penalizeNewlinesPolicy
         val indentPolicy = Policy ? noSplitIndents.isEmpty || {
           def unindentPolicy = Policy ? (isSingleArg || sjsOneline) &&
-            unindentAtExclude(exclude, -bpIndentLen)
+            unindentAtExclude(exclude, bpIndentLen)
           def indentOncePolicy = Policy ? cfg.binPack.indentCallSiteOnce && {
             val trigger = getIndentTrigger(leftOwner)
             Policy.onLeft(close, prefix = "IND1") {

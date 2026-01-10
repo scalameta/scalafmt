@@ -1276,8 +1276,8 @@ object a {
 >>>
 object a {
   If(foo1, {
-      foo2
-    },
+    foo2
+  },
     If(foo3,
       Block(
         foo4
@@ -1577,10 +1577,10 @@ foo(bar, {
 })(quux)
 >>>
 foo(bar, {
-      baz
-    }, {
-      qux
-    })(quux)
+  baz
+}, {
+  qux
+})(quux)
 <<< onelineSjs unindent with multiple block args, nested
 maxColumn = 70
 binPack.preset = onelineSjs
@@ -1592,10 +1592,10 @@ xyz(foo(bar, {
 })(quux))
 >>>
 xyz(foo(bar, {
-      baz
-    }, {
-      qux
-    })(quux))
+  baz
+}, {
+  qux
+})(quux))
 <<< onelineSjs unindent with single block arg
 maxColumn = 70
 binPack.preset = onelineSjs
