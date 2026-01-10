@@ -2119,9 +2119,11 @@ object SplitsAfterLeftParen extends Splits {
       val beforeClose = prev(close)
       val dangle = cfg.danglingParentheses.callSite
       val newlinePolicy = Policy ? dangle && decideNewlinesOnlyBeforeClose(close)
+      val beforeParenLambdaParams = cfg.newlines.getBeforeParenLambdaParams
       val noSplitMod =
         if (
-          cfg.newlines.alwaysBeforeCurlyLambdaParams ||
+          (beforeParenLambdaParams eq
+            Newlines.BeforeCurlyLambdaParams.always) ||
           getMustDangleForTrailingCommas(beforeClose)
         ) null
         else getNoSplitAfterOpening(ft, commentNL = null)
@@ -2164,7 +2166,7 @@ object SplitsAfterLeftParen extends Splits {
       )
       else {
         val newlinePenalty = 3 + nestedApplies(leftOwner)
-        val noMultiline = cfg.newlines.beforeCurlyLambdaParams eq
+        val noMultiline = beforeParenLambdaParams eq
           Newlines.BeforeCurlyLambdaParams.multiline
         Seq(
           if (noMultiline) Split(noSplitMod, 0).withSingleLine(close)
