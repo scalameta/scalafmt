@@ -13847,3 +13847,43 @@ object a {
       thatFile.canonicalPath
   )
 }
+<<< tucked try-catch
+val foo = try {
+  bar
+} catch {
+  case baz => qux
+}
+>>>
+val foo =
+  try {
+    bar
+  } catch {
+    case baz =>
+      qux
+  }
+<<< tucked for-yield
+val foo = for {
+  bar <- baz
+} yield {
+  qux
+}
+>>>
+val foo =
+  for {
+    bar <- baz
+  } yield {
+    qux
+  }
+<<< tucked if-else
+val foo = if (bar) {
+  baz
+} else {
+  qux
+}
+>>>
+val foo =
+  if (bar) {
+    baz
+  } else {
+    qux
+  }
