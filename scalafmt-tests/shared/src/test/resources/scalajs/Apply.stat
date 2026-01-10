@@ -1563,6 +1563,6 @@ object a {
   genCallDefaultGetter(tree.ctor.sym, i, tree.ctor.sym.pos,
     static = false,
     captures = captureParamsInfosAndArgs.map(_._1._1))(
-      prevArgsCount =>
-        normalParamsInfosAndArgs.take(prevArgsCount).map(_._1._1))
+    prevArgsCount =>
+      normalParamsInfosAndArgs.take(prevArgsCount).map(_._1._1))
 }

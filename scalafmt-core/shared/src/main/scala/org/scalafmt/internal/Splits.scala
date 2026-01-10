@@ -2118,8 +2118,8 @@ object SplitsAfterLeftParen extends Splits {
     }).map { lambda =>
       val close = matchingLeft(ft)
       val beforeClose = prev(close)
-      val newlinePolicy = Policy ? cfg.danglingParentheses.callSite &&
-        decideNewlinesOnlyBeforeClose(close)
+      val dangle = cfg.danglingParentheses.callSite
+      val newlinePolicy = Policy ? dangle && decideNewlinesOnlyBeforeClose(close)
       val noSplitMod =
         if (
           cfg.newlines.alwaysBeforeCurlyLambdaParams ||
@@ -2154,9 +2154,14 @@ object SplitsAfterLeftParen extends Splits {
           .withOptimalToken(lambdaToken, killOnFail = true)
       }
 
+      val indentLen =
+        if (dangle || cfg.binPack.callSite == BinPack.Site.Never)
+          cfg.indent.callSite
+        else cfg.indent.getBinPackCallSite
+
       if (noSplitMod == null) Seq(
         Split(Newline, 0, policy = newlinePolicy)
-          .withIndent(cfg.indent.callSite, close, Before),
+          .withIndent(indentLen, close, Before),
       )
       else {
         val newlinePenalty = 3 + nestedApplies(leftOwner)
@@ -2166,7 +2171,7 @@ object SplitsAfterLeftParen extends Splits {
           if (noMultiline) Split(noSplitMod, 0).withSingleLine(close)
           else multilineSpaceSplit,
           Split(Newline, newlinePenalty, policy = newlinePolicy)
-            .withIndent(cfg.indent.callSite, close, Before),
+            .withIndent(indentLen, close, Before),
         )
       }
     }
