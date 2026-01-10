@@ -190,7 +190,8 @@ object OptionalBraces {
           def splits = Some {
             args match {
               case (tf: Member.Function) :: Nil
-                  if !style.newlines.alwaysBeforeCurlyLambdaParams &&
+                  if (style.newlines.beforeCurlyLambdaParams ne
+                    Newlines.BeforeCurlyLambdaParams.always) &&
                     // https://dotty.epfl.ch/docs/internals/syntax.html
                     (tf.paramClause match { // LambdaStart
                       case tpc @ Term.ParamClause(tp :: Nil, mod) =>

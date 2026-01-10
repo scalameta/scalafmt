@@ -272,9 +272,8 @@ case class Newlines(
   lazy val avoidForSimpleOverflowSLC: Boolean = avoidForSimpleOverflow
     .contains(AvoidForSimpleOverflow.slc)
 
-  @inline
-  def alwaysBeforeCurlyLambdaParams = beforeCurlyLambdaParams eq
-    BeforeCurlyLambdaParams.always
+  def getBeforeParenLambdaParams = beforeParenLambdaParams
+    .getOrElse(beforeCurlyLambdaParams)
 
   lazy val getBeforeMultiline = beforeMultiline.getOrElse(source)
   lazy val shouldForceBeforeMultilineAssign = forceBeforeMultilineAssign
