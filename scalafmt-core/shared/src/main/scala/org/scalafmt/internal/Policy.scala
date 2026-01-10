@@ -64,6 +64,7 @@ abstract class Policy {
   @inline
   final def nonEmpty: Boolean = this ne NoPolicy
 
+  def toStringNested: String = s"($this)"
 }
 
 object Policy {
@@ -75,6 +76,7 @@ object Policy {
 
   object NoPolicy extends Policy {
     override def toString: String = "NoPolicy"
+    override def toStringNested: String = toString
     override def f: Pf = PartialFunction.empty
     override def |(other: Policy): Policy = other
     override def &(other: Policy): Policy = other
@@ -178,6 +180,7 @@ object Policy {
       }
       s"$prefixWithColon[$fl]${noDeqPrefix}d$suffixWithColon"
     }
+    override def toStringNested: String = toString
 
     override protected def asAfter(pos: End.WithPos): Policy = this
     override protected def asUntil(pos: End.WithPos): Policy = this
@@ -246,7 +249,8 @@ object Policy {
     .orElse(p2.appliesOn(nextft)(pred))
 
   private class OrElse(p1: Policy, p2: Policy) extends WithConv {
-    override def toString: String = s"($p1 | $p2)"
+    override def toString: String =
+      s"${p1.toStringNested} | ${p2.toStringNested}"
 
     override lazy val f: Pf = p1.f.orElse(p2.f)
     override def rank: Int = math.min(p1.rank, p2.rank)
@@ -271,7 +275,8 @@ object Policy {
   }
 
   private class AndThen(p1: Policy, p2: Policy) extends WithConv {
-    override def toString: String = s"($p1 & $p2)"
+    override def toString: String =
+      s"${p1.toStringNested} & ${p2.toStringNested}"
 
     override lazy val f: Pf = { case x =>
       p2.f.applyOrElse(
@@ -312,6 +317,7 @@ object Policy {
   private class Expire private (policy: Policy, endPolicy: End.WithPos)
       extends WithConv {
     override def toString: String = s"$policy <== $endPolicy"
+    override def toStringNested: String = toString
 
     override def f: Pf = policy.f
     override def rank: Int = policy.rank
@@ -359,6 +365,7 @@ object Policy {
   private class Delay private (val policy: Policy, val begPolicy: End.WithPos)
       extends Policy {
     override def toString: String = s"$begPolicy ==> $policy"
+    override def toStringNested: String = toString
 
     override def f: Pf = PartialFunction.empty
     override def rank: Int = 0
@@ -431,7 +438,8 @@ object Policy {
 
   private class Relay private (val before: Policy, val after: Policy)
       extends WithBeforeAndAfter {
-    override def toString: String = s"$before ==> $after"
+    override def toString: String =
+      s"${before.toStringNested} ==> ${after.toStringNested}"
     override protected def withBefore(before: Policy)(
         func: Policy => Policy,
     ): Policy = if (before.isEmpty) func(after) else new Relay(before, after)
@@ -447,7 +455,7 @@ object Policy {
       val after: Policy,
   )(implicit fl: FileLine)
       extends WithBeforeAndAfter {
-    override def toString: String = s"REL?:[$fl]($before ??? $after)"
+    override def toString: String = s"REL?:[$fl]($before ?$triggerEnd? $after)"
 
     override def unexpired(split: Split, nextft: FT): Policy =
       if (trigger(split, nextft)) after.unexpired(split, nextft)
