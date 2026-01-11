@@ -126,16 +126,24 @@ object TokenOps {
 
   def getIndentTrigger(tree: Tree): T = tree.tokens.head
 
+  def getEndOfBlock(ft: FT)(f: FT => Option[Boolean])(implicit
+      style: ScalafmtConfig,
+      ftoks: FormatTokens,
+  ): Option[(FT, Boolean)] = ft.left match {
+    case _: T.OpenDelim => f(ft)
+        .flatMap(ok => ftoks.matchingOptLeft(ft).map(_ -> ok))
+    case _ => OptionalBraces.get(ft)
+        .flatMap(_.rightBrace.map(x => ftoks.nextNonCommentSameLine(x) -> true))
+  }
+
   def getEndOfBlock(ft: FT, parens: => Boolean, brackets: => Boolean = false)(
       implicit
       style: ScalafmtConfig,
       ftoks: FormatTokens,
-  ): Option[FT] = ft.left match {
-    case _: T.LeftBrace => ftoks.matchingOptLeft(ft)
-    case _: T.LeftParen => if (parens) ftoks.matchingOptLeft(ft) else None
-    case _: T.LeftBracket => if (brackets) ftoks.matchingOptLeft(ft) else None
-    case _ => OptionalBraces.get(ft)
-        .flatMap(_.rightBrace.map(x => ftoks.nextNonCommentSameLine(x)))
+  ): Option[(FT, Boolean)] = getEndOfBlock(ft) {
+    case FT(_: T.LeftParen, _, _) => if (parens) Some(true) else None
+    case FT(_: T.LeftBracket, _, _) => if (brackets) Some(true) else None
+    case _ => Some(true)
   }
 
   def insideBlock[A](start: FT, end: FT)(implicit
@@ -146,7 +154,7 @@ object TokenOps {
   def insideBlock(start: FT, end: FT, matches: FT => Boolean)(implicit
       ftoks: FormatTokens,
   ): TokenRanges = insideBlock(x =>
-    if (matches(x)) ftoks.matchingOptLeft(x) else None,
+    if (matches(x)) ftoks.matchingOptLeft(x).map(_ -> true) else None,
   )(start, end)
 
   def insideBracesBlock(
@@ -155,25 +163,24 @@ object TokenOps {
       parens: Boolean = false,
       brackets: Boolean = false,
   )(implicit style: ScalafmtConfig, ftoks: FormatTokens): TokenRanges =
-    insideBlock(x => getEndOfBlock(x, parens = parens, brackets = brackets))(
-      start,
-      end,
-    )
+    insideBlock(
+      getEndOfBlock(_, parens = parens, brackets = brackets),
+    )(start, end)
 
   def insideBlock(
-      matches: FT => Option[FT],
+      matches: FT => Option[(FT, Boolean)],
   )(start: FT, end: FT)(implicit ftoks: FormatTokens): TokenRanges = {
     var result = TokenRanges.empty
 
     @tailrec
     def run(tok: FT): Unit = if (tok.idx < end.idx) {
-      val nextTokOpt = matches(tok).flatMap(closeFt =>
+      val nextTokOpt = matches(tok).flatMap { case (closeFt, keep) =>
         if (tok.left.start >= closeFt.left.end) None
         else {
-          result = result.append(TokenRange(tok, closeFt))
+          if (keep) result = result.append(TokenRange(tok, closeFt))
           Some(closeFt)
-        },
-      )
+        }
+      }
       val nextTok = nextTokOpt.getOrElse(ftoks.next(tok))
       if (nextTok ne tok) run(nextTok)
     }
