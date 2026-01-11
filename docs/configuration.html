@@ -6835,8 +6835,7 @@ fileOverride {
 <p>uses <code>align.preset=none</code> for all files except <code>.sbt</code> for which
 <code>align.preset=most</code> will apply. It will also use different parameters for test
 suites.</p>
-<p>File names will be matched against the patterns in the order in which they are
-specified in the configuration file, in case multiple patterns match a given file.</p>
+<p>In case multiple patterns match a given file, the longest pattern will be used.</p>
 <p>The parameter also allows the following shortcuts:</p>
 <ul>
 <li>(since v3.2.0) setting only the dialect:
