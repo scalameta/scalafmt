@@ -4146,3 +4146,30 @@ object a {
   finally
     FreeSid(!usersGroupSid)
 }
+<<< infix within redundant braces, extending `infix`
+indent.infix."+" = [{
+  exemptScope = aloneEnclosed
+}]
+rewrite {
+  rules = [RedundantBraces]
+  redundantBraces.preset = all
+}
+===
+object a {
+  try {
+    getSecurityDescriptor() &&
+    setupNewAclEntry() &&
+    assignNewSecurityInfo()
+  } finally {
+    FreeSid(!usersGroupSid)
+  }
+}
+>>>
+object a {
+  try
+    getSecurityDescriptor() &&
+      setupNewAclEntry() &&
+      assignNewSecurityInfo()
+  finally
+    FreeSid(!usersGroupSid)
+}
