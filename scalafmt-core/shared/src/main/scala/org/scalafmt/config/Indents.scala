@@ -53,7 +53,7 @@ case class Indents(
     withSiteRelativeToExtends: Int = 0,
     commaSiteRelativeToExtends: Int = 2,
     yieldKeyword: Boolean = true,
-    infix: IndentOperator = IndentOperator(),
+    infix: Seq[IndentOperator] = Seq(IndentOperator.default),
 ) {
   lazy val getSignificant = significant.getOrElse(main)
 
@@ -76,7 +76,13 @@ case class Indents(
 object Indents {
   implicit lazy val surface: generic.Surface[Indents] = generic.deriveSurface
   implicit lazy val codec: ConfCodecEx[Indents] = generic.deriveCodecEx(Indents())
-    .noTypos
+    .noTypos.withSectionRenames(
+      annotation.SectionRename.partial {
+        case x: Conf.Obj
+            if x.values.lengthCompare(1) != 1 || x.values.head._1 != "+" =>
+          Conf.Lst(x)
+      }("infix", "infix"),
+    )
 
   sealed abstract class RelativeToLhs
   object RelativeToLhs {

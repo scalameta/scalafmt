@@ -873,6 +873,7 @@ foo(bar((_, _) =>
 ### `indent.infix`
 
 > Prior to v3.8.4, this section was called `indentOperator`.
+> Since v3.10.4, it takes a list of alternative configurations.
 
 Normally, the first eligible break _inside_ a chain of infix operators is
 indented by 2.
@@ -881,7 +882,11 @@ This group of parameters allows overriding which infix operators, and in which
 context, are eligible to be exempted from this, with indentation _omitted_.
 
 If you wish to disable this functionality, set
-`indent.infix.excludeRegex = '^$'`.
+`indent.infix = []`.
+
+```scala mdoc:defaults
+indent.infix
+```
 
 #### `indent.infix.exemptScope`
 
@@ -916,7 +921,7 @@ to be exempted from the default indentation rule:
 - `notWithinAssign` (since v3.8.4): any infix not part of a larger assignment expression
 
 ```scala mdoc:scalafmt
-indent.infix.exemptScope = oldTopLevel
+indent.infix = [ { exemptScope = oldTopLevel } ]
 ---
 function(
   a &&
@@ -1022,10 +1027,6 @@ operator matches, it will not be indented.
 
 In v3.1.0, this parameter was renamed from `indentOperator.exclude`.
 
-```scala mdoc:defaults
-indent.infix.excludeRegex
-```
-
 #### `indent.infix.includeRegex`
 
 Defines a regular expression for included infix operators. If an eligible
@@ -1035,11 +1036,7 @@ operator matches and is not excluded explicitly by
 In v3.1.0, due to conflict with built-in HOCON keyword, this parameter was
 renamed from `indentOperator.include`.
 
-```scala mdoc:defaults
-indent.infix.includeRegex
-```
-
-#### `indent.infix.preset`
+#### `indent.infix` presets
 
 - `default`
   - use defaults for all fields
