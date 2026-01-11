@@ -1618,3 +1618,134 @@ xyz(foo(bar, {
 xyz(foo(bar, {
   baz
 })(quux))
+<<< onelineSjs unindent with multiple blocks, some nested within apply
+newlines.source = keep
+newlines.configStyle.callSite.prefer = true
+danglingParentheses.preset = false
+maxColumn = 80
+binPack {
+  preset = onelineSjs
+  indentCallSiteOnce = true
+  indentCallSiteSingleArg = false
+}
+===
+val initBlock = semantics.moduleInit match {
+  case CheckedBehavior.Fatal =>
+    js.If(moduleInstanceVar === js.Undefined(), {
+          js.Block(
+            moduleInstanceVar := js.Null(),
+            assignModule
+          )
+        }, js.If(moduleInstanceVar === js.Null(), {
+          val decodedName = className.nameString.stripSuffix("$")
+          genCallHelper(VarField.throwModuleInitError, js.StringLiteral(decodedName))
+        }, js.Skip()))
+}
+>>>
+val initBlock = semantics.moduleInit match {
+  case CheckedBehavior.Fatal =>
+    js.If(moduleInstanceVar === js.Undefined(), {
+      js.Block(
+          moduleInstanceVar := js.Null(),
+          assignModule
+      )
+    }, js.If(moduleInstanceVar === js.Null(), {
+  val decodedName = className.nameString.stripSuffix("$")
+  genCallHelper(VarField.throwModuleInitError, js.StringLiteral(decodedName))
+}, js.Skip()))
+}
+<<< onelineSjs unindent with multiple blocks, some nested within parens
+newlines.source = keep
+newlines.configStyle.callSite.prefer = true
+danglingParentheses.preset = false
+maxColumn = 80
+binPack {
+  preset = onelineSjs
+  indentCallSiteOnce = true
+  indentCallSiteSingleArg = false
+}
+===
+val initBlock = semantics.moduleInit match {
+  case CheckedBehavior.Fatal =>
+    js.If(moduleInstanceVar === js.Undefined(), {
+          js.Block(
+            moduleInstanceVar := js.Null(),
+            assignModule
+          )
+        }, (moduleInstanceVar === js.Null(), {
+          val decodedName = className.nameString.stripSuffix("$")
+          genCallHelper(VarField.throwModuleInitError, js.StringLiteral(decodedName))
+        }, js.Skip()))
+}
+>>>
+val initBlock = semantics.moduleInit match {
+  case CheckedBehavior.Fatal =>
+    js.If(moduleInstanceVar === js.Undefined(), {
+      js.Block(
+          moduleInstanceVar := js.Null(),
+          assignModule
+      )
+    }, (moduleInstanceVar === js.Null(), {
+      val decodedName = className.nameString.stripSuffix("$")
+      genCallHelper(
+          VarField.throwModuleInitError, js.StringLiteral(decodedName))
+    }, js.Skip()))
+}
+<<< onelineSjs unindent with multiple blocks, some nested within ctor
+newlines.source = keep
+newlines.configStyle.callSite.prefer = true
+danglingParentheses.preset = false
+maxColumn = 80
+binPack {
+  preset = onelineSjs
+  indentCallSiteOnce = true
+  indentCallSiteSingleArg = false
+}
+===
+val initBlock = semantics.moduleInit match {
+  case CheckedBehavior.Fatal =>
+    js.If(moduleInstanceVar === js.Undefined(), {
+          js.Block(
+            moduleInstanceVar := js.Null(),
+            assignModule
+          )
+        }, new Ctor(moduleInstanceVar === js.Null(), {
+          val decodedName = className.nameString.stripSuffix("$")
+          genCallHelper(VarField.throwModuleInitError, js.StringLiteral(decodedName))
+        }, js.Skip()))
+}
+>>>
+val initBlock = semantics.moduleInit match {
+  case CheckedBehavior.Fatal =>
+    js.If(moduleInstanceVar === js.Undefined(), {
+      js.Block(
+          moduleInstanceVar := js.Null(),
+          assignModule
+      )
+    }, new Ctor(moduleInstanceVar === js.Null(), {
+      val decodedName = className.nameString.stripSuffix("$")
+      genCallHelper(
+          VarField.throwModuleInitError, js.StringLiteral(decodedName))
+    }, js.Skip()))
+}
+<<< onelineSjs unindent with a block as a single-arg of a nested call
+newlines.source = keep
+newlines.configStyle.callSite.prefer = true
+danglingParentheses.preset = false
+maxColumn = 80
+binPack {
+  preset = onelineSjs
+  indentCallSiteOnce = true
+  indentCallSiteSingleArg = false
+}
+===
+JSConstructorDef(EMF.withNamespace(MemberNamespace.Constructor), Nil, None,
+    JSConstructorBody(Nil, JSSuperConstructorCall(Nil), List({
+          consoleLog(Apply(EAF, LoadModule(BModule), targetMethodName, Nil)(IntType))
+        })))(EOH, UNV)
+>>>
+JSConstructorDef(EMF.withNamespace(MemberNamespace.Constructor), Nil, None,
+    JSConstructorBody(Nil, JSSuperConstructorCall(Nil), List({
+      consoleLog(
+          Apply(EAF, LoadModule(BModule), targetMethodName, Nil)(IntType))
+    })))(EOH, UNV)
