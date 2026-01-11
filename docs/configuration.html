@@ -3055,6 +3055,8 @@ same values as <a href="#newlinessource"><code>newlines.source</code></a>.</p>
 <p>This parameter controls whether a newline is forced between the opening curly
 brace and the parameters of a lambda or partial function. Added in 2.7.0,
 replacing boolean <code>alwaysBeforeCurlyBraceLambdaParams</code> (removed in 3.4.0).</p>
+<p>In 3.4.10, <code>beforeParenLambdaParams</code> was added to allow overriding this parameter
+specifically for lambdas in parentheses.</p>
 <p>Default: <code>newlines.beforeCurlyLambdaParams = &quot;never&quot;</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// should keep one-line</span>
 x.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span> }
@@ -8492,6 +8494,7 @@ newlines.<span class="hljs-attr">beforeMultiline</span> = <span class="hljs-lite
 newlines.<span class="hljs-attr">beforeMultilineDef</span> = <span class="hljs-literal">null</span>
 newlines.<span class="hljs-attr">beforeOpenParenCallSite</span> = <span class="hljs-literal">null</span>
 newlines.<span class="hljs-attr">beforeOpenParenDefnSite</span> = <span class="hljs-literal">null</span>
+newlines.<span class="hljs-attr">beforeParenLambdaParams</span> = <span class="hljs-literal">null</span>
 newlines.<span class="hljs-attr">beforeTemplateBodyIfBreakInParentCtors</span> = <span class="hljs-literal">false</span>
 newlines.<span class="hljs-attr">beforeTypeBounds</span> = <span class="hljs-literal">null</span>
 newlines.configStyle.<span class="hljs-attr">beforeComma</span> = <span class="hljs-literal">false</span>
