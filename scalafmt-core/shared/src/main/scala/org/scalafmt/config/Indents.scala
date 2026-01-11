@@ -78,8 +78,7 @@ object Indents {
   implicit lazy val codec: ConfCodecEx[Indents] = generic.deriveCodecEx(Indents())
     .noTypos.withSectionRenames(
       annotation.SectionRename.partial {
-        case x: Conf.Obj
-            if x.values.lengthCompare(1) != 1 || x.values.head._1 != "+" =>
+        case x @ Conf.Obj(head :: rest) if rest.nonEmpty || head._1 != "+" =>
           Conf.Lst(x)
       }("infix", "infix"),
     )
