@@ -5198,8 +5198,7 @@ uses `align.preset=none` for all files except `.sbt` for which
 `align.preset=most` will apply. It will also use different parameters for test
 suites.
 
-File names will be matched against the patterns in the order in which they are
-specified in the configuration file, in case multiple patterns match a given file.
+In case multiple patterns match a given file, the longest pattern will be used.
 
 The parameter also allows the following shortcuts:
 

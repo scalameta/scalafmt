@@ -182,7 +182,8 @@ case class ScalafmtConfig(
 
   private lazy val expandedFileOverride = Try {
     val langPrefix = "lang:"
-    val param = fileOverride.values.filter(_._1.nonEmpty)
+    // longest pattern first
+    val param = fileOverride.values.filter(_._1.nonEmpty).sortBy(-_._1.length)
     val hasLayout = project.layout.isDefined
     val patStyles = param.map { case (pat, conf) =>
       val isLang = hasLayout && pat.startsWith(langPrefix)
@@ -445,7 +446,7 @@ object ScalafmtConfig {
             val section = Seq(Presets.presetKey, "style")
               .flatMap(y => x.field(y).map(y -> _))
             section.headOption.map { case (field, obj) =>
-              obj -> Conf.Obj((x.map - field).toList)
+              obj -> Conf.Obj(x.values.filter { case (k, _) => k != field })
             }
           case _ => None
         }
