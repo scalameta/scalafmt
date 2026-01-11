@@ -389,3 +389,125 @@ object a {
     baz, bar
   )
 }
+<<< onelineSjs literal arguments enabled
+newlines.source = keep
+indent {
+  callSite = 2
+  binPackCallSite = 4
+}
+danglingParentheses.preset = false
+binPack {
+  preset = onelineSjs
+  literalArgumentLists = true
+  literalsExclude = []
+  literalsIncludeSimpleExpr = true
+}
+===
+object a {
+  new foo(
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+  )
+  new foo(
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a)
+}
+>>>
+object a {
+  new foo(
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a
+  )
+  new foo(
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a)
+}
+<<< onelineSjs literal arguments disabled
+newlines.source = keep
+indent {
+  callSite = 2
+  binPackCallSite = 4
+}
+danglingParentheses.preset = false
+binPack {
+  preset = onelineSjs
+  literalArgumentLists = false
+  literalsExclude = []
+  literalsIncludeSimpleExpr = true
+}
+===
+object a {
+  new foo(
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+  )
+  new foo(
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a)
+}
+>>>
+object a {
+  new foo(
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a
+  )
+  new foo(
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a,
+      a)
+}
