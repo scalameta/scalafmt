@@ -65,7 +65,7 @@ case class IndentOperator(
 }
 
 object IndentOperator {
-  private val default = IndentOperator()
+  private[config] val default = IndentOperator()
   private val akka = IndentOperator(includeRegex = "^.*=$", excludeRegex = "^$")
 
   implicit lazy val surface: generic.Surface[IndentOperator] =

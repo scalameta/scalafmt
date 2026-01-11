@@ -278,8 +278,7 @@ class InfixSplits(
       case t: Pat => getFullPat(t)
       case t => t
     }
-    val cfg = style.indent.infix
-    def allowNoIndent = {
+    def allowNoIndent(cfg: IndentOperator) = {
       if (cfg.exemptScope.isEmpty) Seq(Exempt.oldTopLevel) else cfg.exemptScope
     }.forall {
       case Exempt.all => true
@@ -294,9 +293,9 @@ class InfixSplits(
           case p: Member.ArgClause => !p.parent.is[Member.Infix]
           case _ => true
         }
-    }
+    } && cfg.noindent(app.op.value)
     if (beforeLhs) assignBodyExpire.isEmpty
-    else app.is[Pat] || allowNoIndent && cfg.noindent(app.op.value)
+    else app.is[Pat] || style.indent.infix.exists(allowNoIndent)
   }
 
   private val (fullIndentLength, fullIndentExpire) = assignBodyExpire match {
