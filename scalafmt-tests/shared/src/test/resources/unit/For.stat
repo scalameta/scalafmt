@@ -400,3 +400,133 @@ for {
   b <- getB
 } yield
   (a, b)
+<<< insert braces in for-yield with braces, avoidAfterYield
+newlines.source = keep
+indent.ctrlSite = 2
+rewrite.insertBraces {
+  minBreaks = 2
+  allBlocks = true
+}
+newlines.avoidAfterYield = true
+===
+for {
+  foo <- bar
+  if baz
+  qux = quux
+} yield
+  xyzzy
+>>>
+for {
+  foo <- bar
+  if baz
+  qux = quux
+} yield xyzzy
+<<< insert braces in for-yield with parens, avoidAfterYield
+newlines.source = keep
+indent.ctrlSite = 2
+rewrite.insertBraces {
+  minBreaks = 2
+  allBlocks = true
+}
+newlines.avoidAfterYield = true
+===
+for (
+  foo <- bar
+  if baz;
+  qux = quux
+) yield
+  xyzzy
+>>>
+for (
+  foo <- bar
+  if baz;
+  qux = quux
+) yield xyzzy
+<<< insert braces in for-yield with braces, !avoidAfterYield
+newlines.source = keep
+indent.ctrlSite = 2
+rewrite.insertBraces {
+  minBreaks = 2
+  allBlocks = true
+}
+newlines.avoidAfterYield = false
+===
+for {
+  foo <- bar
+  if baz
+  qux = quux
+} yield
+  xyzzy
+>>>
+for {
+  foo <- bar
+  if baz
+  qux = quux
+} yield {
+  xyzzy
+}
+<<< insert braces in for-yield with parens, !avoidAfterYield
+newlines.source = keep
+indent.ctrlSite = 2
+rewrite.insertBraces {
+  minBreaks = 2
+  allBlocks = true
+}
+newlines.avoidAfterYield = false
+===
+for (
+  foo <- bar
+  if baz;
+  qux = quux
+) yield
+  xyzzy
+>>>
+for (
+  foo <- bar
+  if baz;
+  qux = quux
+) yield {
+  xyzzy
+}
+<<< insert braces in for-do with braces
+newlines.source = keep
+indent.ctrlSite = 2
+rewrite.insertBraces {
+  minBreaks = 2
+  allBlocks = true
+}
+===
+for {
+  foo <- bar
+  if baz
+  qux = quux
+} do
+  xyzzy
+>>>
+for {
+  foo <- bar
+  if baz
+  qux = quux
+} do
+  xyzzy
+<<< insert braces in for-do with parens
+newlines.source = keep
+indent.ctrlSite = 2
+rewrite.insertBraces {
+  minBreaks = 2
+  allBlocks = true
+}
+===
+for (
+  foo <- bar
+  if baz;
+  qux = quux
+) do
+  xyzzy
+>>>
+for (
+  foo <- bar
+  if baz;
+  qux = quux
+) do
+  xyzzy
