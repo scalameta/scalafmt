@@ -429,15 +429,15 @@ object a {
 >>>
 object a {
   new foo(
-      a,
-      a,
-      a,
-      a,
-      a,
-      a,
-      a,
-      a,
-      a
+    a,
+    a,
+    a,
+    a,
+    a,
+    a,
+    a,
+    a,
+    a
   )
   new foo(
       a,
@@ -490,15 +490,15 @@ object a {
 >>>
 object a {
   new foo(
-      a,
-      a,
-      a,
-      a,
-      a,
-      a,
-      a,
-      a,
-      a
+    a,
+    a,
+    a,
+    a,
+    a,
+    a,
+    a,
+    a,
+    a
   )
   new foo(
       a,
