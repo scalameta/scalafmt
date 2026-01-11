@@ -1603,19 +1603,15 @@ object SplitsAfterLeftParenOrBracket {
           .withIndents(noSplitIndents)
       }
 
-    val nlClosedOnOpenEffective = {
-      val nlClosedOnOpenOk = onelineCurryToken.forall(x =>
-        if (x.right.is[T.Dot]) onelinePolicy.nonEmpty else flags.scalaJsStyle,
-      )
-      val res =
-        if (nlClosedOnOpenOk) nlCloseOnOpen
-        else if (preferConfigStyle) NlClosedOnOpen.Cfg
-        else NlClosedOnOpen.Yes
-      res match {
-        case NlClosedOnOpen.Cfg if styleMap.forcedBinPack(leftOwner) =>
-          NlClosedOnOpen.Yes
-        case x => x
-      }
+    def avoidNlClosedOnOpenNo = onelineCurryToken.exists(x =>
+      if (x.right.is[T.Dot]) onelinePolicy.isEmpty else !flags.scalaJsStyle,
+    )
+    val nlClosedOnOpenEffective = nlCloseOnOpen match {
+      case NlClosedOnOpen.No if avoidNlClosedOnOpenNo =>
+        val forceCfg = flags.scalaJsStyle ||
+          preferConfigStyle && !flags.literalArgList
+        if (forceCfg) NlClosedOnOpen.Cfg else NlClosedOnOpen.Yes
+      case x => x
     }
 
     val nlPolicy: Policy = {
