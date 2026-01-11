@@ -1650,9 +1650,10 @@ val initBlock = semantics.moduleInit match {
           assignModule
       )
     }, js.If(moduleInstanceVar === js.Null(), {
-  val decodedName = className.nameString.stripSuffix("$")
-  genCallHelper(VarField.throwModuleInitError, js.StringLiteral(decodedName))
-}, js.Skip()))
+      val decodedName = className.nameString.stripSuffix("$")
+      genCallHelper(
+          VarField.throwModuleInitError, js.StringLiteral(decodedName))
+    }, js.Skip()))
 }
 <<< onelineSjs unindent with multiple blocks, some nested within parens
 newlines.source = keep

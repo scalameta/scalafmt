@@ -1543,11 +1543,13 @@ object SplitsAfterLeftParenOrBracket {
           else if (cfg.binPack.indentCallSiteOnce) {
             @tailrec
             def iter(tree: Tree): Option[T] = tree.parent match {
-              case Some(p: Term.Select) => iter(p)
-              case Some(p) if isArgClauseSite(p) => Some(getIndentTrigger(p))
+              case Some(p) =>
+                if (isArgClauseSite(p)) Some(getIndentTrigger(p))
+                else if (p.isAny[Tree.Block, Tree.WithBody]) None
+                else iter(p)
               case _ => None
             }
-            val trigger = leftOwner.parent.flatMap(iter)
+            val trigger = iter(leftOwner)
             Seq(trigger.fold(indent)(x => Indent.before(indent, x)))
           } else if (alignOpenDelim) getOpenParenAlignIndents(close)
           else Seq(indent)
@@ -1571,8 +1573,17 @@ object SplitsAfterLeftParenOrBracket {
           .map(SingleLineBlock(_, noSyntaxNL = true, exclude = sjsExclude))
         val noSplitPolicy = slbPolicy ==> onelinePolicy & penalizeNewlinesPolicy
         val indentPolicy = Policy ? noSplitIndents.isEmpty || {
+          def unindentBraces = insideBlock(getEndOfBlock(_) {
+            case FT(_: T.LeftBrace, _, _) => Some(true)
+            case FT(_: T.LeftParen, _, m) // don't unindent someone else's blocks
+                if isArgClauseSite(m.leftOwner) &&
+                  getArgs(m.leftOwner).lengthCompare(1) > 0 => Some(false)
+            case _ => None
+          })(ft, close)
           def unindentPolicy = Policy ? (isSingleArg || sjsOneline) &&
-            unindentAtExclude(exclude, bpIndentLen)
+            unindentAtExclude(bpIndentLen)(
+              if (isBracket) exclude else unindentBraces,
+            )
           def indentOncePolicy = Policy ? cfg.binPack.indentCallSiteOnce && {
             val trigger = getIndentTrigger(leftOwner)
             Policy.onLeft(close, prefix = "IND1") {
