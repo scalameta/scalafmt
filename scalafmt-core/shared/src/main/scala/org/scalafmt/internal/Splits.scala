@@ -3441,13 +3441,10 @@ object SplitsAfterYield extends Splits {
       case b =>
         val lastToken = getLast(b)
         val indent = Indent(cfg.indent.main, lastToken, ExpiresOn.After)
-        val avoidAfterYield = cfg.newlines.avoidAfterYield &&
-          (b match {
-            case _: Term.If => !nextNonComment(ft).right.is[T.KwIf]
-            case _: Term.ForClause => !nextNonComment(ft).right.is[T.KwFor]
-            case _: Term.TryClause => !nextNonComment(ft).right.is[T.KwTry]
-            case _ => true
-          })
+        val avoidAfterYield = cfg.newlines.avoidAfterYield && ! {
+          b.isAny[Term.If, Term.ForClause, Term.TryClause] && // unless in parens
+          !nextNonComment(ft).right.is[T.LeftParen]
+        }
         if (avoidAfterYield) {
           val noIndent = !isRightCommentWithBreak(ft)
           Seq(Split(Space, 0).withIndent(indent, noIndent))
