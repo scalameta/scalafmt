@@ -1126,7 +1126,9 @@ class FormatOps(
         val nextFt = nextNonCommentSameLineAfter(ft)
         val last = getLastNonTrivial(body)
         getClosingIfWithinParens(last)(nextFt).fold {
-          val spaceSplit = unfoldedSpaceNonEmptyNonComment(body, slbOnly, last)
+          val spaceSplit =
+            if (!style.newlines.sourceIgnored && ft.hasBreak) Split.ignored
+            else unfoldedSpaceNonEmptyNonComment(body, slbOnly, last)
           Seq(spaceSplit.withIndents(spaceIndents), nlSplitFunc(1).forThisLine)
         } { _ =>
           val policy = Policy.onlyFor(nextFt, "CTRLUF")(ss =>
