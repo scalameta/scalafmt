@@ -206,17 +206,22 @@ class FormatOps(
       getOneArgPerLineSplitsAfterComma(right, splits)
   }
 
-  def splitOneArgPerLineAfterCommaOnBreak(comma: FT): Policy =
+  def splitOneArgPerLineAfterCommaOnBreak(
+      comma: FT,
+  )(implicit fl: FileLine, ft: FT): Policy =
     splitOneArgPerLineAfterCommaOnBreak(TokenRanges.empty)(comma)
 
-  def splitOneArgPerLineAfterCommaOnBreak(exclude: TokenRanges)(
-      comma: FT,
-  ): Policy = Policy ? (comma.right.is[T.Comment] && comma.noBreak) ||
-    delayedBreakPolicy(Policy.End < comma, exclude)(
-      Policy.onlyFor(comma, prefix = "NL->A[,]")(
-        getOneArgPerLineSplitsAfterComma(comma.right, _),
-      ),
-    )
+  def splitOneArgPerLineAfterCommaOnBreak(
+      exclude: TokenRanges,
+  )(comma: FT)(implicit fl: FileLine, ft: FT): Policy = Policy ?
+    (comma.right.is[T.Comment] && comma.noBreak) || {
+      val policy = delayedBreakPolicy(Policy.End < comma, exclude)(
+        Policy.onlyFor(comma, prefix = "NL->A[,]")(
+          getOneArgPerLineSplitsAfterComma(comma.right, _),
+        ),
+      )
+      Policy.End >= nextNonComment(ft) ==> policy
+    }
 
   private def getOneArgPerLineSplitsAfterComma(r: T, s: Seq[Split]) =
     if (r.is[T.LeftBrace]) SplitTag.OneArgPerLine.activateOnly(s)
@@ -1554,13 +1559,15 @@ class FormatOps(
 
     def getPolicy(isCallSite: Boolean, exclude: TokenRanges)(
         afterArg: FT,
-    ): (Option[FT], Policy) = afterArg.right match {
-      case _: T.Comma // check for trailing comma, which needs no breaks
-          if !nextNonCommentAfter(afterArg).right.is[T.CloseDelim] =>
-        (None, splitOneArgPerLineAfterCommaOnBreak(exclude)(next(afterArg)))
-      case _: T.CloseDelim if isCallSite => policyOnRightDelim(afterArg, exclude)
-      case _ => (None, Policy.NoPolicy)
-    }
+    )(implicit fl: FileLine, ft: FT): (Option[FT], Policy) =
+      afterArg.right match {
+        case _: T.Comma // check for trailing comma, which needs no breaks
+            if !nextNonCommentAfter(afterArg).right.is[T.CloseDelim] =>
+          (None, splitOneArgPerLineAfterCommaOnBreak(exclude)(next(afterArg)))
+        case _: T.CloseDelim if isCallSite =>
+          policyOnRightDelim(afterArg, exclude)
+        case _ => (None, Policy.NoPolicy)
+      }
   }
 
   def indentedPackage(body: Pkg.Body): Boolean = getHeadOpt(body)
