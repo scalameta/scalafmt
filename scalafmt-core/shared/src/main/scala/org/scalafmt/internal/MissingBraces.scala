@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import org.scalafmt.config.RewriteSettings.InsertBraces
 import org.scalafmt.util.TreeOps
 
 import scala.meta.tokens.{Token => T}
@@ -7,16 +8,22 @@ import scala.meta.{Ctor, Defn, Term, Tree}
 
 object MissingBraces {
 
-  type Ranges = Seq[(Tree, Tree)]
-  type Result = Option[(Tree, Ranges)]
+  type AllRange = (Tree, Tree)
+  type AllRanges = Seq[AllRange]
+
+  case class Result(tree: Tree, all: AllRanges = Nil)
+  type ResultOpt = Option[Result]
 
   private trait Factory {
-    def getBlocks(ft: FT, nft: FT, all: Boolean)(implicit
+    def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
-    ): Result
+        ib: InsertBraces,
+    ): ResultOpt
   }
 
-  def getBlocks(ft: FT, all: Boolean)(implicit ftoks: FormatTokens): Result = {
+  def getBlocks(
+      ft: FT,
+  )(implicit ftoks: FormatTokens, ib: InsertBraces): ResultOpt = {
     val nft = ftoks.nextNonComment(ft)
     if (nft.right.is[T.LeftBrace]) None
     else {
@@ -33,70 +40,82 @@ object MissingBraces {
         case _: T.KwYield => YieldImpl
         case _ => null
       }
-      Option(impl).flatMap(_.getBlocks(ft, nft, all))
+      Option(impl).flatMap(_.getBlocks(ft, nft))
     }
   }
 
-  private def seq(all: Boolean, t: Tree): Ranges = if (all) Seq(t -> t) else Nil
+  private def rng(t: Tree): AllRange = t -> t
+  private def rng(t: Seq[Tree]): Option[AllRange] =
+    if (t.isEmpty) None else Some(t.head -> t.last)
 
-  private def seq(all: Boolean, t: Option[Tree]): Ranges = t.map(seq(all, _))
-    .getOrElse(Nil)
+  private def seq(ok: Boolean, t: Tree*): AllRanges =
+    if (ok) t.map(rng) else Nil
 
-  private def seq(all: Boolean, t: Seq[Tree]): Ranges =
-    if (all && t.nonEmpty) Seq(t.head -> t.last) else Nil
+  private def seqopt(ok: Boolean, t: Option[Tree]*): AllRanges =
+    if (ok) t.flatMap(_.map(rng)) else Nil
+
+  private def seqseq(ok: Boolean, t: => Seq[Tree]): AllRanges =
+    if (ok) rng(t).toSeq else Nil
 
   private object BlockImpl extends Factory {
-    def getBlocks(ft: FT, nft: FT, all: Boolean)(implicit
+    def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
-    ): Result = {
+        ib: InsertBraces,
+    ): ResultOpt = {
       def ok(stat: Tree): Boolean = ftoks.isJustBeforeTree(nft)(stat)
       val leftOwner = ft.meta.leftOwner
       TreeOps.findTreeWithParentSimple(nft.rightOwner)(_ eq leftOwner) match {
         case Some(t: Term.Block) =>
-          if (t.stats.headOption.exists(ok)) Some((t, Nil)) else None
-        case x => x.filter(ok).map((_, Nil))
+          if (t.stats.headOption.exists(ok)) Some(Result(t)) else None
+        case x => x.filter(ok).map(Result(_))
       }
     }
   }
 
   private object RightArrowImpl extends Factory {
-    def getBlocks(ft: FT, nft: FT, all: Boolean)(implicit
+    def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
-    ): Result = ft.meta.leftOwner match {
+        ib: InsertBraces,
+    ): ResultOpt = ft.meta.leftOwner match {
       case t: Term.FunctionLike =>
         val skip = t.parent.exists(TreeOps.isExprWithParentInBraces(t))
-        if (skip) None else Some((t.body, seq(all, t.paramClause.values)))
+        if (skip) None
+        else Some(Result(t.body, all = seqseq(ib.allBlocks, t.paramClause.values)))
       case _ => None
     }
   }
 
   private object RightParenImpl extends Factory {
-    def getBlocks(ft: FT, nft: FT, all: Boolean)(implicit
+    def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
-    ): Result = ft.meta.leftOwner match {
+        ib: InsertBraces,
+    ): ResultOpt = ft.meta.leftOwner match {
       case x: Term.If if !nft.right.is[T.KwThen] =>
-        val hasElse = all && !TreeOps.ifWithoutElse(x)
-        Some((x.thenp, seq(hasElse, x.elsep) ++ seq(all, x.cond)))
+        def elsep = if (TreeOps.ifWithoutElse(x)) None else Some(x.elsep)
+        Some(Result(x.thenp, all = seqopt(ib.allBlocks, elsep, Some(x.cond))))
       case t: Term.EnumeratorsBlock
           if !nft.right.is[T.KwDo] && ftoks.getLastOpt(t).contains(ft) =>
         t.parent match {
-          case Some(p: Term.For) => Some((p.body, seq(all, t)))
+          case Some(p: Term.For) =>
+            Some(Result(p.body, all = seq(ib.allBlocks, t)))
           case _ => None
         }
       case t: Term.While if !nft.right.is[T.KwDo] =>
-        Some((t.body, seq(all, t.cond)))
+        Some(Result(t.body, all = seq(ib.allBlocks, t.cond)))
       case _ => None
     }
   }
 
   private object RightBraceImpl extends Factory {
-    def getBlocks(ft: FT, nft: FT, all: Boolean)(implicit
+    def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
-    ): Result = ft.meta.leftOwner match {
+        ib: InsertBraces,
+    ): ResultOpt = ft.meta.leftOwner match {
       case t: Term.EnumeratorsBlock
           if !nft.right.is[T.KwDo] && ftoks.getLastOpt(t).contains(ft) =>
         t.parent match {
-          case Some(p: Term.For) => Some((p.body, seq(all, t)))
+          case Some(p: Term.For) =>
+            Some(Result(p.body, all = seq(ib.allBlocks, t)))
           case _ => None
         }
       case _ => None
@@ -104,70 +123,78 @@ object MissingBraces {
   }
 
   private object DoImpl extends Factory {
-    def getBlocks(ft: FT, nft: FT, all: Boolean)(implicit
+    def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
-    ): Result = ft.meta.leftOwner match {
-      case t: Term.Do => Some((t.body, seq(all, t.expr)))
+        ib: InsertBraces,
+    ): ResultOpt = ft.meta.leftOwner match {
+      case t: Term.Do => Some(Result(t.body, all = seq(ib.allBlocks, t.expr)))
       case _ => None
     }
   }
 
   private object EqualsImpl extends Factory {
-    def getBlocks(ft: FT, nft: FT, all: Boolean)(implicit
+    def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
-    ): Result = ft.meta.leftOwner match {
+        ib: InsertBraces,
+    ): ResultOpt = ft.meta.leftOwner match {
       case _: Defn.Type => None
-      case t: Ctor.Secondary => Some((t, seq(all, t.body)))
-      case t: Tree.WithBody => Some((t.body, Nil))
-      case _ => BlockImpl.getBlocks(ft, nft, all)
+      case t: Ctor.Secondary => Some(Result(t, all = seq(ib.allBlocks, t.body)))
+      case t: Tree.WithBody => Some(Result(t.body))
+      case _ => BlockImpl.getBlocks(ft, nft)
     }
   }
 
   private object TryImpl extends Factory {
-    def getBlocks(ft: FT, nft: FT, all: Boolean)(implicit
+    def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
-    ): Result = ft.meta.leftOwner match {
+        ib: InsertBraces,
+    ): ResultOpt = ft.meta.leftOwner match {
       case t: Term.TryClause =>
-        Some((t.expr, seq(all, t.catchClause) ++ seq(all, t.finallyp)))
+        Some(Result(t.expr, all = seqopt(ib.allBlocks, t.catchClause, t.finallyp)))
       case _ => None
     }
   }
 
   private object CatchImpl extends Factory {
-    def getBlocks(ft: FT, nft: FT, all: Boolean)(implicit
+    def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
-    ): Result = ft.meta.leftOwner match {
+        ib: InsertBraces,
+    ): ResultOpt = ft.meta.leftOwner match {
       case t: Term.TryClause => t.catchClause
-          .map(x => (x, seq(all, t.expr) ++ seq(all, t.finallyp)))
+          .map(Result(_, all = seqopt(ib.allBlocks, Some(t.expr), t.finallyp)))
       case _ => None
     }
   }
 
   private object FinallyImpl extends Factory {
-    def getBlocks(ft: FT, nft: FT, all: Boolean)(implicit
+    def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
-    ): Result = ft.meta.leftOwner match {
+        ib: InsertBraces,
+    ): ResultOpt = ft.meta.leftOwner match {
       case t: Term.TryClause => t.finallyp
-          .map(x => (x, seq(all, t.expr) ++ seq(all, t.catchClause)))
+          .map(Result(_, all = seqopt(ib.allBlocks, Some(t.expr), t.catchClause)))
       case _ => None
     }
   }
 
   private object ElseImpl extends Factory {
-    def getBlocks(ft: FT, nft: FT, all: Boolean)(implicit
+    def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
-    ): Result = ft.meta.leftOwner match {
+        ib: InsertBraces,
+    ): ResultOpt = ft.meta.leftOwner match {
       case x: Term.If if !x.elsep.is[Term.If] =>
-        Some((x.elsep, seq(all, x.thenp) ++ seq(all, x.cond)))
+        Some(Result(x.elsep, all = seq(ib.allBlocks, x.thenp, x.cond)))
       case _ => None
     }
   }
 
   private object YieldImpl extends Factory {
-    def getBlocks(ft: FT, nft: FT, all: Boolean)(implicit
+    def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
-    ): Result = ft.meta.leftOwner match {
-      case t: Term.ForYield => Some((t.body, seq(all, t.enumsBlock)))
+        ib: InsertBraces,
+    ): ResultOpt = ft.meta.leftOwner match {
+      case t: Term.ForYield =>
+        Some(Result(t.body, all = seq(ib.allBlocks, t.enumsBlock)))
       case _ => None
     }
   }
