@@ -1073,4 +1073,13 @@ object TreeOps {
     case _ => other
   }
 
+  /** js.native is very special in Scala.js.
+    *
+    * Context: https://github.com/scalameta/scalafmt/issues/108
+    */
+  def isJsNative(body: Tree): Boolean = body match {
+    case Term.Select(Term.Name("js"), Term.Name("native")) => true
+    case _ => false
+  }
+
 }

@@ -564,7 +564,8 @@ object SplitsAfterEquals extends Splits {
       Seq(Split(Space, 0).withIndents(spaceIndents))
     else if (isRightCommentWithBreak(ft))
       Seq(CtrlBodySplits.withIndent(Split(Space.orNL(ft), 0), body, endFt))
-    else if (isJsNative(body)) Seq(Split(Space, 0).withSingleLineNoOptimal(endFt))
+    else if (cfg.newlines.neverBeforeJsNative && isJsNative(body))
+      Seq(Split(Space, 0).withSingleLineNoOptimal(endFt))
     else if (
       cfg.dialect.allowSignificantIndentation &&
       (cfg.newlines.sourceIgnored || noBreak) && body.parent.exists {
