@@ -2046,6 +2046,7 @@ object a {
 }
 <<< #3912 insert braces in anno
 rewrite.insertBraces.minLines = 1
+rewrite.redundantBraces.maxBreaks = 0
 ===
 @ComponentScans(value =
     Array(

@@ -3516,7 +3516,7 @@ number of lines.
 
 The rule is enabled by configuring `rewrite.insertBraces`:
 
-- `minLines` (default: 0, or disabled): the minimum number of lines to trigger the rule
+- `minBreaks` (default: 0, or disabled): the minimum number of line breaks to trigger the rule
 - `allBlocks` (default: false): compute maximum span of all blocks under the parent
   expression rather than just the statement to be enclosed in curly braces
   - this could be used to have consistent application of curly braces in expressions

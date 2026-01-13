@@ -138,7 +138,7 @@ class FormatWriter(formatOps: FormatOps) {
         if (initStyle.rewrite.scala3.endMarker.insertMinSpan > 0)
           checkInsertEndMarkers(result)
       }
-      if (initStyle.rewrite.insertBraces.minLines > 0) checkInsertBraces(result)
+      if (initStyle.rewrite.insertBraces.minBreaks > 0) checkInsertBraces(result)
       if (initStyle.rewrite.bracesToParensForOneLineApply)
         replaceRedundantBraces(result)
     }
@@ -366,7 +366,7 @@ class FormatWriter(formatOps: FormatOps) {
       implicit val style = floc.style
       val ib = style.rewrite.insertBraces
       val ft = floc.formatToken
-      val ok = !ft.meta.formatOff && ib.minLines > 0 &&
+      val ok = !ft.meta.formatOff && ib.minBreaks > 0 &&
         (!style.rewrite.scala3.removeOptionalBraces.enabled &&
           style.indent.main == style.indent.getSignificant ||
           !OptionalBraces.at(ft)) && floc.missingBracesIndent.isEmpty
@@ -382,12 +382,12 @@ class FormatWriter(formatOps: FormatOps) {
         val eLoc = locations(end)
         val begIndent = floc.state.prev.indentation
         def checkSpan: Boolean =
-          getLineDiff(floc, eLoc) + addedLines >= ib.minLines ||
+          getLineDiff(floc, eLoc) + addedLines >= ib.minBreaks ||
             otherBlocks.exists { case (b, e) =>
               val bIdx = tokenJustBefore(b).meta.idx
               val eIdx = getLast(e).meta.idx
               val span = getLineDiff(locations(bIdx), locations(eIdx))
-              ib.minLines <=
+              ib.minBreaks <=
                 (if (bIdx <= idx && eIdx > idx) span + addedLines else span)
             }
         if (
