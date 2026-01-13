@@ -139,17 +139,6 @@ class FormatOps(
     else getSlbEndOnLeft(if (nft ne null) nft else next(start))
   }
 
-  /** js.native is very special in Scala.js.
-    *
-    * Context: https://github.com/scalameta/scalafmt/issues/108
-    */
-  def isJsNative(body: Tree): Boolean =
-    initStyle.newlines.neverBeforeJsNative &&
-      (body match {
-        case Term.Select(Term.Name("js"), Term.Name("native")) => true
-        case _ => false
-      })
-
   def parensTuple(ft: FT): TokenRanges = matchingOptLeft(ft)
     .fold(TokenRanges.empty)(other => TokenRanges(TokenRange(ft, other)))
   def parensTuple(tree: Tree): TokenRanges = parensTuple(getLast(tree))
