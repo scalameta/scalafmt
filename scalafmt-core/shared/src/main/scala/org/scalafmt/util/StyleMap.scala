@@ -113,7 +113,7 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
       })
   }
 
-  def opensLiteralArgumentList(
+  private def opensLiteralArgumentList(
       ft: FT,
   )(implicit style: ScalafmtConfig): Boolean = (ft.meta.leftOwner match {
     case Member.Tuple(v) => Some(v)
@@ -144,6 +144,8 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
     val idx = java.util.Arrays.binarySearch(starts, token.start)
     if (idx >= 0) styles(idx) else styles(-idx - 2)
   }
+
+  def isForcedBinPack(ft: FT): Boolean = forcedBinPack.contains(ft.leftOwner)
 
   private[util] def numEntries: Int = styles.length
 
