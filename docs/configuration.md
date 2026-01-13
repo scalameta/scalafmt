@@ -5759,7 +5759,8 @@ The rest of parameters retain their default behaviour.
 
 This group of parameters controls binpacking of an argument list if _all_ arguments are
 considered to be literals.
-These parameters take precedence over [forcing of config style](#forcing-config-style).
+These parameters take precedence over [forcing of config style](#forcing-config-style)
+or other parameters [controlling binpacking](#binpackxxxsite).
 
 The following parameters affect this behaviour:
 

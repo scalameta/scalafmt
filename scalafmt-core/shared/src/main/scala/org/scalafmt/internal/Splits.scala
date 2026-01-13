@@ -1608,8 +1608,7 @@ object SplitsAfterLeftParenOrBracket {
     )
     val nlClosedOnOpenEffective = nlCloseOnOpen match {
       case NlClosedOnOpen.No if avoidNlClosedOnOpenNo =>
-        val forceCfg = flags.scalaJsStyle ||
-          preferConfigStyle && !flags.literalArgList
+        val forceCfg = preferConfigStyle && !flags.literalArgList
         if (forceCfg) NlClosedOnOpen.Cfg else NlClosedOnOpen.Yes
       case x => x
     }

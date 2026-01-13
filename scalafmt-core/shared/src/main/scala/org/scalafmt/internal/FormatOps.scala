@@ -80,7 +80,8 @@ class FormatOps(
           val isDefnSite = isParamClauseSite(owner)
           implicit val clauseSiteFlags: ClauseSiteFlags =
             ClauseSiteFlags(owner, isDefnSite)
-          val bpFlags = getBinpackSiteFlags(matchingRight(start), start, false)
+          val bpFlags =
+            getBinpackSiteFlags(isDefnSite, matchingRight(start), start)
           if (bpFlags.scalaJsStyle)
             if (start.hasBreak) start else scalaJsOptCloseOnRight(start, bpFlags)
           else if (
@@ -1349,7 +1350,7 @@ class FormatOps(
       style: ScalafmtConfig,
       clauseSiteFlags: ClauseSiteFlags,
   ): BinpackSiteFlags = {
-    val literalArgList = styleMap.opensLiteralArgumentList(ftAfterOpen)
+    val literalArgList = styleMap.isForcedBinPack(ftAfterOpen)
     getBinpackSiteFlags(ftAfterOpen, ftBeforeClose, literalArgList)
   }
 
@@ -1415,8 +1416,7 @@ class FormatOps(
           shouldDangle || style.newlines.keepBreak(closeBreak)
         if (!nlClose) (nlOpenExcludingCfg, NlClosedOnOpen.No)
         else {
-          val cfg = !literalArgList && configStyleSource ||
-            scalaJsStyle && style.newlines.keepBreak(closeBreak)
+          val cfg = !literalArgList && configStyleSource
           val dangle = if (cfg) NlClosedOnOpen.Cfg else NlClosedOnOpen.Yes
           (nlBothIncludingCfg || nlOpenExcludingCfg, dangle)
         }
