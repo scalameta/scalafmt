@@ -364,32 +364,34 @@ class FormatWriter(formatOps: FormatOps) {
         case _ => true
       }
       implicit val style = floc.style
-      val ib = style.rewrite.insertBraces
+      implicit val ib = style.rewrite.insertBraces
       val ft = floc.formatToken
       val ok = !ft.meta.formatOff && ib.minBreaks > 0 &&
         (!style.rewrite.scala3.removeOptionalBraces.enabled &&
           style.indent.main == style.indent.getSignificant ||
           !OptionalBraces.at(ft)) && floc.missingBracesIndent.isEmpty
       val mb =
-        if (ok) MissingBraces.getBlocks(ft, ib.allBlocks)
-          .filter { case (y, _) =>
-            checkInfix(y) && hasBreakAfter(idx) && noAnnoFor(y)
-          }
+        if (ok) MissingBraces.getBlocks(ft).filter(res =>
+          checkInfix(res.tree) && hasBreakAfter(idx) && noAnnoFor(res.tree),
+        )
         else None
-      mb.foreach { case (owner, otherBlocks) =>
+      mb.foreach { case MissingBraces.Result(owner, otherBlocks) =>
         val endFt = nextNonCommentSameLine(getLast(owner))
         val end = endFt.meta.idx
         val eLoc = locations(end)
         val begIndent = floc.state.prev.indentation
+        def checkOtherSpan(
+            minSpan: Int,
+            ranges: MissingBraces.AllRanges,
+        ): Boolean = minSpan > 0 && ranges.exists { case (b, e) =>
+          val bIdx = tokenJustBefore(b).meta.idx
+          val eIdx = getLast(e).meta.idx
+          val span = getLineDiff(locations(bIdx), locations(eIdx))
+          minSpan <= (if (bIdx <= idx && eIdx > idx) span + addedLines else span)
+        }
         def checkSpan: Boolean =
           getLineDiff(floc, eLoc) + addedLines >= ib.minBreaks ||
-            otherBlocks.exists { case (b, e) =>
-              val bIdx = tokenJustBefore(b).meta.idx
-              val eIdx = getLast(e).meta.idx
-              val span = getLineDiff(locations(bIdx), locations(eIdx))
-              ib.minBreaks <=
-                (if (bIdx <= idx && eIdx > idx) span + addedLines else span)
-            }
+            checkOtherSpan(ib.minBreaks, otherBlocks)
         if (
           !endFt.meta.formatOff && eLoc.hasBreakAfter &&
           !eLoc.missingBracesIndent.contains(begIndent) && checkSpan
