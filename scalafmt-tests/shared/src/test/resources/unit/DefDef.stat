@@ -251,3 +251,81 @@ object a {
     ???
   }
 }
+<<< insert braces in def
+newlines.source = keep
+maxColumn = 80
+rewrite.insertBraces {
+  minBreaks = 1
+  allBlocks = true
+}
+===
+object a {
+  def foo0(bar0: Int, baz0: Int): Int =
+    qux0
+
+  def foo1(
+    bar1: Int
+  ): Int =
+    baz1
+
+  def foo2(
+    bar2: Int,
+    baz2: Int
+  ): Int =
+    qux2
+}
+>>>
+object a {
+  def foo0(bar0: Int, baz0: Int): Int =
+    qux0
+
+  def foo1(
+      bar1: Int
+  ): Int =
+    baz1
+
+  def foo2(
+      bar2: Int,
+      baz2: Int
+  ): Int =
+    qux2
+}
+<<< insert braces in ctor
+newlines.source = keep
+maxColumn = 80
+rewrite.insertBraces {
+  minBreaks = 1
+  allBlocks = true
+}
+===
+class a {
+  def this(bar0: Int, baz0: Int) =
+    this(bar0, baz0)
+
+  def this(
+    bar1: Int
+  ) =
+    this(bar1)
+
+  def this(
+    bar2: Int,
+    baz2: Int
+  ) =
+    this(bar2, baz2)
+}
+>>>
+class a {
+  def this(bar0: Int, baz0: Int) =
+    this(bar0, baz0)
+
+  def this(
+      bar1: Int
+  ) =
+    this(bar1)
+
+  def this(
+      bar2: Int,
+      baz2: Int
+  ) =
+    this(bar2, baz2)
+}

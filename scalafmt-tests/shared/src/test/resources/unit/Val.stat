@@ -93,3 +93,81 @@ val aaaaaaa, bbbbbbbb, cccccc(
 ), dddddddd(aaaaaa, bbbbbbb),
     eeeeeeeee =
   1
+<<< insert braces in val
+newlines.source = keep
+maxColumn = 80
+rewrite.insertBraces {
+  minBreaks = 1
+  allBlocks = true
+}
+===
+object a {
+  val (bar0, baz0): Int =
+    qux0
+
+  val (
+    bar1: Int
+  ) =
+    baz1
+
+  val (
+    bar2,
+    baz2
+  ): Int =
+    qux2
+}
+>>>
+object a {
+  val (bar0, baz0): Int =
+    qux0
+
+  val (
+      bar1: Int
+  ) =
+    baz1
+
+  val (
+      bar2,
+      baz2
+  ): Int =
+    qux2
+}
+<<< insert braces in var
+newlines.source = keep
+maxColumn = 80
+rewrite.insertBraces {
+  minBreaks = 1
+  allBlocks = true
+}
+===
+object a {
+  var (bar2, baz2): Int =
+    qux2
+
+  var (
+    bar1: Int
+  ) =
+    baz1
+
+  var (
+    bar2,
+    baz2
+  ): Int =
+    qux2
+}
+>>>
+object a {
+  var (bar2, baz2): Int =
+    qux2
+
+  var (
+      bar1: Int
+  ) =
+    baz1
+
+  var (
+      bar2,
+      baz2
+  ): Int =
+    qux2
+}
