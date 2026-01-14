@@ -281,14 +281,16 @@ object a {
 
   def foo1(
       bar1: Int
-  ): Int =
+  ): Int = {
     baz1
+  }
 
   def foo2(
       bar2: Int,
       baz2: Int
-  ): Int =
+  ): Int = {
     qux2
+  }
 }
 <<< insert braces in ctor
 newlines.source = keep
@@ -320,12 +322,14 @@ class a {
 
   def this(
       bar1: Int
-  ) =
+  ) = {
     this(bar1)
+  }
 
   def this(
       bar2: Int,
       baz2: Int
-  ) =
+  ) = {
     this(bar2, baz2)
+  }
 }

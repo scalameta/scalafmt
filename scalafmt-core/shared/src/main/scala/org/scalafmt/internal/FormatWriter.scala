@@ -374,7 +374,7 @@ class FormatWriter(formatOps: FormatOps) {
         if (ok) MissingBraces.getBlocks(ft)
           .filter(res => checkInfix(res.tree) && noAnnoFor(res.tree))
         else None
-      mb.foreach { case MissingBraces.Result(owner, otherBlocks) =>
+      mb.foreach { case MissingBraces.Result(owner, otherBlocks, nonBlocks) =>
         val endFt = nextNonCommentSameLine(getLast(owner))
         val end = endFt.meta.idx
         val eLoc = locations(end)
@@ -390,7 +390,8 @@ class FormatWriter(formatOps: FormatOps) {
         }
         def checkSpan: Boolean =
           getLineDiff(floc, eLoc) + addedLines > ib.minBreaks ||
-            checkOtherSpan(ib.minBreaks, otherBlocks)
+            checkOtherSpan(ib.minBreaks, otherBlocks) ||
+            checkOtherSpan(ib.getNonBlocksMinBreaks, nonBlocks)
         if (
           !endFt.meta.formatOff && eLoc.hasBreakAfter &&
           !eLoc.missingBracesIndent.contains(begIndent) && checkSpan
