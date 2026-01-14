@@ -214,6 +214,71 @@ if (cfoo) {
   tbaz
 else
   qux
+<<< insert braces in if-else, multiline cond first
+newlines.source = keep
+maxColumn = 80
+rewrite.insertBraces {
+  minBreaks = 1
+  nonBlocksMinBreaks = 1
+  allBlocks = true
+}
+===
+if (
+  cfoo1 &&
+  cfoo2
+)
+  tfoo
+else if (cbar)
+  tbar
+else if (cbaz)
+  tbaz
+else
+  qux
+>>>
+if (
+    cfoo1 &&
+    cfoo2
+) {
+  tfoo
+} else if (cbar) {
+  tbar
+} else if (cbaz)
+  tbaz
+else
+  qux
+<<< insert braces in if-else, multiline cond last
+newlines.source = keep
+maxColumn = 80
+rewrite.insertBraces {
+  minBreaks = 1
+  nonBlocksMinBreaks = 1
+  allBlocks = true
+}
+===
+if (cfoo1)
+  tfoo
+else if (cbar)
+  tbar
+else if (
+  cbaz1 &&
+  cbaz2
+)
+  tbaz
+else
+  qux
+>>>
+if (cfoo1) {
+  tfoo
+} else if (cbar) {
+  tbar
+} else if (
+    cbaz1 &&
+    cbaz2
+) {
+  tbaz
+} else {
+  qux
+}
 <<< insert braces in if-else, last qualifies, using then
 newlines.source = keep
 runner.dialect = scala3
