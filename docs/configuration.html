@@ -4701,7 +4701,7 @@ to output curly braces around a single-statement block when it spans at least a 
 number of lines.</p>
 <p>The rule is enabled by configuring <code>rewrite.insertBraces</code>:</p>
 <ul>
-<li><code>minLines</code> (default: 0, or disabled): the minimum number of lines to trigger the rule</li>
+<li><code>minBreaks</code> (default: 0, or disabled): the minimum number of line breaks to trigger the rule</li>
 <li><code>allBlocks</code> (default: false): compute maximum span of all blocks under the parent
 expression rather than just the statement to be enclosed in curly braces
 <ul>
@@ -8571,7 +8571,7 @@ rewrite.imports.<span class="hljs-attr">selectors</span> = <span class="hljs-lit
 rewrite.imports.<span class="hljs-attr">sort</span> = none
 rewrite.imports.<span class="hljs-attr">sortCatchallGroup</span> = tail
 rewrite.insertBraces.<span class="hljs-attr">allBlocks</span> = <span class="hljs-literal">false</span>
-rewrite.insertBraces.<span class="hljs-attr">minLines</span> = <span class="hljs-number">0</span>
+rewrite.insertBraces.<span class="hljs-attr">minBreaks</span> = <span class="hljs-number">0</span>
 rewrite.preferCurlyFors.<span class="hljs-attr">includeGuards</span> = <span class="hljs-literal">false</span>
 rewrite.preferCurlyFors.<span class="hljs-attr">removeTrailingSemicolonsOnly</span> = <span class="hljs-literal">false</span>
 rewrite.redundantBraces.<span class="hljs-attr">defnBodies</span> = all
