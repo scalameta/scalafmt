@@ -210,10 +210,11 @@ if (cfoo) {
   tfoo2
 } else if (cbar) {
   tbar
-} else if (cbaz)
+} else if (cbaz) {
   tbaz
-else
+} else {
   qux
+}
 <<< insert braces in if-else, multiline cond first
 newlines.source = keep
 maxColumn = 80
@@ -242,10 +243,11 @@ if (
   tfoo
 } else if (cbar) {
   tbar
-} else if (cbaz)
+} else if (cbaz) {
   tbaz
-else
+} else {
   qux
+}
 <<< insert braces in if-else, multiline cond last
 newlines.source = keep
 maxColumn = 80
@@ -332,10 +334,11 @@ if cfoo then {
   tfoo2
 } else if cbar then {
   tbar
-} else if cbaz then
+} else if cbaz then {
   tbaz
-else
+} else {
   qux
+}
 <<< insert braces in if-else, last qualifies, using then and parens
 newlines.source = keep
 runner.dialect = scala3
@@ -389,10 +392,11 @@ if (cfoo) then {
   tfoo2
 } else if (cbar) then {
   tbar
-} else if (cbaz) then
+} else if (cbaz) then {
   tbaz
-else
+} else {
   qux
+}
 <<< insert braces in try-catch with multiple cases
 newlines.source = keep
 rewrite.insertBraces {
