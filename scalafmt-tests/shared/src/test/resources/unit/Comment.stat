@@ -1080,3 +1080,23 @@ object a {
 object a {
   // Note: '\u000A' = '\n'
 }
+<<< comments with blank lines
+  def foo = {
+    /* bar
+     *
+     * baz
+     *
+     * qux
+     */
+    quux
+  }
+>>>
+def foo = {
+  /* bar
+   *
+     * baz
+   *
+     * qux
+   */
+  quux
+}
