@@ -797,13 +797,17 @@ class FormatWriter(formatOps: FormatOps) {
           } else {
             val matcher = RegexCompat.leadingAsteriskSpace.matcher(text)
             var pos = 0
+            def append(): Unit = sb.add(text, pos, matcher.start()).append(eol)
             while (matcher.find()) {
-              sb.add(text, pos, matcher.start()).append(eol)
               val end = matcher.end()
               val endMargin = matcher.end(1)
-              if (endMargin == end) // no asterisk
+              if (endMargin == end) { // no asterisk
+                append()
                 pos = if (end < text.length) matcher.start(1) else text.length
-              else { sb.append(spaces); pos = endMargin }
+              } else if (end < text.length && text.charAt(end) != '*') {
+                append()
+                sb.append(spaces); pos = endMargin
+              }
             }
             val lastLength = State.getLineLength(text, pos, text.length)
             sb.add(text, pos, pos + lastLength)

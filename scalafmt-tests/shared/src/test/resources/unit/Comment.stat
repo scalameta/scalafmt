@@ -1094,9 +1094,9 @@ object a {
 def foo = {
   /* bar
    *
-     * baz
+   * baz
    *
-     * qux
+   * qux
    */
   quux
 }
