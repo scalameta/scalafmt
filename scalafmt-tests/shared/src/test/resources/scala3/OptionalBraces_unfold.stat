@@ -9586,3 +9586,163 @@ runner.dialect = scala3future
 val foo: Int ?->{a} List[Int] = _ ?=> List(1, 2, 3)
 >>>
 val foo: Int ?->{a} List[Int] = _ ?=> List(1, 2, 3)
+<<< trailing comment in case body, indent more, body empty
+comments.indentTrailingInCaseBody = more
+===
+foo match {
+  case bar =>
+    // bar1
+
+    // bar2
+  case baz =>
+    // baz1
+
+    // baz2
+
+  case qux =>
+    // qux1
+  case quux =>
+    // quux1
+
+    // quux2
+}
+>>>
+foo match {
+  case bar =>
+  // bar1
+
+  // bar2
+  case baz =>
+  // baz1
+
+  // baz2
+
+  case qux =>
+  // qux1
+  case quux =>
+  // quux1
+
+  // quux2
+}
+<<< trailing comment in case body, indent less, body empty
+comments.indentTrailingInCaseBody = less
+===
+foo match {
+  case bar =>
+    // bar1
+
+    // bar2
+  case baz =>
+    // baz1
+
+    // baz2
+
+  case qux =>
+    // qux1
+  case quux =>
+    // quux1
+
+    // quux2
+}
+>>>
+foo match {
+  case bar =>
+  // bar1
+
+  // bar2
+  case baz =>
+  // baz1
+
+  // baz2
+
+  case qux =>
+  // qux1
+  case quux =>
+  // quux1
+
+  // quux2
+}
+<<< trailing comment in case body, indent more, body one line
+comments.indentTrailingInCaseBody = more
+===
+foo match {
+  case bar => bbar
+    // bar1
+
+    // bar2
+  case baz => bbaz
+    // baz1
+
+    // baz2
+
+  case qux => bqux
+    // qux1
+  case quux => bquux
+    // quux1
+
+    // quux2
+}
+>>>
+foo match {
+  case bar =>
+    bbar
+  // bar1
+
+  // bar2
+  case baz =>
+    bbaz
+  // baz1
+
+  // baz2
+
+  case qux =>
+    bqux
+  // qux1
+  case quux =>
+    bquux
+  // quux1
+
+  // quux2
+}
+<<< trailing comment in case body, indent less, body one line
+comments.indentTrailingInCaseBody = less
+===
+foo match {
+  case bar => bbar
+    // bar1
+
+    // bar2
+  case baz => bbaz
+    // baz1
+
+    // baz2
+
+  case qux => bqux
+    // qux1
+  case quux => bquux
+    // quux1
+
+    // quux2
+}
+>>>
+foo match {
+  case bar =>
+    bbar
+  // bar1
+
+  // bar2
+  case baz =>
+    bbaz
+  // baz1
+
+  // baz2
+
+  case qux =>
+    bqux
+  // qux1
+  case quux =>
+    bquux
+  // quux1
+
+  // quux2
+}
