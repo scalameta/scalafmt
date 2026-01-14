@@ -72,7 +72,6 @@ object RewriteSettings {
     .deriveDecoderEx(default).noTypos.flatMap(Imports.validateImports)
     .detectSectionRenames
 
-  @annotation.SectionRename("minLines", "minBreaks") // 3.10.4
   case class InsertBraces(
       minBreaks: Int = 0, // one less than the number of lines, as usual
       allBlocks: Boolean = false,
@@ -81,7 +80,11 @@ object RewriteSettings {
   private[RewriteSettings] object InsertBraces {
     implicit val surface: generic.Surface[InsertBraces] = generic.deriveSurface
     implicit val codec: ConfCodecEx[InsertBraces] = generic
-      .deriveCodecEx(new InsertBraces).detectSectionRenames
+      .deriveCodecEx(new InsertBraces).withSectionRenames(
+        annotation.SectionRename { case Conf.Num(value) =>
+          Conf.Num(value - 1) // number or breaks is one less than number of lines
+        }("minLines", "minBreaks"), // 3.10.4
+      )
   }
 
 }
