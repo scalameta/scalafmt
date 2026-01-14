@@ -66,7 +66,7 @@ object RegexCompat {
 
   val mlcParagraphBeg = pat("^(?:[-*@=]|\\d+[.:])")
 
-  val leadingAsteriskSpace = pat("\\h*\\r*\\n(\\h*)(?:[*][^*])?")
+  val leadingAsteriskSpace = pat("\\h*\\r*\\n(\\h*)[*]?")
 
   val docstringLine = pat("^(\\h*)([*]\\h*)?.*$", Pattern.MULTILINE)
 
