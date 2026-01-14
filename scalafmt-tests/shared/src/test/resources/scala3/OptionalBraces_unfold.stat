@@ -9609,20 +9609,20 @@ foo match {
 >>>
 foo match {
   case bar =>
-  // bar1
+    // bar1
 
   // bar2
   case baz =>
-  // baz1
+    // baz1
 
-  // baz2
+    // baz2
 
   case qux =>
-  // qux1
+    // qux1
   case quux =>
-  // quux1
+    // quux1
 
-  // quux2
+    // quux2
 }
 <<< trailing comment in case body, indent less, body empty
 comments.indentTrailingInCaseBody = less
@@ -9647,18 +9647,18 @@ foo match {
 >>>
 foo match {
   case bar =>
-  // bar1
+    // bar1
 
   // bar2
   case baz =>
-  // baz1
+    // baz1
 
   // baz2
 
   case qux =>
-  // qux1
+    // qux1
   case quux =>
-  // quux1
+    // quux1
 
   // quux2
 }
@@ -9686,23 +9686,23 @@ foo match {
 foo match {
   case bar =>
     bbar
-  // bar1
+    // bar1
 
   // bar2
   case baz =>
     bbaz
-  // baz1
+    // baz1
 
-  // baz2
+    // baz2
 
   case qux =>
     bqux
-  // qux1
+    // qux1
   case quux =>
     bquux
-  // quux1
+    // quux1
 
-  // quux2
+    // quux2
 }
 <<< trailing comment in case body, indent less, body one line
 comments.indentTrailingInCaseBody = less
@@ -9728,21 +9728,21 @@ foo match {
 foo match {
   case bar =>
     bbar
-  // bar1
+    // bar1
 
   // bar2
   case baz =>
     bbaz
-  // baz1
+    // baz1
 
   // baz2
 
   case qux =>
     bqux
-  // qux1
+    // qux1
   case quux =>
     bquux
-  // quux1
+    // quux1
 
   // quux2
 }
