@@ -3296,7 +3296,27 @@ object SplitsAfterCase extends Splits {
     import fo._, tokens._
     val postArrow = nextNonCommentSameLine(arrow)
     val ownerEnd = getLast(owner)
-    val expire = nextNonCommentSameLine(ownerEnd)
+    val expire = {
+      val nft = nextNonCommentSameLine(ownerEnd)
+      val commentOwner = owner.parent.orNull
+      def notNextCase(xft: FT) = !xft.rightOwner.parent.contains(commentOwner)
+      cfg.comments.indentTrailingInCaseBody match {
+        case Comments.IndentTrailingInCaseBody.none => nft
+        case Comments.IndentTrailingInCaseBody.more => // find last blank or non-comment
+          var bft: FT = null
+          findTokenEx(nft) { xft =>
+            if (xft.hasBlankLine) bft = xft
+            if (xft.right.is[T.Comment] && (commentOwner eq xft.rightOwner))
+              Left(next(xft))
+            else Right(if ((bft eq null) || notNextCase(xft)) xft else bft)
+          }.getOrElse(nft)
+        case Comments.IndentTrailingInCaseBody.less => // find first blank or non-comment
+          findToken(nft, next)(xft =>
+            !xft.right.is[T.Comment] || (commentOwner ne xft.rightOwner) ||
+              xft.hasBlankLine,
+          )
+      }
+    }
 
     val bodyBlock = isCaseBodyABlock(arrow, owner)
     def defaultPolicy = decideNewlinesOnlyAfterToken(postArrow)
