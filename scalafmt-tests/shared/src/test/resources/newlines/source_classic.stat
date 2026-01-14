@@ -3503,11 +3503,10 @@ object a {
 }
 >>>
 object a {
-  def validate(d: DirectoryProxy, step: Int): Unit = if (
-    step != 0
-  ) /* c1 */ { /* c2 */
-    d.name should be("dir" + step)
-  }
+  def validate(d: DirectoryProxy, step: Int): Unit =
+    if (step != 0) /* c1 */ { /* c2 */
+      d.name should be("dir" + step)
+    }
 }
 <<< #2113 case 1
 object a {

@@ -1183,11 +1183,13 @@ object SplitsAfterRightParen extends Splits {
     }
   }
 
-  private def getIfWhileFor(
-      body: Tree,
+  def getIfWhileFor(
+      bodyOriginal: Tree,
   )(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig): Seq[Split] = {
-    import fo._, tokens._, ft._
-    if (right.is[T.LeftBrace] && body.is[Term.Block]) Seq(Split(Space, 0))
+    import fo._, tokens._
+    val body = getBlockStat(bodyOriginal)
+    val nft = nextNonCommentSameLine(ft)
+    if (nft.right.is[T.LeftBrace] && body.is[Term.Block]) Seq(Split(Space, 0))
     else {
       val expire = getLast(body)
       def nlSplitFunc(cost: Int)(implicit fl: FileLine) = Splits
@@ -1203,7 +1205,7 @@ object SplitsAfterRightParen extends Splits {
       else CtrlBodySplits.get(body)(Split(Space, 0).withSingleLineNoOptimal(
         expire,
         insideBracesBlock(ft, expire),
-        noSyntaxNL = right.is[T.KwYield],
+        noSyntaxNL = nft.right.is[T.KwYield],
       ))(nlSplitFunc)
     }
   }
