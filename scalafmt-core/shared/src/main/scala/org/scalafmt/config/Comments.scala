@@ -18,6 +18,8 @@ case class Comments(
     wrap: Comments.Wrap = Comments.Wrap.no,
     wrapSingleLineMlcAsSlc: Boolean = false,
     wrapStandaloneSlcAsSlc: Boolean = false,
+    indentTrailingInCaseBody: Comments.IndentTrailingInCaseBody =
+      Comments.IndentTrailingInCaseBody.none,
 ) {
   @inline
   def willWrap: Boolean = wrap ne Comments.Wrap.no
@@ -37,6 +39,15 @@ object Comments {
     case object trailing extends Wrap
     implicit val reader: ConfCodecEx[Wrap] = ConfCodecEx
       .oneOf[Wrap](no, standalone, trailing)
+  }
+
+  sealed abstract class IndentTrailingInCaseBody
+  object IndentTrailingInCaseBody {
+    case object none extends IndentTrailingInCaseBody
+    case object less extends IndentTrailingInCaseBody
+    case object more extends IndentTrailingInCaseBody
+    implicit val reader: ConfCodecEx[IndentTrailingInCaseBody] = ConfCodecEx
+      .oneOf[IndentTrailingInCaseBody](none, less, more)
   }
 
 }

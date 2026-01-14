@@ -4789,6 +4789,22 @@ comments.wrapSingleLineMlcAsSlc = true
 val b = 2 /* mlc */ /* trailing mlc */
 ```
 
+### `comments.indentTrailingInCaseBody`
+
+> Since v3.10.4.
+
+This parameter controls indentation of standalone comments occurring after the
+last statement of a case body:
+
+- `none` (default): these comments would not be indented, thus getting attributed
+  to the next case clause instead; this was the only behaviour prior to v3.10.4
+- `less`:
+  - for final case clause, or if there are no blank lines, all comments are indented
+  - otherwise, only comments before the very _first_ blank line would be indented
+- `more`:
+  - for final case clauses, or if there are no blank lines, all comments are indented
+  - otherwise, only comments after the very _last_ blank line would _not_ be indented
+
 ### `docstrings.style`
 
 > Since v2.6.0.
