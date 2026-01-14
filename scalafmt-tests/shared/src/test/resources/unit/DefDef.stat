@@ -353,10 +353,12 @@ object a {
 >>>
 object a {
   def foo(bar: Int): //
-  Baz =
+  Baz = {
     qux
+  }
 
   val bar: //
-  Baz =
+  Baz = {
     qux
+  }
 }

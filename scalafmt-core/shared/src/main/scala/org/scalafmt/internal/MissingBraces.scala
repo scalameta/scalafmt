@@ -50,8 +50,8 @@ object MissingBraces {
   }
 
   private def rng(t: Tree): AllRange = t -> t
-  private def rng(t: Seq[Tree]): Option[AllRange] =
-    if (t.isEmpty) None else Some(t.head -> t.last)
+  private def rng(t: Iterable[Tree]*): Option[AllRange] = t.find(_.nonEmpty)
+    .map(_.head -> t.view.filter(_.nonEmpty).last.last)
 
   private def seq(ok: Boolean, t: Tree): AllRanges =
     if (ok) Seq(rng(t)) else Nil
@@ -150,9 +150,9 @@ object MissingBraces {
         val nonBlocks = t match {
           case _ if !ib.nonBlocks => Nil
           case t: Defn.Def if !TreeOps.isJsNative(t.body) =>
-            rng(t.paramClauseGroups).toSeq
-          case t: Defn.Val => rng(t.pats).toSeq
-          case t: Defn.Var => rng(t.pats).toSeq
+            rng(t.paramClauseGroups, t.decltpe).toSeq
+          case t: Defn.Val => rng(t.pats, t.decltpe).toSeq
+          case t: Defn.Var => rng(t.pats, t.decltpe).toSeq
           case _ => Nil
         }
         Some(Result(t.body, non = nonBlocks))
