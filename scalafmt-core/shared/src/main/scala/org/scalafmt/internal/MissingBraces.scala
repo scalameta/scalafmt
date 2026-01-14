@@ -24,24 +24,25 @@ object MissingBraces {
   def getBlocks(
       ft: FT,
   )(implicit ftoks: FormatTokens, ib: InsertBraces): ResultOpt = {
-    val nft = ftoks.nextNonComment(ft)
-    if (nft.right.is[T.LeftBrace]) None
+    val impl = ft.left match {
+      case _: T.RightArrow => RightArrowImpl
+      case _: T.RightParen => RightParenImpl
+      case _: T.RightBrace => RightBraceImpl
+      case _: T.KwDo => DoImpl
+      case _: T.Equals => EqualsImpl
+      case _: T.KwTry => TryImpl
+      case _: T.KwCatch => CatchImpl
+      case _: T.KwFinally => FinallyImpl
+      case _: T.KwThen => ThenImpl
+      case _: T.KwElse => ElseImpl
+      case _: T.KwYield => YieldImpl
+      case _ => null
+    }
+    if (null eq impl) None
     else {
-      val impl = ft.left match {
-        case _: T.RightArrow => RightArrowImpl
-        case _: T.RightParen => RightParenImpl
-        case _: T.RightBrace => RightBraceImpl
-        case _: T.KwDo => DoImpl
-        case _: T.Equals => EqualsImpl
-        case _: T.KwTry => TryImpl
-        case _: T.KwCatch => CatchImpl
-        case _: T.KwFinally => FinallyImpl
-        case _: T.KwThen => ThenImpl
-        case _: T.KwElse => ElseImpl
-        case _: T.KwYield => YieldImpl
-        case _ => null
-      }
-      Option(impl).flatMap(_.getBlocks(ft, nft))
+      val nft = ftoks.nextNonComment(ft)
+      impl.getBlocks(ft, nft)
+        .filter(r => (r.tree ne nft.rightOwner) || !nft.right.is[T.LeftBrace])
     }
   }
 
