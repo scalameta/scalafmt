@@ -6,6 +6,9 @@ import org.scalafmt.util.TreeOps
 import scala.meta.tokens.{Token => T}
 import scala.meta.{Ctor, Defn, Term, Tree}
 
+import scala.annotation.tailrec
+import scala.collection.mutable.ListBuffer
+
 object MissingBraces {
 
   type AllRange = (Tree, Tree)
@@ -199,13 +202,33 @@ object MissingBraces {
       case _ => None
     }
 
-    def getTermIf(owner: Term.If)(implicit ib: InsertBraces): ResultOpt = Some(
-      Result(
-        owner.thenp,
-        all = seq(ib.allBlocks && !TreeOps.ifWithoutElse(owner), owner.elsep),
-        non = seq(ib.nonBlocks, owner.cond),
-      ),
-    )
+    def getTermIf(
+        owner: Term.If,
+    )(implicit ftoks: FormatTokens, ib: InsertBraces): ResultOpt = {
+      val all = ListBuffer.empty[AllRange]
+      val non = ListBuffer.empty[AllRange]
+      if (ib.allBlocks) {
+        non += rng(owner.cond)
+        getAllElseDn(owner, all, non)
+        ElseImpl.getAllThenUp(owner, all, non)
+      }
+      Some(Result(owner.thenp, all = all.toList, non = non.toList))
+    }
+
+    @tailrec
+    def getAllElseDn(
+        owner: Term.If,
+        all: ListBuffer[AllRange],
+        non: ListBuffer[AllRange],
+    )(implicit ftoks: FormatTokens, ib: InsertBraces): Unit =
+      if (!TreeOps.ifWithoutElse(owner)) TreeOps.getBlockStat(owner.elsep) match {
+        case x: Term.If =>
+          non += rng(x.cond)
+          all += rng(x.thenp)
+          getAllElseDn(x, all, non)
+        case x => all += rng(x)
+      }
+
   }
 
   private object ElseImpl extends Factory {
@@ -214,12 +237,26 @@ object MissingBraces {
         ib: InsertBraces,
     ): ResultOpt = ft.meta.leftOwner match {
       case x: Term.If if !x.elsep.is[Term.If] =>
-        Some(Result(
-          x.elsep,
-          all = seq(ib.allBlocks, x.thenp),
-          non = seq(ib.nonBlocks, x.cond),
-        ))
+        val all = ListBuffer.empty[AllRange]
+        val non = ListBuffer.empty[AllRange]
+        if (ib.allBlocks) getAllThenUp(x.elsep, all, non)
+        Some(Result(x.elsep, all = all.toList, non = non.toList))
       case _ => None
+    }
+
+    @tailrec
+    def getAllThenUp(
+        owner: Term,
+        all: ListBuffer[AllRange],
+        non: ListBuffer[AllRange],
+    )(implicit ftoks: FormatTokens, ib: InsertBraces): Unit = owner.parent match {
+      case Some(p: Term.If) if p.elsep eq owner =>
+        non += rng(p.cond)
+        all += rng(p.thenp)
+        getAllThenUp(p, all, non)
+      case Some(p: Term.Block) if !ftoks.isEnclosedInBraces(p) =>
+        getAllThenUp(p, all, non)
+      case _ =>
     }
   }
 
