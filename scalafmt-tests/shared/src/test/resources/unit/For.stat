@@ -507,8 +507,9 @@ for {
   foo <- bar
   if baz
   qux = quux
-} do
+} do {
   xyzzy
+}
 <<< insert braces in for-do with parens
 newlines.source = keep
 indent.ctrlSite = 2
@@ -528,5 +529,6 @@ for (
   foo <- bar
   if baz;
   qux = quux
-) do
+) do {
   xyzzy
+}

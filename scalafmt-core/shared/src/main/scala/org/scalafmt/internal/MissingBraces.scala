@@ -36,6 +36,7 @@ object MissingBraces {
         case _: T.KwTry => TryImpl
         case _: T.KwCatch => CatchImpl
         case _: T.KwFinally => FinallyImpl
+        case _: T.KwThen => ThenImpl
         case _: T.KwElse => ElseImpl
         case _: T.KwYield => YieldImpl
         case _ => null
@@ -90,9 +91,7 @@ object MissingBraces {
         ftoks: FormatTokens,
         ib: InsertBraces,
     ): ResultOpt = ft.meta.leftOwner match {
-      case x: Term.If if !nft.right.is[T.KwThen] =>
-        def elsep = if (TreeOps.ifWithoutElse(x)) None else Some(x.elsep)
-        Some(Result(x.thenp, all = seqopt(ib.allBlocks, elsep, Some(x.cond))))
+      case x: Term.If if !nft.right.is[T.KwThen] => ThenImpl.getTermIf(x)
       case t: Term.EnumeratorsBlock
           if !nft.right.is[T.KwDo] && ftoks.getLastOpt(t).contains(ft) =>
         t.parent match {
@@ -128,6 +127,8 @@ object MissingBraces {
         ib: InsertBraces,
     ): ResultOpt = ft.meta.leftOwner match {
       case t: Term.Do => Some(Result(t.body, all = seq(ib.allBlocks, t.expr)))
+      case t: Term.For =>
+        Some(Result(t.body, all = seq(ib.allBlocks, t.enumsBlock)))
       case _ => None
     }
   }
@@ -174,6 +175,21 @@ object MissingBraces {
       case t: Term.TryClause => t.finallyp
           .map(Result(_, all = seqopt(ib.allBlocks, Some(t.expr), t.catchClause)))
       case _ => None
+    }
+  }
+
+  private object ThenImpl extends Factory {
+    def getBlocks(ft: FT, nft: FT)(implicit
+        ftoks: FormatTokens,
+        ib: InsertBraces,
+    ): ResultOpt = ft.meta.leftOwner match {
+      case x: Term.If => getTermIf(x)
+      case _ => None
+    }
+
+    def getTermIf(owner: Term.If)(implicit ib: InsertBraces): ResultOpt = {
+      def elsep = if (TreeOps.ifWithoutElse(owner)) None else Some(owner.elsep)
+      Some(Result(owner.thenp, all = seqopt(ib.allBlocks, elsep, Some(owner.cond))))
     }
   }
 

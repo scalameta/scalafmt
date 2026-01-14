@@ -233,13 +233,13 @@ else
   qux
   quux
 >>>
-if cfoo then
+if cfoo then {
   tfoo
-else if cbar then
+} else if cbar then {
   tbar
-else if cbaz then
+} else if cbaz then {
   tbaz
-else {
+} else {
   qux
   quux
 }
@@ -262,12 +262,12 @@ else if cbaz then
 else
   qux
 >>>
-if cfoo then
+if cfoo then {
   tfoo1
   tfoo2
-else if cbar then
+} else if cbar then {
   tbar
-else if cbaz then
+} else if cbaz then
   tbaz
 else
   qux
@@ -290,13 +290,13 @@ else
   qux
   quux
 >>>
-if (cfoo) then
+if (cfoo) then {
   tfoo
-else if (cbar) then
+} else if (cbar) then {
   tbar
-else if (cbaz) then
+} else if (cbaz) then {
   tbaz
-else {
+} else {
   qux
   quux
 }
@@ -319,12 +319,12 @@ else if (cbaz) then
 else
   qux
 >>>
-if (cfoo) then
+if (cfoo) then {
   tfoo1
   tfoo2
-else if (cbar) then
+} else if (cbar) then {
   tbar
-else if (cbaz) then
+} else if (cbaz) then
   tbaz
 else
   qux
