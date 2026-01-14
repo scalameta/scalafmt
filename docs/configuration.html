@@ -4706,8 +4706,16 @@ number of lines.</p>
 expression rather than just the statement to be enclosed in curly braces
 <ul>
 <li>this could be used to have consistent application of curly braces in expressions
-with multiple sub-expressions (conditions or blocks), such as <code>if-else</code>,
-<code>try-finally</code>, <code>for-yield</code>, <code>do-while</code> etc.</li>
+with multiple sub-blocks, such as <code>if-else</code>, <code>try-finally</code>, <code>for-yield</code>, etc.</li>
+</ul></li>
+<li><code>nonBlocksMinBreaks</code> (default: fallback to <code>minBreaks</code>)
+<ul>
+<li>this threshold applies to other expressions associated with the outer tree
+containing the block in question (such as conditions for <code>if</code> or <code>while</code>,
+or parameter clauses for methods or lambdas);</li>
+<li>it is disabled if set to 0, or if <code>allBlocks</code> is false; will default to <code>minBreaks</code>
+if negative; otherwise, sets the minimum number of line breaks within the expression
+to trigger braces around all blocks within the parent expression.</li>
 </ul></li>
 </ul>
 <p>Here are some limitations:</p>
@@ -8572,6 +8580,7 @@ rewrite.imports.<span class="hljs-attr">sort</span> = none
 rewrite.imports.<span class="hljs-attr">sortCatchallGroup</span> = tail
 rewrite.insertBraces.<span class="hljs-attr">allBlocks</span> = <span class="hljs-literal">false</span>
 rewrite.insertBraces.<span class="hljs-attr">minBreaks</span> = <span class="hljs-number">0</span>
+rewrite.insertBraces.<span class="hljs-attr">nonBlocksMinBreaks</span> = -<span class="hljs-number">1</span>
 rewrite.preferCurlyFors.<span class="hljs-attr">includeGuards</span> = <span class="hljs-literal">false</span>
 rewrite.preferCurlyFors.<span class="hljs-attr">removeTrailingSemicolonsOnly</span> = <span class="hljs-literal">false</span>
 rewrite.redundantBraces.<span class="hljs-attr">defnBodies</span> = all
