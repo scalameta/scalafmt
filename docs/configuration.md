@@ -3520,8 +3520,14 @@ The rule is enabled by configuring `rewrite.insertBraces`:
 - `allBlocks` (default: false): compute maximum span of all blocks under the parent
   expression rather than just the statement to be enclosed in curly braces
   - this could be used to have consistent application of curly braces in expressions
-    with multiple sub-expressions (conditions or blocks), such as `if-else`,
-    `try-finally`, `for-yield`, `do-while` etc.
+    with multiple sub-blocks, such as `if-else`, `try-finally`, `for-yield`, etc.
+- `nonBlocksMinBreaks` (default: fallback to `minBreaks`)
+  - this threshold applies to other expressions associated with the outer tree
+    containing the block in question (such as conditions for `if` or `while`,
+    or parameter clauses for methods or lambdas);
+  - it is disabled if set to 0, or if `allBlocks` is false; will default to `minBreaks`
+    if negative; otherwise, sets the minimum number of line breaks within the expression
+    to trigger braces around all blocks within the parent expression.
 
 Here are some limitations:
 

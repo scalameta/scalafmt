@@ -123,14 +123,16 @@ object a {
 
   val (
       bar1: Int
-  ) =
+  ) = {
     baz1
+  }
 
   val (
       bar2,
       baz2
-  ): Int =
+  ): Int = {
     qux2
+  }
 }
 <<< insert braces in var
 newlines.source = keep
@@ -162,12 +164,14 @@ object a {
 
   var (
       bar1: Int
-  ) =
+  ) = {
     baz1
+  }
 
   var (
       bar2,
       baz2
-  ): Int =
+  ): Int = {
     qux2
+  }
 }

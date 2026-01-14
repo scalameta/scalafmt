@@ -11,7 +11,7 @@ object MissingBraces {
   type AllRange = (Tree, Tree)
   type AllRanges = Seq[AllRange]
 
-  case class Result(tree: Tree, all: AllRanges = Nil)
+  case class Result(tree: Tree, all: AllRanges = Nil, non: AllRanges = Nil)
   type ResultOpt = Option[Result]
 
   private trait Factory {
@@ -49,8 +49,8 @@ object MissingBraces {
   private def rng(t: Seq[Tree]): Option[AllRange] =
     if (t.isEmpty) None else Some(t.head -> t.last)
 
-  private def seq(ok: Boolean, t: Tree*): AllRanges =
-    if (ok) t.map(rng) else Nil
+  private def seq(ok: Boolean, t: Tree): AllRanges =
+    if (ok) Seq(rng(t)) else Nil
 
   private def seqopt(ok: Boolean, t: Option[Tree]*): AllRanges =
     if (ok) t.flatMap(_.map(rng)) else Nil
@@ -81,7 +81,7 @@ object MissingBraces {
       case t: Term.FunctionLike =>
         val skip = t.parent.exists(TreeOps.isExprWithParentInBraces(t))
         if (skip) None
-        else Some(Result(t.body, all = seqseq(ib.allBlocks, t.paramClause.values)))
+        else Some(Result(t.body, non = seqseq(ib.nonBlocks, t.paramClause.values)))
       case _ => None
     }
   }
@@ -100,7 +100,7 @@ object MissingBraces {
           case _ => None
         }
       case t: Term.While if !nft.right.is[T.KwDo] =>
-        Some(Result(t.body, all = seq(ib.allBlocks, t.cond)))
+        Some(Result(t.body, non = seq(ib.nonBlocks, t.cond)))
       case _ => None
     }
   }
@@ -126,7 +126,7 @@ object MissingBraces {
         ftoks: FormatTokens,
         ib: InsertBraces,
     ): ResultOpt = ft.meta.leftOwner match {
-      case t: Term.Do => Some(Result(t.body, all = seq(ib.allBlocks, t.expr)))
+      case t: Term.Do => Some(Result(t.body, non = seq(ib.nonBlocks, t.expr)))
       case t: Term.For =>
         Some(Result(t.body, all = seq(ib.allBlocks, t.enumsBlock)))
       case _ => None
@@ -139,8 +139,19 @@ object MissingBraces {
         ib: InsertBraces,
     ): ResultOpt = ft.meta.leftOwner match {
       case _: Defn.Type => None
-      case t: Ctor.Secondary => Some(Result(t, all = seq(ib.allBlocks, t.body)))
-      case t: Tree.WithBody => Some(Result(t.body))
+      case t: Ctor.Secondary =>
+        if (t.body.stats.nonEmpty) None // must have braces
+        else Some(Result(t.body.init, non = seqseq(ib.nonBlocks, t.paramClauses)))
+      case t: Tree.WithBody =>
+        val nonBlocks = t match {
+          case _ if !ib.nonBlocks => Nil
+          case t: Defn.Def if !TreeOps.isJsNative(t.body) =>
+            rng(t.paramClauseGroups).toSeq
+          case t: Defn.Val => rng(t.pats).toSeq
+          case t: Defn.Var => rng(t.pats).toSeq
+          case _ => Nil
+        }
+        Some(Result(t.body, non = nonBlocks))
       case _ => BlockImpl.getBlocks(ft, nft)
     }
   }
@@ -187,10 +198,13 @@ object MissingBraces {
       case _ => None
     }
 
-    def getTermIf(owner: Term.If)(implicit ib: InsertBraces): ResultOpt = {
-      def elsep = if (TreeOps.ifWithoutElse(owner)) None else Some(owner.elsep)
-      Some(Result(owner.thenp, all = seqopt(ib.allBlocks, elsep, Some(owner.cond))))
-    }
+    def getTermIf(owner: Term.If)(implicit ib: InsertBraces): ResultOpt = Some(
+      Result(
+        owner.thenp,
+        all = seq(ib.allBlocks && !TreeOps.ifWithoutElse(owner), owner.elsep),
+        non = seq(ib.nonBlocks, owner.cond),
+      ),
+    )
   }
 
   private object ElseImpl extends Factory {
@@ -199,7 +213,11 @@ object MissingBraces {
         ib: InsertBraces,
     ): ResultOpt = ft.meta.leftOwner match {
       case x: Term.If if !x.elsep.is[Term.If] =>
-        Some(Result(x.elsep, all = seq(ib.allBlocks, x.thenp, x.cond)))
+        Some(Result(
+          x.elsep,
+          all = seq(ib.allBlocks, x.thenp),
+          non = seq(ib.nonBlocks, x.cond),
+        ))
       case _ => None
     }
   }
