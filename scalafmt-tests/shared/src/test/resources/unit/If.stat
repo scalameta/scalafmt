@@ -415,22 +415,16 @@ else if (cbaz)
 else
   qux
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,9 +1,10 @@
- if (cfoo) {
-   // tfoo1
-   tfoo2
--} else if (cbar)
-+} else if (cbar) {
-   tbar
--else if (cbaz)
-+} else if (cbaz) {
-   tbaz
--else
-+} else {
-   qux
-+}
+if (cfoo) {
+  // tfoo1
+  tfoo2
+} else if (cbar) {
+  tbar
+} else if (cbaz) {
+  tbaz
+} else {
+  qux
+}
 <<< insert braces in if-else, last qualifies with comments
 newlines.source = keep
 maxColumn = 80
@@ -449,23 +443,16 @@ else
   // qux
   quux
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,10 +1,10 @@
--if (cfoo)
-+if (cfoo) {
-   tfoo1
--else if (cbar)
-+} else if (cbar) {
-   tbar
--else if (cbaz)
-+} else if (cbaz) {
-   tbaz
--else {
-+} else {
-   // qux
-   quux
- }
+if (cfoo) {
+  tfoo1
+} else if (cbar) {
+  tbar
+} else if (cbaz) {
+  tbaz
+} else {
+  // qux
+  quux
+}
 <<< insert braces in try-catch with multiple cases
 newlines.source = keep
 rewrite.insertBraces {

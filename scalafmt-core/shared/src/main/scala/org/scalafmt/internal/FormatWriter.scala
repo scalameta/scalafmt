@@ -383,7 +383,7 @@ class FormatWriter(formatOps: FormatOps) {
             minSpan: Int,
             ranges: MissingBraces.AllRanges,
         ): Boolean = minSpan > 0 && ranges.exists { case (b, e) =>
-          val bIdx = getHead(b).meta.idx
+          val bIdx = nextNonCommentSameLine(tokenBefore(b)).meta.idx + 1
           val eIdx = getLast(e).meta.idx
           val span = getLineDiff(locations(bIdx), locations(eIdx))
           minSpan <= (if (bIdx <= idx && eIdx > idx) span + addedLines else span)
