@@ -4708,7 +4708,7 @@ expression rather than just the statement to be enclosed in curly braces
 <li>this could be used to have consistent application of curly braces in expressions
 with multiple sub-blocks, such as <code>if-else</code>, <code>try-finally</code>, <code>for-yield</code>, etc.</li>
 </ul></li>
-<li><code>nonBlocksMinBreaks</code> (default: fallback to <code>minBreaks</code>)
+<li><code>nonBlocksMinBreaks</code> (default: fallback to <code>minBreaks</code>; added in v3.10.4)
 <ul>
 <li>this threshold applies to other expressions associated with the outer tree
 containing the block in question (such as conditions for <code>if</code> or <code>while</code>,
@@ -4716,6 +4716,15 @@ or parameter clauses for methods or lambdas);</li>
 <li>it is disabled if set to 0, or if <code>allBlocks</code> is false; will default to <code>minBreaks</code>
 if negative; otherwise, sets the minimum number of line breaks within the expression
 to trigger braces around all blocks within the parent expression.</li>
+</ul></li>
+<li><code>countBreakBeforeFor</code> (default: empty; added in v3.10.4)
+<ul>
+<li>this parameter controls when we include the break before the expression when
+comparing it with <code>minBreaks</code>; it helps when we want to differentiate between,
+let's say, a one-liner <code>else</code> part following the keyword with or without a break</li>
+<li>it is specified as a list of entries containing <code>regex</code> and <code>parents</code> with
+same logic as the owners in <a href="#aligntokens"><code>align.tokens</code></a>, to match the owner
+of an expression whose span we are computing</li>
 </ul></li>
 </ul>
 <p>Here are some limitations:</p>
@@ -8600,6 +8609,7 @@ rewrite.imports.<span class="hljs-attr">selectors</span> = <span class="hljs-lit
 rewrite.imports.<span class="hljs-attr">sort</span> = none
 rewrite.imports.<span class="hljs-attr">sortCatchallGroup</span> = tail
 rewrite.insertBraces.<span class="hljs-attr">allBlocks</span> = <span class="hljs-literal">false</span>
+rewrite.insertBraces.<span class="hljs-attr">countBreakBeforeFor</span> = []
 rewrite.insertBraces.<span class="hljs-attr">minBreaks</span> = <span class="hljs-number">0</span>
 rewrite.insertBraces.<span class="hljs-attr">nonBlocksMinBreaks</span> = -<span class="hljs-number">1</span>
 rewrite.preferCurlyFors.<span class="hljs-attr">includeGuards</span> = <span class="hljs-literal">false</span>
