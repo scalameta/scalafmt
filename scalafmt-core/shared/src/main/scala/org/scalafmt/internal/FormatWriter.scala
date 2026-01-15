@@ -383,15 +383,19 @@ class FormatWriter(formatOps: FormatOps) {
             minSpan: Int,
             ranges: MissingBraces.AllRanges,
         ): Boolean = minSpan > 0 && ranges.exists { case (b, e) =>
-          val bIdx = nextNonCommentSameLine(tokenBefore(b)).meta.idx + 1
+          val bft = tokenBefore(b)
+          val bIdx =
+            if (ib.isCountBreakBefore(b)) bft.idx
+            else nextNonCommentSameLine(bft).meta.idx + 1
           val eIdx = getLast(e).meta.idx
           val span = getLineDiff(locations(bIdx), locations(eIdx))
           minSpan <= (if (bIdx <= idx && eIdx > idx) span + addedLines else span)
         }
-        def checkSpan: Boolean =
-          getLineDiff(floc, eLoc) + addedLines > ib.minBreaks ||
-            checkOtherSpan(ib.minBreaks, otherBlocks) ||
-            checkOtherSpan(ib.getNonBlocksMinBreaks, nonBlocks)
+        def checkSpan: Boolean = {
+          val diff = getLineDiff(floc, eLoc) + addedLines - ib.minBreaks
+          if (ib.isCountBreakBefore(owner)) diff >= 0 else diff > 0
+        } || checkOtherSpan(ib.minBreaks, otherBlocks) ||
+          checkOtherSpan(ib.getNonBlocksMinBreaks, nonBlocks)
         if (
           !endFt.meta.formatOff && eLoc.hasBreakAfter &&
           !eLoc.missingBracesIndent.contains(begIndent) && checkSpan
