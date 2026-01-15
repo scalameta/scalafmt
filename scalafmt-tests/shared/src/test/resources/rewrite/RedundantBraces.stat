@@ -2543,3 +2543,35 @@ class Foo(bar: Bar) {
     // qux
   }
 }
+<<< remove and then insert, around function
+rewrite.redundantBraces.maxBreaks = 0
+rewrite.insertBraces.minBreaks = 1
+===
+object a {
+  @Test def testLocalClassWithReflectiveInstantiationInLambda_Issue3227(): Unit = {
+    // Test that the presence of the following code does not prevent linking
+    { () =>
+      @EnableReflectiveInstantiation
+      class Foo
+    }
+  }
+}
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,10 +1,11 @@
+ object a {
+   @Test def testLocalClassWithReflectiveInstantiationInLambda_Issue3227()
+       : Unit = {
+     // Test that the presence of the following code does not prevent linking
+-    () => {
+-      @EnableReflectiveInstantiation
+-      class Foo
+-    }
++    () =>
++      {
++        @EnableReflectiveInstantiation
++        class Foo
++      }
+   }
+ }
