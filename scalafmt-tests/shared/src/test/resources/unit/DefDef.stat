@@ -255,7 +255,7 @@ object a {
 newlines.source = keep
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
 }
 ===
@@ -296,7 +296,7 @@ object a {
 newlines.source = keep
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
 }
 ===
@@ -337,7 +337,7 @@ class a {
 newlines.source = keep
 maxColumn = 60
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
 }
 ===

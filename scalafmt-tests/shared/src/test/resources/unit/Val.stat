@@ -97,7 +97,7 @@ val aaaaaaa, bbbbbbbb, cccccc(
 newlines.source = keep
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
 }
 ===
@@ -138,7 +138,7 @@ object a {
 newlines.source = keep
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
 }
 ===

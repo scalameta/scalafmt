@@ -161,7 +161,7 @@ else if ('A' <= c && c <= 'F') {
 newlines.source = keep
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
 }
 ===
@@ -190,7 +190,7 @@ if (cfoo) {
 newlines.source = keep
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
 }
 ===
@@ -219,9 +219,11 @@ if (cfoo) {
 newlines.source = keep
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 1
-  nonBlocksMinBreaks = 1
   allBlocks = true
+  settings {
+    minBreaks = 1
+    nonBlocksMinBreaks = 1
+  }
 }
 ===
 if (
@@ -252,9 +254,11 @@ if (
 newlines.source = keep
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 1
-  nonBlocksMinBreaks = 1
   allBlocks = true
+  settings {
+    minBreaks = 1
+    nonBlocksMinBreaks = 1
+  }
 }
 ===
 if (cfoo1)
@@ -286,7 +290,7 @@ newlines.source = keep
 runner.dialect = scala3
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
 }
 ===
@@ -315,7 +319,7 @@ newlines.source = keep
 runner.dialect = scala3
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
 }
 ===
@@ -344,7 +348,7 @@ newlines.source = keep
 runner.dialect = scala3
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
 }
 ===
@@ -373,7 +377,7 @@ newlines.source = keep
 runner.dialect = scala3
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
 }
 ===
@@ -401,7 +405,7 @@ if (cfoo) then {
 newlines.source = keep
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
 }
 ===
@@ -429,7 +433,7 @@ if (cfoo) {
 newlines.source = keep
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
 }
 ===
@@ -457,9 +461,12 @@ if (cfoo) {
 newlines.source = keep
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 2
+  settings.minBreaks = 2
   allBlocks = true
-  countBreakBeforeFor = [{ parents = ["Term.If", "Nothing"] }]
+  overrideFor = [{
+    owner = [{ parents = ["Term.If", "Nothing"] }]
+    countBreakBefore = true
+  }]
 }
 ===
 if (cfoo)
@@ -486,9 +493,12 @@ if (cfoo) {
 newlines.source = keep
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 2
+  settings.minBreaks = 2
   allBlocks = true
-  countBreakBeforeFor = [{ parents = ["Term.If", "Nothing"] }]
+  overrideFor = [{
+    owner = [{ parents = ["Term.If", "Nothing"] }]
+    countBreakBefore = true
+  }]
 }
 ===
 if (cfoo)
@@ -515,8 +525,12 @@ if (cfoo) {
 newlines.source = keep
 maxColumn = 80
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
+  overrideFor = [{
+    owner = [{ regex = "Term.If", parents = ["Defn.Def", "Term.Assign"] }]
+    minBreaks = 2
+  }]
 }
 ===
 object a {
@@ -538,10 +552,9 @@ object a {
 }
 >>>
 object a {
-  def foo = {
+  def foo =
     if (a) b
     else c
-  }
 
   val foo = {
     if (a) b
@@ -553,15 +566,14 @@ object a {
     else c
   }
 
-  foo = {
+  foo =
     if (a) b
     else c
-  }
 }
 <<< insert braces in try-catch with multiple cases
 newlines.source = keep
 rewrite.insertBraces {
-  minBreaks = 2
+  settings.minBreaks = 2
   allBlocks = true
 }
 ===
@@ -584,7 +596,7 @@ try {
 <<< insert braces in try-catch handler, multiple in finally
 newlines.source = keep
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
 }
 ===
@@ -608,7 +620,7 @@ try {
 <<< insert braces in try-catch handler, multiple in try
 newlines.source = keep
 rewrite.insertBraces {
-  minBreaks = 1
+  settings.minBreaks = 1
   allBlocks = true
 }
 ===

@@ -404,7 +404,7 @@ for {
 newlines.source = keep
 indent.ctrlSite = 2
 rewrite.insertBraces {
-  minBreaks = 2
+  settings.minBreaks = 2
   allBlocks = true
 }
 newlines.avoidAfterYield = true
@@ -425,7 +425,7 @@ for {
 newlines.source = keep
 indent.ctrlSite = 2
 rewrite.insertBraces {
-  minBreaks = 2
+  settings.minBreaks = 2
   allBlocks = true
 }
 newlines.avoidAfterYield = true
@@ -446,7 +446,7 @@ for (
 newlines.source = keep
 indent.ctrlSite = 2
 rewrite.insertBraces {
-  minBreaks = 2
+  settings.minBreaks = 2
   allBlocks = true
 }
 newlines.avoidAfterYield = false
@@ -469,7 +469,7 @@ for {
 newlines.source = keep
 indent.ctrlSite = 2
 rewrite.insertBraces {
-  minBreaks = 2
+  settings.minBreaks = 2
   allBlocks = true
 }
 newlines.avoidAfterYield = false
@@ -492,7 +492,7 @@ for (
 newlines.source = keep
 indent.ctrlSite = 2
 rewrite.insertBraces {
-  minBreaks = 2
+  settings.minBreaks = 2
   allBlocks = true
 }
 ===
@@ -514,7 +514,7 @@ for {
 newlines.source = keep
 indent.ctrlSite = 2
 rewrite.insertBraces {
-  minBreaks = 2
+  settings.minBreaks = 2
   allBlocks = true
 }
 ===

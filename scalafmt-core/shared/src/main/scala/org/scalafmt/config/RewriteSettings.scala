@@ -73,29 +73,52 @@ object RewriteSettings {
     .detectSectionRenames
 
   case class InsertBraces(
-      minBreaks: Int = 0, // one less than the number of lines, as usual
       allBlocks: Boolean = false,
-      private val nonBlocksMinBreaks: Int = -1, // if negative, defaults to minBreaks
-      countBreakBeforeFor: Seq[TreePattern] = Nil,
+      private[config] val settings: InsertBraces.Settings =
+        InsertBraces.Settings.default,
+      private[config] val overrideFor: Seq[InsertBraces.Settings] = Nil,
   ) {
-    def nonBlocks: Boolean = allBlocks && nonBlocksMinBreaks != 0
-    def getNonBlocksMinBreaks: Int =
-      if (nonBlocksMinBreaks < 0) minBreaks else nonBlocksMinBreaks
+    require(
+      settings.owner.isEmpty,
+      "can't set owner in insertBraces,settings; use insertBraces.overrideFor",
+    )
+    def isEnabled: Boolean = settings.minBreaks > 0
 
-    private lazy val countBreakBeforeMatcher = countBreakBeforeFor
-      .map(_.getMatcher)
-    def isCountBreakBefore(tree: meta.Tree): Boolean = countBreakBeforeMatcher
-      .exists(_.matches(tree))
+    def nonBlocks: Boolean = allBlocks && settings.nonBlocksMinBreaks != 0
+
+    def settingsFor(tree: meta.Tree): InsertBraces.Settings = overrideFor
+      .find(_.matches(tree)).getOrElse(settings)
   }
 
-  private[RewriteSettings] object InsertBraces {
+  object InsertBraces {
     implicit val surface: generic.Surface[InsertBraces] = generic.deriveSurface
     implicit val codec: ConfCodecEx[InsertBraces] = generic
-      .deriveCodecEx(new InsertBraces).withSectionRenames(
+      .deriveCodecEx(new InsertBraces).noTypos.withSectionRenames(
         annotation.SectionRename { case Conf.Num(value) =>
           Conf.Num(value - 1) // number or breaks is one less than number of lines
-        }("minLines", "minBreaks"), // 3.10.4
+        }("minLines", "settings.minBreaks"), // 3.10.4
       )
+
+    case class Settings(
+        owner: Seq[TreePattern] = Nil,
+        minBreaks: Int = 0, // one less than the number of lines, as usual
+        nonBlocksMinBreaks: Int = -1, // if negative, defaults to minBreaks
+        countBreakBefore: Boolean = false,
+    ) {
+      private lazy val matcher = owner.map(_.getMatcher)
+      def matches(tree: meta.Tree): Boolean = matcher.exists(_.matches(tree))
+
+      def getNonBlocksMinBreaks: Int =
+        if (nonBlocksMinBreaks < 0) minBreaks else nonBlocksMinBreaks
+    }
+
+    object Settings {
+      val default = new Settings()
+      implicit val surface: generic.Surface[Settings] = generic.deriveSurface
+      implicit val codec: ConfCodecEx[Settings] = generic.deriveCodecEx(default)
+        .noTypos
+    }
+
   }
 
 }
