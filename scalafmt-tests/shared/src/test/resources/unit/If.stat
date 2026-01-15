@@ -511,6 +511,53 @@ if (cfoo) {
   // qux
   quux
 }
+<<< insert braces around if-else as def body or assign
+newlines.source = keep
+maxColumn = 80
+rewrite.insertBraces {
+  minBreaks = 1
+  allBlocks = true
+}
+===
+object a {
+  def foo =
+    if (a) b
+    else c
+
+  val foo =
+    if (a) b
+    else c
+
+  var foo =
+    if (a) b
+    else c
+
+  foo =
+    if (a) b
+    else c
+}
+>>>
+object a {
+  def foo = {
+    if (a) b
+    else c
+  }
+
+  val foo = {
+    if (a) b
+    else c
+  }
+
+  var foo = {
+    if (a) b
+    else c
+  }
+
+  foo = {
+    if (a) b
+    else c
+  }
+}
 <<< insert braces in try-catch with multiple cases
 newlines.source = keep
 rewrite.insertBraces {
