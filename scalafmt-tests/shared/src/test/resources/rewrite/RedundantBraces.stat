@@ -2557,21 +2557,12 @@ object a {
   }
 }
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,10 +1,11 @@
- object a {
-   @Test def testLocalClassWithReflectiveInstantiationInLambda_Issue3227()
-       : Unit = {
-     // Test that the presence of the following code does not prevent linking
--    () => {
--      @EnableReflectiveInstantiation
--      class Foo
--    }
-+    () =>
-+      {
-+        @EnableReflectiveInstantiation
-+        class Foo
-+      }
-   }
- }
+object a {
+  @Test def testLocalClassWithReflectiveInstantiationInLambda_Issue3227()
+      : Unit = {
+    // Test that the presence of the following code does not prevent linking
+    () =>
+      @EnableReflectiveInstantiation
+      class Foo
+  }
+}

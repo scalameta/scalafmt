@@ -45,11 +45,26 @@ object TreeOps {
     ): Option[(FT, Term, FT)] = getBraces(tree, tree.values)
 
     @inline
-    private def getBraces[A](tree: Tree, values: List[A])(implicit
+    private def getBraces[A <: Tree](tree: Tree, values: List[A])(implicit
         ftoks: FormatTokens,
     ): Option[(FT, A, FT)] = values match {
-      case arg :: Nil => ftoks.getBracesIfEnclosed(tree).map { case (b, e) =>
+      case arg :: Nil => getBracesNested(tree, values).map { case (b, e) =>
           (b, arg, e)
+        }
+      case _ => None
+    }
+
+    @inline
+    private def getBracesNested(tree: Tree, values: List[Tree])(implicit
+        ftoks: FormatTokens,
+    ): Option[(FT, FT)] = values match {
+      case _ :: Nil => ftoks.getBracesIfEnclosed(tree) match {
+          case None => tree.parent match {
+              case Some(p: Term.ArgClause) => getBracesNested(p, p.values)
+              case Some(p: Term.Block) => getBracesNested(p, p.stats)
+              case _ => None
+            }
+          case x => x
         }
       case _ => None
     }
