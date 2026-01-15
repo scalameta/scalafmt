@@ -31,15 +31,18 @@ object TreePattern {
       this(obj.regex.map(pattern), obj.parents.map(pattern))
     def matches(tree: meta.Tree): Boolean = owner.forall(check(tree)) &&
       (parents.isEmpty || tree.parent.exists(p =>
-        parents.forall(check(p)) ||
+        checkParents(p) ||
           (p match {
-            case ParamClauseParent(pp) => parents.forall(check(pp))
+            case ParamClauseParent(pp) => checkParents(pp)
             case _: meta.Member.SyntaxValuesClause => p.parent
-                .exists(pp => parents.forall(check(pp)))
+                .exists(checkParents)
             case _ => false
           }),
       ))
     def isEmpty: Boolean = owner.isEmpty && parents.isEmpty
+
+    private def checkParents(tree: meta.Tree): Boolean = parents
+      .exists(check(tree))
   }
 
   @inline
