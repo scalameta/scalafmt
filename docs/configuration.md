@@ -3516,25 +3516,32 @@ number of lines.
 
 The rule is enabled by configuring `rewrite.insertBraces`:
 
-- `minBreaks` (default: 0, or disabled): the minimum number of line breaks to trigger the rule
 - `allBlocks` (default: false): compute maximum span of all blocks under the parent
   expression rather than just the statement to be enclosed in curly braces
   - this could be used to have consistent application of curly braces in expressions
     with multiple sub-blocks, such as `if-else`, `try-finally`, `for-yield`, etc.
-- `nonBlocksMinBreaks` (default: fallback to `minBreaks`; added in v3.10.4)
-  - this threshold applies to other expressions associated with the outer tree
-    containing the block in question (such as conditions for `if` or `while`,
-    or parameter clauses for methods or lambdas);
-  - it is disabled if set to 0, or if `allBlocks` is false; will default to `minBreaks`
-    if negative; otherwise, sets the minimum number of line breaks within the expression
-    to trigger braces around all blocks within the parent expression.
-- `countBreakBeforeFor` (default: empty; added in v3.10.4)
-  - this parameter controls when we include the break before the expression when
-    comparing it with `minBreaks`; it helps when we want to differentiate between,
-    let's say, a one-liner `else` part following the keyword with or without a break
-  - it is specified as a list of entries containing `regex` and `parents` with
-    same logic as the owners in [`align.tokens`](#aligntokens), to match the owner
-    of an expression whose span we are computing
+- `settings`:
+  - `minBreaks` (default: 0, or disabled): the minimum number of line breaks to trigger the rule
+  - `nonBlocksMinBreaks` (default: fallback to `minBreaks`; added in v3.10.4)
+    - this threshold applies to other expressions associated with the outer tree
+      containing the block in question (such as conditions for `if` or `while`,
+      or parameter clauses for methods or lambdas);
+    - it is disabled if set to 0, or if `allBlocks` is false; will default to `minBreaks`
+      if negative; otherwise, sets the minimum number of line breaks within the expression
+      to trigger braces around all blocks within the parent expression.
+  - `countBreakBefore` (default: false; added in v3.10.4):
+    - this parameter controls when we include the break before the expression
+      when comparing it with `minBreaks`
+    - it helps when we want to differentiate between, let's say, a one-liner
+      `else` part following the keyword with or without a break
+- `overrideFor` (default: empty; added in v3.10.4)
+  - this list parameter allows customizing or overriding certain settings
+  - each entry on this list contains:
+    - the same fields as under `settings`; if not specified, default to `settings`
+    - `owner`: logic to match the owner of expression whose span we are computing
+      - it contains the following fields:
+        - `regex` and `parents`, with same logic as the owners in
+          [`align.tokens`](#aligntokens)
 
 Here are some limitations:
 

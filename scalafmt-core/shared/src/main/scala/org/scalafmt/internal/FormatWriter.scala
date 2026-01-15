@@ -138,7 +138,7 @@ class FormatWriter(formatOps: FormatOps) {
         if (initStyle.rewrite.scala3.endMarker.insertMinSpan > 0)
           checkInsertEndMarkers(result)
       }
-      if (initStyle.rewrite.insertBraces.minBreaks > 0) checkInsertBraces(result)
+      if (initStyle.rewrite.insertBraces.isEnabled) checkInsertBraces(result)
       if (initStyle.rewrite.bracesToParensForOneLineApply)
         replaceRedundantBraces(result)
     }
@@ -325,6 +325,7 @@ class FormatWriter(formatOps: FormatOps) {
     }
 
   private def checkInsertBraces(locations: Array[FormatLocation]): Unit = {
+    import RewriteSettings.InsertBraces._
     def checkInfix(tree: Tree): Boolean = tree match {
       case ai: Term.ApplyInfix => isEnclosedWithinParens(ai) ||
         prevNonCommentSameLine(tokenJustBefore(ai.op)).noBreak &&
@@ -366,7 +367,7 @@ class FormatWriter(formatOps: FormatOps) {
       implicit val style = floc.style
       implicit val ib = style.rewrite.insertBraces
       val ft = floc.formatToken
-      val ok = !ft.meta.formatOff && ib.minBreaks > 0 && hasBreakAfter(idx) &&
+      val ok = !ft.meta.formatOff && ib.isEnabled && hasBreakAfter(idx) &&
         (!style.rewrite.scala3.removeOptionalBraces.enabled &&
           style.indent.main == style.indent.getSignificant ||
           !OptionalBraces.at(ft)) && floc.missingBracesIndent.isEmpty
@@ -379,23 +380,29 @@ class FormatWriter(formatOps: FormatOps) {
         val end = endFt.meta.idx
         val eLoc = locations(end)
         val begIndent = floc.state.prev.indentation
-        def checkOtherSpan(
-            minSpan: Int,
+        def checkOtherSpan(fMinSpan: Settings => Int)(
             ranges: MissingBraces.AllRanges,
-        ): Boolean = minSpan > 0 && ranges.exists { case (b, e) =>
-          val bft = tokenBefore(b)
-          val bIdx =
-            if (ib.isCountBreakBefore(b)) bft.idx
-            else nextNonCommentSameLine(bft).meta.idx + 1
-          val eIdx = getLast(e).meta.idx
-          val span = getLineDiff(locations(bIdx), locations(eIdx))
-          minSpan <= (if (bIdx <= idx && eIdx > idx) span + addedLines else span)
+        ): Boolean = ranges.exists { case (b, e) =>
+          val settings = ib.settingsFor(b)
+          val minSpan = fMinSpan(settings)
+          minSpan > 0 && {
+            val bft = tokenBefore(b)
+            val bIdx =
+              if (settings.countBreakBefore) bft.idx
+              else nextNonCommentSameLine(bft).meta.idx + 1
+            val eIdx = getLast(e).meta.idx
+            val span = getLineDiff(locations(bIdx), locations(eIdx))
+            minSpan <=
+              (if (bIdx <= idx && eIdx > idx) span + addedLines else span)
+          }
         }
         def checkSpan: Boolean = {
-          val diff = getLineDiff(floc, eLoc) + addedLines - ib.minBreaks
-          if (ib.isCountBreakBefore(owner)) diff >= 0 else diff > 0
-        } || checkOtherSpan(ib.minBreaks, otherBlocks) ||
-          checkOtherSpan(ib.getNonBlocksMinBreaks, nonBlocks)
+          val settings = ib.settingsFor(owner)
+          val diff = getLineDiff(floc, eLoc) + addedLines - settings.minBreaks
+          (if (settings.countBreakBefore) diff >= 0 else diff > 0) ||
+          checkOtherSpan(_.minBreaks)(otherBlocks) ||
+          checkOtherSpan(_.getNonBlocksMinBreaks)(nonBlocks)
+        }
         if (
           !endFt.meta.formatOff && eLoc.hasBreakAfter &&
           !eLoc.missingBracesIndent.contains(begIndent) && checkSpan

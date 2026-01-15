@@ -408,10 +408,10 @@ object ScalafmtConfig {
       checkPositiveOpt(indent.significant, indent.ctorSite)
       if (rewrite.scala3.endMarker.insertMinSpan != 0)
         addIf(rewrite.scala3.endMarker.removeMaxSpan >= rewrite.scala3.endMarker.insertMinSpan)
-      addIf(rewrite.insertBraces.minBreaks != 0 && rewrite.scala3.endMarker.insertMinSpan != 0)
-      addIf(rewrite.insertBraces.minBreaks != 0 && rewrite.scala3.removeOptionalBraces.oldSyntaxToo)
+      addIf(rewrite.insertBraces.settings.minBreaks != 0 && rewrite.scala3.endMarker.insertMinSpan != 0)
+      addIf(rewrite.insertBraces.settings.minBreaks != 0 && rewrite.scala3.removeOptionalBraces.oldSyntaxToo)
       if (RedundantBraces.usedIn(rewrite)) {
-        if (rewrite.insertBraces.minBreaks != 0) addIf(rewrite.insertBraces.minBreaks <= rewrite.redundantBraces.maxBreaks)
+        if (rewrite.insertBraces.settings.minBreaks != 0) addIf(rewrite.insertBraces.settings.minBreaks <= rewrite.redundantBraces.maxBreaks)
         if (rewrite.redundantBraces.oneStatApply.bracesMinSpan >= 0)
           addIf(rewrite.redundantBraces.oneStatApply.bracesMinSpan < rewrite.redundantBraces.oneStatApply.parensMaxSpan)
       }

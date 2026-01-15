@@ -2545,7 +2545,7 @@ class Foo(bar: Bar) {
 }
 <<< remove and then insert, around function
 rewrite.redundantBraces.maxBreaks = 0
-rewrite.insertBraces.minBreaks = 1
+rewrite.insertBraces.settings.minBreaks = 1
 ===
 object a {
   @Test def testLocalClassWithReflectiveInstantiationInLambda_Issue3227(): Unit = {
