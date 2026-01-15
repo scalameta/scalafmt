@@ -333,3 +333,30 @@ class a {
     this(bar2, baz2)
   }
 }
+<<< insert braces in def/val with result type
+newlines.source = keep
+maxColumn = 60
+rewrite.insertBraces {
+  minBreaks = 1
+  allBlocks = true
+}
+===
+object a {
+  def foo(bar: Int): //
+    Baz =
+      qux
+
+  val bar: //
+    Baz =
+      qux
+}
+>>>
+object a {
+  def foo(bar: Int): //
+  Baz =
+    qux
+
+  val bar: //
+  Baz =
+    qux
+}
