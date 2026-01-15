@@ -453,6 +453,62 @@ if (cfoo) {
   // qux
   quux
 }
+<<< insert braces in if-else, first qualifies, count break before
+newlines.source = keep
+maxColumn = 80
+rewrite.insertBraces {
+  minBreaks = 2
+  allBlocks = true
+  countBreakBeforeFor = [{ parents = ["Term.If", "Nothing"] }]
+}
+===
+if (cfoo)
+  // tfoo1
+  tfoo2
+else if (cbar)
+  tbar
+else if (cbaz)
+  tbaz
+else
+  qux
+>>>
+if (cfoo)
+  // tfoo1
+  tfoo2
+else if (cbar)
+  tbar
+else if (cbaz)
+  tbaz
+else
+  qux
+<<< insert braces in if-else, last qualifies, count break before
+newlines.source = keep
+maxColumn = 80
+rewrite.insertBraces {
+  minBreaks = 2
+  allBlocks = true
+  countBreakBeforeFor = [{ parents = ["Term.If", "Nothing"] }]
+}
+===
+if (cfoo)
+  tfoo1
+else if (cbar)
+  tbar
+else if (cbaz)
+  tbaz
+else
+  // qux
+  quux
+>>>
+if (cfoo)
+  tfoo1
+else if (cbar)
+  tbar
+else if (cbaz)
+  tbaz
+else
+  // qux
+  quux
 <<< insert braces in try-catch with multiple cases
 newlines.source = keep
 rewrite.insertBraces {

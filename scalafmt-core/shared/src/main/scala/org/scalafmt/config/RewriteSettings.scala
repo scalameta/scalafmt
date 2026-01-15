@@ -76,10 +76,16 @@ object RewriteSettings {
       minBreaks: Int = 0, // one less than the number of lines, as usual
       allBlocks: Boolean = false,
       private val nonBlocksMinBreaks: Int = -1, // if negative, defaults to minBreaks
+      countBreakBeforeFor: Seq[TreePattern] = Nil,
   ) {
     def nonBlocks: Boolean = allBlocks && nonBlocksMinBreaks != 0
     def getNonBlocksMinBreaks: Int =
       if (nonBlocksMinBreaks < 0) minBreaks else nonBlocksMinBreaks
+
+    private lazy val countBreakBeforeMatcher = countBreakBeforeFor
+      .map(_.getMatcher)
+    def isCountBreakBefore(tree: meta.Tree): Boolean = countBreakBeforeMatcher
+      .exists(_.matches(tree))
   }
 
   private[RewriteSettings] object InsertBraces {
