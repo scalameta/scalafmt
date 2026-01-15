@@ -472,15 +472,16 @@ else if (cbaz)
 else
   qux
 >>>
-if (cfoo)
+if (cfoo) {
   // tfoo1
   tfoo2
-else if (cbar)
+} else if (cbar) {
   tbar
-else if (cbaz)
+} else if (cbaz) {
   tbaz
-else
+} else {
   qux
+}
 <<< insert braces in if-else, last qualifies, count break before
 newlines.source = keep
 maxColumn = 80
@@ -500,15 +501,16 @@ else
   // qux
   quux
 >>>
-if (cfoo)
+if (cfoo) {
   tfoo1
-else if (cbar)
+} else if (cbar) {
   tbar
-else if (cbaz)
+} else if (cbaz) {
   tbaz
-else
+} else {
   // qux
   quux
+}
 <<< insert braces in try-catch with multiple cases
 newlines.source = keep
 rewrite.insertBraces {
