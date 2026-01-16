@@ -5099,8 +5099,14 @@ globally or using any of the options further in this section.
 
 ### For code block
 
-There is a possibility to override scalafmt config for a specific code with
-`// scalafmt: {}` comment:
+There is a possibility to override scalafmt config for subsequent code with a
+`// scalafmt: { <settings> }` comment.
+
+Each such invocation overlays new settings over the initial configuration for a
+given file; thus, to reset back to that configuration, simply use `// scalafmt: {}`.
+
+However, since v3.10.4, if this comment is specified at the top of the file,
+before the first non-comment, then this configuration becomes the "initial".
 
 ```scala mdoc:scalafmt
 ---
@@ -5109,10 +5115,16 @@ libraryDependencies ++= Seq(
   "org.scalameta" %% "scalameta" % scalametaV,
   "org.scalacheck" %% "scalacheck" % scalacheckV)
 
-// scalafmt: { align.preset = some, danglingParentheses.preset = true } (back to defaults)
+/* scalafmt: {
+     align.preset = some
+     danglingParentheses.preset = true
+   }
+ */
 libraryDependencies ++= Seq(
   "org.scalameta" %% "scalameta" % scalametaV,
   "org.scalacheck" %% "scalacheck" % scalacheckV)
+
+// scalafmt: {} // back to defaults
 ```
 
 ### // format: off
