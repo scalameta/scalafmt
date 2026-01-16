@@ -525,4 +525,11 @@ object FormatTokens {
     }
   }
 
+  def apply(
+      topSourceTree: Tree,
+  )(baseStyle: ScalafmtConfig): (FormatTokens, StyleMap) = {
+    val (initStyle, owners) = TreeOps.getStyleAndOwners(topSourceTree, baseStyle)
+    apply(topSourceTree.tokens, owners)(initStyle)
+  }
+
 }
