@@ -24,12 +24,12 @@ class FormatOps(
   import TokenOps._
   import TreeOps._
 
-  private[internal] val (initStyle, ownersMap) =
-    getStyleAndOwners(topSourceTree, baseStyle)
-
-  implicit val dialect: Dialect = initStyle.dialect
   implicit val (tokens: FormatTokens, styleMap: StyleMap) =
-    FormatTokens(topSourceTree.tokens, ownersMap)(initStyle)
+    FormatTokens(topSourceTree)(baseStyle)
+
+  private[internal] val initStyle = styleMap.init
+  implicit val dialect: Dialect = initStyle.dialect
+
   import tokens._
 
   private[internal] implicit val soft: SoftKeywordClasses =
