@@ -7836,10 +7836,10 @@ object Build {
     settings(
       generateScalaDocumentation := Def.inputTaskDyn {
         val outputDirOverride = extraArgs.headOption.fold(identity[GenerationConfig](_))(newDir => {
-          config: GenerationConfig => config.add(OutputDir(newDir))
+          (config: GenerationConfig) => config.add(OutputDir(newDir))
         })
         val justAPI = justAPIArg.fold(identity[GenerationConfig](_))(_ => {
-          config: GenerationConfig => config.remove[SiteRoot]
+          (config: GenerationConfig) => config.remove[SiteRoot]
         })
       }.evaluated,
     )
@@ -7851,12 +7851,12 @@ object Build:
      .settings(
        generateScalaDocumentation := Def.inputTaskDyn {
          val outputDirOverride =
-           extraArgs.headOption.fold(identity[GenerationConfig](_)) { newDir =>
-             config: GenerationConfig => config.add(OutputDir(newDir))
-           }
-         val justAPI = justAPIArg.fold(identity[GenerationConfig](_)) { _ =>
-           config: GenerationConfig => config.remove[SiteRoot]
-         }
+           extraArgs.headOption.fold(identity[GenerationConfig](_))(newDir =>
+             (config: GenerationConfig) => config.add(OutputDir(newDir))
+           )
+         val justAPI = justAPIArg.fold(identity[GenerationConfig](_))(_ =>
+           (config: GenerationConfig) => config.remove[SiteRoot]
+         )
        }.evaluated
      )
 <<< AvoidInfix with match, excludeMatch
