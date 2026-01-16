@@ -88,6 +88,7 @@ object Imports extends RewriteFactory {
   def validateImports(obj: RewriteSettings): Configured[RewriteSettings] = {
     val (importRules, nonImportRules) = obj.rules
       .partition(allImportRules.contains)
+    if (importRules.isEmpty) return Configured.Ok(obj) // nothing to do
 
     val errBuf = Seq.newBuilder[String]
 

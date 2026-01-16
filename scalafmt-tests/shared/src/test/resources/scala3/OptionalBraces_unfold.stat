@@ -1970,8 +1970,7 @@ object a:
  import Predef.{augmentString => _}
 >>>
 object a:
-   import A.min as minimum
-   import A.`*` as multiply
+   import A.{min as minimum, `*` as multiply}
    import Predef.{augmentString as _, *}
    import scala.annotation as ann
    import java as j
@@ -1992,8 +1991,7 @@ object a {
 }
 >>>
 object a {
-  import A.min as minimum
-  import A.`*` as multiply
+  import A.{min as minimum, `*` as multiply}
   import Predef.{augmentString as _, *}
   import scala.annotation as ann
   import java as j
