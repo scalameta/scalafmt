@@ -10,12 +10,13 @@ import scala.meta.tokens.{Token => T}
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
+class StyleMap(tokens: FormatTokens, initStyle: ScalafmtConfig) {
   import StyleMap._
-  val literalR: FilterMatcher = init.binPack.literalsRegex
+  val literalR: FilterMatcher = initStyle.binPack.literalsRegex
   private val prefix = "\\s*scalafmt: ".r.pattern
   val forcedBinPack: mutable.Set[Tree] = mutable.Set.empty
   private val (starts: Array[Int], styles: Array[ScalafmtConfig]) = {
+    var init = initStyle
     var curr = init
     val startBuilder = Array.newBuilder[Int]
     val styleBuilder = Array.newBuilder[ScalafmtConfig]
@@ -37,16 +38,19 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
       }
       ft.left match {
         case T.Comment(c) if prefix.matcher(c).find() =>
-          val configured = ScalafmtConfig
-            .fromHoconString(c, init, Some("scalafmt"))
-          // TODO(olafur) report error via callback
-          configured.foreach(logger.elem(_)) { style =>
-            init.rewrite.rulesChanged(style.rewrite).foreach { x =>
-              val rules = x.mkString(",")
-              warn(s"May not override rewrite settings; changed=[$rules]: $c")
-            }
-            changeStyle(style)
-          }
+          val res = ScalafmtConfig.fromHoconString(c, init, Some("scalafmt"))
+          res.foreach(logger.elem(_))(style =>
+            if ((init eq initStyle) && tokens.prevNonCommentBefore(ft).idx == 0) {
+              init = style // right after BOF
+              curr = style
+            } else {
+              init.rewrite.rulesChanged(style.rewrite).foreach { x =>
+                val rules = x.mkString(",")
+                warn(s"May not override rewrite settings; changed=[$rules]: $c")
+              }
+              changeStyle(style)
+            },
+          )
         case _: T.LeftParen
             if curr.binPack.literalArgumentLists &&
               opensLiteralArgumentList(ft)(curr) =>
@@ -61,8 +65,12 @@ class StyleMap(tokens: FormatTokens, val init: ScalafmtConfig) {
         case _ =>
       }
     }
-    (startBuilder.result(), styleBuilder.result())
+    val styles = styleBuilder.result()
+    styles(0) = init
+    (startBuilder.result(), styles)
   }
+
+  val init: ScalafmtConfig = styles(0)
 
   private def isBasicLiteral(tree: Tree): Boolean = tree match {
     case lit: Lit =>
