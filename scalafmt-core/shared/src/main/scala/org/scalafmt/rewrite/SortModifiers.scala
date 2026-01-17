@@ -10,8 +10,8 @@ object SortModifiers extends RewriteFactory {
   override def hasChanged(v1: RewriteSettings, v2: RewriteSettings): Boolean =
     v2.sortModifiers ne v1.sortModifiers
 
-  override def create(implicit ctx: RewriteCtx): RewriteSession =
-    new SortModifiers
+  override def create(implicit ctx: RewriteCtx): Option[RewriteSession] =
+    Some(new SortModifiers)
 }
 
 class SortModifiers(implicit ctx: RewriteCtx) extends RewriteSession {

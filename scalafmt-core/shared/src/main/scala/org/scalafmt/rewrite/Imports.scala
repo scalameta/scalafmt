@@ -72,14 +72,14 @@ object Imports extends RewriteFactory {
   override def hasChanged(v1: RewriteSettings, v2: RewriteSettings): Boolean =
     v1.imports ne v2.imports
 
-  override def create(implicit ctx: RewriteCtx): RewriteSession = {
+  override def create(implicit ctx: RewriteCtx): Option[RewriteSession] = {
     val settings = ctx.style.rewrite.imports
     val selectors = ctx.style.importSelectorsRewrite
-    if (selectors eq Newlines.unfold) new ExpandFull
-    else if (selectors eq Newlines.fold) new Fold
-    else if (settings.numGroups != 0) new ExpandPart
-    else if (settings.sort ne Sort.none) new ExpandNone
-    else new RewriteSession.None
+    if (selectors eq Newlines.unfold) Some(new ExpandFull)
+    else if (selectors eq Newlines.fold) Some(new Fold)
+    else if (settings.numGroups != 0) Some(new ExpandPart)
+    else if (settings.sort ne Sort.none) Some(new ExpandNone)
+    else None
   }
 
   private val allImportRules: Set[Rewrite] =
@@ -938,7 +938,7 @@ object Imports extends RewriteFactory {
 }
 
 abstract class ShouldUseImports extends RewriteFactory {
-  override final def create(implicit ctx: RewriteCtx): RewriteSession =
+  override final def create(implicit ctx: RewriteCtx): Option[RewriteSession] =
     throw new NotImplementedError("should use Imports")
 }
 

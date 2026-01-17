@@ -14,7 +14,8 @@ object AvoidInfix extends RewriteFactory {
   override def hasChanged(v1: RewriteSettings, v2: RewriteSettings): Boolean =
     v2.avoidInfix ne v1.avoidInfix
 
-  override def create(implicit ctx: RewriteCtx): RewriteSession = new AvoidInfix
+  override def create(implicit ctx: RewriteCtx): Option[RewriteSession] =
+    Some(new AvoidInfix)
 
 }
 

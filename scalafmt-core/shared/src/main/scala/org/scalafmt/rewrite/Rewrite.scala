@@ -81,19 +81,13 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
 trait Rewrite
 
 abstract class RewriteFactory extends Rewrite {
-  def create(implicit ctx: RewriteCtx): RewriteSession
+  def create(implicit ctx: RewriteCtx): Option[RewriteSession]
   def hasChanged(v1: RewriteSettings, v2: RewriteSettings): Boolean = false
 }
 
 abstract class RewriteSession(implicit ctx: RewriteCtx) {
   def rewrite(tree: Tree): Unit
   implicit val dialect: Dialect = ctx.dialect
-}
-
-object RewriteSession {
-  final class None(implicit ctx: RewriteCtx) extends RewriteSession {
-    def rewrite(tree: Tree): Unit = {}
-  }
 }
 
 object Rewrite {
@@ -130,7 +124,7 @@ object Rewrite {
     else style.runner.parse(input) match {
       case Parsed.Success(ast) =>
         val ctx = RewriteCtx(style, input, ast)
-        val rewriteSessions = rewrites.map(_.create(ctx)).toList
+        val rewriteSessions = rewrites.flatMap(_.create(ctx)).toArray
         val traverser = new SimpleTraverser {
           override def apply(tree: Tree): Unit = {
             rewriteSessions.foreach(_.rewrite(tree))
