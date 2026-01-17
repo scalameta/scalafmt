@@ -551,3 +551,25 @@ object a {
       cfg: ScalafmtConfig
   ): Infix = ???
 }
+<<< procedure syntax
+rewrite.rules = [ProcedureSyntax]
+===
+object a {
+  def foo
+  def foo { baz }
+  def foo(bar: Int)
+  def foo(bar: Int) { baz }
+  def foo(bar: Int) = { baz }
+  def foo(bar: Int): Unit
+  def foo(bar: Int): Unit = { baz }
+}
+>>>
+object a {
+  def foo
+  def foo { baz }
+  def foo(bar: Int)
+  def foo(bar: Int) { baz }
+  def foo(bar: Int) = { baz }
+  def foo(bar: Int): Unit
+  def foo(bar: Int): Unit = { baz }
+}
