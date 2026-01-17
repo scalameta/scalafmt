@@ -646,7 +646,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       case d: Defn.Macro =>
         checkBlockAsBody(b, d.body, noParams = d.paramClauseGroups.isEmpty)
       case d: Defn.GivenAlias =>
-        checkBlockAsBody(b, d.body, noParams = d.paramClauseGroup.isEmpty)
+        checkBlockAsBody(b, d.body, noParams = d.paramClauseGroups.isEmpty)
 
       case p: Term.FunctionLike if isFunctionWithBraces(p) =>
         okToRemoveAroundFunctionBody(b, okIfMultipleStats = true)

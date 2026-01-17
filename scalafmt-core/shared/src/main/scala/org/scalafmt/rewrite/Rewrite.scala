@@ -18,22 +18,19 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
 
   private val patchBuilder = mutable.Map.empty[(Int, Int), TokenPatch]
 
-  val tokens = tree.tokens
+  val tokens: Tokens = tree.tokens
   val tokenTraverser = new TokenTraverser(tokens, input)(style)
-  val matchingParens = TreeOps
+  private val matchingParens = TreeOps
     .getMatchingParentheses(tokens)(TokenOps.hash)(identity)
-
-  @inline
-  def getMatching(a: T): T = matchingParens(TokenOps.hash(a))
 
   @inline
   def getMatchingOpt(a: T): Option[T] = matchingParens.get(TokenOps.hash(a))
 
   @inline
-  def isMatching(a: T, b: => T) = getMatchingOpt(a).exists(_ eq b)
+  def isMatching(a: T, b: => T): Boolean = getMatchingOpt(a).exists(_ eq b)
 
   @inline
-  def getIndex(token: T) = tokenTraverser.getIndex(token)
+  def getIndex(token: T): Int = tokenTraverser.getIndex(token)
 
   def applyPatches: String = tokens.iterator
     .map(x => patchBuilder.get(lookupKey(x)).fold(x.text)(_.newTok)).mkString
@@ -119,8 +116,6 @@ object Rewrite {
 
   val name2rewrite: Map[String, Rewrite] = rewrites.view
     .map(x => x.source -> x.value).toMap
-  val rewrite2name: Map[Rewrite, String] = name2rewrite.map(_.swap)
-  val available = name2rewrite.keys.mkString(", ")
 
   val default: Seq[Rewrite] = name2rewrite.values.toSeq
 
