@@ -4482,6 +4482,18 @@ literals.floatingPoint {
 123e-1
 ```
 
+### `ProcedureSyntax`
+
+If the dialect still supports procedure syntax, this rule would replace it with
+a `Unit` method.
+
+```scala mdoc:scalafmt
+rewrite.rules = [ProcedureSyntax]
+runner.dialect = scala213
+---
+def foo() {}
+```
+
 ## Scala3 rewrites
 
 This section describes rules which are applied if the appropriate dialect (e.g.,

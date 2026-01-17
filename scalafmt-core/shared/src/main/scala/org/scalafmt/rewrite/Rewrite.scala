@@ -104,6 +104,7 @@ object Rewrite {
     SortModifiers,
     RemoveSemicolons,
     RewriteLiterals,
+    ProcedureSyntax,
   )
 
   implicit val reader: ConfCodecEx[Rewrite] = ConfCodecEx.oneOf(rewrites: _*)
