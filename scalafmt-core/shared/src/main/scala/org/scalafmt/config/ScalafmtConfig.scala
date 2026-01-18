@@ -422,10 +422,11 @@ object ScalafmtConfig {
         addIf(rewrite.scala3.removeOptionalBraces.fewerBracesMaxSpan < 0)
         addIf(rewrite.scala3.removeOptionalBraces.fewerBracesMinSpan > rewrite.scala3.removeOptionalBraces.fewerBracesMaxSpan)
       }
-      addIfDirect( // if we fold but not bin pack, we might end up with very long lines
-        (importSelectorsRewrite eq Newlines.fold) && binPack.importSelectors.contains(ImportSelectors.singleLine),
-        "rewrite.imports.selectors == fold && binPack.importSelectors == singleLine",
-      )
+      if (rewrite.rules.contains(Imports)) binPack.importSelectors match {
+        case Some(ImportSelectors.singleLine) => // if we fold but not bin pack, we might end up with very long lines
+          addIfDirect(importSelectorsRewrite eq Newlines.fold, "rewrite.imports.selectors == fold && binPack.importSelectors == singleLine")
+        case _ =>
+      }
     }
     // scalafmt: {}
     if (allErrors.isEmpty) Configured.ok(cfg)
