@@ -7886,13 +7886,20 @@ will be handled <em>if</em> they overflow.
 <ul>
 <li><code>unfold</code>: format one per line (prior to v3.8.4, called <code>noBinPack</code>)</li>
 <li><code>fold</code>: fit as many as possible on each line (prior to v3.8.4, called <code>binPack</code>)</li>
-<li><code>keep</code>: preserve breaks between selectors (added in v3.10.4)</li>
+<li><code>keep</code>: preserve breaks between selectors (added in v3.10.5)
+<ul>
+<li>this setting is not allowed if <a href="#imports"><code>Imports</code></a> rewrite rule is enabled</li>
+</ul></li>
 <li><code>singleLine</code>: format all on one line</li>
 </ul>
 <p>By default, the parameter will match <a href="#newlinessource"><code>newlines.source</code></a> if
 the latter is explicitly specified,
 and <code>unfold</code> otherwise (prior to v3.10.1, it would always be <code>unfold</code>).
 See also <a href="#danglingparenthesesimportsite"><code>danglingParentheses.importSite</code></a>.</p>
+<p>However, if <a href="#imports"><code>Imports</code></a> rewrite rule is enabled, which discards
+existing formatting and completely regenerates imports, the default for
+<a href="#newlinessource"><code>newlines.source = keep</code></a> will be replaced with <code>fold</code> if
+<a href="#imports-selectors"><code>rewrite.imports.selectors = fold</code></a>, and <code>unfold</code> otherwise.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">import</span> a.b.{
   c,
   d,
