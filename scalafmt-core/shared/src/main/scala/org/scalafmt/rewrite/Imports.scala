@@ -125,10 +125,10 @@ object Imports extends RewriteFactory {
         else if (selectorsIn.contains(Newlines.fold)) Sort.fold
         else if (obj.imports.removeRedundantSelectors) Sort.fold
         else Sort.none
-      Configured.Ok(obj.copy(
-        rules = Imports +: nonImportRules,
-        imports = obj.imports.copy(selectors = selectorsOut, sort = sortOut),
-      ))
+      val importsOut = obj.imports.copy(selectors = selectorsOut, sort = sortOut)
+      val ok = selectorsOut.exists(_.ignoreSourceSplit) && !importsOut.noGroups
+      val rules = if (ok) Imports +: nonImportRules else nonImportRules
+      Configured.Ok(obj.copy(rules = rules, imports = importsOut))
     }
   }
 
