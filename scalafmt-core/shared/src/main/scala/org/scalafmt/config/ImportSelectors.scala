@@ -43,7 +43,7 @@ sealed abstract class ImportSelectors
 object ImportSelectors {
 
   implicit val codec: ConfCodecEx[ImportSelectors] = ConfCodecEx
-    .oneOfCustom[ImportSelectors](unfold, fold, singleLine) {
+    .oneOfCustom[ImportSelectors](unfold, fold, singleLine, keep) {
       case Conf.Str("binPack") | Conf.Bool(true) => Conf.nameOf(fold)
       case Conf.Str("noBinPack") | Conf.Bool(false) => Conf.nameOf(unfold)
     }
