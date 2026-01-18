@@ -465,8 +465,10 @@ object TreeOps {
   }
 
   // procedure syntax has decltpe: Some("")
+  def isProcedureSyntaxDeclTpe(tpe: Type): Boolean = tpe.tokens.isEmpty
+
   def isProcedureSyntax(defn: Defn.Def): Boolean = defn.decltpe
-    .exists(_.tokens.isEmpty)
+    .exists(isProcedureSyntaxDeclTpe)
 
   def isXmlBrace(owner: Tree): Boolean = owner match {
     case _: Term.Xml | _: Pat.Xml => true
