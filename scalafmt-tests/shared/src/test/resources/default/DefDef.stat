@@ -565,10 +565,10 @@ object a {
 }
 >>>
 object a {
-  def foo
-  def foo { baz }
-  def foo(bar: Int)
-  def foo(bar: Int) { baz }
+  def foo: Unit
+  def foo: Unit = { baz }
+  def foo(bar: Int): Unit
+  def foo(bar: Int): Unit = { baz }
   def foo(bar: Int) = { baz }
   def foo(bar: Int): Unit
   def foo(bar: Int): Unit = { baz }
