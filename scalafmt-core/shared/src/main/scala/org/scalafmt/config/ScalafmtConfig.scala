@@ -356,7 +356,7 @@ object ScalafmtConfig {
       Configured.error(err)
     }
 
-  private def validate(cfg: ScalafmtConfig): Configured[ScalafmtConfig] = {
+  private def checkErrors(cfg: ScalafmtConfig): Configured[ScalafmtConfig] = {
     // scalafmt: { maxColumn = 140 }
     import cfg._
     import ValidationOps._
@@ -425,6 +425,9 @@ object ScalafmtConfig {
       if (rewrite.rules.contains(Imports)) binPack.importSelectors match {
         case Some(ImportSelectors.singleLine) => // if we fold but not bin pack, we might end up with very long lines
           addIfDirect(importSelectorsRewrite eq Newlines.fold, "rewrite.imports.selectors == fold && binPack.importSelectors == singleLine")
+        case Some(ImportSelectors.keep) =>
+          val isEnabled = cfg.importSelectorsRewrite.ignoreSourceSplit || !cfg.rewrite.imports.noGroups
+          addIfDirect(isEnabled, "binPack.importSelectors == keep and rewrite.rules enables Imports")
         case _ =>
       }
     }
@@ -432,6 +435,23 @@ object ScalafmtConfig {
     if (allErrors.isEmpty) Configured.ok(cfg)
     else Configured.error(allErrors.mkString("can't use: [\n\t", "\n\t", "\n]"))
   }
+
+  private def validateImports(cfg: ScalafmtConfig): Configured[ScalafmtConfig] =
+    Configured.Ok {
+      val binPackWouldBeKeep = cfg.binPack.importSelectors.isEmpty &&
+        cfg.newlines.keep && cfg.rewrite.rules.contains(Imports)
+      if (binPackWouldBeKeep) { // check rule is enabled
+        val selectors = cfg.importSelectorsRewrite
+        if (selectors.ignoreSourceSplit || !cfg.rewrite.imports.noGroups) {
+          val fold = selectors eq Newlines.fold
+          val bp = if (fold) ImportSelectors.fold else ImportSelectors.unfold
+          cfg.copy(binPack = cfg.binPack.copy(importSelectors = Some(bp)))
+        } else cfg
+      } else cfg
+    }
+
+  private val validations: Seq[ScalafmtConfig => Configured[ScalafmtConfig]] =
+    Seq(checkErrors, validateImports)
 
   private val baseDecoder = generic.deriveDecoderEx(default).noTypos
     .detectSectionRenames
@@ -468,7 +488,7 @@ object ScalafmtConfig {
               }
           case _ => baseDecoder.read(state, conf)
         }
-        parsed.andThen(validate)
+        validations.foldLeft(parsed)(_ andThen _)
       }
 
       override def convert(conf: Conf): Conf = baseDecoder.convert(conf) match {

@@ -6086,13 +6086,19 @@ Takes the following parameters:
 
 - `unfold`: format one per line (prior to v3.8.4, called `noBinPack`)
 - `fold`: fit as many as possible on each line (prior to v3.8.4, called `binPack`)
-- `keep`: preserve breaks between selectors (added in v3.10.4)
+- `keep`: preserve breaks between selectors (added in v3.10.5)
+  - this setting is not allowed if [`Imports`](#imports) rewrite rule is enabled
 - `singleLine`: format all on one line
 
 By default, the parameter will match [`newlines.source`](#newlinessource) if
 the latter is explicitly specified,
 and `unfold` otherwise (prior to v3.10.1, it would always be `unfold`).
 See also [`danglingParentheses.importSite`](#danglingparenthesesimportsite).
+
+However, if [`Imports`](#imports) rewrite rule is enabled, which discards
+existing formatting and completely regenerates imports, the default for
+[`newlines.source = keep`](#newlinessource) will be replaced with `fold` if
+[`rewrite.imports.selectors = fold`](#imports-selectors), and `unfold` otherwise.
 
 ```scala mdoc:scalafmt
 maxColumn = 10
