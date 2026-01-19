@@ -19,10 +19,8 @@ object SyntacticGroupOps {
     if (outerIsLeftAssoc != innerOp.isLeftAssoc) true
     else if (what ne g.Type) {
       val diffPrecedence = outerOp.precedence - innerOp.precedence
-      if (diffPrecedence < 0) !outerIsLeftAssoc // TODO: not needed
-      else if (diffPrecedence > 0) // TODO: is it optional for patterns?
-        outerIsLeftAssoc || (what eq g.Term)
-      else outerIsLeftAssoc != side.isLeft
+      diffPrecedence > 0 ||
+      diffPrecedence == 0 && outerIsLeftAssoc != side.isLeft
     } else outerIsLeftAssoc != side.isLeft
   }
 

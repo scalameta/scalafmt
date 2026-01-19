@@ -1943,8 +1943,8 @@ object a {
   foo *: (bar -: baz)
   (foo +: bar) *: baz
 
-  foo -: (bar *: baz)
-  (foo *: bar) -: baz
+  foo -: bar *: baz
+  foo *: bar -: baz
 }
 <<< various-precedence term infixes, mixed-assoc
 rewrite.redundantParens.infixSide = all
@@ -2018,11 +2018,11 @@ a match {
   case foo -: bar +: baz   =>
   case (foo -: bar) +: baz =>
 
-  case foo *: bar -: baz =>
-  case foo +: bar *: baz =>
+  case foo *: (bar -: baz) =>
+  case (foo +: bar) *: baz =>
 
-  case foo -: (bar *: baz) =>
-  case (foo *: bar) -: baz =>
+  case foo -: bar *: baz =>
+  case foo *: bar -: baz =>
 }
 <<< various-precedence pat infixes, mixed-assoc
 rewrite.redundantParens.infixSide = all
