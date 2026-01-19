@@ -14047,3 +14047,21 @@ foo match {
 
   // quux2
 }
+<<< infix with comment
+maxColumn = 70
+===
+ val needSbt = cfg.getVersion < ScalafmtVersion(3, 0, 0, 7) && {
+   val extension = getExtension(file.toString)
+   extension == "md" || // added in 3.0.0-RC7
+   cfg.getVersion < ScalafmtVersion(2, 6, 3) && extension == "sbt" ||
+   extension == "sc" // added in 2.6.3
+ }
+>>>
+val needSbt =
+  cfg.getVersion < ScalafmtVersion(3, 0, 0, 7) && {
+    val extension = getExtension(file.toString)
+    extension ==
+      "md" || // added in 3.0.0-RC7
+      cfg.getVersion < ScalafmtVersion(2, 6, 3) &&
+      extension == "sbt" || extension == "sc" // added in 2.6.3
+  }
