@@ -19,7 +19,10 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
   override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new RedundantParens
 
-  private def infixNeedsParens(outer: Member.Infix, inner: Tree): Boolean = {
+  private def infixNeedsParens(outer: Member.Infix, inner: Tree)(implicit
+      style: ScalafmtConfig,
+  ): Boolean = {
+    import style.dialect
     val sgOuter = TreeSyntacticGroup(outer)
     val sgInner = TreeSyntacticGroup(inner)
     val side = if (outer.lhs eq inner) Side.Left else Side.Right

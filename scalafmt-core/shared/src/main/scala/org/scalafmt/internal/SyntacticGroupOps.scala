@@ -3,7 +3,7 @@ package org.scalafmt.internal
 import org.scalafmt.internal.{SyntacticGroup => g}
 
 import scala.meta.internal.trees._
-import scala.meta.{Lit, Term, Tree}
+import scala.meta.{Dialect, Lit, Term, Tree}
 
 import scala.annotation.tailrec
 
@@ -14,10 +14,10 @@ object SyntacticGroupOps {
       innerOp: String,
       side: Side,
       what: AnyRef,
-  ): Boolean = {
+  )(implicit dialect: Dialect): Boolean = {
     val outerIsLeftAssoc = outerOp.isLeftAssoc
     if (outerIsLeftAssoc != innerOp.isLeftAssoc) true
-    else if (what ne g.Type) {
+    else if ((what ne g.Type) || dialect.useInfixTypePrecedence) {
       val diffPrecedence = outerOp.precedence - innerOp.precedence
       diffPrecedence > 0 ||
       diffPrecedence == 0 && outerIsLeftAssoc != side.isLeft
@@ -36,7 +36,7 @@ object SyntacticGroupOps {
       outerGroup: SyntacticGroup,
       innerGroup: SyntacticGroup,
       side: Side,
-  ): Boolean = (outerGroup, innerGroup) match {
+  )(implicit dialect: Dialect): Boolean = (outerGroup, innerGroup) match {
     case (g.Term.InfixExpr(outerOp), g.Term.InfixExpr(innerOp)) =>
       operatorNeedsParenthesis(outerOp, innerOp, side, what = g.Term)
 

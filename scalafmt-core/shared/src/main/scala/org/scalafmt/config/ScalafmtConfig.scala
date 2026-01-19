@@ -238,7 +238,7 @@ case class ScalafmtConfig(
     .wrapMaxColumn.getOrElse(maxColumn)
 
   @inline
-  private[scalafmt] def dialect = runner.getDialectForParser
+  private[scalafmt] implicit def dialect: Dialect = runner.getDialectForParser
 
   private[scalafmt] def getTrailingCommas = rewrite.trailingCommas.style
 
