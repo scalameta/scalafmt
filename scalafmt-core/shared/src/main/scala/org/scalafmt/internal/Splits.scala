@@ -649,31 +649,21 @@ object SplitsAfterEquals extends Splits {
       case _ => 0
     }
 
-    def baseSpaceSplit(implicit fileLine: FileLine) =
-      Split(isRightCommentThenBreak(ft), 0)(Space)
-
-    def twoBranches(implicit fileLine: FileLine) = baseSpaceSplit
-      .withOptimalToken(optimal, killOnFail = false).withPolicy {
-        val exclude = insideBracesBlock(ft, endFt)
-        policyWithExclude(exclude, Policy.End.OnLeft, Policy.End.OnRight)(
-          PenalizeAllNewlines(endFt, Constants.ShouldBeSingleLine),
-        )
-      }
-
     val body = TreeOps.getBlockStat(rawBody)
-    val spaceSplit = body match {
-      case _ if hasBreak && leftOwner.is[Defn] => Split.ignored
-      case _: Term.If => twoBranches
-      case _: Term.ForYield => twoBranches
-      case _: Term.TryClause => twoBranches
-      case _
-          if !cfg.newlines.ignoreInSyntax &&
-            tokens.getNonMultilineEnd(ft).isEmpty => Split.ignored
-      case _ => baseSpaceSplit
-          .withOptimalToken(optimalWithComment, killOnFail = false)
-    }
+    def noSpace: Boolean = hasBreak && leftOwner.is[Defn] ||
+      !cfg.newlines.ignoreInSyntax && tokens.getNonMultilineEnd(ft).isEmpty
     Seq(
-      spaceSplit,
+      if (isRightCommentThenBreak(ft)) Split.ignored
+      else if (body.isAny[Term.If, Term.ForYield, Term.TryClause])
+        Split(hasBreak, 0)(Space).withOptimalToken(optimal, killOnFail = false)
+          .withPolicy {
+            val exclude = insideBracesBlock(ft, endFt)
+            policyWithExclude(exclude, Policy.End.OnLeft, Policy.End.OnRight)(
+              PenalizeAllNewlines(endFt, Constants.ShouldBeSingleLine),
+            )
+          }
+      else Split(noSpace, 0)(Space)
+        .withOptimalToken(optimalWithComment, killOnFail = false),
       CtrlBodySplits.withIndent(Split(Newline, 1 + penalty), body, endFt),
     )
   }

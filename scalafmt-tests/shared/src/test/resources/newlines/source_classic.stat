@@ -13546,11 +13546,12 @@ object a {
     } catch {
       case baz => qux
     }
-  foo = try {
-    bar
-  } catch {
-    case baz => qux
-  }
+  foo =
+    try {
+      bar
+    } catch {
+      case baz => qux
+    }
 }
 <<< tucked for-yield
 object a {
@@ -13595,11 +13596,12 @@ object a {
     } yield {
       qux
     }
-  foo = for {
-    bar <- baz
-  } yield {
-    qux
-  }
+  foo =
+    for {
+      bar <- baz
+    } yield {
+      qux
+    }
 }
 <<< tucked if-else
 object a {
@@ -13644,11 +13646,12 @@ object a {
     } else {
       qux
     }
-  foo = if (bar) {
-    baz
-  } else {
-    qux
-  }
+  foo =
+    if (bar) {
+      baz
+    } else {
+      qux
+    }
 }
 <<< trailing comment in case body, indent more, body empty
 comments.indentTrailingInCaseBody = more
