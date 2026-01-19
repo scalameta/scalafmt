@@ -467,8 +467,9 @@ class InfixSplits(
 
     def otherSplitsNoDelims = {
       val nlPrecedence = if (isAssignmentOp) expires.head._2 else appPrecedence
-      val nlSplit = Split(nlMod, 1 + nlPrecedence - minPrecedence)
-        .withIndent(nlIndent).withPolicy(nlPolicy & delayedBreak)
+      val nlCost = if (nlMod.isNL) 1 + nlPrecedence - minPrecedence else 0
+      val nlSplit = Split(nlMod, nlCost).withIndent(nlIndent)
+        .withPolicy(nlPolicy & delayedBreak)
       val spaceSplits: Seq[Split] =
         if (ft.right.is[T.Comment] || mustBreakAfterNested) Seq.empty
         else {
@@ -477,7 +478,7 @@ class InfixSplits(
             val cost = precedence - minPrecedence
             val exclude =
               if (breakMany) TokenRanges.empty
-              else TokenOps.insideBracesBlock(nextFT, expire, true)
+              else TokenOps.insideBracesBlock(nextFT, expire, parens = true)
             val ignore = exclude.isEmpty && singleLinePolicy.nonEmpty &&
               (expire eq fullExpire)
             Split(ignore, cost)(ModExt(newStmtMod.getOrElse(spaceMod)))

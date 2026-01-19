@@ -7143,8 +7143,7 @@ object a {
 }
 >>>
 object a {
-  foldedTopics + shortStringLength(topic) +
-    4 + /* partition count */
+  foldedTopics + shortStringLength(topic) + 4 + /* partition count */
     partitionFetchInfos.size * (
       4 + /* partition id */
         8 + /* offset */
@@ -14060,8 +14059,7 @@ maxColumn = 70
 val needSbt =
   cfg.getVersion < ScalafmtVersion(3, 0, 0, 7) && {
     val extension = getExtension(file.toString)
-    extension ==
-      "md" || // added in 3.0.0-RC7
-      cfg.getVersion < ScalafmtVersion(2, 6, 3) &&
-      extension == "sbt" || extension == "sc" // added in 2.6.3
+    extension == "md" || // added in 3.0.0-RC7
+    cfg.getVersion < ScalafmtVersion(2, 6, 3) && extension == "sbt" ||
+    extension == "sc" // added in 2.6.3
   }
