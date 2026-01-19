@@ -1,7 +1,6 @@
 package org.scalafmt.internal
 
 import org.scalafmt.internal.{SyntacticGroup => g}
-import org.scalafmt.util.InfixApp
 
 import scala.meta.internal.trees._
 import scala.meta.{Lit, Term, Tree}
@@ -11,36 +10,20 @@ import scala.annotation.tailrec
 object SyntacticGroupOps {
 
   def operatorNeedsParenthesis(
-      outerOperator: String,
-      innerOperator: String,
-      customAssociativity: Boolean,
-      customPrecedence: Boolean,
+      outerOp: String,
+      innerOp: String,
       side: Side,
-      forceRight: Boolean = false,
+      what: AnyRef,
   ): Boolean = {
-
-    def isLeftAssociative(name: String): Boolean = !customAssociativity ||
-      InfixApp.isLeftAssoc(name)
-
-    def precedence(name: String): Int =
-      if (customPrecedence) Term.Name(name).precedence else 0
-
-    val outerOperatorIsLeftAssociative = isLeftAssociative(outerOperator)
-    val innerOperatorIsLeftAssociative = isLeftAssociative(innerOperator)
-
-    if (outerOperatorIsLeftAssociative ^ innerOperatorIsLeftAssociative) true
-    else {
-      val isLeft = outerOperatorIsLeftAssociative
-      val isRight = !outerOperatorIsLeftAssociative
-
-      val outerOperatorPrecedence = precedence(outerOperator)
-      val innerOperatorPrecedence = precedence(innerOperator)
-
-      if (outerOperatorPrecedence < innerOperatorPrecedence) isRight
-      else if (outerOperatorPrecedence == innerOperatorPrecedence) isLeft ^
-        side.isLeft
-      else isLeft || forceRight
-    }
+    val outerIsLeftAssoc = outerOp.isLeftAssoc
+    if (outerIsLeftAssoc != innerOp.isLeftAssoc) true
+    else if (what ne g.Type) {
+      val diffPrecedence = outerOp.precedence - innerOp.precedence
+      if (diffPrecedence < 0) !outerIsLeftAssoc // TODO: not needed
+      else if (diffPrecedence > 0) // TODO: is it optional for patterns?
+        outerIsLeftAssoc || (what eq g.Term)
+      else outerIsLeftAssoc != side.isLeft
+    } else outerIsLeftAssoc != side.isLeft
   }
 
   @tailrec
@@ -56,31 +39,14 @@ object SyntacticGroupOps {
       innerGroup: SyntacticGroup,
       side: Side,
   ): Boolean = (outerGroup, innerGroup) match {
-    case (g.Term.InfixExpr(outerOperator), g.Term.InfixExpr(innerOperator)) =>
-      operatorNeedsParenthesis(
-        outerOperator,
-        innerOperator,
-        customAssociativity = true,
-        customPrecedence = true,
-        side,
-        forceRight = true,
-      )
-    case (g.Type.InfixTyp(outerOperator), g.Type.InfixTyp(innerOperator)) =>
-      operatorNeedsParenthesis(
-        outerOperator,
-        innerOperator,
-        customAssociativity = true,
-        customPrecedence = false,
-        side,
-      )
-    case (g.Pat.Pattern3(outerOperator), g.Pat.Pattern3(innerOperator)) =>
-      operatorNeedsParenthesis(
-        outerOperator,
-        innerOperator,
-        customAssociativity = true,
-        customPrecedence = true,
-        side,
-      )
+    case (g.Term.InfixExpr(outerOp), g.Term.InfixExpr(innerOp)) =>
+      operatorNeedsParenthesis(outerOp, innerOp, side, what = g.Term)
+
+    case (g.Type.InfixTyp(outerOp), g.Type.InfixTyp(innerOp)) =>
+      operatorNeedsParenthesis(outerOp, innerOp, side, what = g.Type)
+
+    case (g.Pat.Pattern3(outerOp), g.Pat.Pattern3(innerOp)) =>
+      operatorNeedsParenthesis(outerOp, innerOp, side, what = g.Pat)
 
     case (_: g.Term.PrefixExpr, g.Term.PrefixArg(_, _: g.Term.PrefixExpr)) =>
       true
