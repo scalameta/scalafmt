@@ -2152,9 +2152,9 @@ object a {
   type T = foo - bar + baz
 
   type T = foo * (bar - baz)
-  type T = foo + bar * baz
+  type T = (foo + bar) * baz
 
-  type T = foo - (bar * baz)
+  type T = foo - bar * baz
   type T = foo * bar - baz
 }
 <<< various-precedence type infixes, right-assoc, scala3
@@ -2176,11 +2176,11 @@ object a {
   type T = foo -: bar +: baz
   type T = (foo -: bar) +: baz
 
-  type T = foo *: bar -: baz
+  type T = foo *: (bar -: baz)
   type T = (foo +: bar) *: baz
 
   type T = foo -: bar *: baz
-  type T = (foo *: bar) -: baz
+  type T = foo *: bar -: baz
 }
 <<< various-precedence type infixes, mixed-assoc, scala3
 runner.dialect = scala3
@@ -2311,9 +2311,9 @@ object a {
   func[foo - bar + baz]
 
   func[foo * (bar - baz)]
-  func[foo + bar * baz]
+  func[(foo + bar) * baz]
 
-  func[foo - (bar * baz)]
+  func[foo - bar * baz]
   func[foo * bar - baz]
 }
 <<< various-precedence generic-type infixes, right-assoc, scala3
@@ -2335,11 +2335,11 @@ object a {
   func[foo -: bar +: baz]
   func[(foo -: bar) +: baz]
 
-  func[foo *: bar -: baz]
+  func[foo *: (bar -: baz)]
   func[(foo +: bar) *: baz]
 
   func[foo -: bar *: baz]
-  func[(foo *: bar) -: baz]
+  func[foo *: bar -: baz]
 }
 <<< various-precedence generic-type infixes, mixed-assoc, scala3
 runner.dialect = scala3

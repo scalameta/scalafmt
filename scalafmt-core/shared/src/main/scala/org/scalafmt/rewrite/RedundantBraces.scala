@@ -696,6 +696,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       b: Term.Block,
   )(implicit ft: FT, style: ScalafmtConfig, session: Session): Boolean =
     getSingleStatIfLineSpanOk(b).exists { stat =>
+      import style.dialect
       @tailrec
       def keepForParent(tree: Tree): Boolean = tree match {
         case t: Term.ArgClause => t.parent match {
