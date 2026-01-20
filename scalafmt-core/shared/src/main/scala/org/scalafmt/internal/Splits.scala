@@ -2544,6 +2544,9 @@ object SplitsBeforeDot extends Splits {
       }) && !isEnclosedInMatching(tree)
     val fewerBracesLike = checkFewerBraces(thisSelect.qual)
     val indentFewerBraces = cfg.getFewerBraces()
+    val noIndentFewerBraces =
+      if (nextSelect.isEmpty) indentFewerBraces != Indents.FewerBraces.always
+      else indentFewerBraces == Indents.FewerBraces.never
 
     val nlOnly = fewerBracesLike ||
       cfg.newlines.sourceIgnored && afterComment && hasBreak ||
@@ -2553,8 +2556,10 @@ object SplitsBeforeDot extends Splits {
 
     val nextDotOpt = nextSelect.map(ns => tokenBefore(ns.nameFt))
     val beforeNextDotOpt = nextDotOpt.map(prev)
-    val nextDotIfSig = nextSelect
-      .flatMap(ns => if (checkFewerBraces(ns.qual)) nextDotOpt else None)
+    val nextFewerBraces = nextSelect match {
+      case None => if (checkFewerBraces(expireTree)) Some(expire) else None
+      case Some(ns) => if (checkFewerBraces(ns.qual)) nextDotOpt else None
+    }
 
     def forcedBreakOnNextDotPolicy(implicit fileLine: FileLine) =
       beforeNextDotOpt.map(decideNewlinesOnlyAfterToken(_))
@@ -2588,15 +2593,10 @@ object SplitsBeforeDot extends Splits {
     val baseSplits = cfg.newlines.getSelectChains match {
       case Newlines.classic =>
         def getNlMod = {
-          val endSelect = nextDotIfSig.fold(
-            nextSelect.fold {
-              val ko = indentFewerBraces == Indents.FewerBraces.always &&
-                checkFewerBraces(expireTree)
-              if (ko) None else Some(expire)
-            }(ns => Some(getLastNonTrivial(ns.qual))),
-          ) { nd =>
-            val ok = indentFewerBraces == Indents.FewerBraces.never
-            if (ok) Some(nd) else None
+          val endSelect = nextFewerBraces match {
+            case Some(x) => if (noIndentFewerBraces) Some(x) else None
+            case None =>
+              Some(nextSelect.fold(expire)(ns => getLastNonTrivial(ns.qual)))
           }
           val altIndent = endSelect.map(Indent(-indentLen, _, After))
           Newline.withAlt(modSpace.withIndentOpt(altIndent))
@@ -2701,49 +2701,47 @@ object SplitsBeforeDot extends Splits {
           val nlMod = Newline.withAlt(modSpace, noAltIndent = true)
           Split(nlMod, cost, policy = policy)
         }
-        if (nextDotIfSig.isEmpty)
-          if (nlOnly) Seq(nlSplitBase(0))
-          else {
-            val end = nextSelect.fold(expire)(x => getLastNonTrivial(x.qual))
-            val bracketsToo = nextSelect.forall(_.qual.is[Term.ApplyType]) &&
-              (cfg.binPack.callSiteFor(isBracket = true) ne BinPack.Site.Never)
-            val exclude =
-              insideBracesBlock(ft, end, parens = true, brackets = bracketsToo)
-                .excludeCloseDelim
-            val arrowPolicy = exclude.ranges.map { tr =>
-              Policy.End <= tr.lt ==> Policy.onRight(tr.rt, "PNL+DOTARR") {
-                case Decision(FT(_: T.FunctionArrow, r, m), ss)
-                    if !r.is[T.Comment] && m.leftOwner.is[Member.Function] &&
-                      findTreeWithParent(m.leftOwner) {
-                        case _: Member.Apply => Some(true)
-                        case p: Term.ArgClause if !isSeqSingle(p.values) =>
-                          Some(false)
-                        case p: Tree.Block if !isSeqSingle(p.stats) =>
-                          Some(false)
-                        case _ => None
-                      }.isDefined => ss.penalizeNL(1)
-              }
-            }.foldLeft(Policy.noPolicy) { case (res, pol) => pol ==> res }
-            // include paren as it may have been a brace earlier (i.e. idempotence)
-            val bracesToParens = ftAfterRight.right.is[T.OpenDelim] && {
-              implicit val ft: FT = next(ftAfterRight)
-              val rb = matchingRight(ftAfterRight)
-              getBracesToParensModOnly(rb) ne Space
-            }
-            val noSplit = Split(modSpace, 0)
-              .withSingleLine(end, exclude = exclude)
-            val nlCost = if (bracesToParens) 0 else 1
-            val nlSplit = nlSplitBase(nlCost, arrowPolicy)
-            Seq(noSplit, nlSplit)
-          }
-        else {
+        if (nextFewerBraces.exists(_ ne expire)) {
           val policy: Policy = forcedBreakOnNextDotPolicy
           if (nlOnly) Seq(nlSplitBase(0).withPolicy(policy))
           else {
             val noSplit = Split(modSpace, 0, policy = policy)
             Seq(noSplit, nlSplitBase(1, policy))
           }
-        }
+        } else if (!nlOnly) {
+          val end = nextSelect.fold(expire)(x => getLastNonTrivial(x.qual))
+          val bracketsToo = nextSelect.forall(_.qual.is[Term.ApplyType]) &&
+            (cfg.binPack.callSiteFor(isBracket = true) ne BinPack.Site.Never)
+          val exclude =
+            insideBracesBlock(ft, end, parens = true, brackets = bracketsToo)
+              .excludeCloseDelim
+          def arrowOwner(tree: Tree): Boolean = tree.is[Member.Function] &&
+            findTreeWithParent(tree) {
+              case _: Member.Apply => Some(true)
+              case p: Term.ArgClause if !isSeqSingle(p.values) => Some(false)
+              case p: Tree.Block if !isSeqSingle(p.stats) => Some(false)
+              case _ => None
+            }.isDefined
+          val arrowPolicy = exclude.ranges
+            .foldLeft(Policy.noPolicy) { case (res, tr) =>
+              val policy = Policy.onRight(tr.rt, "PNL+DOTARR") {
+                case Decision(FT(_: T.FunctionArrow, r, m), ss)
+                    if !r.is[T.Comment] && arrowOwner(m.leftOwner) =>
+                  ss.penalizeNL(1)
+              }
+              Policy.End <= tr.lt ==> policy ==> res
+            }
+          // include paren as it may have been a brace earlier (i.e. idempotence)
+          val bracesToParens = ftAfterRight.right.is[T.OpenDelim] && {
+            implicit val ft: FT = next(ftAfterRight)
+            val rb = matchingRight(ftAfterRight)
+            getBracesToParensModOnly(rb) ne Space
+          }
+          val noSplit = Split(modSpace, 0).withSingleLine(end, exclude = exclude)
+          val nlCost = if (bracesToParens) 0 else 1
+          val nlSplit = nlSplitBase(nlCost, arrowPolicy)
+          Seq(noSplit, nlSplit)
+        } else Seq(nlSplitBase(0))
     }
 
     val delayedBreakPolicyOpt = nextSelect.map { selectLike =>
@@ -2759,22 +2757,21 @@ object SplitsBeforeDot extends Splits {
     }
 
     // trigger indent only on the first newline
-    val fbIndent = indentFewerBraces != Indents.FewerBraces.never
-    val noIndent = !fbIndent && fewerBracesLike
+    val noIndent = fewerBracesLike &&
+      indentFewerBraces == Indents.FewerBraces.never
     val nlIndent =
       if (noIndent) Indent.Empty else Indent(indentLen, expire, After)
     val spcPolicy: Policy = delayedBreakPolicyOpt
     val nlPolicy = spcPolicy ? noIndent
     val splits =
-      if (nextNonCommentSameLine(ftAfterRight).right.is[T.Comment])
-        // will break
+      if (nextNonCommentSameLine(ftAfterRight).right.is[T.Comment]) // will break
         baseSplits.map(_.withIndent(nlIndent).andFirstPolicy(nlPolicy))
       else {
-        val spcIndent = nextDotIfSig.fold {
-          val ok = indentFewerBraces == Indents.FewerBraces.always &&
-            nextSelect.isEmpty && checkFewerBraces(expireTree)
-          if (ok) nlIndent else Indent.empty
-        }(x => if (fbIndent) Indent(indentLen, x, Before) else Indent.Empty)
+        val spcIndent = nextFewerBraces.fold(Indent.empty)(x =>
+          if (noIndentFewerBraces) Indent.Empty
+          else if (nextSelect.isEmpty) nlIndent
+          else Indent(indentLen, x, Before),
+        )
         baseSplits.map(s =>
           if (s.isNL) s.withIndent(nlIndent).andFirstPolicy(nlPolicy)
           else s.withIndent(spcIndent).andFirstPolicy(spcPolicy),
