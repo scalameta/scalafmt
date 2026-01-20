@@ -6400,12 +6400,12 @@ object a {
 object a {
   foo
     .
-      // c2
+    // c2
     bar(baz)
     .foo(bar, baz)
   foo
     . // c1
-      // c2
+    // c2
     bar(baz)
     .foo(bar, baz)
   foo
@@ -6493,7 +6493,7 @@ object a {
     qux
   foo
     .
-      // c1
+    // c1
     bar(baz)
     .
     // c2
@@ -6524,7 +6524,7 @@ object a {
     qux
   foo
     .
-      // c1
+    // c1
     bar(baz)
     // c2
     .foo(bar, baz)
@@ -6539,7 +6539,7 @@ object a {
     .qux
   foo
     .
-      // c1
+    // c1
     bar(baz)
     .
     // c2

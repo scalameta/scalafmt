@@ -7395,12 +7395,12 @@ object a:
 object a:
    lazy val `stdlib-bootstrapped` = project.in(
      file("stdlib-bootstrapped")).
-   withCommonSettings(Bootstrapped).
-   dependsOn(dottyCompiler(Bootstrapped) %
-     "provided; compile->runtime; test->test").
-   settings(
-     moduleName := "scala-library"
-   )
+     withCommonSettings(Bootstrapped).
+     dependsOn(dottyCompiler(Bootstrapped) %
+       "provided; compile->runtime; test->test").
+     settings(
+       moduleName := "scala-library"
+     )
 <<< #4133 overflow selects/applies, nobreak-dot-nobreak, binpack + !dangling
 maxColumn = 70
 binPack.preset = always
@@ -7856,17 +7856,17 @@ object Build {
 >>>
 object Build:
    lazy val scaladoc = project.in(file("scaladoc")).
-   settings(
-     generateScalaDocumentation := Def.inputTaskDyn {
-       val outputDirOverride =
-         extraArgs.headOption.fold(identity[GenerationConfig](_))(newDir =>
-           (config: GenerationConfig) => config.add(OutputDir(newDir))
+     settings(
+       generateScalaDocumentation := Def.inputTaskDyn {
+         val outputDirOverride =
+           extraArgs.headOption.fold(identity[GenerationConfig](_))(newDir =>
+             (config: GenerationConfig) => config.add(OutputDir(newDir))
+           )
+         val justAPI = justAPIArg.fold(identity[GenerationConfig](_))(_ =>
+           (config: GenerationConfig) => config.remove[SiteRoot]
          )
-       val justAPI = justAPIArg.fold(identity[GenerationConfig](_))(_ =>
-         (config: GenerationConfig) => config.remove[SiteRoot]
-       )
-     }.evaluated
-   )
+       }.evaluated
+     )
 <<< AvoidInfix with match, excludeMatch
 rewrite.rules = [AvoidInfix]
 rewrite.avoidInfix.excludeMatch = true

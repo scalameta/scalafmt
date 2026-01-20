@@ -3237,15 +3237,15 @@ object a {
   . // c3
   qux
   foo.
-    // c1
+  // c1
   bar:
      baz
   .
-    // c2
+  // c2
   foo:
      bar
   .
-    // c3
+  // c3
   qux
   foo // c1
     .bar:
@@ -3274,14 +3274,14 @@ object a {
   . // c2
   qux
   foo.
-    // c1
+  // c1
   bar:
      baz
-    // c2
+  // c2
   .foo:
      bar
   .
-    // c2
+  // c2
   qux
   foo. // c1
   bar:
@@ -3289,17 +3289,17 @@ object a {
   . // c2
   foo:
      bar
-    // c3
+  // c3
   .qux
   foo.
-    // c1
+  // c1
   bar:
      baz
   .
-    // c2
+  // c2
   foo:
      bar
-    // c3
+  // c3
   .qux
 }
 <<< comment in select chain, after dot, always
@@ -3391,11 +3391,11 @@ object a {
     . // c3
     qux
   foo.
-      // c1
+    // c1
     bar:
        baz
     .
-      // c2
+    // c2
     foo:
        bar
     .
@@ -3428,10 +3428,10 @@ object a {
     . // c2
     qux
   foo.
-      // c1
+    // c1
     bar:
        baz
-      // c2
+    // c2
     .foo:
        bar
     .
@@ -3446,11 +3446,11 @@ object a {
     // c3
     .qux
   foo.
-      // c1
+    // c1
     bar:
        baz
     .
-      // c2
+    // c2
     foo:
        bar
     // c3
@@ -3545,11 +3545,11 @@ object a {
     . // c3
     qux
   foo.
-      // c1
+    // c1
     bar:
        baz
     .
-      // c2
+    // c2
     foo:
        bar
     .
@@ -3582,10 +3582,10 @@ object a {
     . // c2
     qux
   foo.
-      // c1
+    // c1
     bar:
        baz
-      // c2
+    // c2
     .foo:
        bar
     .
@@ -3600,11 +3600,11 @@ object a {
     // c3
     .qux
   foo.
-      // c1
+    // c1
     bar:
        baz
     .
-      // c2
+    // c2
     foo:
        bar
     // c3

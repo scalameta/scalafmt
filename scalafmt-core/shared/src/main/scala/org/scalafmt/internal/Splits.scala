@@ -2750,7 +2750,7 @@ object SplitsBeforeDot extends Splits {
         case Decision(FT(_, _: T.Dot, m), s) if m.rightOwner eq tree =>
           SplitTag.SelectChainFirstNL.activateOnly(s)
         case Decision(FT(_, _: T.Comment, m), s)
-            if m.rightOwner.eq(tree) &&
+            if m.rightOwner.eq(tree) && nextFewerBraces.isEmpty &&
               s.exists(_.isNeededFor(SplitTag.SelectChainFirstNL)) =>
           SplitTag.SelectChainFirstNL.activateOnly(s)
       }
@@ -2767,7 +2767,14 @@ object SplitsBeforeDot extends Splits {
       if (nextNonCommentSameLine(ftAfterRight).right.is[T.Comment]) // will break
         baseSplits.map(_.withIndent(nlIndent).andFirstPolicy(nlPolicy))
       else {
-        val spcIndent = nextFewerBraces.fold(Indent.empty)(x =>
+        val spcIndent = nextFewerBraces.fold {
+          val skip = (cfg.newlines.getSelectChains ne Newlines.keep) ||
+            hasBreak || nextNonCommentSameLineAfter(ft).noBreak
+          if (skip) Indent.Empty
+          else nextDotOpt.fold(nlIndent)(x =>
+            Indent(indentLen, prevNonCommentBefore(x), Before),
+          )
+        }(x =>
           if (noIndentFewerBraces) Indent.Empty
           else if (nextSelect.isEmpty) nlIndent
           else Indent(indentLen, x, Before),
@@ -3510,15 +3517,14 @@ object SplitsBeforeCommentLowPriority extends Splits {
     val mod = if (forceBlankLine) Newline2x else getMod(ft)
     val nft = nextNonCommentAfter(ft)
     def baseSplit(implicit fileLine: FileLine) = Split(mod, 0)
-    def split(implicit fileLine: FileLine) = baseSplit
-      .withIndent(cfg.indent.main, nft, ExpiresOn.After)
 
-    val selectLikeOpt =
-      if (nft.right.is[T.Dot]) Select.onRightOpt(nft)
+    val nearbyDot =
+      if (nft.right.is[T.Dot]) Some(nft)
       else {
         val pft = prevBeforeNonComment(ft)
-        if (pft.right.is[T.Dot]) Select.onRightOpt(pft) else None
+        if (pft.right.is[T.Dot]) Some(pft) else None
       }
+    val selectLikeOpt = nearbyDot.flatMap(Select.onRightOpt)
 
     selectLikeOpt.fold {
       val infixSplits = nft.rightOwner match {
@@ -3530,10 +3536,13 @@ object SplitsBeforeCommentLowPriority extends Splits {
         case _ => Seq.empty
       }
       if (infixSplits.isEmpty) Seq(baseSplit) else infixSplits
-    }(t =>
+    } { t =>
+      val noIndent = nearbyDot.exists(_.idx <= ft.idx)
+      def split(implicit fileLine: FileLine) = baseSplit
+        .withIndent(cfg.indent.main, nft, ExpiresOn.After, ignore = noIndent)
       if (Select.prev(t, cfg.newlines.encloseSelectChains).isEmpty) Seq(split)
-      else Seq(baseSplit, split.onlyFor(SplitTag.SelectChainFirstNL)),
-    )
+      else Seq(baseSplit, split.onlyFor(SplitTag.SelectChainFirstNL))
+    }
   }
 }
 
