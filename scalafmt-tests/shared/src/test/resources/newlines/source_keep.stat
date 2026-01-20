@@ -6201,9 +6201,9 @@ object a {
 object a {
   foo.
     // c2
-  bar(baz).foo(bar, baz)
+    bar(baz).foo(bar, baz)
   foo. // c1
-      // c2
+    // c2
     bar(baz).foo(bar, baz)
   foo.bar(baz) // c1
     . // c2
@@ -6222,8 +6222,8 @@ object a {
 object a {
   lazy val `scala3-sbt-bridge` =
     project.in(file("sbt-bridge/src")).
-        // We cannot depend on any bootstrapped project to compile the bridge, since the
-        // bridge is needed to compile these projects.
+      // We cannot depend on any bootstrapped project to compile the bridge, since the
+      // bridge is needed to compile these projects.
       dependsOn(`scala3-compiler` %
         Provided).
       settings(commonJavaSettings).
@@ -6279,16 +6279,16 @@ object a {
 >>>
 object a {
   foo. // c1
-  bar(baz). // c2
-  foo(bar, baz). // c3
-  qux
+    bar(baz). // c2
+    foo(bar, baz). // c3
+    qux
   foo.
     // c1
-  bar(baz).
+    bar(baz).
     // c2
-  foo(bar, baz).
+    foo(bar, baz).
     // c3
-  qux
+    qux
   foo // c1
     .bar(baz). // c2
     foo(bar, baz). // c3
@@ -6301,25 +6301,25 @@ object a {
     // c3
     qux
   foo. // c1
-  bar(baz) // c2
+    bar(baz) // c2
     .foo(bar, baz). // c2
     qux
   foo.
     // c1
-  bar(baz)
+    bar(baz)
     // c2
     .foo(bar, baz).
     // c2
     qux
   foo. // c1
-  bar(baz). // c2
-  foo(bar, baz) // c3
+    bar(baz). // c2
+    foo(bar, baz) // c3
     .qux
   foo.
     // c1
-  bar(baz).
+    bar(baz).
     // c2
-  foo(bar, baz)
+    foo(bar, baz)
     // c3
     .qux
 }
@@ -6347,20 +6347,20 @@ object a {
 >>>
 object a {
   foo.
-  bar(baz).
-  foo(bar, baz).
-  qux
+    bar(baz).
+    foo(bar, baz).
+    qux
   foo
     .bar(baz).
     foo(bar, baz).
     qux
   foo.
-  bar(baz)
+    bar(baz)
     .foo(bar, baz).
     qux
   foo.
-  bar(baz).
-  foo(bar, baz)
+    bar(baz).
+    foo(bar, baz)
     .qux
 }
 <<< try with match expr
@@ -9943,17 +9943,17 @@ object Build {
 >>>
 object Build {
   lazy val scaladoc = project.in(file("scaladoc")).
-  settings(
-    generateScalaDocumentation := Def.inputTaskDyn {
-      val outputDirOverride =
-        extraArgs.headOption.fold(identity[GenerationConfig](_)) {
-          newDir => config: GenerationConfig => config.add(OutputDir(newDir))
+    settings(
+      generateScalaDocumentation := Def.inputTaskDyn {
+        val outputDirOverride =
+          extraArgs.headOption.fold(identity[GenerationConfig](_)) {
+            newDir => config: GenerationConfig => config.add(OutputDir(newDir))
+          }
+        val justAPI = justAPIArg.fold(identity[GenerationConfig](_)) {
+          _ => config: GenerationConfig => config.remove[SiteRoot]
         }
-      val justAPI = justAPIArg.fold(identity[GenerationConfig](_)) {
-        _ => config: GenerationConfig => config.remove[SiteRoot]
-      }
-    }.evaluated
-  )
+      }.evaluated
+    )
 }
 <<< #4133 monads with binpack and no newlines in types
 maxColumn = 80

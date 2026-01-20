@@ -3569,7 +3569,7 @@ object a {
     qux
   foo
     .
-      // c1
+    // c1
     bar:
        baz
     .
@@ -3608,7 +3608,7 @@ object a {
     qux
   foo
     .
-      // c1
+    // c1
     bar:
        baz
     // c2
@@ -3628,7 +3628,7 @@ object a {
     .qux
   foo
     .
-      // c1
+    // c1
     bar:
        baz
     .
@@ -3729,7 +3729,7 @@ object a {
     qux
   foo
     .
-      // c1
+    // c1
     bar:
        baz
     .
@@ -3768,7 +3768,7 @@ object a {
     qux
   foo
     .
-      // c1
+    // c1
     bar:
        baz
     // c2
@@ -3788,7 +3788,7 @@ object a {
     .qux
   foo
     .
-      // c1
+    // c1
     bar:
        baz
     .
@@ -3889,7 +3889,7 @@ object a {
     qux
   foo
     .
-      // c1
+    // c1
     bar:
        baz
     .
@@ -3928,7 +3928,7 @@ object a {
     qux
   foo
     .
-      // c1
+    // c1
     bar:
        baz
     // c2
@@ -3948,7 +3948,7 @@ object a {
     .qux
   foo
     .
-      // c1
+    // c1
     bar:
        baz
     .
