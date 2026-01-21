@@ -3418,3 +3418,543 @@ object a {
      bar
      baz
 }
+<<< break in select chain, after dot, never
+indent.fewerBraces = never
+===
+object a {
+  foo.
+    bar:
+      baz
+    .
+    foo:
+      bar
+    .
+    qux
+  foo
+    .bar:
+      baz
+    .foo:
+      bar
+    .qux
+  foo.
+    bar:
+      baz
+    .foo:
+      bar
+    .
+    qux
+  foo.
+    bar:
+      baz
+    .
+    foo:
+      bar
+    .qux
+}
+>>>
+object a {
+  foo
+    .bar:
+       baz
+    .foo:
+       bar
+    .qux
+  foo
+    .bar:
+       baz
+    .foo:
+       bar
+    .qux
+  foo
+    .bar:
+       baz
+    .foo:
+       bar
+    .qux
+  foo
+    .bar:
+       baz
+    .foo:
+       bar
+    .qux
+}
+<<< comment in select chain, after dot, never
+indent.fewerBraces = never
+===
+object a {
+  foo. // c1
+    bar:
+      baz
+    . // c2
+    foo:
+      bar
+    . // c3
+    qux
+  foo.
+    // c1
+    bar:
+      baz
+    .
+    // c2
+    foo:
+      bar
+    .
+    // c3
+    qux
+  foo // c1
+    .bar:
+      baz
+    . // c2
+    foo:
+      bar
+    . // c3
+    qux
+  foo
+    // c1
+    .bar:
+      baz
+    .
+    // c2
+    foo:
+      bar
+    .
+    // c3
+    qux
+  foo. // c1
+    bar:
+      baz // c2
+    .foo:
+      bar
+    . // c2
+    qux
+  foo.
+    // c1
+    bar:
+      baz
+    // c2
+    .foo:
+      bar
+    .
+    // c2
+    qux
+  foo. // c1
+    bar:
+      baz
+    . // c2
+    foo:
+      bar
+    // c3
+    .qux
+  foo.
+    // c1
+    bar:
+      baz
+    .
+    // c2
+    foo:
+      bar
+    // c3
+    .qux
+}
+>>>
+object a {
+  foo
+    . // c1
+    bar:
+       baz
+    . // c2
+    foo:
+       bar
+    . // c3
+    qux
+  foo
+    .
+      // c1
+    bar:
+       baz
+    .
+    // c2
+    foo:
+       bar
+    .
+    // c3
+    qux
+  foo // c1
+    .bar:
+       baz
+    . // c2
+    foo:
+       bar
+    . // c3
+    qux
+  foo
+    // c1
+    .bar:
+       baz
+    .
+    // c2
+    foo:
+       bar
+    .
+    // c3
+    qux
+  foo
+    . // c1
+    bar:
+       baz // c2
+    .foo:
+       bar
+    . // c2
+    qux
+  foo
+    .
+      // c1
+    bar:
+       baz
+    // c2
+    .foo:
+       bar
+    .
+    // c2
+    qux
+  foo
+    . // c1
+    bar:
+       baz
+    . // c2
+    foo:
+       bar
+    // c3
+    .qux
+  foo
+    .
+      // c1
+    bar:
+       baz
+    .
+    // c2
+    foo:
+       bar
+    // c3
+    .qux
+}
+<<< comment in select chain, after dot, alaways
+indent.fewerBraces = always
+===
+object a {
+  foo. // c1
+    bar:
+      baz
+    . // c2
+    foo:
+      bar
+    . // c3
+    qux
+  foo.
+    // c1
+    bar:
+      baz
+    .
+    // c2
+    foo:
+      bar
+    .
+    // c3
+    qux
+  foo // c1
+    .bar:
+      baz
+    . // c2
+    foo:
+      bar
+    . // c3
+    qux
+  foo
+    // c1
+    .bar:
+      baz
+    .
+    // c2
+    foo:
+      bar
+    .
+    // c3
+    qux
+  foo. // c1
+    bar:
+      baz // c2
+    .foo:
+      bar
+    . // c2
+    qux
+  foo.
+    // c1
+    bar:
+      baz
+    // c2
+    .foo:
+      bar
+    .
+    // c2
+    qux
+  foo. // c1
+    bar:
+      baz
+    . // c2
+    foo:
+      bar
+    // c3
+    .qux
+  foo.
+    // c1
+    bar:
+      baz
+    .
+    // c2
+    foo:
+      bar
+    // c3
+    .qux
+}
+>>>
+object a {
+  foo
+    . // c1
+    bar:
+       baz
+    . // c2
+    foo:
+       bar
+    . // c3
+    qux
+  foo
+    .
+      // c1
+    bar:
+       baz
+    .
+    // c2
+    foo:
+       bar
+    .
+    // c3
+    qux
+  foo // c1
+    .bar:
+       baz
+    . // c2
+    foo:
+       bar
+    . // c3
+    qux
+  foo
+    // c1
+    .bar:
+       baz
+    .
+    // c2
+    foo:
+       bar
+    .
+    // c3
+    qux
+  foo
+    . // c1
+    bar:
+       baz // c2
+    .foo:
+       bar
+    . // c2
+    qux
+  foo
+    .
+      // c1
+    bar:
+       baz
+    // c2
+    .foo:
+       bar
+    .
+    // c2
+    qux
+  foo
+    . // c1
+    bar:
+       baz
+    . // c2
+    foo:
+       bar
+    // c3
+    .qux
+  foo
+    .
+      // c1
+    bar:
+       baz
+    .
+    // c2
+    foo:
+       bar
+    // c3
+    .qux
+}
+<<< comment in select chain, after dot, beforeSelect
+indent.fewerBraces = beforeSelect
+===
+object a {
+  foo. // c1
+    bar:
+      baz
+    . // c2
+    foo:
+      bar
+    . // c3
+    qux
+  foo.
+    // c1
+    bar:
+      baz
+    .
+    // c2
+    foo:
+      bar
+    .
+    // c3
+    qux
+  foo // c1
+    .bar:
+      baz
+    . // c2
+    foo:
+      bar
+    . // c3
+    qux
+  foo
+    // c1
+    .bar:
+      baz
+    .
+    // c2
+    foo:
+      bar
+    .
+    // c3
+    qux
+  foo. // c1
+    bar:
+      baz // c2
+    .foo:
+      bar
+    . // c2
+    qux
+  foo.
+    // c1
+    bar:
+      baz
+    // c2
+    .foo:
+      bar
+    .
+    // c2
+    qux
+  foo. // c1
+    bar:
+      baz
+    . // c2
+    foo:
+      bar
+    // c3
+    .qux
+  foo.
+    // c1
+    bar:
+      baz
+    .
+    // c2
+    foo:
+      bar
+    // c3
+    .qux
+}
+>>>
+object a {
+  foo
+    . // c1
+    bar:
+       baz
+    . // c2
+    foo:
+       bar
+    . // c3
+    qux
+  foo
+    .
+      // c1
+    bar:
+       baz
+    .
+    // c2
+    foo:
+       bar
+    .
+    // c3
+    qux
+  foo // c1
+    .bar:
+       baz
+    . // c2
+    foo:
+       bar
+    . // c3
+    qux
+  foo
+    // c1
+    .bar:
+       baz
+    .
+    // c2
+    foo:
+       bar
+    .
+    // c3
+    qux
+  foo
+    . // c1
+    bar:
+       baz // c2
+    .foo:
+       bar
+    . // c2
+    qux
+  foo
+    .
+      // c1
+    bar:
+       baz
+    // c2
+    .foo:
+       bar
+    .
+    // c2
+    qux
+  foo
+    . // c1
+    bar:
+       baz
+    . // c2
+    foo:
+       bar
+    // c3
+    .qux
+  foo
+    .
+      // c1
+    bar:
+       baz
+    .
+    // c2
+    foo:
+       bar
+    // c3
+    .qux
+}

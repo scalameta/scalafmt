@@ -5932,6 +5932,154 @@ object a {
     ).settings(commonJavaSettings)
     .settings(foo)
 }
+<<< comment in select chain, after dot 3
+object a {
+  foo. // c1
+    bar(baz). // c2
+    foo(bar, baz). // c3
+    qux
+  foo.
+    // c1
+    bar(baz).
+    // c2
+    foo(bar, baz).
+    // c3
+    qux
+  foo // c1
+    .bar(baz). // c2
+    foo(bar, baz). // c3
+    qux
+  foo
+    // c1
+    .bar(baz).
+    // c2
+    foo(bar, baz).
+    // c3
+    qux
+  foo. // c1
+    bar(baz) // c2
+    .foo(bar, baz). // c2
+    qux
+  foo.
+    // c1
+    bar(baz)
+    // c2
+    .foo(bar, baz).
+    // c2
+    qux
+  foo. // c1
+    bar(baz). // c2
+    foo(bar, baz) // c3
+    .qux
+  foo.
+    // c1
+    bar(baz).
+    // c2
+    foo(bar, baz)
+    // c3
+    .qux
+}
+>>>
+object a {
+  foo
+    . // c1
+    bar(baz)
+    . // c2
+    foo(bar, baz)
+    . // c3
+    qux
+  foo
+    .
+      // c1
+    bar(baz)
+    .
+    // c2
+    foo(bar, baz)
+    .
+    // c3
+    qux
+  foo // c1
+    .bar(baz)
+    . // c2
+    foo(bar, baz)
+    . // c3
+    qux
+  foo
+    // c1
+    .bar(baz)
+    .
+    // c2
+    foo(bar, baz)
+    .
+    // c3
+    qux
+  foo
+    . // c1
+    bar(baz) // c2
+    .foo(bar, baz)
+    . // c2
+    qux
+  foo
+    .
+      // c1
+    bar(baz)
+    // c2
+    .foo(bar, baz)
+    .
+    // c2
+    qux
+  foo
+    . // c1
+    bar(baz)
+    . // c2
+    foo(bar, baz) // c3
+    .qux
+  foo
+    .
+      // c1
+    bar(baz)
+    .
+    // c2
+    foo(bar, baz)
+    // c3
+    .qux
+}
+<<< break in select chain, after dot 3
+maxColumn = 20
+===
+object a {
+  foo.
+    bar(baz).
+    foo(bar, baz).
+    qux
+  foo
+    .bar(baz).
+    foo(bar, baz).
+    qux
+  foo.
+    bar(baz)
+    .foo(bar, baz).
+    qux
+  foo.
+    bar(baz).
+    foo(bar, baz)
+    .qux
+}
+>>>
+object a {
+  foo.bar(baz)
+    .foo(bar, baz)
+    .qux
+  foo.bar(baz)
+    .foo(bar, baz)
+    .qux
+  foo.bar(baz)
+    .foo(bar, baz)
+    .qux
+  foo.bar(baz)
+    .foo(bar, baz)
+    .qux
+}
 <<< try with match expr
 object a {
   try ta match {
