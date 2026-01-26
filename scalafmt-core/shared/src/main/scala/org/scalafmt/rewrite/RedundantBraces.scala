@@ -656,7 +656,13 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
 
       case Term.Block(List(`b`)) => true
 
-      case _: Term.QuotedMacroExpr | _: Term.SplicedMacroExpr => false
+      case p: Term.QuotedMacroExpr => getTreeSingleExpr(b)
+          .exists(_.is[Term.Name]) && !existsParentOfType[Pat.Macro](p)
+
+      case p: Term.SplicedMacroExpr => getTreeSingleExpr(b)
+          .exists(_.is[Term.Name]) && existsParentOfType[Term.QuotedMacroExpr](p)
+
+      case _: Term.SplicedMacroPat => false
 
       case _ => settings.generalExpressions && shouldRemoveSingleStatBlock(b)
     }
