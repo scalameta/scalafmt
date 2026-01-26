@@ -20,6 +20,6 @@ addSbtPlugin("org.scalameta"    % "sbt-mdoc"         % "2.8.2")
 addSbtPlugin("org.scalameta"    % "sbt-scalafmt"     % "2.5.6")
 addSbtPlugin("org.scalameta"    % "sbt-native-image" % "0.3.4")
 addSbtPlugin("org.scala-js"     % "sbt-scalajs"      % "1.20.2")
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.9")
+addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.10")
 
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.4.8")
