@@ -17,7 +17,7 @@ private[scalafmt] object DialectMacro {
     import c.universe._
     val methods = typeOf[Dialect].members.flatMap {
       case v: MethodSymbol => v.paramLists match {
-          case (param :: Nil) :: Nil => // single parameter
+          case (param :: Nil) :: Nil if v.isPublic => // single parameter
             val methodName = v.name
             val methodNameStr = methodName.toString
             if (methodNameStr.startsWith("with")) {
