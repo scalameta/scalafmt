@@ -2,10 +2,8 @@ package org.scalafmt.internal
 
 import org.scalafmt.internal.{SyntacticGroup => g}
 
+import scala.meta.Dialect
 import scala.meta.internal.trees._
-import scala.meta.{Dialect, Lit, Term, Tree}
-
-import scala.annotation.tailrec
 
 object SyntacticGroupOps {
 
@@ -24,14 +22,6 @@ object SyntacticGroupOps {
     } else outerIsLeftAssoc != side.isLeft
   }
 
-  @tailrec
-  def startsWithNumericLiteral(tree: Tree): Boolean = tree match {
-    case _: Lit.Int | _: Lit.Long | _: Lit.Double | _: Lit.Float | _: Lit.Byte |
-        _: Lit.Short => true
-    case t: Term.Select => startsWithNumericLiteral(t.qual)
-    case _ => false
-  }
-
   def groupNeedsParenthesis(
       outerGroup: SyntacticGroup,
       innerGroup: SyntacticGroup,
@@ -45,12 +35,6 @@ object SyntacticGroupOps {
 
     case (g.Pat.Pattern3(outerOp), g.Pat.Pattern3(innerOp)) =>
       operatorNeedsParenthesis(outerOp, innerOp, side, what = g.Pat)
-
-    case (_: g.Term.PrefixExpr, g.Term.PrefixArg(_, _: g.Term.PrefixExpr)) =>
-      true
-
-    case (g.Term.PrefixExpr("-"), g.Term.PrefixArg(Term.Select(tree, _), _))
-        if startsWithNumericLiteral(tree) => true
 
     case _ => outerGroup.precedence > innerGroup.precedence
   }

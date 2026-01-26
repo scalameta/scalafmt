@@ -1,7 +1,5 @@
 package org.scalafmt.internal
 
-import scala.meta.Tree
-
 sealed trait SyntacticGroup {
   def categories: List[String]
   def precedence: Double
@@ -58,12 +56,6 @@ object SyntacticGroup {
     }
     case class PrefixExpr(operator: String) extends Term {
       def precedence = 4
-    }
-    object PrefixArg {
-      def apply(tree: Tree): PrefixArg = PrefixArg(tree, TreeSyntacticGroup(tree))
-    }
-    case class PrefixArg(tree: Tree, innerGroup: SyntacticGroup) extends Term {
-      def precedence = innerGroup.precedence
     }
     case object SimpleExpr extends Term {
       def precedence = 5
