@@ -9,29 +9,18 @@ import munit.FunSuite
 class ConfigDialectOverrideTest extends FunSuite {
   private val generatedMap = DialectMacro.dialectMap
 
-  // toplevelSeparator is never actually used,
-  // but as the only non-boolean Dialect value it makes for a good test
-  test("dialect override - non boolean setting")(
-    ScalafmtConfig.fromHoconString(
-      """|
-         |runner.dialectOverride.toplevelSeparator = ">"
-         |runner.dialect = scala213
-         |""".stripMargin,
-    ).get,
-  )
-
-  test("throws on an incorrect type of setting") {
+  test("throws on an non-existent setting") {
     val res =
       try ScalafmtConfig.fromHoconString(
           """|
-             |runner.dialectOverride.toplevelSeparator = true
+             |runner.dialectOverride.fooBar = true
              |runner.dialect = scala213
              |""".stripMargin,
         )
       catch { case ex: Throwable => Configured.NotOk(ConfError.exception(ex)) }
     res match {
       case Configured.NotOk(err: ConfError) =>
-        assert(err.msg.contains("cannot be cast to"), err.msg)
+        assert(err.msg.contains("key not found: withFooBar"), err.msg)
       case _ => fail("should have failed")
     }
   }

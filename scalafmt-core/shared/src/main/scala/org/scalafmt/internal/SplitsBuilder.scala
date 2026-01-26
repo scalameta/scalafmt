@@ -26,7 +26,7 @@ object SplitsBuilder {
     builder.add[T.EOF](SplitsAfterEOF)
     builder.add[T.Shebang](SplitsNewline2X)
     builder.add[T.Interpolation.Start](SplitsAfterInterpolationStart)
-    builder.add[T.Xml.Part, T.MacroSplice, T.MacroQuote, T.Interpolation.Id,
+    builder.add[T.Xml.Part, T.MacroQuote, T.Interpolation.Id,
       T.Interpolation.Part, T.Interpolation.SpliceStart,
     ](SplitsNoSplit)
     builder.add[T.Dot](SplitsAfterDot)

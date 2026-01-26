@@ -2869,6 +2869,7 @@ object SplitsAfterIdent extends Splits {
       case _: Type.ByNameType if soft.KwPureFunctionArrow.matches(left) =>
         Seq(Split(Space(cfg.spaces.inByNameTypes && !right.is[T.LeftBrace]), 0))
       case _: Mod.ParamsType => SplitsAfterImplicit.get
+      case _: Term.SplicedMacroLike => SplitsNoSplit.get
       case _ => Seq.empty
     }
   }
