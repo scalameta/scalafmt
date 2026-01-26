@@ -9,7 +9,7 @@ abstract class CommunityScala3Suite(name: String)
 
 class CommunityScala3_2Suite extends CommunityScala3Suite("scala-3.2") {
 
-  override protected def totalStatesVisited: Option[Int] = Some(39503078)
+  override protected def totalStatesVisited: Option[Int] = Some(39502994)
 
   override protected def builds = Seq(getBuild("3.2.2", dialects.Scala32, 791))
 
@@ -17,7 +17,7 @@ class CommunityScala3_2Suite extends CommunityScala3Suite("scala-3.2") {
 
 class CommunityScala3_3Suite extends CommunityScala3Suite("scala-3.3") {
 
-  override protected def totalStatesVisited: Option[Int] = Some(42644053)
+  override protected def totalStatesVisited: Option[Int] = Some(42643969)
 
   override protected def builds = Seq(getBuild("3.3.3", dialects.Scala33, 861))
 

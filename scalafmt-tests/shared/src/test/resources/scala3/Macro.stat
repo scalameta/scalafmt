@@ -176,19 +176,19 @@ ${{{ foo }}} bar ${{{ baz }}}
 '{ ${ foo } bar ${ baz } }
 '{{{ ${{ foo }} bar ${{ baz }} }}}
 >>>
-'{ foo }
-'{ foo }
-'{ foo } == '{ baz }
-'{ foo } == '{ baz }
-'{ foo } bar '{ baz }
-'{ foo } bar '{ baz }
+'foo
+'foo
+'foo == 'baz
+'foo == 'baz
+'foo bar 'baz
+'foo bar 'baz
 
-${ '{ foo } }
-${ '{ foo } }
-${ '{ foo } == '{ baz } }
-${ '{ foo } == '{ baz } }
-${ '{ foo } bar '{ baz } }
-${ '{ foo } bar '{ baz } }
+${ 'foo }
+${ 'foo }
+${ 'foo == 'baz }
+${ 'foo == 'baz }
+${ 'foo bar 'baz }
+${ 'foo bar 'baz }
 
 ${ foo }
 ${ foo }
@@ -197,12 +197,12 @@ ${ foo } == ${ baz }
 ${ foo } bar ${ baz }
 ${ foo } bar ${ baz }
 
-'{ ${ foo } }
-'{ ${ foo } }
-'{ ${ foo } == ${ baz } }
-'{ ${ foo } == ${ baz } }
-'{ ${ foo } bar ${ baz } }
-'{ ${ foo } bar ${ baz } }
+'{ $foo }
+'{ $foo }
+'{ $foo == $baz }
+'{ $foo == $baz }
+'{ $foo bar $baz }
+'{ $foo bar $baz }
 <<< quoted and spliced patterns, RedundantBraces
 runner.parser = source
 rewrite.rules = [RedundantBraces]
