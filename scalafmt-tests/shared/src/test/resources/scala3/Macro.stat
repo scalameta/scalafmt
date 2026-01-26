@@ -144,3 +144,89 @@ def to[T, R](f: Expr[T] => Expr[R])(using
     t: Type[T]
 )(using Type[R], Quotes): Expr[T => R] =
   '{ (x: t.Underlying) => ${ f('x) } }
+<<< quoted and spliced names, RedundantBraces
+runner.parser = source
+rewrite.rules = [RedundantBraces]
+===
+'{ foo }
+'{{ foo }}
+'{ foo } == '{ baz }
+'{{ foo }} == '{{{ baz }}}
+'{ foo } bar '{ baz }
+'{{{ foo }}} bar '{{ baz }}
+
+${ '{ foo } }
+${{{ '{{ foo }} }}}
+${ '{ foo } == '{ baz } }
+${{{ '{{ foo }} == '{{ baz }} }}}
+${ '{ foo } bar '{ baz } }
+${{{ '{{ foo }} bar '{{ baz }} }}}
+
+${ foo }
+${{{ foo }}}
+${ foo } == ${ baz }
+${{{ foo }}} == ${{{ baz }}}
+${ foo } bar ${ baz }
+${{{ foo }}} bar ${{{ baz }}}
+
+'{ ${ foo } }
+'{{{ ${{ foo }} }}}
+'{ ${ foo } == ${ baz } }
+'{{{ ${{ foo }} == ${{ baz }} }}}
+'{ ${ foo } bar ${ baz } }
+'{{{ ${{ foo }} bar ${{ baz }} }}}
+>>>
+'{ foo }
+'{ foo }
+'{ foo } == '{ baz }
+'{ foo } == '{ baz }
+'{ foo } bar '{ baz }
+'{ foo } bar '{ baz }
+
+${ '{ foo } }
+${ '{ foo } }
+${ '{ foo } == '{ baz } }
+${ '{ foo } == '{ baz } }
+${ '{ foo } bar '{ baz } }
+${ '{ foo } bar '{ baz } }
+
+${ foo }
+${ foo }
+${ foo } == ${ baz }
+${ foo } == ${ baz }
+${ foo } bar ${ baz }
+${ foo } bar ${ baz }
+
+'{ ${ foo } }
+'{ ${ foo } }
+'{ ${ foo } == ${ baz } }
+'{ ${ foo } == ${ baz } }
+'{ ${ foo } bar ${ baz } }
+'{ ${ foo } bar ${ baz } }
+<<< quoted and spliced patterns, RedundantBraces
+runner.parser = source
+rewrite.rules = [RedundantBraces]
+===
+foo match { case '{ bar } => }
+foo match { case '{ bar } == '{ qux } => }
+foo match { case '{ bar } baz '{ qux } => }
+
+foo match { case '{ ${ bar } } => }
+foo match { case '{ ${ bar } == ${ qux } } => }
+foo match { case '{ ${ bar } baz ${ qux } } => }
+
+foo match { case '{ ${ bar } baz '{ qux } } => }
+foo match { case '{ '{ bar } == ${ qux } } => }
+foo match { case '{ '{ bar } baz ${ qux } } => }
+>>>
+foo match { case '{ bar } => }
+foo match { case '{ bar } == '{ qux } => }
+foo match { case '{ bar } baz '{ qux } => }
+
+foo match { case '{ ${ bar } } => }
+foo match { case '{ ${ bar } == ${ qux } } => }
+foo match { case '{ ${ bar } baz ${ qux } } => }
+
+foo match { case '{ ${ bar } baz '{ qux } } => }
+foo match { case '{ '{ bar } == ${ qux } } => }
+foo match { case '{ '{ bar } baz ${ qux } } => }
