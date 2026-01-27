@@ -348,12 +348,15 @@ class InfixSplits(
       newStmtMod: Option[Modification] = None,
       spaceMod: Modification = Space,
   ): Seq[Split] = {
-    val closeOpt = ft.right match {
-      case _: T.OpenDelim => ftoks.matchingOptRight(ft)
-      case _ => None // exclude Xml.Start and similar pairs
-    }
+    def getOpenClose(xft: FT): Option[(FT, FT)] = // exclude Xml.Start and similar pairs
+      if (xft.right.is[T.OpenDelim]) ftoks.matchingOptRight(xft).map(xft -> _)
+      else None
+    val openCloseOpt = // don't need to worry about comments, they force NL
+      if (!ft.right.is[T.Ident]) getOpenClose(ft)
+      else if (!ft.rightOwner.parent.is[Term.ApplyUnary]) None
+      else getOpenClose(ftoks.next(ft))
     val nextInfixes =
-      if (closeOpt.isEmpty) {
+      if (openCloseOpt.isEmpty) {
         implicit val infixes = new mutable.ListBuffer[Member.Infix]
         if (isAfterOp) {
           InfixSplits.findNestedInfixes(app.arg)
@@ -442,8 +445,8 @@ class InfixSplits(
       nlSinglelineSplit,
     )
 
-    val rhsPossiblyEnclosedInfix = closeOpt.flatMap(closeFt =>
-      if (beforeLhs) Some(Either.cond(closeFt.idx >= fullExpire.idx, app, app))
+    val rhsPossiblyEnclosedInfix = openCloseOpt.flatMap(delims =>
+      if (beforeLhs) Some(Either.cond(delims._2.idx >= fullExpire.idx, app, app))
       else InfixSplits.getInfixRhsPossiblyEnclosed(app),
     )
 
@@ -488,8 +491,8 @@ class InfixSplits(
       spaceSplits :+ nlSplit
     }
 
-    def otherSplitsWithParens(closeFt: FT) = {
-      val nextFt = ftoks.nextNonCommentSameLineAfter(ft)
+    def otherSplitsWithParens(openFt: FT, closeFt: FT) = {
+      val nextFt = ftoks.nextNonCommentSameLineAfter(openFt)
       val bracesLike = newStmtMod.isEmpty &&
         (style.newlines.source match {
           case Newlines.fold => false
@@ -531,10 +534,10 @@ class InfixSplits(
       )
     }
 
-    val otherSplits = closeOpt.fold(otherSplitsNoDelims)(closeFt =>
-      if (closeFt.left.is[T.RightBrace]) otherSplitsWithBraces(closeFt)
-      else otherSplitsWithParens(closeFt),
-    )
+    val otherSplits = openCloseOpt.fold(otherSplitsNoDelims) { case (lt, rt) =>
+      if (rt.left.is[T.RightBrace]) otherSplitsWithBraces(rt)
+      else otherSplitsWithParens(lt, rt)
+    }
 
     singleLineSplits ++ otherSplits
   }
