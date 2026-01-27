@@ -13973,3 +13973,27 @@ val needSbt = cfg.getVersion < ScalafmtVersion(3, 0, 0, 7) && {
   cfg.getVersion < ScalafmtVersion(2, 6, 3) && extension == "sbt" ||
   extension == "sc" // added in 2.6.3
 }
+<<< infix with unary
+maxColumn = 24
+===
+object a {
+  foo + bar + (baz + quxQuxQuxQux)
+  foo + bar + !(baz + quxQuxQuxQux)
+}
+>>>
+object a {
+  foo + bar + (baz + quxQuxQuxQux)
+  foo + bar + !(baz + quxQuxQuxQux)
+}
+<<< infix with unary, comment
+maxColumn = 40
+===
+object a {
+  foo + bar + /* c1 */ (baz + /* c2 */ quxQuxQuxQuxQuxQuxQuxQuxQuxQuxQux)
+  foo + bar + /* c1 */ !(baz + /* c2 */ quxQuxQuxQuxQuxQuxQuxQuxQuxQuxQux)
+}
+>>>
+object a {
+  foo + bar + /* c1 */ (baz + /* c2 */ quxQuxQuxQuxQuxQuxQuxQuxQuxQuxQux)
+  foo + bar + /* c1 */ !(baz + /* c2 */ quxQuxQuxQuxQuxQuxQuxQuxQuxQuxQux)
+}
