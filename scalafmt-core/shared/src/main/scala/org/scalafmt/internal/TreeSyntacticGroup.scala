@@ -3,9 +3,7 @@ package org.scalafmt.internal
 import scala.{meta => m}
 
 object TreeSyntacticGroup {
-  import SyntacticGroup.Pat._
-  import SyntacticGroup.Term._
-  import SyntacticGroup.Type._
+  import m.internal.prettyprinters.{TreeSyntacticGroup => SyntacticGroup}
   import SyntacticGroup._
 
   def apply(tree: m.Tree): SyntacticGroup = tree match {
@@ -19,8 +17,8 @@ object TreeSyntacticGroup {
     case _: m.Term.Apply => SimpleExpr1
     case _: m.Term.ApplyType => SimpleExpr1
     case _: m.Term.SelectMatch => SimpleExpr1
-    case t: m.Term.ApplyInfix => InfixExpr(t.op.value)
-    case t: m.Term.ApplyUnary => PrefixExpr(t.op.value)
+    case t: m.Term.ApplyInfix => InfixExpr(t)
+    case _: m.Term.ApplyUnary => PrefixExpr
     case _: m.Term.Assign => Expr1
     case _: m.Term.Return => Expr1
     case _: m.Term.Throw => Expr1
@@ -50,7 +48,7 @@ object TreeSyntacticGroup {
     case _: m.Type.Project => SimpleTyp
     case _: m.Type.Singleton => SimpleTyp
     case _: m.Type.Apply => SimpleTyp
-    case t: m.Type.ApplyInfix => InfixTyp(t.op.value)
+    case t: m.Type.ApplyInfix => InfixTyp(t)
     case _: m.Type.ParamFunctionType => Typ
     case _: m.Type.PolyFunction => Typ
     case _: m.Type.Tuple => SimpleTyp
@@ -75,7 +73,7 @@ object TreeSyntacticGroup {
     case _: m.Pat.Alternative => Pattern
     case _: m.Pat.Tuple => SimplePattern
     case _: m.Pat.Extract => SimplePattern
-    case t: m.Pat.ExtractInfix => Pattern3(t.op.value)
+    case t: m.Pat.ExtractInfix => InfixPat(t)
     case _: m.Pat.Interpolate => SimplePattern
     case _: m.Pat.Xml => SimplePattern
     case _: m.Pat.Typed => Pattern1
@@ -83,5 +81,9 @@ object TreeSyntacticGroup {
     // Misc
     case _ => Path
   }
+
+  def groupNeedsParens(outer: m.Tree, inner: m.Tree)(implicit
+      dialect: m.Dialect,
+  ): Boolean = SyntacticGroup.groupNeedsParens(apply(outer), apply(inner))
 
 }
