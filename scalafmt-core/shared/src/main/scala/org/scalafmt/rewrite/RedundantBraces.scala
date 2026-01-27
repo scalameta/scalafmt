@@ -5,6 +5,7 @@ import org.scalafmt.internal._
 import org.scalafmt.util.TreeOps._
 
 import scala.meta._
+import scala.meta.internal.prettyprinters.{TreeSyntacticGroup => TSG}
 import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
@@ -751,13 +752,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           existsIfWithoutElse(stat.asInstanceOf[Term.If])
 
         case p: Term.ApplyInfix => stat match {
-            case t: Term.ApplyInfix =>
-              val useRight = hasSingleElement(p.argClause, b)
-              SyntacticGroupOps.groupNeedsParenthesis(
-                TreeSyntacticGroup(p),
-                TreeSyntacticGroup(t),
-                if (useRight) Side.Right else Side.Left,
-              )
+            case t: Term.ApplyInfix => TSG.opNeedsParens(p.op, t.op, p.lhs eq b)
             case _ => true // don't allow other non-infix
           }
 
@@ -773,11 +768,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           }
           iter(stat)
 
-        case parent => SyntacticGroupOps.groupNeedsParenthesis(
-            TreeSyntacticGroup(parent),
-            TreeSyntacticGroup(stat),
-            Side.Left,
-          )
+        case parent => TreeSyntacticGroup.groupNeedsParens(parent, stat)
       }
 
       innerOk(b)(stat) && !b.parent.exists(keepForParent)

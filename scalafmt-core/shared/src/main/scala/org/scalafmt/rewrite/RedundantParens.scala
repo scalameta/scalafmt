@@ -23,10 +23,7 @@ object RedundantParens extends Rewrite with FormatTokensRewrite.RuleFactory {
       style: ScalafmtConfig,
   ): Boolean = {
     import style.dialect
-    val sgOuter = TreeSyntacticGroup(outer)
-    val sgInner = TreeSyntacticGroup(inner)
-    val side = if (outer.lhs eq inner) Side.Left else Side.Right
-    SyntacticGroupOps.groupNeedsParenthesis(sgOuter, sgInner, side)
+    TreeSyntacticGroup.groupNeedsParens(outer, inner)
   }
 
   def breaksBeforeOp(
