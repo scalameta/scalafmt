@@ -13122,8 +13122,9 @@ object a {
 object a {
   foo + bar +
     (baz + quxQuxQuxQux)
-  foo + bar + !(baz +
-    quxQuxQuxQux)
+  foo + bar +
+    !(baz +
+      quxQuxQuxQux)
 }
 <<< infix with unary, comment
 maxColumn = 40
