@@ -144,7 +144,7 @@ object SplitsAfterInterpolationStart extends Splits {
           case Decision(_, ss) => ss.penalizeNL(1)
         }
     }
-    val split = Split(NoSplit, 0, policy = policy)
+    val split = Split(NoSplit, 0, policy)
     val alignIndents =
       if (cfg.align.stripMargin) findInterpolate(leftOwner).flatMap(ti =>
         getStripMarginChar(ti).map { pipe =>
@@ -221,9 +221,9 @@ object SplitsAfterLeftBrace extends Splits {
 
     val indent = Indent(cfg.indent.main, close, Before)
     Seq(
-      Split(Space(cfg.spaces.inImportCurlyBraces), 0, policy = spacePolicy)
+      Split(Space(cfg.spaces.inImportCurlyBraces), 0, spacePolicy)
         .notIf(mustUseNL || mustDangleForTrailingCommas).withIndent(indent),
-      Split(Newline, 1, policy = newlinePolicy).notIf(newlinePolicy.isEmpty)
+      Split(Newline, 1, newlinePolicy).notIf(newlinePolicy.isEmpty)
         .withIndent(indent),
     )
   }
@@ -474,7 +474,7 @@ object SplitsAfterLeftBrace extends Splits {
     val newlineBeforeClosingCurly =
       decideNewlinesOnlyBeforeClose(Split(Newline, 0, rank = -1))(close)
     val nlPolicy = lambdaNLPolicy ==> newlineBeforeClosingCurly
-    val nlSplit = Split(nl, nlCost, policy = nlPolicy)
+    val nlSplit = Split(nl, nlCost, nlPolicy)
       .withIndent(cfg.indent.main, close, Before)
 
     val singleLineSplit = singleLineSplitOpt match {
@@ -505,7 +505,7 @@ object SplitsAfterLeftBrace extends Splits {
           case _ => noSplitMod ->
               (decideNewlinesOnlyAfterToken(lambdaExpire) ==> nlPolicy)
         }
-        Split(mod, 0, policy = SingleLineBlock(lambdaExpire) ==> policy)
+        Split(mod, 0, SingleLineBlock(lambdaExpire) ==> policy)
           .withOptimalToken(lambdaExpire, killOnFail = true)
           .withIndent(lambdaIndent, close, Before)
       }
@@ -754,7 +754,7 @@ object SplitsBeforeLeftBrace extends Splits {
             decideNewlinesOnlyBeforeClose(close)
           Seq(
             Split(Newline, 0, penalty = -1).withSingleLine(close),
-            Split(Space, 1, policy = multiLine),
+            Split(Space, 1, multiLine),
           )
       }
       val oneArgPerLineSplits =
@@ -1024,7 +1024,7 @@ object SplitsAfterGiven extends Splits {
           else Seq(
             Split(Space, 0)
               .withSingleLine(getSlbEndOnLeft(getLast(gvn.paramClauseGroups.last))),
-            Split(Space, 1, policy = nonSlbPolicy),
+            Split(Space, 1, nonSlbPolicy),
           )
         } else Seq(Split(Space, 0))
       case _ => Seq.empty
@@ -1116,7 +1116,7 @@ object SplitsBeforeSemicolon extends Splits {
     }
     val policy = Policy ? forceBreak &&
       decideNewlinesOnlyAfterToken(nextNonCommentSameLineAfter(ft))
-    Seq(Split(NoSplit, 0, policy = policy))
+    Seq(Split(NoSplit, 0, policy))
   }
 }
 
@@ -1189,7 +1189,7 @@ object SplitsAfterRightParen extends Splits {
           if (nft.right.is[T.LeftBrace]) {
             val nextFt = nextNonCommentSameLineAfter(nft)
             val policy = decideNewlinesOnlyAfterToken(nextFt)
-            Seq(Split(Space, 0, policy = policy))
+            Seq(Split(Space, 0, policy))
           } else Seq(nlSplitFunc(0)),
         )
       else CtrlBodySplits.get(body)(Split(Space, 0).withSingleLineNoOptimal(
@@ -1440,7 +1440,7 @@ object SplitsAfterLeftParenOrBracket {
     ) Some {
       val close = matchingLeft(ft)
       def splits(xft: FT, policy: Policy)(implicit l: FileLine) =
-        Seq(Split(Provided(xft), 0, policy = policy))
+        Seq(Split(Provided(xft), 0, policy))
       val policy = Policy.onLeft(close, "(FMT:OFF)", rank = Int.MaxValue) {
         case Decision(xft, _) => splits(xft, NoPolicy)
       }
@@ -1923,7 +1923,7 @@ object SplitsAfterLeftParenOrBracket {
               (onlyArgument ne null) && !excludeBlocks.isEmpty &&
               excludeBlocks.ranges.forall(_.lt.left.is[T.LeftParen])
             val okIndent = rightIsComment || handleImplicit
-            Split(noSplitMod, 0, policy = noSplitPolicy)
+            Split(noSplitMod, 0, noSplitPolicy)
               .withOptimalToken(optimal, ignore = noOptimal, killOnFail = kof)
               .withIndent(indent, ignore = !okIndent)
           }
@@ -1950,7 +1950,7 @@ object SplitsAfterLeftParenOrBracket {
           else (if (preferNoSplit) Constants.ExceedColumnPenalty else 0) +
             bracketCoef * (nestedPenalty + (if (multipleArgs) 2 else 0))
         val split =
-          if (multipleArgs) Split(Newline, cost, policy = oneArgOneLine)
+          if (multipleArgs) Split(Newline, cost, oneArgOneLine)
             .withIndent(extraOneArgPerLineIndent)
           else {
             val noConfigStyle = noSplitForNL || newlinePolicy.isEmpty ||
@@ -1958,7 +1958,7 @@ object SplitsAfterLeftParenOrBracket {
             val policy =
               if (!noSplitForNL) newlinePolicy
               else decideNewlinesOnlyBeforeToken(matchingRight(ft))
-            Split(NoSplit.orNL(noSplitForNL), cost, policy = policy)
+            Split(NoSplit.orNL(noSplitForNL), cost, policy)
               .andPolicy(Policy ? noConfigStyle && singleLine(4))
               .andPolicy(asInfixApp(onlyArgument).map(
                 InfixSplits(_, ft).nlPolicy,
@@ -2025,7 +2025,7 @@ object SplitsAfterLeftParen extends Splits {
             .withSingleLine(close, ignore = enclosedInBraces)
           else baseNoSplit(noSplitPolicy).withIndents(alignIndents)
         val nlPolicy = penalizeNewlines & decideNewlinesOnlyBeforeClose(close)
-        Seq(noSplit, Split(Newline, 1, policy = nlPolicy).withIndent(indent))
+        Seq(noSplit, Split(Newline, 1, nlPolicy).withIndent(indent))
       } else Seq(baseNoSplit(penalizeNewlines, Newline).withIndents(
         if (noAlign) if (enclosedInBraces) Seq.empty else Seq(indent)
         else alignIndents,
@@ -2150,7 +2150,7 @@ object SplitsAfterLeftParen extends Splits {
             Policy.End <= lambdaLeft.getOrElse(close),
           )((s, _) => s.isNL)(before)(newlinePolicy)
         }
-        Split(noSplitMod, 0, policy = spacePolicy)
+        Split(noSplitMod, 0, spacePolicy)
           .withOptimalToken(lambdaToken, killOnFail = true)
       }
 
@@ -2159,10 +2159,8 @@ object SplitsAfterLeftParen extends Splits {
           cfg.indent.callSite
         else cfg.indent.getBinPackCallSite
 
-      if (noSplitMod == null) Seq(
-        Split(Newline, 0, policy = newlinePolicy)
-          .withIndent(indentLen, close, Before),
-      )
+      if (noSplitMod == null)
+        Seq(Split(Newline, 0, newlinePolicy).withIndent(indentLen, close, Before))
       else {
         val newlinePenalty = 3 + nestedApplies(leftOwner)
         val noMultiline = beforeParenLambdaParams eq
@@ -2170,7 +2168,7 @@ object SplitsAfterLeftParen extends Splits {
         Seq(
           if (noMultiline) Split(noSplitMod, 0).withSingleLine(close)
           else multilineSpaceSplit,
-          Split(Newline, newlinePenalty, policy = newlinePolicy)
+          Split(Newline, newlinePenalty, newlinePolicy)
             .withIndent(indentLen, close, Before),
         )
       }
@@ -2396,8 +2394,7 @@ object SplitsAfterComma extends Splits {
                   s.map(x => if (x.isNL) x else x.switch(trigger, true))
               }
             }
-          val nlSplit =
-            Split(nlMod, 1, policy = onelinePolicy & indentOncePolicy)
+          val nlSplit = Split(nlMod, 1, onelinePolicy & indentOncePolicy)
           val noSplit =
             if (noSpace) Split.ignored
             else {
@@ -2406,7 +2403,7 @@ object SplitsAfterComma extends Splits {
               )
               val slbPolicy =
                 SingleLineBlock(end, exclude = sjsExclude, noSyntaxNL = true)
-              Split(Space, 0, policy = slbPolicy ==> onelinePolicy)
+              Split(Space, 0, slbPolicy ==> onelinePolicy)
                 .withOptimalToken(end, killOnFail = sjsExclude.isEmpty)
             }
           Seq(noSplit, nlSplit)
@@ -2701,13 +2698,13 @@ object SplitsBeforeDot extends Splits {
             fileLine: FileLine,
         ) = {
           val nlMod = Newline.withAlt(modSpace, noAltIndent = true)
-          Split(nlMod, cost, policy = policy)
+          Split(nlMod, cost, policy)
         }
         if (nextFewerBraces.exists(_ ne expire)) {
           val policy: Policy = forcedBreakOnNextDotPolicy
           if (nlOnly) Seq(nlSplitBase(0).withPolicy(policy))
           else {
-            val noSplit = Split(modSpace, 0, policy = policy)
+            val noSplit = Split(modSpace, 0, policy)
             Seq(noSplit, nlSplitBase(1, policy))
           }
         } else if (!nlOnly) {
@@ -3154,9 +3151,8 @@ object SplitsAfterDo extends Splits {
               Split(Space, 0)
                 .withSingleLine(getSlbEndOnLeft(eft), exclude = exclude)
             }
-          val nlSplit =
-            Split(Newline, 1, policy = decideNewlinesOnlyBeforeToken(kwWhile))
-              .withIndents(indent)
+          val nlSplit = Split(Newline, 1, decideNewlinesOnlyBeforeToken(kwWhile))
+            .withIndents(indent)
           Seq(noSplit, nlSplit)
         }
       case t: Tree.WithBody if cfg.newlines.keepBreak =>
@@ -3361,7 +3357,7 @@ object SplitsAfterCase extends Splits {
         }
       Policy.RelayOnSplit((s, _) => s.isNL)(onArrowPolicy)(postArrowPolicy)
     }
-    Seq(Split(mod, 0, policy = policy))
+    Seq(Split(mod, 0, policy))
   }
 }
 

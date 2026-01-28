@@ -51,9 +51,9 @@ case class OptimalToken(
 case class Split(
     modExt: ModExt,
     private val cost: Int,
+    policy: Policy = NoPolicy,
     neededTags: Set[SplitTag] = Set.empty,
     activeTags: Set[SplitTag] = Set.empty,
-    policy: Policy = NoPolicy,
     optimalAt: Option[OptimalToken] = None,
     penalty: Int = 0,
     rank: Int = 0,
@@ -349,7 +349,7 @@ object Split {
 
   def opt(mod: Modification, cost: Int, policy: Policy = Policy.NoPolicy)(
       implicit fileLineStack: FileLineStack,
-  ): Split = if (mod eq null) ignored else Split(mod, cost, policy = policy)
+  ): Split = if (mod eq null) ignored else Split(mod, cost, policy)
 
   implicit class ImplicitSeqSplit(private val obj: Seq[Split]) extends AnyVal {
     def penalize(penalty: Int): Seq[Split] = obj.map(_.withPenalty(penalty))
