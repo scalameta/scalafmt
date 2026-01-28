@@ -6398,13 +6398,11 @@ object a {
 }
 >>>
 object a {
-  foo
-    .
+  foo.
     // c2
     bar(baz)
     .foo(bar, baz)
-  foo
-    . // c1
+  foo. // c1
     // c2
     bar(baz)
     .foo(bar, baz)
@@ -6484,15 +6482,13 @@ object a {
 }
 >>>
 object a {
-  foo
-    . // c1
+  foo. // c1
     bar(baz)
     . // c2
     foo(bar, baz)
     . // c3
     qux
-  foo
-    .
+  foo.
     // c1
     bar(baz)
     .
@@ -6516,14 +6512,12 @@ object a {
     .
     // c3
     qux
-  foo
-    . // c1
+  foo. // c1
     bar(baz) // c2
     .foo(bar, baz)
     . // c2
     qux
-  foo
-    .
+  foo.
     // c1
     bar(baz)
     // c2
@@ -6531,14 +6525,12 @@ object a {
     .
     // c2
     qux
-  foo
-    . // c1
+  foo. // c1
     bar(baz)
     . // c2
     foo(bar, baz) // c3
     .qux
-  foo
-    .
+  foo.
     // c1
     bar(baz)
     .

@@ -3558,8 +3558,7 @@ object a {
 }
 >>>
 object a {
-  foo
-    . // c1
+  foo. // c1
     bar:
        baz
     . // c2
@@ -3567,8 +3566,7 @@ object a {
        bar
     . // c3
     qux
-  foo
-    .
+  foo.
     // c1
     bar:
        baz
@@ -3598,16 +3596,14 @@ object a {
     .
     // c3
     qux
-  foo
-    . // c1
+  foo. // c1
     bar:
        baz // c2
     .foo:
        bar
     . // c2
     qux
-  foo
-    .
+  foo.
     // c1
     bar:
        baz
@@ -3617,8 +3613,7 @@ object a {
     .
     // c2
     qux
-  foo
-    . // c1
+  foo. // c1
     bar:
        baz
     . // c2
@@ -3626,8 +3621,7 @@ object a {
        bar
     // c3
     .qux
-  foo
-    .
+  foo.
     // c1
     bar:
        baz
@@ -3638,7 +3632,7 @@ object a {
     // c3
     .qux
 }
-<<< comment in select chain, after dot, alaways
+<<< comment in select chain, after dot, always
 indent.fewerBraces = always
 ===
 object a {
@@ -3718,8 +3712,7 @@ object a {
 }
 >>>
 object a {
-  foo
-    . // c1
+  foo. // c1
     bar:
        baz
     . // c2
@@ -3727,8 +3720,7 @@ object a {
        bar
     . // c3
     qux
-  foo
-    .
+  foo.
     // c1
     bar:
        baz
@@ -3758,16 +3750,14 @@ object a {
     .
     // c3
     qux
-  foo
-    . // c1
+  foo. // c1
     bar:
        baz // c2
     .foo:
        bar
     . // c2
     qux
-  foo
-    .
+  foo.
     // c1
     bar:
        baz
@@ -3777,8 +3767,7 @@ object a {
     .
     // c2
     qux
-  foo
-    . // c1
+  foo. // c1
     bar:
        baz
     . // c2
@@ -3786,8 +3775,7 @@ object a {
        bar
     // c3
     .qux
-  foo
-    .
+  foo.
     // c1
     bar:
        baz
@@ -3878,8 +3866,7 @@ object a {
 }
 >>>
 object a {
-  foo
-    . // c1
+  foo. // c1
     bar:
        baz
     . // c2
@@ -3887,8 +3874,7 @@ object a {
        bar
     . // c3
     qux
-  foo
-    .
+  foo.
     // c1
     bar:
        baz
@@ -3918,16 +3904,14 @@ object a {
     .
     // c3
     qux
-  foo
-    . // c1
+  foo. // c1
     bar:
        baz // c2
     .foo:
        bar
     . // c2
     qux
-  foo
-    .
+  foo.
     // c1
     bar:
        baz
@@ -3937,8 +3921,7 @@ object a {
     .
     // c2
     qux
-  foo
-    . // c1
+  foo. // c1
     bar:
        baz
     . // c2
@@ -3946,8 +3929,7 @@ object a {
        bar
     // c3
     .qux
-  foo
-    .
+  foo.
     // c1
     bar:
        baz
