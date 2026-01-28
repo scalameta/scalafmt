@@ -5,7 +5,9 @@ import org.scalafmt.internal._
 import org.scalafmt.util.TreeOps._
 
 import scala.meta._
+import scala.meta.classifiers.Classifier
 import scala.meta.internal.prettyprinters.{TreeSyntacticGroup => TSG}
+import scala.meta.internal.tokens.Chars
 import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
@@ -657,16 +659,29 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
 
       case Term.Block(List(`b`)) => true
 
-      case p: Term.QuotedMacroExpr => getTreeSingleExpr(b)
-          .exists(_.is[Term.Name]) && !existsParentOfType[Pat.Macro](p)
+      case _ if !settings.generalExpressions => false
 
-      case p: Term.SplicedMacroExpr => getTreeSingleExpr(b)
-          .exists(_.is[Term.Name]) && existsParentOfType[Term.QuotedMacroExpr](p)
+      case p: Term.QuotedMacroExpr =>
+        isValidMacroIdent[Term.SplicedMacroExpr](b, p)
+
+      case p: Term.SplicedMacroExpr =>
+        isValidMacroIdent[Term.QuotedMacroExpr](b, p)
 
       case _: Term.SplicedMacroPat => false
 
-      case _ => settings.generalExpressions && shouldRemoveSingleStatBlock(b)
+      case _ => shouldRemoveSingleStatBlock(b)
     }
+
+  private def isValidMacroIdent[A <: Term.MacroLike](
+      b: Term.Block,
+      p: Term.MacroLike,
+  )(implicit ft: FT, classifier: Classifier[Tree, A]): Boolean =
+    !ftoks.next(ft).right.is[T.Comment] &&
+      (getTreeSingleExpr(b) match {
+        case Some(x: Term.Name) => Chars
+            .isTypeMask(Chars.scalaLetterTypeMask)(x.text.codePointAt(0))
+        case _ => false
+      }) && existsParentOfType[A](p)
 
   private def checkBlockAsBody(b: Term.Block, rhs: Tree, noParams: => Boolean)(
       implicit style: ScalafmtConfig,
