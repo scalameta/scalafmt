@@ -203,6 +203,35 @@ ${ foo } bar ${ baz }
 '{ $foo == $baz }
 '{ $foo bar $baz }
 '{ $foo bar $baz }
+<<< quoted and spliced names with comments, RedundantBraces
+runner.parser = source
+rewrite.rules = [RedundantBraces]
+===
+'{ /* c */ foo }
+'{{ foo /* c */ }}
+
+${ '{ /* c */ foo } }
+${{{ '{{ foo /* c */ }} }}}
+
+${ /* c */ foo }
+${{{ foo /* c */ }}}
+
+'{ ${ /* c */ foo } }
+'{{{ ${{ foo /* c */ }} }}}
+>>>
+'/* c */ foo
+'foo /* c */
+
+${ '/* c */ foo }
+${ 'foo /* c */ }
+
+${ /* c */
+  foo
+}
+${ foo /* c */ }
+
+'{ $/* c */ foo }
+'{ $foo /* c */ }
 <<< quoted and spliced patterns, RedundantBraces
 runner.parser = source
 rewrite.rules = [RedundantBraces]
