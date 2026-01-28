@@ -509,7 +509,7 @@ class InfixSplits(
       val endOfNextOp = if (afterInfix.breakOnNested) getNextOp else None
 
       val slbPolicy = InfixSplits.getSingleLineInfixPolicy(closeFt)
-      val nlSplit = Split(nlMod, 0, policy = nlPolicy).withIndent(nlIndent)
+      val nlSplit = Split(nlMod, 0, nlPolicy).withIndent(nlIndent)
         .andPolicy(slbPolicy | PolicyOps.SingleLineBlock(closeFt), !bracesLike)
         .withOptimalToken(closeFt, killOnFail = false, ignore = !bracesLike)
       val singleLineSplit = Split(noSingleLine, 0)(spaceMod)
@@ -530,7 +530,7 @@ class InfixSplits(
       )
       else Seq(
         Split(spaceMod, 0).withSingleLine(slbEnd).andPolicy(slbPolicy),
-        Split(nlMod, 0, policy = nlPolicy).withIndent(nlIndent),
+        Split(nlMod, 0, nlPolicy).withIndent(nlIndent),
       )
     }
 

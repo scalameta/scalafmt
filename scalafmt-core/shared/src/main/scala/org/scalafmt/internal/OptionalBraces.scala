@@ -655,7 +655,7 @@ object OptionalBraces {
               case Decision(_, ss) => ss
                   .map(_.deActivateFor(SplitTag.SelectChainFirstNL))
             }
-          val nlSplit = Split(Newline2x(ft), 1, policy = policy)
+          val nlSplit = Split(Newline2x(ft), 1, policy)
             .withIndent(indentLen, beforeDot, ExpiresOn.After)
           Some(Seq(nlSplit))
         }

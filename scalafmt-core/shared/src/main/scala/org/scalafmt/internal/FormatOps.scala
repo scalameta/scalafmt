@@ -519,7 +519,7 @@ class FormatOps(
       }
     else if (!isFirstCtor) Seq(Split(Space, 0), Split(Newline, 1))
     else if (style.binPack.parentConstructors eq BinPack.ParentCtors.ForceBreak)
-      Seq(Split(nlMod, 0, policy = nlPolicy(false)).withIndent(indent))
+      Seq(Split(nlMod, 0, nlPolicy(false)).withIndent(indent))
     else {
       val parentCtors = style.binPack.parentConstructors
       val nlOnelineTag = parentCtors match {
@@ -543,8 +543,7 @@ class FormatOps(
           .preActivateFor(nlOnelineTag.left.toOption)
           .withSingleLineNoOptimal(lastFt, noSyntaxNL = noSyntaxNL)
           .withIndent(indent),
-        Split(nlMod, 1, policy = nlPolicy(isAlways) & pnlPolicy)
-          .withIndent(indent),
+        Split(nlMod, 1, nlPolicy(isAlways) & pnlPolicy).withIndent(indent),
       )
     }
   }
@@ -704,7 +703,7 @@ class FormatOps(
           // If we can fit the type params, make it so
           Split(space, 0).withSingleLine(lpNext).orPolicy(slbPolicy)
         }
-      val nlSplit = Split(Newline, 1, policy = policy).withIndent(firstIndent)
+      val nlSplit = Split(Newline, 1, policy).withIndent(firstIndent)
       Seq(slbSplit, noSplit.andPolicy(noSlbPolicy), nlSplit)
     } else {
       val rightIsImplicit = soft.ImplicitOrUsing(r)
@@ -727,12 +726,12 @@ class FormatOps(
       Seq(
         // If we can fit all in one block, make it so
         slbSplit.notIf(noSlb),
-        Split(space, 0, policy = policy).onlyIf(spaceImplicit).andPolicy(
+        Split(space, 0, policy).onlyIf(spaceImplicit).andPolicy(
           decideNewlinesOnlyAfterClose(nft),
           isRightCommentThenBreak(nft),
         ).withIndent(firstIndent),
         // Otherwise split vertically
-        Split(nlMod, 1, policy = policy).withIndent(firstIndent),
+        Split(nlMod, 1, policy).withIndent(firstIndent),
       )
     }
 
@@ -1005,7 +1004,7 @@ class FormatOps(
               case _ => true
             })
           val opt = if (style.newlines.keep) miniSlbEnd else expire
-          Split(Space, 0, policy = slbPolicy & (policy | penalize(penalty)))
+          Split(Space, 0, slbPolicy & (policy | penalize(penalty)))
             .withOptimalToken(opt, killOnFail = slbLite, recurseOnly = slbLite)
         }
       }
@@ -1128,7 +1127,7 @@ class FormatOps(
             ),
           )
           Seq(
-            Split(Space, 0, policy = policy),
+            Split(Space, 0, policy),
             nlSplitFunc(1).forThisLine
               .withSingleLineNoOptimal(last, extend = true),
           )
