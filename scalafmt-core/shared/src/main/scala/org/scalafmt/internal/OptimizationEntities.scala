@@ -97,8 +97,8 @@ object OptimizationEntities {
       }
       prev.foreach { prev =>
         val pft = ftoks.prevNonCommentBefore(ft)
-        if (pft.left.is[T.Semicolon]) semicolons += prev.idx ->
-          ftoks.nextNonCommentSameLine(pft)
+        if (pft.left.is[T.Semicolon]) semicolons +=
+          prev.idx -> ftoks.nextNonCommentSameLine(pft)
       }
     }
     private def addStmtTok(stmt: Tree)(token: T) =

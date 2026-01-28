@@ -204,10 +204,11 @@ class InfixSplits(
     prevFt.left match {
       case _: T.Equals => Some(ftoks.getLast(prevOwner))
       case _: T.LeftParen | _: T.LeftBracket
-          if fullInfix.parent.contains(prevOwner) && !(prevOwner match {
-            case po: Member.ArgClause => po.parent.exists(isInfixApp)
-            case po => isInfixApp(po)
-          }) && isSeqSingle(getArgsOrNil(prevOwner)) =>
+          if fullInfix.parent.contains(prevOwner) &&
+            !(prevOwner match {
+              case po: Member.ArgClause => po.parent.exists(isInfixApp)
+              case po => isInfixApp(po)
+            }) && isSeqSingle(getArgsOrNil(prevOwner)) =>
         Some(ftoks.getLast(fullInfix))
       case _ => None
     }

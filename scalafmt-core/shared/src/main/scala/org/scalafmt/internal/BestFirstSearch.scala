@@ -120,8 +120,8 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         if (curr.split != null && curr.split.isNL)
           if (
             emptyQueueSpots.contains(idx) ||
-            optimizer.dequeueOnNewStatements && !(depth == 0 &&
-              noOptZone) && optimizationEntities.statementStarts.contains(idx)
+            optimizer.dequeueOnNewStatements && !(depth == 0 && noOptZone) &&
+            optimizationEntities.statementStarts.contains(idx)
           ) {
             preFork = false
             Q.addGeneration()
