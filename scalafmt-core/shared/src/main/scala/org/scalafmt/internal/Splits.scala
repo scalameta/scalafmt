@@ -2688,7 +2688,11 @@ object SplitsBeforeDot extends Splits {
         )(slbEnd: FT, noSyntaxNL: Boolean = false) =
           if (nlOnly) Seq(Split(nlMod, 0, nlPolicy))
           else Seq(
-            Split(modSpace, 0).withSingleLine(slbEnd, noSyntaxNL = noSyntaxNL),
+            if (isRightCommentWithBreak(next(ft))) {
+              spaceIsDelayedNL = true
+              Split(modSpace, 0, nlPolicy)
+            } else Split(modSpace, 0)
+              .withSingleLine(slbEnd, noSyntaxNL = noSyntaxNL),
             Split(nlMod, 1, nlPolicy),
           )
         if (prevSelect.isEmpty && nextSelect.isEmpty) splits()(getSlbEnd())
