@@ -176,12 +176,12 @@ ${{{ foo }}} bar ${{{ baz }}}
 '{ ${ foo } bar ${ baz } }
 '{{{ ${{ foo }} bar ${{ baz }} }}}
 >>>
-'foo
-'foo
-'foo == 'baz
-'foo == 'baz
-'foo bar 'baz
-'foo bar 'baz
+'{ foo }
+'{ foo }
+'{ foo } == '{ baz }
+'{ foo } == '{ baz }
+'{ foo } bar '{ baz }
+'{ foo } bar '{ baz }
 
 ${ 'foo }
 ${ 'foo }
@@ -219,10 +219,16 @@ ${{{ foo /* c */ }}}
 '{ ${ /* c */ foo } }
 '{{{ ${{ foo /* c */ }} }}}
 >>>
-'/* c */ foo
-'foo /* c */
+'{ /* c */
+  foo
+}
+'{ foo /* c */ }
 
-${ '/* c */ foo }
+${
+  '{ /* c */
+    foo
+  }
+}
 ${ 'foo /* c */ }
 
 ${ /* c */
@@ -230,7 +236,11 @@ ${ /* c */
 }
 ${ foo /* c */ }
 
-'{ $/* c */ foo }
+'{
+  ${ /* c */
+    foo
+  }
+}
 '{ $foo /* c */ }
 <<< quoted and spliced patterns, RedundantBraces
 runner.parser = source
