@@ -2682,24 +2682,22 @@ object SplitsBeforeDot extends Splits {
         )
 
       case Newlines.unfold =>
-        val nlCost = if (nlOnly) 0 else 1
-        if (prevSelect.isEmpty && nextSelect.isEmpty) Seq(
-          Split(nlOnly, 0)(modSpace).withSingleLine(getSlbEnd()),
-          Split(Newline, nlCost),
-        )
-        else Seq(
-          Split(nlOnly, 0)(modSpace).withSingleLine(expire, noSyntaxNL = true),
-          Split(Newline.withAlt(modSpace), nlCost)
-            .withPolicy(forcedBreakOnNextDotPolicy),
-        )
+        val nlMod = Newline.withAlt(modSpace)
+        def splits(
+            nlPolicy: Policy = NoPolicy,
+        )(slbEnd: FT, noSyntaxNL: Boolean = false) =
+          if (nlOnly) Seq(Split(nlMod, 0, nlPolicy))
+          else Seq(
+            Split(modSpace, 0).withSingleLine(slbEnd, noSyntaxNL = noSyntaxNL),
+            Split(nlMod, 1, nlPolicy),
+          )
+        if (prevSelect.isEmpty && nextSelect.isEmpty) splits()(getSlbEnd())
+        else splits(forcedBreakOnNextDotPolicy)(expire, noSyntaxNL = true)
 
       case Newlines.fold =>
         def nlSplitBase(cost: Int, policy: Policy = NoPolicy)(implicit
             fileLine: FileLine,
-        ) = {
-          val nlMod = Newline.withAlt(modSpace, noAltIndent = true)
-          Split(nlMod, cost, policy)
-        }
+        ) = Split(Newline.withAlt(modSpace, noAltIndent = true), cost, policy)
         if (nextFewerBraces.exists(_ ne expire)) {
           val policy: Policy = forcedBreakOnNextDotPolicy
           if (nlOnly) Seq(nlSplitBase(0).withPolicy(policy))
