@@ -3418,11 +3418,11 @@ object a {
 >>>
 object a {
   foo.
-  bar:
-     baz
-  .foo:
-     bar
-  .qux
+    bar:
+       baz
+    .foo:
+       bar
+    .qux
   foo
     .bar:
        baz
@@ -3430,17 +3430,17 @@ object a {
        bar
     .qux
   foo.
-  bar:
-     baz
-  .foo:
-     bar
-  .qux
+    bar:
+       baz
+    .foo:
+       bar
+    .qux
   foo.
-  bar:
-     baz
-  .foo:
-     bar
-  .qux
+    bar:
+       baz
+    .foo:
+       bar
+    .qux
 }
 <<< comment in select chain, after dot, never
 indent.fewerBraces = never
@@ -3523,24 +3523,24 @@ object a {
 >>>
 object a {
   foo. // c1
-  bar:
-     baz
-  . // c2
-  foo:
-     bar
-  . // c3
-  qux
+    bar:
+       baz
+    . // c2
+    foo:
+       bar
+    . // c3
+    qux
   foo.
-  // c1
-  bar:
-     baz
-  .
-  // c2
-  foo:
-     bar
-  .
-  // c3
-  qux
+    // c1
+    bar:
+       baz
+    .
+    // c2
+    foo:
+       bar
+    .
+    // c3
+    qux
   foo // c1
     .bar:
        baz
@@ -3561,40 +3561,40 @@ object a {
     // c3
     qux
   foo. // c1
-  bar:
-     baz // c2
-  .foo:
-     bar
-  . // c2
-  qux
+    bar:
+       baz // c2
+    .foo:
+       bar
+    . // c2
+    qux
   foo.
-  // c1
-  bar:
-     baz
-  // c2
-  .foo:
-     bar
-  .
-  // c2
-  qux
+    // c1
+    bar:
+       baz
+    // c2
+    .foo:
+       bar
+    .
+    // c2
+    qux
   foo. // c1
-  bar:
-     baz
-  . // c2
-  foo:
-     bar
-  // c3
-  .qux
+    bar:
+       baz
+    . // c2
+    foo:
+       bar
+    // c3
+    .qux
   foo.
-  // c1
-  bar:
-     baz
-  .
-  // c2
-  foo:
-     bar
-  // c3
-  .qux
+    // c1
+    bar:
+       baz
+    .
+    // c2
+    foo:
+       bar
+    // c3
+    .qux
 }
 <<< comment in select chain, after dot, always
 indent.fewerBraces = always

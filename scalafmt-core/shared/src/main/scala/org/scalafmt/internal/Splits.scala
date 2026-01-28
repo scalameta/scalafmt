@@ -2590,6 +2590,7 @@ object SplitsBeforeDot extends Splits {
 
     val ftAfterRight = tokens(ft, 2)
     def modSpace = Space(afterComment)
+    var spaceIsDelayedNL = false
     val baseSplits = cfg.newlines.getSelectChains match {
       case Newlines.classic =>
         def getNlMod = {
@@ -2672,6 +2673,7 @@ object SplitsBeforeDot extends Splits {
       case Newlines.keep =>
         if (hasBreak) Seq(Split(Newline, 0))
         else if (hasBreakAfterRightBeforeNonComment(ft)) {
+          spaceIsDelayedNL = true
           val nft = next(ft)
           Seq(Split(modSpace, 0).withPolicy(
             decideNewlinesOnlyAfterClose(nft),
@@ -2764,17 +2766,13 @@ object SplitsBeforeDot extends Splits {
     val spcPolicy: Policy = delayedBreakPolicyOpt
     val nlPolicy = spcPolicy ? noIndent
     val splits =
-      if (nextNonCommentSameLine(ftAfterRight).right.is[T.Comment]) // will break
+      if (
+        spaceIsDelayedNL ||
+        nextNonCommentSameLine(ftAfterRight).right.is[T.Comment]
+      ) // will break
         baseSplits.map(_.withIndent(nlIndent).andFirstPolicy(nlPolicy))
       else {
-        val spcIndent = nextFewerBraces.fold {
-          val skip = (cfg.newlines.getSelectChains ne Newlines.keep) ||
-            hasBreak || nextNonCommentSameLineAfter(ft).noBreak
-          if (skip) Indent.Empty
-          else nextDotOpt.fold(nlIndent)(x =>
-            Indent(indentLen, prevNonCommentBefore(x), Before),
-          )
-        }(x =>
+        val spcIndent = nextFewerBraces.fold(Indent.empty)(x =>
           if (noIndentFewerBraces) Indent.Empty
           else if (nextSelect.isEmpty) nlIndent
           else Indent(indentLen, x, Before),
