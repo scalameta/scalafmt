@@ -2390,13 +2390,13 @@ foo match {
 }
 >>>
 foo match {
-  case (_: Foo) => (
+  case _: Foo => (
     foo + bar
     // c
   )
-  case (_: Foo | _: Bar) =>
-  case (_: Foo) if bar =>
-  case (_: Foo | _: Bar) if baz =>
+  case _: Foo | _: Bar =>
+  case _: Foo if bar =>
+  case _: Foo | _: Bar if baz =>
   case foo @ (_: Foo) =>
   case foo @ (_: Foo | _: Bar) =>
   case foo @ (_: Foo) if bar =>
