@@ -103,8 +103,10 @@ class RedundantParens(implicit val ftoks: FormatTokens)
       session: Session,
       style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] =
-    if (left.isRemove && RewriteTrailingCommas.checkIfPrevious)
-      Some((left, removeToken))
+    if (
+      left.isRemove && RewriteTrailingCommas.checkIfPrevious &&
+      RedundantBraces.okCommentBeforeClose(ft)
+    ) Some((left, removeToken))
     else None
 
   private def okToReplaceWithCount(numParens: Int, tree: Tree, lpOuter: FT)(
