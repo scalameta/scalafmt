@@ -2372,3 +2372,36 @@ object a {
   func[foo - (bar *: baz)]
   func[(foo - bar) *: baz]
 }
+<<< case patterns
+align.preset = none
+===
+foo match {
+  case (_: Foo) => (
+    foo + bar
+    // c
+  )
+  case (_: Foo | _: Bar) =>
+  case (_: Foo) if bar =>
+  case (_: Foo | _: Bar) if baz =>
+  case foo @ (_: Foo) =>
+  case foo @ (_: Foo | _: Bar) =>
+  case foo @ (_: Foo) if bar =>
+  case foo @ (_: Foo | _: Bar) if baz =>
+}
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,12 +1,12 @@
+ foo match {
+   case (_: Foo) =>
+     foo + bar
+-    // c
++  // c
+   case (_: Foo | _: Bar) =>
+   case (_: Foo) if bar =>
+   case (_: Foo | _: Bar) if baz =>
+   case foo @ (_: Foo) =>
+   case foo @ (_: Foo | _: Bar) =>
+   case foo @ (_: Foo) if bar =>
+   case foo @ (_: Foo | _: Bar) if baz =>
+ }
