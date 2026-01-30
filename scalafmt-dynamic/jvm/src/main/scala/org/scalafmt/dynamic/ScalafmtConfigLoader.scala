@@ -64,7 +64,7 @@ object ScalafmtConfigLoader extends ScalafmtConfigLoader {
         moduleLoader: ScalafmtModuleLoader,
     ): FormatEval[ScalafmtReflectConfig] =
       Try(Files.getLastModifiedTime(configPath)).fold(
-        _ => Left(new ConfigDoesNotExist(configPath)),
+        err => Left(new ConfigDoesNotExist(configPath, err)),
         currentTimestamp => {
           def evict(value: Value) = value
             .fold(_ => true, _._2.compareTo(currentTimestamp) != 0)
