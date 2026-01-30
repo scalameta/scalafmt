@@ -132,6 +132,18 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
       style: ScalafmtConfig,
   ): Option[Stat] = getBlockSingleStat(b).filter(okLineSpan(_))
 
+  @tailrec
+  private[rewrite] def okCommentBeforeClose(
+      xft: FT,
+  )(implicit ftoks: FormatTokens, session: Session): Boolean =
+    ftoks.prevNotTrailingComment(xft) match {
+      case Right(x) => (x eq xft) || !session.isRemovedOnLeft(x, ok = true) || {
+          val pft = ftoks.prev(x)
+          pft.noBreak && okCommentBeforeClose(pft)
+        }
+      case _ => false
+    }
+
 }
 
 /** Removes/adds curly braces where desired.
@@ -420,14 +432,6 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       session: Session,
       style: ScalafmtConfig,
   ): (Replacement, Replacement) = {
-    @tailrec
-    def okComment(xft: FT): Boolean = ftoks.prevNotTrailingComment(xft) match {
-      case Right(x) => (x eq xft) || !session.isRemovedOnLeft(x, true) || {
-          val pft = ftoks.prev(x)
-          pft.noBreak && okComment(pft)
-        }
-      case _ => false
-    }
     def okSemicolon(t: Tree): Boolean = !braceSeparatesTwoXmlTokens &&
       (ftoks.prevNonComment(ft) match {
         case FT(_: T.Semicolon, _, m) =>
@@ -450,13 +454,14 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
                       case _ => false
                     }
                   case _ => style.dialect.allowSignificantIndentation
-                }) || okComment(ft) && !elseAfterRightBraceThenpOnLeft) =>
-            (left, removeToken)
+                }) ||
+                  okCommentBeforeClose(ft) &&
+                  !elseAfterRightBraceThenpOnLeft) => (left, removeToken)
           case ReplacementType.Replace => left.ft.right match {
               case _: T.LeftParen => left -> replaceTokenBy(")", t.parent)(x =>
                   new T.RightParen(x.input, x.dialect, x.start),
                 )
-              case _: T.Equals if okSemicolon(t) || okComment(ft) =>
+              case _: T.Equals if okSemicolon(t) || okCommentBeforeClose(ft) =>
                 (left, removeToken)
               case _ => null
             }
