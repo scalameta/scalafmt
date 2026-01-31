@@ -7,10 +7,9 @@ import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 
 object Dependencies {
   val metaconfigV = "0.18.2"
-  val scalametaV  = "4.14.6"
-  val scalacheckV = "1.18.1"
+  val scalametaV  = "4.14.7"
   val coursier    = "2.1.24"
-  val munitV      = "1.2.1"
+  val munitV      = "1.2.2"
   val mdocV       = mdoc.BuildInfo.version
 
   private def smorg(pkg: => String, v: String) = Def.setting("org.scalameta" %%% pkg % v)

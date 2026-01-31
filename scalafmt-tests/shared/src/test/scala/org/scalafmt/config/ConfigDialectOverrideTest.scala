@@ -97,7 +97,7 @@ class ConfigDialectOverrideTest extends FunSuite {
       "withAllowTermUnquotes", // unimplemented in scalameta (???)
       "withAllowPatUnquotes", // unimplemented in scalameta (???)
     )
-    val baseDialect = Scala213
+    val baseDialect = Dialect.empty
     generatedMap.keys.filter(!omittedMethods.contains(_))
       .foreach(key => generatedMap(key)(baseDialect, true))
   }
