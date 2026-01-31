@@ -145,7 +145,7 @@ addSbtPlugin(<span class="hljs-string">"org.scalameta"</span> % <span class="hlj
 <p>Latest published version of the sbt plugin:
 <a href="https://index.scala-lang.org/scalameta/sbt-scalafmt/sbt-scalafmt"><img src="https://index.scala-lang.org/scalameta/sbt-scalafmt/sbt-scalafmt/latest.svg" alt="sbt-scalafmt Scala version support"></a></p>
 <p>To configure the scalafmt version add the following line into <code>.scalafmt.conf</code>:</p>
-<pre><code class="hljs">version = <span class="hljs-number">3.10</span><span class="hljs-number">.5</span>
+<pre><code class="hljs">version = <span class="hljs-number">3.10</span><span class="hljs-number">.6</span>
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="task-keys"></a><a href="#task-keys" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Task keys</h3>
 <ul>
@@ -240,22 +240,22 @@ To install Coursier see
 <a href="https://get-coursier.io/docs/cli-overview.html#install">installation</a>
 of packages, the simplest approach is by running</p>
 <pre><code class="hljs css language-sh">cs install scalafmt
-scalafmt --version <span class="hljs-comment"># should be 3.10.5</span>
+scalafmt --version <span class="hljs-comment"># should be 3.10.6</span>
 </code></pre>
 <h4><a class="anchor" aria-hidden="true" id="standalone"></a><a href="#standalone" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>standalone</h4>
 <p>Alternatively, you can create a complete standalone executable (40+ MB in 2022) with:</p>
-<pre><code class="hljs css language-sh">coursier bootstrap org.scalameta:scalafmt-cli_2.13:3.10.5 \
+<pre><code class="hljs css language-sh">coursier bootstrap org.scalameta:scalafmt-cli_2.13:3.10.6 \
   -r sonatype:snapshots --main org.scalafmt.cli.Cli \
   --standalone \
   -o scalafmt
-./scalafmt --version <span class="hljs-comment"># should be 3.10.5</span>
+./scalafmt --version <span class="hljs-comment"># should be 3.10.6</span>
 </code></pre>
 <h4><a class="anchor" aria-hidden="true" id="slim"></a><a href="#slim" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>slim</h4>
 <p>Finally, you can choose to obtain a slim bootstrap script (100+ KB in 2022) instead with:</p>
-<pre><code class="hljs css language-sh">coursier bootstrap org.scalameta:scalafmt-cli_2.13:3.10.5 \
+<pre><code class="hljs css language-sh">coursier bootstrap org.scalameta:scalafmt-cli_2.13:3.10.6 \
   -r sonatype:snapshots --main org.scalafmt.cli.Cli \
   -o scalafmt
-./scalafmt --version <span class="hljs-comment"># should be 3.10.5</span>
+./scalafmt --version <span class="hljs-comment"># should be 3.10.6</span>
 </code></pre>
 <p>If a <code>version</code> is defined in <code>.scalafmt.conf</code>, the CLI binary will honor it
 by automatically resolving and downloading the corresponding artifacts if it
@@ -269,7 +269,7 @@ with</p>
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="pre-release"></a><a href="#pre-release" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Pre-release</h3>
 <p>Our CI publishes a pre-release version of scalafmt to Sonatype Snapshots on
-every merge into master. To use a pre-release, replace 3.10.5 with the
+every merge into master. To use a pre-release, replace 3.10.6 with the
 version here:</p>
 <p><a href="https://oss.sonatype.org/content/repositories/snapshots/org/scalameta/scalafmt-cli_2.12/"><img src="https://img.shields.io/nexus/s/https/oss.sonatype.org/org.scalameta/scalafmt-cli_2.12.svg" alt="Sonatype Snapshots"></a></p>
 <p>If you use coursier to install a pre-release, be sure to include the flag
@@ -293,12 +293,12 @@ vim/Emacs/Atom/Sublime/VS Code.</p>
 <li>Create a standalone executable in <code>/usr/local/bin/scalafmt_ng</code> with (sudo if
 necessary)</li>
 </ul>
-<pre><code class="hljs css language-sh">coursier bootstrap --standalone org.scalameta:scalafmt-cli_2.13:3.10.5 \
+<pre><code class="hljs css language-sh">coursier bootstrap --standalone org.scalameta:scalafmt-cli_2.13:3.10.6 \
   -r sonatype:snapshots -f --main com.martiansoftware.nailgun.NGServer \
   -o /usr/<span class="hljs-built_in">local</span>/bin/scalafmt_ng
 scalafmt_ng &amp; // start nailgun <span class="hljs-keyword">in</span> background
 ng ng-alias scalafmt org.scalafmt.cli.Cli
-ng scalafmt --version <span class="hljs-comment"># should be 3.10.5</span>
+ng scalafmt --version <span class="hljs-comment"># should be 3.10.6</span>
 </code></pre>
 <p>Nailgun keeps scalafmt running on a local server to avoid the JVM startup
 penalty and also so scalafmt can benefit from JIT. This makes scalafmt up to 10x
@@ -310,7 +310,7 @@ once in awhile.</p>
 <a href="#coursier">Coursier</a>, itself available via Homebrew.</p>
 <pre><code class="hljs css language-sh">brew install coursier/formulas/coursier
 coursier install scalafmt
-scalafmt --version // should be 3.10.5
+scalafmt --version // should be 3.10.6
 </code></pre>
 <p>If necessary, make sure to follow the Coursier instructions for updating
 <code>$PATH</code> so that the <code>scalafmt</code> binary becomes available in your terminal.</p>
@@ -320,13 +320,13 @@ scalafmt --version // should be 3.10.5
 package that installs scalafmt binary built with GraalVM. GraalVM native binary
 provides instant startup without Nailgun.</p>
 <pre><code class="hljs css language-sh">yaourt -S scalafmt-native-bin
-scalafmt --version // should be 3.10.5
+scalafmt --version // should be 3.10.6
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="--help"></a><a href="#--help" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>--help</h3>
 <pre><code class="hljs">build commit: dae977cbbd3fa9fdc9fd5fc86168d4e75fe8179e
-build time: Sat Jan <span class="hljs-number">31</span> <span class="hljs-number">05</span>:<span class="hljs-number">53</span>:<span class="hljs-number">23</span> UTC <span class="hljs-number">2026</span>
+build time: Sat Jan <span class="hljs-number">31</span> <span class="hljs-number">06</span>:<span class="hljs-number">45</span>:<span class="hljs-number">09</span> UTC <span class="hljs-number">2026</span>
 </code></pre>
-<pre><code class="hljs">scalafmt 3.10.5+10-dae977cb-SNAPSHOT
+<pre><code class="hljs">scalafmt 3.10.6
 Usage: scalafmt [options] [&lt;<span class="hljs-keyword">file</span>&gt;...]
 
   -<span class="hljs-keyword">h</span>, --<span class="hljs-keyword">help</span>               prints this usage text
@@ -432,7 +432,7 @@ plugin:</p>
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="standalone-library"></a><a href="#standalone-library" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Standalone library</h2>
 <p>Use the <code>scalafmt-dynamic</code> module to integrate with Scalafmt.</p>
-<pre><code class="hljs css language-scala">libraryDependencies += <span class="hljs-string">"org.scalameta"</span> %% <span class="hljs-string">"scalafmt-dynamic"</span> % <span class="hljs-string">"3.10.5"</span>
+<pre><code class="hljs css language-scala">libraryDependencies += <span class="hljs-string">"org.scalameta"</span> %% <span class="hljs-string">"scalafmt-dynamic"</span> % <span class="hljs-string">"3.10.6"</span>
 </code></pre>
 <p>First, create an instance of <code>Scalafmt</code> and get paths for the file to format
 along with it's configuration file.</p>
@@ -574,7 +574,7 @@ with no external dependencies.</p>
 <pre><code class="hljs css language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">dependency</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">groupId</span>&gt;</span>org.scalameta<span class="hljs-tag">&lt;/<span class="hljs-name">groupId</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">artifactId</span>&gt;</span>scalafmt-interfaces<span class="hljs-tag">&lt;/<span class="hljs-name">artifactId</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.10.5<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">version</span>&gt;</span>3.10.6<span class="hljs-tag">&lt;/<span class="hljs-name">version</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">dependency</span>&gt;</span>
 </code></pre>
 <p>Next, obtain a classloader with the <code>scalafmt-dynamic_2.12</code> classpath.</p>
@@ -585,7 +585,7 @@ with no external dependencies.</p>
 <span class="hljs-comment">// ClassLoader that shares only org.scalafmt.interfaces from this classloader.</span>
 ClassLoader sharedParent = <span class="hljs-keyword">new</span> ScalafmtClassLoader(<span class="hljs-keyword">this</span>.getClass.getClassLoader)
 
-<span class="hljs-comment">// Jars to org.scalameta:scalafmt-dynamic_2.12:3.10.5 classpath. Obtain</span>
+<span class="hljs-comment">// Jars to org.scalameta:scalafmt-dynamic_2.12:3.10.6 classpath. Obtain</span>
 <span class="hljs-comment">// these from your build tool or programmatically with ivy/coursier.</span>
 URL[] jars = <span class="hljs-comment">// ...</span>
 ClassLoader scalafmtDynamic = <span class="hljs-keyword">new</span> URLClassLoader(jars, sharedParent)
