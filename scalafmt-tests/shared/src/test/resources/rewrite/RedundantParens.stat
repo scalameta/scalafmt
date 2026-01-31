@@ -2400,15 +2400,15 @@ foo match {
     // c
   )
   case _: Foo | _: Bar =>
-  case (_: Foo) | (_: Bar) =>
-  case (_: (Bar & Qux)) | (_: (Bar | Qux)) =>
+  case _: Foo | _: Bar =>
+  case _: (Bar & Qux) | _: (Bar | Qux) =>
   case _: Foo if bar =>
   case _: Foo | _: Bar if baz =>
-  case (_: Foo) | (_: Bar) if baz =>
+  case _: Foo | _: Bar if baz =>
   case foo @ (_: Foo) =>
   case foo @ (_: Foo | _: Bar) =>
-  case foo @ (_: Foo) | (_: Bar) =>
+  case foo @ (_: Foo) | _: Bar =>
   case foo @ (_: Foo) if bar =>
   case foo @ (_: Foo | _: Bar) if baz =>
-  case foo @ (_: Foo) | (_: Bar) if baz =>
+  case foo @ (_: Foo) | _: Bar if baz =>
 }
