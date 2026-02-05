@@ -3904,3 +3904,20 @@ object a {
     // c3
     .qux
 }
+<<< #5210
+runner.parser = source
+===
+import scala.language.experimental.relaxedLambdaSyntax
+object a {
+  foo.map: x => x + 1
+  foo.map: x =>
+    x + 1
+}
+>>>
+import scala.language.experimental.relaxedLambdaSyntax
+object a {
+  foo.map: x =>
+     x + 1
+  foo.map: x =>
+     x + 1
+}
