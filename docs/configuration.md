@@ -162,6 +162,52 @@ def foo = // significant indent: unsupported by scala213
 end foo // end marker: unsupported by scala213
 ```
 
+### `runner.dialectFeatures`
+
+This setting contains a list of language features which might affect formatting. Some features
+will automatically be detected if the source file contains, at the top level, an appropriate
+import statement `import scala.language.XXX` (exactly like this, no relative imports).
+
+Features include:
+
+- `relaxedLambdaSyntax` (since v3.10.7):
+  this feature allows formatting of fewer-braces lambdas on a single line
+  (see [SIP-75](https://docs.scala-lang.org/scala3/reference/experimental/relaxed-lambdas.html))
+  - automatic detection expects the `experimental.relaxedLambdaSyntax` language feature
+
+```scala mdoc:scalafmt
+runner.dialect = scala3
+---
+// will not be a one-liner, dialect doesn't allow
+foo.map: x => x + 1
+```
+
+```scala mdoc:scalafmt
+runner.dialect = scala3
+---
+// will not be a one-liner, import allows but is relative
+import language.experimental.relaxedLambdaSyntax
+foo.map: x => x + 1
+```
+
+```scala mdoc:scalafmt
+runner.dialect = scala3
+runner.dialectFeatures = [relaxedLambdaSyntax]
+---
+// will be a one-liner, config allows
+foo.map: x =>
+  x + 1
+```
+
+```scala mdoc:scalafmt
+runner.dialect = scala3
+---
+// will be a one-liner, import allows
+import scala.language.experimental.relaxedLambdaSyntax
+foo.map: x =>
+  x + 1
+```
+
 ### Scala 3
 
 Since v3.0.0, `scalafmt` supports Scala 3 features that can be enabled by changing

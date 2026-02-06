@@ -28,6 +28,7 @@ case class RunnerSettings(
     private val dialectOverride: Conf.Obj = Conf.Obj.empty,
     ignoreWarnings: Boolean = false,
     fatalWarnings: Boolean = false,
+    dialectFeatures: Seq[RunnerSettings.DialectFeature] = Nil,
 ) {
   @inline
   private[scalafmt] def getDialect = dialect.value
@@ -117,5 +118,12 @@ object RunnerSettings {
         else runner.withDialect(runner.dialect.copy(value = dialect))
       }
     }
+
+  sealed trait DialectFeature
+  object DialectFeature {
+    implicit val codec: ConfCodecEx[DialectFeature] = ConfCodecEx
+      .oneOf[DialectFeature](relaxedLambdaSyntax)
+    case object relaxedLambdaSyntax extends DialectFeature
+  }
 
 }
