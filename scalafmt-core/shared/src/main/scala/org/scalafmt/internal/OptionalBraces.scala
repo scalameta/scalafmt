@@ -163,9 +163,28 @@ object OptionalBraces {
       import ftoks._
       def funcSplit(arg: Member.Function)(implicit fl: FileLine) = {
         val end = getLast(arg)
-        val opt = nextNonCommentSameLine(getFuncArrow(arg).getOrElse(end))
-        Split(Space, 0).withSingleLine(opt)
-          .andPolicy(decideNewlinesOnlyAfterToken(opt))
+        getFuncArrow(arg).fold(Split(Space, 0).withSingleLine(end)) { arrow =>
+          val afterArrow = nextNonCommentSameLine(arrow)
+          /* TODO: dialect doesn't indicate if one-line lambdas are allowed.
+           * On the other hand, with experimental features, that would force
+           * use of Scala3Future which is not granular and might be overkill. */
+          val nlOnly = style.newlines.unfold ||
+            style.newlines.keepBreak(afterArrow) ||
+            !style.runner.dialectFeatures
+              .contains(RunnerSettings.DialectFeature.relaxedLambdaSyntax)
+          val policy =
+            if (nlOnly) decideNewlinesOnlyAfterToken(afterArrow)
+            else Policy.onlyFor(afterArrow, "FBARR") { ss =>
+              val slb = SingleLineBlock(end)
+              val opt = Some(OptimalToken(end, killOnFail = true))
+              ss.map(s =>
+                if (s.isNL) s
+                else s.andPolicy(slb)
+                  .withOptimalAt(opt, extend = true, ignore = !s.noCost),
+              )
+            }
+          Split(Space, 0).withSingleLine(afterArrow).andPolicy(policy)
+        }
       }
       val indent = ac.parent match {
         case Some(p: Term.Apply) =>

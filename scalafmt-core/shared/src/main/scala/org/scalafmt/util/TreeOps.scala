@@ -911,9 +911,12 @@ object TreeOps {
 
     val checkedNewlines = baseStyle.newlines
       .checkInfixConfig(termInfixCount, typeInfixCount, patInfixCount)(baseStyle)
+    val checkedRunner = addDialectFeatures(baseStyle.runner, topSourceTree)
+    val ok = (checkedNewlines eq baseStyle.newlines) &&
+      (checkedRunner eq baseStyle.runner)
     val initStyle =
-      if (checkedNewlines eq baseStyle.newlines) baseStyle
-      else baseStyle.copy(newlines = checkedNewlines)
+      if (ok) baseStyle
+      else baseStyle.copy(newlines = checkedNewlines, runner = checkedRunner)
     (initStyle, ownersMap.result())
   }
 
@@ -1097,6 +1100,75 @@ object TreeOps {
   def isJsNative(body: Tree): Boolean = body match {
     case Term.Select(Term.Name("js"), Term.Name("native")) => true
     case _ => false
+  }
+
+  def addDialectFeatures(runner: RunnerSettings, tree: Tree): RunnerSettings = {
+    val res = mutable
+      .Set[RunnerSettings.DialectFeature](runner.dialectFeatures: _*)
+    val cnt = res.size
+
+    def isSelectLanguageImport(t: Term.Select): Boolean = t.name.value ==
+      "language" &&
+      (t.qual match {
+        case q: Name => q.value == "scala"
+        case q: Term.Select => q.name.value == "scala" &&
+          (q.qual match {
+            case qq: Name => qq.value == "_root_"
+            case _ => false
+          })
+        case _ => true
+      })
+    def isLanguageImport(term: Term): Boolean = term match {
+      case t: Term.Select => isSelectLanguageImport(t)
+      case _ => false
+    }
+    def findFeature(name: Name): Unit = {}
+    def findExperimentalFeature(name: Name): Unit = name.value match {
+      case "relaxedLambdaSyntax" => res +=
+          RunnerSettings.DialectFeature.relaxedLambdaSyntax
+      case _ =>
+    }
+    @tailrec
+    def iter(stats: List[Tree], other: List[List[Tree]]): Unit = stats match {
+      case stat :: rest =>
+        var newother = other
+        stat match {
+          case stat: ImportExportStat => stat.importers.foreach { importer =>
+              importer.ref match {
+                case ref: Term.Select =>
+                  if (isSelectLanguageImport(ref)) importer.importees.foreach {
+                    case x: Importee.Name => findFeature(x.name)
+                    case x: Importee.Rename => findFeature(x.name)
+                    case _ =>
+                  }
+                  else if (
+                    ref.name.value == "experimental" &&
+                    isLanguageImport(ref.qual)
+                  ) importer.importees.foreach {
+                    case x: Importee.Name => findExperimentalFeature(x.name)
+                    case x: Importee.Rename => findExperimentalFeature(x.name)
+                    case _ =>
+                  }
+                case _ =>
+              }
+            }
+          case stat: Pkg => newother = stat.body.stats :: newother
+          case _ =>
+        }
+        iter(rest, newother)
+      case _ => other match {
+          case head :: rest => iter(head, rest)
+          case _ =>
+        }
+    }
+
+    tree match {
+      case x: Tree.Block => iter(x.stats, Nil)
+      case x: Tree.WithStats => iter(x.stats, Nil)
+      case _ =>
+    }
+
+    if (res.size == cnt) runner else runner.copy(dialectFeatures = res.toSeq)
   }
 
 }
