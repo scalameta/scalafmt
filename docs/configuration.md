@@ -945,6 +945,8 @@ Added in 3.4.0, this parameter determines when an infix operator can be exempted
 continuation indentation. Since 3.10.4, it takes multiple values, and expects each to apply.
 If you have only one value, you may choose to specify `exemptScope = <value>`
 instead of `exemptScope = [ <value> ]`.
+If the list is empty, this constraint is satisfied, and any otherwise eligible infix operator
+is exempted.
 
 It accepts the following values, to determine the context in which infix operators are eligible
 to be exempted from the default indentation rule:

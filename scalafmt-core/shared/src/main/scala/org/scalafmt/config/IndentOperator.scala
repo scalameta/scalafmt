@@ -51,7 +51,8 @@ import metaconfig._
   *   [[https://github.com/scala-js/scala-js/blob/master/CODINGSTYLE.md#long-expressions-with-binary-operators]]
   */
 case class IndentOperator(
-    exemptScope: Seq[IndentOperator.Exempt] = Nil,
+    exemptScope: Seq[IndentOperator.Exempt] =
+      Seq(IndentOperator.Exempt.oldTopLevel),
     @annotation.ExtraName("include")
     includeRegex: String = ".*",
     @annotation.ExtraName("exclude")
