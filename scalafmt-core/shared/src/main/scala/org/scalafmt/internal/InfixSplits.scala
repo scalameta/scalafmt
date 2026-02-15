@@ -278,9 +278,7 @@ class InfixSplits(
       case t: Pat => getFullPat(t)
       case t => t
     }
-    def allowNoIndent(cfg: IndentOperator) = {
-      if (cfg.exemptScope.isEmpty) Seq(Exempt.oldTopLevel) else cfg.exemptScope
-    }.forall {
+    def allowNoIndent(cfg: IndentOperator) = cfg.exemptScope.forall {
       case Exempt.all => true
       case Exempt.oldTopLevel => isOldTopLevel(full)
       case Exempt.aloneEnclosed => isAloneEnclosed(full)
