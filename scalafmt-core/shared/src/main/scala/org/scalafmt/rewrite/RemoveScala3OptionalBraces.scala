@@ -203,6 +203,14 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
     }
   }
 
+  private[rewrite] def onLeftForArgClause(lft: FT, left: Replacement)(
+      tree: Term.ArgClause,
+  ): Replacement = {
+    implicit val ft: FT = lft
+    implicit val style: ScalafmtConfig = left.style
+    onLeftForArgClause(tree)
+  }
+
   private def shouldRewriteColonOnRight(
       left: Replacement,
   )(implicit ft: FT, session: Session, style: ScalafmtConfig): Boolean = {
