@@ -946,7 +946,7 @@ continuation indentation. Since 3.10.4, it takes multiple values, and expects ea
 If you have only one value, you may choose to specify `exemptScope = <value>`
 instead of `exemptScope = [ <value> ]`.
 If the list is empty, this constraint is satisfied, and any otherwise eligible infix operator
-is exempted.
+is exempted (this replaced deprecated `indentOperator.topLevelOnly=false`).
 
 It accepts the following values, to determine the context in which infix operators are eligible
 to be exempted from the default indentation rule:
@@ -968,8 +968,6 @@ to be exempted from the default indentation rule:
   only statement in a block; entire body of an assignment, case clause, control statement, etc;
   - it is intended to help implement a requirement of the
     [scala-js coding style](https://github.com/scala-js/scala-js/blob/main/CODINGSTYLE.md#long-expressions-with-binary-operators).
-- `all`: all infix operators
-  - this value replaced deprecated `indentOperator.topLevelOnly=false`
 - `notAssign` (since v3.8.4): any non-assignment operator
   - this value expanded upon deprecated `verticalAlignMultilineOperators`
     which now simply maps to `{ exemptScope = notAssign, excludeRegex = ".*" }`
@@ -1001,7 +999,7 @@ function {
 ```
 
 ```scala mdoc:scalafmt
-indent.infix = [{ exemptScope = [all] }]
+indent.infix = [{ exemptScope = [] }]
 ---
 function(
   a &&

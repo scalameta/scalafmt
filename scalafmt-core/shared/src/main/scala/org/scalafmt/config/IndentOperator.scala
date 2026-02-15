@@ -81,18 +81,17 @@ object IndentOperator {
     case Conf.Str("akka") => akka
     case Conf.Str("default") => default
   }.withSectionRenames(
+    annotation.SectionRename.partial { // converted to Seq in v3.10.4
+      case x: Conf.Str => if (x.value == "all") Conf.Lst(Nil) else Conf.Lst(x)
+    }(exemptScopeName, exemptScopeName),
     // deprecated since v3.4.0
     annotation.SectionRename { case Conf.Bool(value) =>
-      if (value) Conf.nameOf(Exempt.oldTopLevel) else Conf.nameOf(Exempt.all)
+      if (value) Conf.Lst(Conf.nameOf(Exempt.oldTopLevel)) else Conf.Lst(Nil)
     }("topLevelOnly", exemptScopeName),
-    annotation.SectionRename.partial { // converted to Seq in v3.10.4
-      case x: Conf.Str => Conf.Lst(x)
-    }(exemptScopeName, exemptScopeName),
   )
 
   sealed abstract class Exempt
   object Exempt {
-    case object all extends Exempt
     case object oldTopLevel extends Exempt
     case object aloneEnclosed extends Exempt
     case object aloneArgOrBody extends Exempt
@@ -100,7 +99,6 @@ object IndentOperator {
     case object notWithinAssign extends Exempt
 
     implicit val reader: ConfCodecEx[Exempt] = ConfCodecEx.oneOf[Exempt](
-      all,
       oldTopLevel,
       aloneEnclosed,
       aloneArgOrBody,
