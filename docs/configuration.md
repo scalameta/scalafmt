@@ -927,17 +927,24 @@ indented by 2.
 This group of parameters allows overriding which infix operators, and in which
 context, are eligible to be exempted from this, with indentation _omitted_.
 
-If you wish to disable this functionality, set
-`indent.infix = []`.
+This overall setting is a list of alternative entries:
+
+- each entry defines several constraints, and at least one entry must have all
+  of its constraints satisfied for an infix operator to be exempted
+- therefore, if you wish to disable this functionality, set `indent.infix = []`
+- if you have only one entry, you can specify `indent.infix { ... }` instead of
+  `indent.infix = [ { ... } ]`
 
 ```scala mdoc:defaults
 indent.infix
 ```
 
-#### `indent.infix.exemptScope`
+#### `indent.infix`: `exemptScope`
 
 Added in 3.4.0, this parameter determines when an infix operator can be exempted from applying
 continuation indentation. Since 3.10.4, it takes multiple values, and expects each to apply.
+If you have only one value, you may choose to specify `exemptScope = <value>`
+instead of `exemptScope = [ <value> ]`.
 
 It accepts the following values, to determine the context in which infix operators are eligible
 to be exempted from the default indentation rule:
@@ -967,7 +974,7 @@ to be exempted from the default indentation rule:
 - `notWithinAssign` (since v3.8.4): any infix not part of a larger assignment expression
 
 ```scala mdoc:scalafmt
-indent.infix = [ { exemptScope = oldTopLevel } ]
+indent.infix = [{ exemptScope = [oldTopLevel] }]
 ---
 function(
   a &&
@@ -992,7 +999,7 @@ function {
 ```
 
 ```scala mdoc:scalafmt
-indent.infix.exemptScope = all
+indent.infix = [{ exemptScope = [all] }]
 ---
 function(
   a &&
@@ -1017,7 +1024,7 @@ function {
 ```
 
 ```scala mdoc:scalafmt
-indent.infix.exemptScope = aloneEnclosed
+indent.infix = [{ exemptScope = [aloneEnclosed] }]
 ---
 function(
   a &&
@@ -1042,7 +1049,7 @@ function {
 ```
 
 ```scala mdoc:scalafmt
-indent.infix.exemptScope = aloneArgOrBody
+indent.infix = [{ exemptScope = [aloneArgOrBody] }]
 ---
 function(
   a &&
@@ -1066,14 +1073,14 @@ function {
 }
 ```
 
-#### `indent.infix.excludeRegex`
+#### `indent.infix`: `excludeRegex`
 
 Defines a regular expression for excluded infix operators. If an eligible
 operator matches, it will not be indented.
 
 In v3.1.0, this parameter was renamed from `indentOperator.exclude`.
 
-#### `indent.infix.includeRegex`
+#### `indent.infix`: `includeRegex`
 
 Defines a regular expression for included infix operators. If an eligible
 operator matches and is not excluded explicitly by
@@ -1087,8 +1094,8 @@ renamed from `indentOperator.include`.
 - `default`
   - use defaults for all fields
 - `spray` (also `akka`)
-  - set `indent.infix.excludeRegex = "^$"`
-    and `indent.infix.includeRegex = "^.*=$"`
+  - set `indent.infix = [{ excludeRegex = "^$"` }]
+    and `indent.infix = [{ includeRegex = "^.*=$"` }]
 
 ## Alignment
 
