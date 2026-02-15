@@ -272,19 +272,20 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
   ): (Replacement, Replacement) = left.how match {
     case ReplacementType.Remove =>
       getRightBraceBeforeRightParen(shouldBeRemoved = false).map { rb =>
-        ft.meta.rightOwner match {
-          case ac: Term.ArgClause => ftoks.matchingOptLeft(rb).map(ftoks.prev)
-              .foreach(lb =>
-                session.rule[RemoveScala3OptionalBraces].foreach(r =>
-                  session.getClaimed(lb.meta.idx).foreach { case (leftIdx, _) =>
-                    val repl = r.onLeftForArgClause(ac)(lb, left.style)
-                    if (null ne repl) {
-                      implicit val ft: FT = ftoks.prev(rb)
-                      repl.onRightAndClaim(hasFormatOff, leftIdx)
-                    }
-                  },
-                ),
-              )
+        ft.rightOwner match {
+          case ac: Term.ArgClause => ftoks.matchingOptLeft(rb).foreach(lbr =>
+              session.rule[RemoveScala3OptionalBraces].foreach { r =>
+                val lb = ftoks.prev(lbr)
+                session.getClaimed(lb.idx).foreach { case (leftIdx, lbRepl) =>
+                  val orepl = if (lbRepl ne null) lbRepl else left
+                  val repl = r.onLeftForArgClause(lb, orepl)(ac)
+                  if (null ne repl) {
+                    implicit val ft: FT = ftoks.prev(rb)
+                    repl.onRightAndClaim(hasFormatOff, leftIdx)
+                  }
+                }
+              },
+            )
           case _ =>
         }
         (left, removeToken)
@@ -302,14 +303,14 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       def replaceIfAfterRightBrace = pftOpt.map { pft =>
         val rb = pft.left
         // move right to the end of the function
-        val rType = new ReplacementType.RemoveAndResurrect(ftoks.prev(pft))
+        val rType = new ReplacementType.RemoveAndResurrect(pft.idx - 1)
         // create a shifted token so that any child tree wouldn't own it
         replaceWithBrace(rb, rType, startOff = 1)
       }
       (ft.rightOwner match {
         case ac: Term.ArgClause => session.rule[RemoveScala3OptionalBraces]
             .flatMap { r =>
-              val repl = r.onLeftForArgClause(ac)(left.ft, left.style)
+              val repl = r.onLeftForArgClause(left.ft, left)(ac)
               if (repl eq null) None else repl.onRight(hasFormatOff)
             }.orElse(
               if (left.claim.nonEmpty) None
