@@ -1176,12 +1176,22 @@ Since v3.10.4, it takes a list of alternative configurations.</p>
 indented by 2.</p>
 <p>This group of parameters allows overriding which infix operators, and in which
 context, are eligible to be exempted from this, with indentation <em>omitted</em>.</p>
-<p>If you wish to disable this functionality, set
-<code>indent.infix = []</code>.</p>
-<p>Default: <code>indent.infix = [{&quot;exemptScope&quot;: [], &quot;includeRegex&quot;: &quot;.*&quot;, &quot;excludeRegex&quot;: &quot;^(&amp;&amp;|\\|\\|)$&quot;}]</code></p>
-<h4><a class="anchor" aria-hidden="true" id="indentinfixexemptscope"></a><a href="#indentinfixexemptscope" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indent.infix.exemptScope</code></h4>
+<p>This overall setting is a list of alternative entries:</p>
+<ul>
+<li>each entry defines several constraints, and at least one entry must have all
+of its constraints satisfied for an infix operator to be exempted</li>
+<li>therefore, if you wish to disable this functionality, set <code>indent.infix = []</code></li>
+<li>if you have only one entry, you can specify <code>indent.infix { ... }</code> instead of
+<code>indent.infix = [ { ... } ]</code></li>
+</ul>
+<p>Default: <code>indent.infix = [{&quot;exemptScope&quot;: [&quot;oldTopLevel&quot;], &quot;includeRegex&quot;: &quot;.*&quot;, &quot;excludeRegex&quot;: &quot;^(&amp;&amp;|\\|\\|)$&quot;}]</code></p>
+<h4><a class="anchor" aria-hidden="true" id="indentinfix-exemptscope"></a><a href="#indentinfix-exemptscope" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indent.infix</code>: <code>exemptScope</code></h4>
 <p>Added in 3.4.0, this parameter determines when an infix operator can be exempted from applying
-continuation indentation. Since 3.10.4, it takes multiple values, and expects each to apply.</p>
+continuation indentation. Since 3.10.4, it takes multiple values, and expects each to apply.
+If you have only one value, you may choose to specify <code>exemptScope = &lt;value&gt;</code>
+instead of <code>exemptScope = [ &lt;value&gt; ]</code>.
+If the list is empty, this constraint is satisfied, and any otherwise eligible infix operator
+is exempted (this replaced deprecated <code>indentOperator.topLevelOnly=false</code>).</p>
 <p>It accepts the following values, to determine the context in which infix operators are eligible
 to be exempted from the default indentation rule:</p>
 <ul>
@@ -1207,10 +1217,6 @@ only statement in a block; entire body of an assignment, case clause, control st
 <ul>
 <li>it is intended to help implement a requirement of the
 <a href="https://github.com/scala-js/scala-js/blob/main/CODINGSTYLE.md#long-expressions-with-binary-operators">scala-js coding style</a>.</li>
-</ul></li>
-<li><code>all</code>: all infix operators
-<ul>
-<li>this value replaced deprecated <code>indentOperator.topLevelOnly=false</code></li>
 </ul></li>
 <li><code>notAssign</code> (since v3.8.4): any non-assignment operator
 <ul>
@@ -1266,7 +1272,7 @@ function {
 }
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">indent.infix = [ { exemptScope = oldTopLevel } ]
+<pre><code class="hljs css language-scala config">indent.infix = [{ exemptScope = [oldTopLevel] }]
 </code></pre>
 </p></details>
 <pre><code class="hljs css language-scala formatted">function(
@@ -1316,7 +1322,7 @@ function {
 }
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">indent.infix.exemptScope = all
+<pre><code class="hljs css language-scala config">indent.infix = [{ exemptScope = [] }]
 </code></pre>
 </p></details>
 <pre><code class="hljs css language-scala formatted">function(
@@ -1366,7 +1372,7 @@ function {
 }
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">indent.infix.exemptScope = aloneEnclosed
+<pre><code class="hljs css language-scala config">indent.infix = [{ exemptScope = [aloneEnclosed] }]
 </code></pre>
 </p></details>
 <pre><code class="hljs css language-scala formatted">function(
@@ -1416,14 +1422,14 @@ function {
 }
 </code></pre>
 <p><details class='config' open><summary>Config for this example:</summary><p></p>
-<pre><code class="hljs css language-scala config">indent.infix.exemptScope = aloneArgOrBody
+<pre><code class="hljs css language-scala config">indent.infix = [{ exemptScope = [aloneArgOrBody] }]
 </code></pre>
 </p></details>
-<h4><a class="anchor" aria-hidden="true" id="indentinfixexcluderegex"></a><a href="#indentinfixexcluderegex" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indent.infix.excludeRegex</code></h4>
+<h4><a class="anchor" aria-hidden="true" id="indentinfix-excluderegex"></a><a href="#indentinfix-excluderegex" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indent.infix</code>: <code>excludeRegex</code></h4>
 <p>Defines a regular expression for excluded infix operators. If an eligible
 operator matches, it will not be indented.</p>
 <p>In v3.1.0, this parameter was renamed from <code>indentOperator.exclude</code>.</p>
-<h4><a class="anchor" aria-hidden="true" id="indentinfixincluderegex"></a><a href="#indentinfixincluderegex" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indent.infix.includeRegex</code></h4>
+<h4><a class="anchor" aria-hidden="true" id="indentinfix-includeregex"></a><a href="#indentinfix-includeregex" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indent.infix</code>: <code>includeRegex</code></h4>
 <p>Defines a regular expression for included infix operators. If an eligible
 operator matches and is not excluded explicitly by
 <a href="#indentinfixexcluderegex">indent.infix.excludeRegex</a>, it be will indented.</p>
@@ -1437,8 +1443,8 @@ renamed from <code>indentOperator.include</code>.</p>
 </ul></li>
 <li><code>spray</code> (also <code>akka</code>)
 <ul>
-<li>set <code>indent.infix.excludeRegex = &quot;^$&quot;</code>
-and <code>indent.infix.includeRegex = &quot;^.*=$&quot;</code></li>
+<li>set <code>indent.infix = [{ excludeRegex = &quot;^$&quot;</code> }]
+and <code>indent.infix = [{ includeRegex = &quot;^.*=$&quot;</code> }]</li>
 </ul></li>
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="alignment"></a><a href="#alignment" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Alignment</h2>
@@ -8614,7 +8620,9 @@ indent.<span class="hljs-attr">fewerBraces</span> = never
 indent.<span class="hljs-attr">infix</span> = [
   {
     <span class="hljs-attr">excludeRegex</span> = <span class="hljs-string">"^(&amp;&amp;|\|\|)$"</span>
-    <span class="hljs-attr">exemptScope</span> = []
+    <span class="hljs-attr">exemptScope</span> = [
+      oldTopLevel
+    ]
     <span class="hljs-attr">includeRegex</span> = <span class="hljs-string">".*"</span>
   }
 ]
