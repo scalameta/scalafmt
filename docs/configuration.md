@@ -1084,7 +1084,7 @@ In v3.1.0, this parameter was renamed from `indentOperator.exclude`.
 
 Defines a regular expression for included infix operators. If an eligible
 operator matches and is not excluded explicitly by
-[indent.infix.excludeRegex](#indentinfixexcluderegex), it be will indented.
+[excludeRegex](#indentinfix-excluderegex), it be will indented.
 
 In v3.1.0, due to conflict with built-in HOCON keyword, this parameter was
 renamed from `indentOperator.include`.
