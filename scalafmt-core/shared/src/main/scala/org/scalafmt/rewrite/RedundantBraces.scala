@@ -281,6 +281,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
                   val repl = r.onLeftForArgClause(lb, orepl)(ac)
                   if (null ne repl) {
                     implicit val ft: FT = ftoks.prev(rb)
+                    repl.advanceSpan(ft) // instead of removing from session
                     repl.onRightAndClaim(hasFormatOff, leftIdx)
                   }
                 }
