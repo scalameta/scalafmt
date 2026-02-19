@@ -146,7 +146,7 @@ class FormatTokensRewrite(
    * - for standalone tokens, simply invoke the rule and record any rewrites
    */
   private def getRewrittenTokens: Iterable[Replacement] = {
-    implicit val session: Session = new Session(rules)
+    implicit val session: Session = new Session(rules, arr)
     val tokens = session.tokens
     val leftDelimIndex = new mutable.ListBuffer[Int]()
     val formatOffStack = new mutable.ListBuffer[Boolean]()
@@ -189,6 +189,8 @@ class FormatTokensRewrite(
 
         case _ =>
       }
+
+      session.advanceSpanTo(ft.idx)
     }
     tokens.filter(_ != null)
   }
@@ -277,15 +279,55 @@ object FormatTokensRewrite {
     else new FormatTokensRewrite(ftoks, styleMap, rules).rewrite
   }
 
-  private[rewrite] class Session(rules: Seq[Rule]) {
+  private[rewrite] trait WithSpan {
+    private[FormatTokensRewrite] var spanShift: Int = 0
+    private[FormatTokensRewrite] var blankGapId: Int = 0
+
+    def advanceSpan(implicit ft: FT): Unit = {
+      spanShift += ft.right.len
+      if (ft.hasBlankLine) blankGapId += 1
+    }
+  }
+
+  private[rewrite] class Session(rules: Seq[Rule], arr: Array[FT])
+      extends WithSpan {
     private implicit val implicitSession: Session = this
     // map FT index to index in tokens below
     private val claimed = new mutable.HashMap[Int, Int]()
     private[FormatTokensRewrite] val tokens =
       new mutable.ArrayBuffer[Replacement]()
     private[FormatTokensRewrite] var maxClaimed = -1
+    private var spanFtIdx: Int = 0
 
-    def update(idx: Int, repl: Replacement): Unit = tokens(idx) = repl
+    def at(ftIdx: Int): T = arr(ftIdx).right
+    def getSpan(repl: Replacement) = spanShift - repl.spanShift
+    def getBlankGaps(repl: Replacement) = blankGapId - repl.blankGapId
+
+    private def getSpanDelta(repl: Replacement): Int =
+      if (repl eq null) 0 else repl.getSpanDelta
+
+    def advanceSpanTo(ftIdx: Int): Unit = while (ftIdx >= spanFtIdx) {
+      super.advanceSpan(arr(spanFtIdx))
+      spanFtIdx += 1
+    }
+
+    def update(idx: Int, repl: Replacement): Unit = {
+      val orepl = tokens(idx)
+      if (orepl ne repl) {
+        tokens(idx) = repl
+        val delta = getSpanDelta(repl) - getSpanDelta(orepl)
+        spanShift += delta
+        if ((repl ne null) && (orepl ne null)) repl.copySpanFrom(orepl, delta)
+      }
+    }
+
+    def append(repl: Replacement): Unit = {
+      tokens.append(repl)
+      if (repl ne null) {
+        spanShift += repl.getSpanDelta
+        repl.spanShift = spanShift
+      }
+    }
 
     def getClaimed(ftIdx: Int): Option[(Int, Replacement)] =
       claimed.get(ftIdx) match {
@@ -323,6 +365,7 @@ object FormatTokensRewrite {
     }
 
     private def justClaim(ftIdx: Int)(repl: Replacement): Int = {
+      advanceSpanTo(ftIdx)
       val idx = tokens.length
       val claimedIdx = claimed.getOrElseUpdate(ftIdx, idx)
       val preClaimed = claimedIdx < idx
@@ -338,7 +381,7 @@ object FormatTokensRewrite {
         require(ftIdx > maxClaimed, s"claiming token at $ftIdx <= $maxClaimed")
         maxClaimed = ftIdx
         if (preClaimed) claimed.update(ftIdx, idx)
-        tokens.append(repl)
+        append(repl)
         idx
       }
     }
@@ -392,7 +435,13 @@ object FormatTokensRewrite {
       style: ScalafmtConfig,
       // list of FT indices, with the claimed token on the **right**
       claim: Iterable[Int] = Nil,
-  ) {
+  ) extends WithSpan {
+    def getSpanDelta(implicit session: Session): Int = how.getSpanDelta(ft)
+    def copySpanFrom(other: Replacement, spanDelta: Int = 0): Unit = {
+      spanShift = other.spanShift + spanDelta
+      blankGapId = other.blankGapId
+    }
+
     @inline
     def isRemove: Boolean = how eq ReplacementType.Remove
     @inline
@@ -424,16 +473,24 @@ object FormatTokensRewrite {
     }
   }
 
-  private[rewrite] sealed trait ReplacementType
+  private[rewrite] sealed trait ReplacementType {
+    def getSpanDelta(xft: FT)(implicit session: Session): Int
+  }
   private[rewrite] object ReplacementType {
     object Remove extends ReplacementType {
       override def toString: String = "REMOVE"
+      def getSpanDelta(xft: FT)(implicit session: Session): Int =
+        -session.at(xft.idx).len
     }
     object Replace extends ReplacementType {
       override def toString: String = "REPLACE"
+      def getSpanDelta(xft: FT)(implicit session: Session): Int =
+        -session.at(xft.idx).len + xft.right.len
     }
     class RemoveAndResurrect(val idx: Int) extends ReplacementType {
       override def toString: String = s"REMOVE/RESURRECT($idx)"
+      def getSpanDelta(xft: FT)(implicit session: Session): Int =
+        -session.at(idx).len + xft.right.len
     }
   }
 
