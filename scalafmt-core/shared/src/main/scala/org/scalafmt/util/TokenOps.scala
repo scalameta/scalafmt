@@ -5,7 +5,6 @@ import org.scalafmt.internal._
 
 import scala.meta._
 import scala.meta.classifiers.Classifier
-import scala.meta.tokens.Token.{Space => _, _}
 import scala.meta.tokens.{Token => T, Tokens}
 
 import scala.annotation.tailrec
@@ -55,7 +54,7 @@ object TokenOps {
     .reverseIterator.find(cond)
 
   def findLastVisibleTokenOpt(tokens: Tokens): Option[T] = findLast(tokens) {
-    case _: Whitespace | _: EOF => false
+    case _: T.Whitespace | _: T.EOF => false
     case _ => true
   }
 
@@ -63,10 +62,10 @@ object TokenOps {
     .getOrElse(tokens.last)
 
   @inline
-  def withNoIndent(ft: FT): Boolean = ft.between.lastOption.is[AtEOL]
+  def withNoIndent(ft: FT): Boolean = ft.between.lastOption.is[T.AtEOL]
 
   @inline
-  def rhsIsCommentedOut(ft: FT): Boolean = ft.right.is[Comment] &&
+  def rhsIsCommentedOut(ft: FT): Boolean = ft.right.is[T.Comment] &&
     rhsIsCommentedOutIfComment(ft)
 
   @inline
@@ -74,7 +73,7 @@ object TokenOps {
     isSingleLineIfComment(ft.right)
 
   @inline
-  def isLeftCommentThenBreak(ft: FT): Boolean = ft.left.is[Comment] &&
+  def isLeftCommentThenBreak(ft: FT): Boolean = ft.left.is[T.Comment] &&
     ft.hasBreak
 
   def isSingleLineIfComment(c: T): Boolean = {
@@ -89,7 +88,7 @@ object TokenOps {
 
   def isBoolOperator(token: T): Boolean = booleanOperators.contains(token.syntax)
 
-  def identModification(ident: Ident): Modification = {
+  def identModification(ident: T.Ident): Modification = {
     val lastCharacter = ident.syntax.last
     Space(!Character.isLetterOrDigit(lastCharacter) && lastCharacter != '`')
   }
@@ -98,12 +97,12 @@ object TokenOps {
   def getMod(ft: FT): Modification = Space.orNL(ft.newlinesBetween)
 
   def endsWithSymbolIdent(tok: T): Boolean = tok match {
-    case Ident(name) => !name.last.isLetterOrDigit && !tok.isBackquoted
+    case tok: T.Ident => !tok.value.last.isLetterOrDigit && !tok.isBackquoted
     case _ => false
   }
 
   def isSymbolicIdent(tok: T): Boolean = tok match {
-    case Ident(name) => isSymbolicName(name)
+    case tok: T.Ident => isSymbolicName(tok.value)
     case _ => false
   }
 
@@ -114,7 +113,7 @@ object TokenOps {
     !head.isLetter && head != '_'
   }
 
-  def getXmlLastLineIndent(tok: Xml.Part): Option[Int] = {
+  def getXmlLastLineIndent(tok: T.Xml.Part): Option[Int] = {
     val part = tok.value
     val afterLastNL = part.lastIndexOf('\n') + 1
     if (afterLastNL <= 0) None
