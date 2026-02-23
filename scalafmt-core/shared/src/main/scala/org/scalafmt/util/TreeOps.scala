@@ -8,7 +8,6 @@ import org.scalafmt.util.LoggerOps._
 
 import scala.meta._
 import scala.meta.classifiers.Classifier
-import scala.meta.tokens.Token.{Space => _, _}
 import scala.meta.tokens.{Token => T, Tokens}
 
 import scala.annotation.tailrec
@@ -879,7 +878,7 @@ object TreeOps {
                   case _ => false
                 }
 
-                if (prevParens.nonEmpty && tok.is[RightParen]) {
+                if (prevParens.nonEmpty && tok.is[T.RightParen]) {
                   if (prevChild == null || prevLPs <= 0 || excludeRightParen)
                     setOwner(tok, elem)
                   else {
@@ -890,15 +889,15 @@ object TreeOps {
                   prevLPs -= 1
                   prevParens = prevParens.tail
                   prevComma = null
-                } else if (tok.is[Comma]) {
+                } else if (tok.is[T.Comma]) {
                   prevComma = tok
                   setOwner(tok, elem)
                 } else {
                   setOwner(tok, elem)
-                  if (!tok.is[Trivia] && !tok.isEmpty) {
+                  if (!tok.is[T.Trivia] && !tok.isEmpty) {
                     prevComma = null
                     prevChild = null
-                    if (tok.is[LeftParen]) {
+                    if (tok.is[T.LeftParen]) {
                       prevLPs += 1
                       prevParens = tok :: prevParens
                     } else prevLPs = 0
@@ -927,7 +926,7 @@ object TreeOps {
   def isFewerBraces(
       tree: Term.Apply,
   )(implicit dialect: Dialect, ftoks: FormatTokens): Boolean =
-    dialect.allowFewerBraces && ftoks.getHead(tree.argClause).left.is[Colon]
+    dialect.allowFewerBraces && ftoks.getHead(tree.argClause).left.is[T.Colon]
 
   @tailrec
   def isFewerBracesLhs(tree: Tree)(implicit
