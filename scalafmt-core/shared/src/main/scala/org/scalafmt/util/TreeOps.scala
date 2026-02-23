@@ -101,36 +101,37 @@ object TreeOps {
       ftoks: FormatTokens,
   ): Boolean = SingleArgInBraces.orBlock(parent).exists(_._2 eq expr)
 
-  /** Finds matching parens [({})].
+  /** Finds matching delimiters [({})].
     *
     * Contains lookup keys in both directions, opening [({ and closing })].
     */
-  def getMatchingParentheses[K, V](
-      coll: Iterable[V],
+  def getMatchingDelims[K, V](
+      coll: IndexedSeq[V],
   )(key: V => K)(f: V => T): Map[K, V] = {
+    def show(tok: T): String = s"[${tok.end}]$tok"
     val ret = Map.newBuilder[K, V]
     var stack = List.empty[(T, V)]
     coll.foreach { elem =>
       f(elem) match {
-        case open @ (_: T.OpenDelim | _: T.Xml.Start | _: T.Xml.SpliceStart |
+        case lt @ (_: T.OpenDelim | _: T.Xml.Start | _: T.Xml.SpliceStart |
             _: T.Interpolation.Start | _: T.Interpolation.SpliceStart) =>
-          stack = (open, elem) :: stack
-        case close @ (_: T.CloseDelim | _: T.Xml.End | _: T.Xml.SpliceEnd |
+          stack = (lt, elem) :: stack
+        case rt @ (_: T.CloseDelim | _: T.Xml.End | _: T.Xml.SpliceEnd |
             _: T.Interpolation.End | _: T.Interpolation.SpliceEnd) =>
-          val (open, openElem) = stack.head
+          require(stack.nonEmpty, s"Orphan closing delim ${show(rt)}")
+          val (lt, ltElem) = stack.head
           require(
-            checkValidDelims(open, close),
-            s"Mismatched delims ($open, $close)",
+            checkValidDelims(lt, rt),
+            s"Mismatched delims (${show(lt)}, ${show(rt)})",
           )
-          ret += key(openElem) -> elem
-          ret += key(elem) -> openElem
+          ret += key(ltElem) -> elem
+          ret += key(elem) -> ltElem
           stack = stack.tail
         case _ =>
       }
     }
     if (stack.nonEmpty) throw new IllegalArgumentException(
-      stack.map { case (x, _) => s"[${x.end}]$x" }
-        .mkString("Orphan parens (", ", ", ")"),
+      stack.map { case (x, _) => show(x) }.mkString("Orphan delims: ", ", ", ""),
     )
     val result = ret.result()
     result

@@ -22,8 +22,8 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
     result.result()
   }(arr)
 
-  private lazy val matchingParentheses: Map[Int, FT] = TreeOps
-    .getMatchingParentheses(arr.view)(_.idx)(_.left)
+  private lazy val matchingDelims: Map[Int, FT] = TreeOps
+    .getMatchingDelims(arr)(_.idx)(_.left)
 
   override def length: Int = arr.length
   override def apply(idx: Int): FT = arr(idx)
@@ -75,7 +75,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
   def next(ft: FT): FT = apply(ft, 1)
 
   @inline
-  private def matching(idx: Int, tok: => T): FT = matchingParentheses.getOrElse(
+  private def matching(idx: Int, tok: => T): FT = matchingDelims.getOrElse(
     idx,
     FormatTokens.throwNoToken(tok, "Missing matching token index"),
   )
@@ -84,7 +84,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
   @inline
   def matchingRight(ft: FT): FT = matching(ft.idx + 1, ft.right)
   @inline
-  def matchingOpt(idx: Int): Option[FT] = matchingParentheses.get(idx)
+  def matchingOpt(idx: Int): Option[FT] = matchingDelims.get(idx)
   @inline
   def matchingOptLeft(ft: FT): Option[FT] = matchingOpt(ft.idx)
   @inline

@@ -21,7 +21,7 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
   val tokens: Tokens = tree.tokens
   val tokenTraverser = new TokenTraverser(tokens, input)(style)
   private val matchingParens = TreeOps
-    .getMatchingParentheses(tokens)(TokenOps.hash)(identity)
+    .getMatchingDelims(tokens)(TokenOps.hash)(identity)
 
   @inline
   def getMatchingOpt(a: T): Option[T] = matchingParens.get(TokenOps.hash(a))
