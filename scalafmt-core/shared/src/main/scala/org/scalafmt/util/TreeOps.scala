@@ -111,20 +111,24 @@ object TreeOps {
   )(key: V => K)(f: V => T): Map[K, V] = {
     val ret = Map.newBuilder[K, V]
     var stack = List.empty[(T, V)]
-    coll.foreach(elem =>
+    coll.foreach { elem =>
       f(elem) match {
-        case open @ (_: OpenDelim | _: Interpolation.Start | _: Xml.Start |
-            _: Xml.SpliceStart) => stack = (open, elem) :: stack
-        case close @ (_: CloseDelim | _: Interpolation.End | _: Xml.End |
-            _: Xml.SpliceEnd) =>
+        case open @ (_: T.OpenDelim | _: T.Xml.Start | _: T.Xml.SpliceStart |
+            _: T.Interpolation.Start | _: T.Interpolation.SpliceStart) =>
+          stack = (open, elem) :: stack
+        case close @ (_: T.CloseDelim | _: T.Xml.End | _: T.Xml.SpliceEnd |
+            _: T.Interpolation.End | _: T.Interpolation.SpliceEnd) =>
           val (open, openElem) = stack.head
-          assertValidParens(open, close)
+          require(
+            checkValidDelims(open, close),
+            s"Mismatched delims ($open, $close)",
+          )
           ret += key(openElem) -> elem
           ret += key(elem) -> openElem
           stack = stack.tail
         case _ =>
-      },
-    )
+      }
+    }
     if (stack.nonEmpty) throw new IllegalArgumentException(
       stack.map { case (x, _) => s"[${x.end}]$x" }
         .mkString("Orphan parens (", ", ", ")"),
@@ -133,15 +137,15 @@ object TreeOps {
     result
   }
 
-  def assertValidParens(open: T, close: T): Unit = (open, close) match {
-    case (Interpolation.Start(), Interpolation.End()) =>
-    case (Xml.Start(), Xml.End()) =>
-    case (Xml.SpliceStart(), Xml.SpliceEnd()) =>
-    case (LeftBrace(), RightBrace()) =>
-    case (LeftBracket(), RightBracket()) =>
-    case (LeftParen(), RightParen()) =>
-    case (o, c) =>
-      throw new IllegalArgumentException(s"Mismatching parens ($o, $c)")
+  def checkValidDelims(open: T, close: T): Boolean = open match {
+    case _: T.Interpolation.Start => close.is[T.Interpolation.End]
+    case _: T.Interpolation.SpliceStart => close.is[T.Interpolation.SpliceEnd]
+    case _: T.Xml.Start => close.is[T.Xml.End]
+    case _: T.Xml.SpliceStart => close.is[T.Xml.SpliceEnd]
+    case _: T.LeftBrace => close.is[T.RightBrace]
+    case _: T.LeftBracket => close.is[T.RightBracket]
+    case _: T.LeftParen => close.is[T.RightParen]
+    case _ => true
   }
 
   @tailrec
