@@ -131,8 +131,9 @@ object TokenOps {
   ): Option[(FT, Boolean)] = ft.left match {
     case _: T.OpenDelim => f(ft)
         .flatMap(ok => ftoks.matchingOptLeft(ft).map(_ -> ok))
-    case _ => OptionalBraces.get(ft)
-        .flatMap(_.rightBrace.map(x => ftoks.nextNonCommentSameLine(x) -> true))
+    case _ => OptionalBraces.get(ft).flatMap(ob =>
+        ftoks.getLastOpt(ob.block).map(ftoks.nextNonCommentSameLine(_) -> true),
+      )
   }
 
   def getEndOfBlock(ft: FT, parens: => Boolean, brackets: => Boolean = false)(
