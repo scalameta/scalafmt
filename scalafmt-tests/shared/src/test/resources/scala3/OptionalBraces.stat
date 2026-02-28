@@ -9354,3 +9354,61 @@ foo match {
 
   // quux2
 }
+<<< remove optional braces within range, removeBracesMaxSpan
+rewrite.scala3.removeOptionalBraces {
+  enabled = true
+  removeBracesMaxSpan = 6
+}
+===
+private def mtd: Res =
+  val foo = {
+    fooBar
+  }
+  val foo = {
+    fooQuxx
+  }
+  val foo = {
+    foo
+    bar
+  }
+  val foo = {
+    foo
+    quxx
+  }
+>>>
+private def mtd: Res =
+   val foo =
+     fooBar
+   val foo =
+     fooQuxx
+   val foo =
+      foo
+      bar
+   val foo =
+      foo
+      quxx
+<<< remove optional braces within range, removeBracesMaxBlankGaps
+rewrite.scala3.removeOptionalBraces {
+  enabled = true
+  removeBracesMaxBlankGaps = 0
+}
+===
+private def mtd: Res =
+  val foo = {
+    fooBody1
+    fooBody2
+  }
+  val foo = {
+    fooBody1
+
+    fooBody2
+  }
+>>>
+private def mtd: Res =
+   val foo =
+      fooBody1
+      fooBody2
+   val foo =
+      fooBody1
+
+      fooBody2
