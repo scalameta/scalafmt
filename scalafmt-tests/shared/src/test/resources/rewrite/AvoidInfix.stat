@@ -906,3 +906,79 @@ class Test {
   A mustBe B
   C thenReturn D
 }
+<<< #5226 scala211
+runner.parser = source
+runner.dialect = scala211
+===
+foo bar ()
+foo bar {}
+foo bar (baz)
+foo bar {baz}
+foo bar {baz}.qux
+foo bar (baz, qux)
+foo bar ((baz, qux))
+>>>
+foo.bar()
+foo.bar {}
+foo.bar(baz)
+foo.bar { baz }
+foo.bar({ baz }.qux)
+foo.bar(baz, qux)
+foo.bar((baz, qux))
+<<< #5226 scala212
+runner.parser = source
+runner.dialect = scala212
+===
+foo bar ()
+foo bar {}
+foo bar (baz)
+foo bar {baz}
+foo bar {baz}.qux
+foo bar (baz, qux)
+foo bar ((baz, qux))
+>>>
+foo.bar()
+foo.bar {}
+foo.bar(baz)
+foo.bar { baz }
+foo.bar({ baz }.qux)
+foo.bar(baz, qux)
+foo.bar((baz, qux))
+<<< #5226 scala213
+runner.parser = source
+runner.dialect = scala213
+===
+foo bar ()
+foo bar {}
+foo bar (baz)
+foo bar {baz}
+foo bar {baz}.qux
+foo bar (baz, qux)
+foo bar ((baz, qux))
+>>>
+foo.bar()
+foo.bar {}
+foo.bar(baz)
+foo.bar { baz }
+foo.bar({ baz }.qux)
+foo.bar(baz, qux)
+foo.bar((baz, qux))
+<<< #5226 scala3
+runner.parser = source
+runner.dialect = scala3
+===
+foo bar ()
+foo bar {}
+foo bar (baz)
+foo bar {baz}
+foo bar {baz}.qux
+foo bar (baz, qux)
+foo bar ((baz, qux))
+>>>
+foo.bar()
+foo.bar {}
+foo.bar(baz)
+foo.bar { baz }
+foo.bar({ baz }.qux)
+foo.bar(baz, qux)
+foo.bar((baz, qux))
