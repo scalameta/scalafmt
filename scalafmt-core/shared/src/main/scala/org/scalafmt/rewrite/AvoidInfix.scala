@@ -93,8 +93,18 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
         }
       // move the left paren if enclosed, else enclose
       val (argsHead, argsLast) = ends(rhs)
-      if (ctx.getMatchingOpt(argsHead).exists(argsLast.end <= _.end))
-        moveOpenDelim(beforeLp, argsHead)
+      def rhsWrapped = ctx.getMatchingOpt(argsHead).exists(_.end >= argsLast.end)
+      val shouldMoveOpenDelim = rhs match {
+        case _: Lit.Unit => ctx.dialect.allowEmptyInfixArgs
+        case ac: Term.ArgClause => ac.values match {
+            case Nil => ctx.dialect.allowEmptyInfixArgs
+            case arg :: Nil => (arg.tokens.head ne argsHead) ||
+              !arg.is[Lit.Unit] && rhsWrapped
+            case _ => true
+          }
+        case _ => rhsWrapped
+      }
+      if (shouldMoveOpenDelim) moveOpenDelim(beforeLp, argsHead)
       else {
         builder += TokenPatch.AddRight(beforeLp, "(", keepTok = true)
         builder += TokenPatch.AddRight(argsLast, ")", keepTok = true)
