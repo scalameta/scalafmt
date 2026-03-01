@@ -37,10 +37,10 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[Replacement] = Option {
-    ft.right match {
-      case x: T.LeftBrace // skip empty brace pairs
-          if !ftoks.nextNonCommentAfter(ft).right.is[T.RightBrace] =>
+  ): Option[Replacement] = ft.right match {
+    case x: T.LeftBrace // skip empty brace pairs
+        if !ftoks.nextNonCommentAfter(ft).right.is[T.RightBrace] =>
+      Option {
         ft.meta.rightOwner match {
           case t: Term.Block if t.stats.nonEmpty =>
             onLeftForBlock(t, ftoks.prevNonComment(ft))
@@ -67,14 +67,14 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
             removeToken
           case _ => null
         }
-      case _: T.LeftParen
-          if !ftoks.nextNonCommentAfter(ft).right.is[T.RightParen] =>
-        ft.meta.rightOwner match {
-          case t: Term.ArgClause => onLeftForArgClause(t)
-          case _ => null
-        }
-      case _ => null
-    }
+      }
+    case _: T.LeftParen
+        if !ftoks.nextNonCommentAfter(ft).right.is[T.RightParen] =>
+      ft.meta.rightOwner match {
+        case t: Term.ArgClause => Option(onLeftForArgClause(t))
+        case _ => None
+      }
+    case _ => None
   }
 
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
