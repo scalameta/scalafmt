@@ -59,21 +59,28 @@ class FormatTokensRewrite(
       val idx = ft.meta.idx
       val ftOld = arr(idx)
       val rtOld = ftOld.right
+
+      copySlice(idx)
+
+      @inline
+      def advance(): Unit = nextidxToCopy += 1 // covers current element
       @inline
       def mapOld(dstidx: Int) = {
         remapped = true
         tokenMap.add(dstidx)(rtOld)
       }
 
-      copySlice(idx)
-      nextidxToCopy += 1 // covers current element
-
-      def append(): Unit = {
+      def append(xft: FT): Unit = {
         appended += 1
-        result += ft
+        result += xft
+      }
+      def replace(): Unit = {
+        advance()
+        append(ft)
         if (rtOld ne ft.right) mapOld(appended)
       }
       def remove(dstidx: Int): Unit = {
+        advance()
         mapOld(dstidx)
         val nextIdx = idx + 1
         val nextFt = ftoks.at(nextIdx)
@@ -84,10 +91,10 @@ class FormatTokensRewrite(
       }
       repl.how match {
         case ReplacementType.Remove => remove(appended)
-        case ReplacementType.Replace => append()
+        case ReplacementType.Replace => replace()
         case r: ReplacementType.RemoveAndResurrect =>
           if (r.idx == idx) { // we moved here
-            append()
+            replace()
             shiftedIndexMap.put(idx, appended)
           } else // we moved from here
             remove(shiftedIndexMap.remove(r.idx).getOrElse(appended))
