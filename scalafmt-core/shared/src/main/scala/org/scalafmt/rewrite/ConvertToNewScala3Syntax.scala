@@ -120,12 +120,12 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[(Replacement, Replacement)] = Option {
+  ): Option[(Replacement, Replacement)] = {
     def nextRight = ftoks.nextNonComment(ftoks.next(ft)).right
     ft.right match {
 
       case x: T.RightParen if left.isRemove =>
-        ft.meta.rightOwner match {
+        val rtRepl = ft.meta.rightOwner match {
           case _: Term.If =>
             if (!nextRight.is[T.KwThen])
               replaceToken("then")(new T.KwThen(x.input, x.dialect, x.start))
@@ -142,12 +142,13 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
             else removeToken
           case _ => null
         }
+        if (rtRepl eq null) None else Some((left, rtRepl))
 
-      case _: T.RightBrace if left.isRemove => removeToken
+      case _: T.RightBrace if left.isRemove => Some((left, removeToken))
 
-      case _ => null
+      case _ => None
     }
-  }.map((left, _))
+  }
 
   private def isSimpleRepeated(t: Term.Repeated): Boolean = t.expr
     .isNot[Term.ApplyInfix] || ftoks.isEnclosedWithinParens(t.expr)
