@@ -4606,13 +4606,19 @@ The section contains the following settings (available since v3.8.1):
     - other flags below might extend rewrites to other cases
 - `oldSyntaxToo`
   - if `true`, applies also to expressions using deprecated syntax
+- (since v3.10.8) `removeBracesMaxSpan` and `removeBracesMaxBlankGaps`
+  - will remove braces **if** all of these hold:
+    - `removeBracesMaxSpan` is zero, or positive and the cumulative span
+      of all visible tokens between the braces does not exceed it
+    - `removeBracesMaxBlankGaps` is negative, or the number of
+      blank-line gaps between the braces does not exceed it
 - (since v3.8.1) `fewerBracesMinSpan` and `fewerBracesMaxSpan`
+  - this is an additional restriction to the rule just above
   - will apply the rewrite to last curried single-argument group if
     it is enclosed in curly braces (or would be rewritten to curly
     braces by the `RedundantBraces` rule)
-  - will only apply the rewrite if the cumulative span of all visible
-    (non-whitespace) tokens within the argument is between the two values
-  - this rule is disabled if `fewerBracesMaxSpan == 0`
+  - will only apply the rewrite if `fewerBracesMaxSpan` is positive and
+    the visible span between the braces is within this range (inclusive)
 - (since v3.8.4) `fewerBracesParensToo`
   - will apply the rule just above to an argument in parentheses as well,
     if the one of following is also satisfied:

@@ -149,7 +149,7 @@ class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
     val explored = Debug.explored.get()
     logger.debug(s"Total explored: $explored")
     if (!onlyUnit && !onlyManual)
-      assertEquals(explored, 2765168, "total explored")
+      assertEquals(explored, 2766412, "total explored")
     if (!sys.env.contains("CI")) PlatformFileOps.writeFileAsync(
       FileOps.getPath("target", "index.html"),
       Report.heatmap(debugResults.result()),

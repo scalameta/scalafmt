@@ -3625,3 +3625,43 @@ object a {
   foo.map: x => x + 1
   foo.map: x => x + 1
 }
+<<< remove optional braces within range, fewerBracesMaxSpan < removeBracesMaxSpan
+rewrite.scala3.removeOptionalBraces {
+  enabled = true
+  removeBracesMaxSpan = 20
+  fewerBracesMaxSpan = 10
+}
+===
+private def mtd: Res =
+  foo {
+    fooBody
+  }
+  foo {
+    fooBody1
+    fooBody2
+  }
+  val foo = {
+    fooBody1
+    fooBody2
+  }
+  val foo = {
+    fooBody1
+    fooBody2
+    fooBody3
+  }
+>>>
+private def mtd: Res =
+   foo:
+      fooBody
+   foo {
+     fooBody1
+     fooBody2
+   }
+   val foo =
+      fooBody1
+      fooBody2
+   val foo = {
+     fooBody1
+     fooBody2
+     fooBody3
+   }

@@ -36,11 +36,20 @@ object RewriteScala3Settings {
 
   case class RemoveOptionalBraces(
       enabled: Boolean = true,
+      private[config] val removeBracesMaxSpan: Int = 0,
+      private[config] val removeBracesMaxBlankGaps: Int = -1,
       fewerBracesMinSpan: Int = 2,
       fewerBracesMaxSpan: Int = 0,
       fewerBracesParensToo: Boolean = false,
       oldSyntaxToo: Boolean = false,
-  )
+  ) {
+    def isRemoveEnabled: Boolean = getRemoveBracesMaxSpan >= 0 ||
+      getRemoveBracesMaxBlankGaps >= 0
+
+    def getRemoveBracesMaxSpan: Int = removeBracesMaxSpan
+
+    def getRemoveBracesMaxBlankGaps: Int = removeBracesMaxBlankGaps
+  }
 
   object RemoveOptionalBraces {
 
