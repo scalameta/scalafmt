@@ -9379,14 +9379,16 @@ private def mtd: Res =
 private def mtd: Res =
    val foo =
      fooBar
-   val foo =
+   val foo = {
      fooQuxx
+   }
    val foo =
       foo
       bar
-   val foo =
-      foo
-      quxx
+   val foo = {
+     foo
+     quxx
+   }
 <<< remove optional braces within range, removeBracesMaxBlankGaps
 rewrite.scala3.removeOptionalBraces {
   enabled = true
@@ -9408,7 +9410,8 @@ private def mtd: Res =
    val foo =
       fooBody1
       fooBody2
-   val foo =
-      fooBody1
+   val foo = {
+     fooBody1
 
-      fooBody2
+     fooBody2
+   }

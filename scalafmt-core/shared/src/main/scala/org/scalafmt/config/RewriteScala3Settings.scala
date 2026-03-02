@@ -42,7 +42,14 @@ object RewriteScala3Settings {
       fewerBracesMaxSpan: Int = 0,
       fewerBracesParensToo: Boolean = false,
       oldSyntaxToo: Boolean = false,
-  )
+  ) {
+    def isRemoveEnabled: Boolean = getRemoveBracesMaxSpan >= 0 ||
+      getRemoveBracesMaxBlankGaps >= 0
+
+    def getRemoveBracesMaxSpan: Int = removeBracesMaxSpan
+
+    def getRemoveBracesMaxBlankGaps: Int = removeBracesMaxBlankGaps
+  }
 
   object RemoveOptionalBraces {
 

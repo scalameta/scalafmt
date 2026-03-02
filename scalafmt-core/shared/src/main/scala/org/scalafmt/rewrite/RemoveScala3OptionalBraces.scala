@@ -12,9 +12,13 @@ import scala.reflect.ClassTag
 
 object RemoveScala3OptionalBraces extends FormatTokensRewrite.RuleFactory {
 
+  private def settings(implicit
+      style: ScalafmtConfig,
+  ): RewriteScala3Settings.RemoveOptionalBraces =
+    style.rewrite.scala3.removeOptionalBraces
+
   override def enabled(implicit style: ScalafmtConfig): Boolean =
-    style.dialect.allowSignificantIndentation &&
-      style.rewrite.scala3.removeOptionalBraces.enabled
+    style.dialect.allowSignificantIndentation && settings.enabled
 
   override def create(implicit ftoks: FormatTokens): FormatTokensRewrite.Rule =
     new RemoveScala3OptionalBraces
@@ -25,10 +29,10 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
     extends FormatTokensRewrite.Rule {
 
   import FormatTokensRewrite._
+  import RemoveScala3OptionalBraces.settings
 
   private def allowOldSyntax(implicit style: ScalafmtConfig): Boolean =
-    ConvertToNewScala3Syntax.enabled ||
-      style.rewrite.scala3.removeOptionalBraces.oldSyntaxToo
+    ConvertToNewScala3Syntax.enabled || settings.oldSyntaxToo
 
   override def enabled(implicit style: ScalafmtConfig): Boolean =
     RemoveScala3OptionalBraces.enabled
@@ -38,12 +42,12 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       session: Session,
       style: ScalafmtConfig,
   ): Option[Replacement] = ft.right match {
-    case x: T.LeftBrace // skip empty brace pairs
-        if !ftoks.nextNonCommentAfter(ft).right.is[T.RightBrace] =>
-      Option {
+    case x: T.LeftBrace => Option {
         ft.meta.rightOwner match {
+          case _ if ftoks.nextNonCommentAfter(ft).right.is[T.RightBrace] => null
           case t: Term.Block if t.stats.nonEmpty =>
             onLeftForBlock(t, ftoks.prevNonComment(ft))
+          case _ if !settings.isRemoveEnabled => null
           case t: Template.Body if !t.isEmpty =>
             if (t.parent.parent.is[Defn.Given]) removeToken
             else replaceToken(":")(new T.Colon(x.input, x.dialect, x.start))
@@ -68,6 +72,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
           case _ => null
         }
       }
+    case _ if !settings.isRemoveEnabled => None
     case _: T.LeftParen
         if !ftoks.nextNonCommentAfter(ft).right.is[T.RightParen] =>
       ft.meta.rightOwner match {
@@ -83,7 +88,13 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       style: ScalafmtConfig,
   ): Option[(Replacement, Replacement)] = {
     val nextFt = ftoks.nextNonCommentAfter(ft)
-    val notOkToRewrite = hasFormatOff || // can't force significant indentation
+    val notOkToRewrite = hasFormatOff || { // can't force significant indentation
+      val limit = settings.getRemoveBracesMaxSpan
+      limit < 0 || limit > 0 && limit < session.getSpan(left)
+    } || {
+      val limit = settings.getRemoveBracesMaxBlankGaps
+      limit >= 0 && limit < session.getBlankGaps(left)
+    } ||
       (nextFt.meta.rightOwner match {
         case t: Term.Name => t.parent.exists {
             case p: Term.SelectPostfix => p.name eq t // select without `.`

@@ -3660,7 +3660,8 @@ private def mtd: Res =
    val foo =
       fooBody1
       fooBody2
-   val foo =
-      fooBody1
-      fooBody2
-      fooBody3
+   val foo = {
+     fooBody1
+     fooBody2
+     fooBody3
+   }
