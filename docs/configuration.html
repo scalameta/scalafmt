@@ -6137,7 +6137,7 @@ set to <code>false</code>, see below):</p>
 <p>If this section is enabled,
 <a href="https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html">optional braces</a>
 will be removed and significant indentation applied.</p>
-<p>Default: <code>rewrite.scala3.removeOptionalBraces = {&quot;enabled&quot;: false, &quot;removeBracesMaxSpan&quot;: 0, &quot;removeBracesMaxBlankGaps&quot;: -1, &quot;fewerBracesMinSpan&quot;: 2, &quot;fewerBracesMaxSpan&quot;: 0, &quot;fewerBracesParensToo&quot;: false, &quot;oldSyntaxToo&quot;: false}</code></p>
+<p>Default: <code>rewrite.scala3.removeOptionalBraces = {&quot;enabled&quot;: false, &quot;removeBraces&quot;: {&quot;maxSpan&quot;: 0, &quot;maxBlankGaps&quot;: -1}, &quot;fewerBraces&quot;: {&quot;minSpan&quot;: 2, &quot;maxSpan&quot;: 0, &quot;parensToo&quot;: false}, &quot;oldSyntaxToo&quot;: false}</code></p>
 <p>The section contains the following settings (available since v3.8.1):</p>
 <ul>
 <li><code>enabled</code>:
@@ -6156,27 +6156,29 @@ flags in this section</li>
 <ul>
 <li>if <code>true</code>, applies also to expressions using deprecated syntax</li>
 </ul></li>
-<li>(since v3.10.8) <code>removeBracesMaxSpan</code> and <code>removeBracesMaxBlankGaps</code>
+<li>(since v3.10.8) <code>removeBraces</code>
 <ul>
 <li>will remove braces <strong>if</strong> all of these hold:
 <ul>
-<li><code>removeBracesMaxSpan</code> is zero, or positive and the cumulative span
+<li><code>removeBraces.maxSpan</code> is zero, or positive and the cumulative span
 of all visible tokens between the braces does not exceed it</li>
-<li><code>removeBracesMaxBlankGaps</code> is negative, or the number of
+<li><code>removeBraces.maxBlankGaps</code> is negative, or the number of
 blank-line gaps between the braces does not exceed it</li>
 </ul></li>
 </ul></li>
-<li>(since v3.8.1) <code>fewerBracesMinSpan</code> and <code>fewerBracesMaxSpan</code>
+<li>(since v3.8.1) <code>fewerBraces.minSpan</code> and <code>fewerBraces.maxSpan</code>
 <ul>
+<li>in v3.10.8, was renamed from <code>fewerBracesMinSpan</code> and <code>fewerBracesMaxSpan</code></li>
 <li>this is an additional restriction to the rule just above</li>
 <li>will apply the rewrite to last curried single-argument group if
 it is enclosed in curly braces (or would be rewritten to curly
 braces by the <code>RedundantBraces</code> rule)</li>
-<li>will only apply the rewrite if <code>fewerBracesMaxSpan</code> is positive and
+<li>will only apply the rewrite if <code>fewerBraces.maxSpan</code> is positive and
 the visible span between the braces is within this range (inclusive)</li>
 </ul></li>
-<li>(since v3.8.4) <code>fewerBracesParensToo</code>
+<li>(since v3.8.1) <code>fewerBraces.parensToo</code>
 <ul>
+<li>in v3.10.8, was renamed from <code>fewerBracesParensToo</code></li>
 <li>will apply the rule just above to an argument in parentheses as well,
 if the one of following is also satisfied:
 <ul>
@@ -8766,12 +8768,12 @@ rewrite.scala3.endMarker.<span class="hljs-attr">spanIs</span> = lines
 rewrite.scala3.newSyntax.<span class="hljs-attr">control</span> = <span class="hljs-literal">true</span>
 rewrite.scala3.newSyntax.<span class="hljs-attr">deprecated</span> = <span class="hljs-literal">true</span>
 rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">enabled</span> = <span class="hljs-literal">false</span>
-rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">fewerBracesMaxSpan</span> = <span class="hljs-number">0</span>
-rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">fewerBracesMinSpan</span> = <span class="hljs-number">2</span>
-rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">fewerBracesParensToo</span> = <span class="hljs-literal">false</span>
+rewrite.scala3.removeOptionalBraces.fewerBraces.<span class="hljs-attr">maxSpan</span> = <span class="hljs-number">0</span>
+rewrite.scala3.removeOptionalBraces.fewerBraces.<span class="hljs-attr">minSpan</span> = <span class="hljs-number">2</span>
+rewrite.scala3.removeOptionalBraces.fewerBraces.<span class="hljs-attr">parensToo</span> = <span class="hljs-literal">false</span>
 rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">oldSyntaxToo</span> = <span class="hljs-literal">false</span>
-rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">removeBracesMaxBlankGaps</span> = -<span class="hljs-number">1</span>
-rewrite.scala3.removeOptionalBraces.<span class="hljs-attr">removeBracesMaxSpan</span> = <span class="hljs-number">0</span>
+rewrite.scala3.removeOptionalBraces.removeBraces.<span class="hljs-attr">maxBlankGaps</span> = -<span class="hljs-number">1</span>
+rewrite.scala3.removeOptionalBraces.removeBraces.<span class="hljs-attr">maxSpan</span> = <span class="hljs-number">0</span>
 rewrite.sortModifiers.<span class="hljs-attr">order</span> = [
   implicit
   final
