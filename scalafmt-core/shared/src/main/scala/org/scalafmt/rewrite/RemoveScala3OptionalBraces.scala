@@ -195,11 +195,11 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       tree: Term.ArgClause,
   )(implicit ft: FT, style: ScalafmtConfig): Replacement = {
     def okLeftDelim = ft.right.is[T.LeftBrace] ||
-      style.rewrite.scala3.removeOptionalBraces.fewerBracesParensToo &&
+      style.rewrite.scala3.removeOptionalBraces.fewerBraces.parensToo &&
       (style.dialect.allowInfixOperatorAfterNL ||
         style.newlines.infix.sourceIgnoredAt(ft)(tree))
     val ok = style.dialect.allowFewerBraces && okLeftDelim &&
-      style.rewrite.scala3.removeOptionalBraces.fewerBracesMaxSpan > 0 &&
+      style.rewrite.scala3.removeOptionalBraces.fewerBraces.maxSpan > 0 &&
       isSeqSingle(tree.values)
     if (!ok) return null
 
@@ -234,7 +234,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       0 == ac.values.lengthCompare(1) && {
         val rob = style.rewrite.scala3.removeOptionalBraces
         val span = session.getSpan(left)
-        span >= rob.fewerBracesMinSpan && span <= rob.fewerBracesMaxSpan
+        span >= rob.fewerBraces.minSpan && span <= rob.fewerBraces.maxSpan
       }
     val lft = left.ft
     lft.meta.rightOwner match {

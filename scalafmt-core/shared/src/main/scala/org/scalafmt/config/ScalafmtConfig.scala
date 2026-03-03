@@ -417,10 +417,10 @@ object ScalafmtConfig {
       }
       addIf(align.beforeOpenParenDefnSite && !align.closeParenSite)
       addIf(align.beforeOpenParenCallSite && !align.closeParenSite)
-      if (rewrite.scala3.removeOptionalBraces.fewerBracesMaxSpan > 0) {
-        addIf(rewrite.scala3.removeOptionalBraces.fewerBracesMinSpan > rewrite.scala3.removeOptionalBraces.fewerBracesMaxSpan)
-        if (rewrite.scala3.removeOptionalBraces.removeBracesMaxSpan > 0)
-          addIf(rewrite.scala3.removeOptionalBraces.removeBracesMaxSpan < rewrite.scala3.removeOptionalBraces.fewerBracesMaxSpan)
+      if (rewrite.scala3.removeOptionalBraces.fewerBraces.maxSpan > 0) {
+        addIf(rewrite.scala3.removeOptionalBraces.fewerBraces.minSpan > rewrite.scala3.removeOptionalBraces.fewerBraces.maxSpan)
+        if (rewrite.scala3.removeOptionalBraces.removeBraces.maxSpan > 0)
+          addIf(rewrite.scala3.removeOptionalBraces.removeBraces.maxSpan < rewrite.scala3.removeOptionalBraces.fewerBraces.maxSpan)
       }
       if (rewrite.rules.contains(Imports)) binPack.importSelectors match {
         case Some(ImportSelectors.singleLine) => // if we fold but not bin pack, we might end up with very long lines

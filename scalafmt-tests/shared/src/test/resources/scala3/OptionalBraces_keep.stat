@@ -9358,10 +9358,10 @@ foo match {
 
   // quux2
 }
-<<< remove optional braces within range, removeBracesMaxSpan
+<<< remove optional braces within range, removeBraces.maxSpan
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  removeBracesMaxSpan = 6
+  removeBraces.maxSpan = 6
 }
 ===
 private def mtd: Res =
@@ -9393,10 +9393,10 @@ private def mtd: Res =
      foo
      quxx
    }
-<<< remove optional braces within range, removeBracesMaxBlankGaps=0
+<<< remove optional braces within range, removeBraces.maxBlankGaps=0
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  removeBracesMaxBlankGaps = 0
+  removeBraces.maxBlankGaps = 0
 }
 ===
 private def mtd: Res =
@@ -9433,10 +9433,10 @@ private def mtd: Res =
 
      fooBody3
    }
-<<< remove optional braces within range, removeBracesMaxBlankGaps=1
+<<< remove optional braces within range, removeBraces.maxBlankGaps=1
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  removeBracesMaxBlankGaps = 1
+  removeBraces.maxBlankGaps = 1
 }
 ===
 private def mtd: Res =
