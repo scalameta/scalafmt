@@ -318,13 +318,21 @@ object FormatTokensRewrite {
     def advanceSpanTo(ftIdx: Int): Unit =
       spanFtIdx = super.advanceSpanRange(spanFtIdx, ftIdx, arr)
 
+    private def mergingBlanks(repl: Replacement) = repl.isRemove && arr(repl.idx)
+      .hasBlankLine && arr(repl.idx + 1).hasBlankLine
+
     def update(idx: Int, repl: Replacement): Unit = {
+      def getBlankGapDelta(r: Replacement) =
+        if ((r ne null) && mergingBlanks(r)) -1 else 0
       val orepl = tokens(idx)
       if (orepl ne repl) {
         tokens(idx) = repl
         val delta = getSpanDelta(repl) - getSpanDelta(orepl)
+        val blankGapDelta = getBlankGapDelta(repl) - getBlankGapDelta(orepl)
         spanShift += delta
-        if ((repl ne null) && (orepl ne null)) repl.copySpanFrom(orepl, delta)
+        blankGapId += blankGapDelta
+        if ((repl ne null) && (orepl ne null)) repl
+          .copySpanFrom(orepl, delta, blankGapDelta)
       }
     }
 
@@ -332,7 +340,8 @@ object FormatTokensRewrite {
       tokens.append(repl)
       if (repl ne null) {
         spanShift += repl.getSpanDelta
-        repl.spanShift = spanShift
+        if (mergingBlanks(repl)) blankGapId -= 1
+        repl.copySpanFrom(this)
       }
     }
 
@@ -444,9 +453,9 @@ object FormatTokensRewrite {
       claim: Iterable[Int] = Nil,
   ) extends WithSpan {
     def getSpanDelta(implicit session: Session): Int = how.getSpanDelta(ft)
-    def copySpanFrom(other: Replacement, spanDelta: Int = 0): Unit = {
-      spanShift = other.spanShift + spanDelta
-      blankGapId = other.blankGapId
+    def copySpanFrom(other: WithSpan, span: Int = 0, gap: Int = 0): Unit = {
+      spanShift = other.spanShift + span
+      blankGapId = other.blankGapId + gap
     }
 
     @inline
