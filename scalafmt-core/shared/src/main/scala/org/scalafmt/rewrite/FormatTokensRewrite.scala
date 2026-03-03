@@ -287,6 +287,15 @@ object FormatTokensRewrite {
       spanShift += ft.right.len
       if (ft.hasBlankLine) blankGapId += 1
     }
+
+    def advanceSpanRange(beg: Int, end: Int, arr: Array[FT]): Int = {
+      var idx = beg
+      while (idx <= end) {
+        advanceSpan(arr(idx))
+        idx += 1
+      }
+      idx
+    }
   }
 
   private[rewrite] class Session(rules: Seq[Rule], arr: Array[FT])
@@ -306,10 +315,8 @@ object FormatTokensRewrite {
     private def getSpanDelta(repl: Replacement): Int =
       if (repl eq null) 0 else repl.getSpanDelta
 
-    def advanceSpanTo(ftIdx: Int): Unit = while (ftIdx >= spanFtIdx) {
-      super.advanceSpan(arr(spanFtIdx))
-      spanFtIdx += 1
-    }
+    def advanceSpanTo(ftIdx: Int): Unit =
+      spanFtIdx = super.advanceSpanRange(spanFtIdx, ftIdx, arr)
 
     def update(idx: Int, repl: Replacement): Unit = {
       val orepl = tokens(idx)
