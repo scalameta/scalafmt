@@ -3957,10 +3957,10 @@ object a {
   foo.map: x =>
      x + 1
 }
-<<< remove optional braces within range, fewerBracesMaxSpan < removeBracesMaxSpan
+<<< remove optional braces within range, fewerBracesMaxSpan < removeBraces.maxSpan
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  removeBracesMaxSpan = 20
+  removeBraces.maxSpan = 20
   fewerBracesMaxSpan = 10
 }
 ===

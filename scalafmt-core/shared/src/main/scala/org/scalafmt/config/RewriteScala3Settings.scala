@@ -34,21 +34,21 @@ object RewriteScala3Settings {
       case Conf.Bool(false) => default
     }
 
+  @annotation.SectionRename("fewerBracesMinSpan", "fewerBraces.minSpan") // 3.10.8
+  @annotation.SectionRename("fewerBracesMaxSpan", "fewerBraces.maxSpan") // 3.10.8
+  @annotation.SectionRename("fewerBracesParensToo", "fewerBraces.parensToo") // 3.10.8
   case class RemoveOptionalBraces(
       enabled: Boolean = true,
-      private[config] val removeBracesMaxSpan: Int = 0,
-      private[config] val removeBracesMaxBlankGaps: Int = -1,
-      fewerBracesMinSpan: Int = 2,
-      fewerBracesMaxSpan: Int = 0,
-      fewerBracesParensToo: Boolean = false,
+      private[config] val removeBraces: RemoveBraces = RemoveBraces.default,
+      fewerBraces: FewerBraces = FewerBraces.default,
       oldSyntaxToo: Boolean = false,
   ) {
     def isRemoveEnabled: Boolean = getRemoveBracesMaxSpan >= 0 ||
       getRemoveBracesMaxBlankGaps >= 0
 
-    def getRemoveBracesMaxSpan: Int = removeBracesMaxSpan
+    def getRemoveBracesMaxSpan: Int = removeBraces.maxSpan
 
-    def getRemoveBracesMaxBlankGaps: Int = removeBracesMaxBlankGaps
+    def getRemoveBracesMaxBlankGaps: Int = removeBraces.maxBlankGaps
   }
 
   object RemoveOptionalBraces {
@@ -63,7 +63,8 @@ object RewriteScala3Settings {
       .deriveEncoder[RemoveOptionalBraces]
 
     implicit final val decoder: ConfDecoderEx[RemoveOptionalBraces] = generic
-      .deriveDecoderEx[RemoveOptionalBraces](no).contramap {
+      .deriveDecoderEx[RemoveOptionalBraces](no).detectSectionRenames
+      .contramap {
         case Conf.Bool(true) | Conf.Str("yes") => Conf
             .Obj("enabled" -> Conf(true))
         case Conf.Bool(false) | Conf.Str("no") => Conf
@@ -72,6 +73,31 @@ object RewriteScala3Settings {
             .Obj("enabled" -> Conf(true), "oldSyntaxToo" -> Conf(true))
         case conf => conf
       }
+
+  }
+
+  case class RemoveBraces(maxSpan: Int = 0, maxBlankGaps: Int = -1)
+  object RemoveBraces {
+    val default = new RemoveBraces()
+    implicit val surface: generic.Surface[RemoveBraces] = generic.deriveSurface
+    implicit val encoder: ConfEncoder[RemoveBraces] = generic
+      .deriveEncoder[RemoveBraces]
+    implicit final val decoder: ConfDecoderEx[RemoveBraces] = generic
+      .deriveDecoderEx[RemoveBraces](default).detectSectionRenames
+  }
+
+  case class FewerBraces(
+      minSpan: Int = 2,
+      maxSpan: Int = 0,
+      parensToo: Boolean = false,
+  )
+  object FewerBraces {
+    val default = new FewerBraces()
+    implicit val surface: generic.Surface[FewerBraces] = generic.deriveSurface
+    implicit val encoder: ConfEncoder[FewerBraces] = generic
+      .deriveEncoder[FewerBraces]
+    implicit final val decoder: ConfDecoderEx[FewerBraces] = generic
+      .deriveDecoderEx[FewerBraces](default).detectSectionRenames
   }
 
   case class EndMarker(
