@@ -299,7 +299,7 @@ object FormatTokensRewrite {
     private[FormatTokensRewrite] var maxClaimed = -1
     private var spanFtIdx: Int = 0
 
-    def at(ftIdx: Int): T = arr(ftIdx).right
+    def spanAt(ftIdx: Int): Int = arr(ftIdx).right.len
     def getSpan(repl: Replacement) = spanShift - repl.spanShift
     def getBlankGaps(repl: Replacement) = blankGapId - repl.blankGapId
 
@@ -480,17 +480,17 @@ object FormatTokensRewrite {
     object Remove extends ReplacementType {
       override def toString: String = "REMOVE"
       def getSpanDelta(xft: FT)(implicit session: Session): Int =
-        -session.at(xft.idx).len
+        -session.spanAt(xft.idx)
     }
     object Replace extends ReplacementType {
       override def toString: String = "REPLACE"
       def getSpanDelta(xft: FT)(implicit session: Session): Int =
-        -session.at(xft.idx).len + xft.right.len
+        -session.spanAt(xft.idx) + xft.right.len
     }
     class RemoveAndResurrect(val idx: Int) extends ReplacementType {
       override def toString: String = s"REMOVE/RESURRECT($idx)"
       def getSpanDelta(xft: FT)(implicit session: Session): Int =
-        -session.at(idx).len + xft.right.len
+        -session.spanAt(idx) + xft.right.len
     }
   }
 
