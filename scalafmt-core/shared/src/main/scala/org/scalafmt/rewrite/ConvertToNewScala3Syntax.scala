@@ -142,7 +142,28 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
             else removeToken
           case _ => null
         }
-        if (rtRepl eq null) None else Some((left, rtRepl))
+        if (rtRepl eq null) None
+        else Some {
+          val keep = session.rule[RemoveScala3OptionalBraces]
+            .forall(_.skipRightToBraces(left))
+          if (keep) (left, rtRepl)
+          else {
+            val robLt = {
+              implicit val ft: FT = ftoks(left.idx)
+              val lp = ft.right
+              replaceToken("{")(new T.LeftBrace(lp.input, lp.dialect, lp.start))
+            }
+            val rtype =
+              if (rtRepl.isRemove) ReplacementType.Replace
+              else new ReplacementType.ReplaceAndAppend(rtRepl.ft)
+            val robRt = {
+              val rp = ft.right
+              val rb = new T.RightBrace(rp.input, rp.dialect, rp.start)
+              replaceToken("}", rtype = rtype)(rb)
+            }
+            (robLt, robRt)
+          }
+        }
 
       case _: T.RightBrace if left.isRemove => Some((left, removeToken))
 

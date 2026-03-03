@@ -357,7 +357,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       style: ScalafmtConfig,
   ): Replacement = onLeftBrace(ft.meta.rightOwner)
 
-  private def onLeftBrace(
+  private[rewrite] def onLeftBrace(
       owner: Tree,
   )(implicit ft: FT, session: Session, style: ScalafmtConfig): Replacement = {
     def handleInterpolation =

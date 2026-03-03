@@ -274,6 +274,9 @@ object FormatTokensRewrite {
     )(implicit ft: FT, style: ScalafmtConfig): Replacement =
       Replacement(this, ft, ReplacementType.Remove, style, claim)
 
+    protected final def appendTokensType(ft: FT, fts: FT*) =
+      new ReplacementType.AppendAfter(ft, fts: _*)
+
     protected final def replaceToken(
         text: String,
         owner: Option[Tree] = None,
