@@ -39,6 +39,7 @@ object RewriteScala3Settings {
   @annotation.SectionRename("fewerBracesParensToo", "fewerBraces.parensToo") // 3.10.8
   case class RemoveOptionalBraces(
       enabled: Boolean = true,
+      insertBraces: InsertBraces = InsertBraces.default,
       private[config] val removeBraces: RemoveBraces = RemoveBraces.default,
       fewerBraces: FewerBraces = FewerBraces.default,
       oldSyntaxToo: Boolean = false,
@@ -84,6 +85,16 @@ object RewriteScala3Settings {
       .deriveEncoder[RemoveBraces]
     implicit final val decoder: ConfDecoderEx[RemoveBraces] = generic
       .deriveDecoderEx[RemoveBraces](default).detectSectionRenames
+  }
+
+  case class InsertBraces(minSpan: Int = -1, minBlankGaps: Int = -1)
+  object InsertBraces {
+    val default = new InsertBraces()
+    implicit val surface: generic.Surface[InsertBraces] = generic.deriveSurface
+    implicit val encoder: ConfEncoder[InsertBraces] = generic
+      .deriveEncoder[InsertBraces]
+    implicit final val decoder: ConfDecoderEx[InsertBraces] = generic
+      .deriveDecoderEx[InsertBraces](default).detectSectionRenames
   }
 
   case class FewerBraces(

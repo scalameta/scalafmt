@@ -9857,3 +9857,184 @@ private def mtd: Res =
 
      fooBody3
    }
+<<< remove optional braces within range, insertBraces.minSpan
+rewrite.scala3.removeOptionalBraces {
+  enabled = true
+  insertBraces.minSpan = 7
+  removeBraces.maxSpan = 10
+}
+===
+private def mtd: Res =
+  val foo = {
+    fooBar
+  }
+  val foo =
+    fooQuxx
+  val foo = {
+    foo
+    bar
+  }
+  val foo =
+    foo
+    quxx
+>>>
+private def mtd: Res =
+   val foo = fooBar
+   val foo = fooQuxx
+   val foo =
+      foo
+      bar
+   val foo =
+      foo
+      quxx
+<<< remove optional braces within range, insertBraces.minBlankGaps=1
+rewrite.scala3.removeOptionalBraces {
+  enabled = true
+  insertBraces.minBlankGaps = 1
+  removeBraces.maxBlankGaps = 10
+}
+===
+private def mtd: Res =
+  val foo =
+    fooBody1
+    fooBody2
+  val foo = {
+    fooBody1
+    fooBody2
+  }
+  val foo =
+    fooBody1
+
+    fooBody2
+  val foo = {
+    fooBody1
+
+    fooBody2
+  }
+  val foo =
+    fooBody1
+
+    fooBody2
+
+    fooBody3
+  val foo = {
+    fooBody1
+
+    fooBody2
+
+    fooBody3
+  }
+>>>
+private def mtd: Res =
+   val foo =
+      fooBody1
+      fooBody2
+   val foo =
+      fooBody1
+      fooBody2
+   val foo =
+      fooBody1
+
+      fooBody2
+   val foo =
+      fooBody1
+
+      fooBody2
+   val foo =
+      fooBody1
+
+      fooBody2
+
+      fooBody3
+   val foo =
+      fooBody1
+
+      fooBody2
+
+      fooBody3
+<<< remove optional braces within range, insertBraces.minBlankGaps=2
+rewrite.scala3.removeOptionalBraces {
+  enabled = true
+  insertBraces.minBlankGaps = 2
+  removeBraces.maxBlankGaps = 10
+}
+===
+private def mtd: Res =
+  val foo =
+    fooBody1
+    fooBody2
+  val foo = {
+    fooBody1
+    fooBody2
+  }
+  val foo =
+    fooBody1
+
+    fooBody2
+  val foo = {
+    fooBody1
+
+    fooBody2
+  }
+  val foo =
+    fooBody1
+
+    fooBody2
+
+    fooBody3
+  val foo = {
+    fooBody1
+
+    fooBody2
+
+    fooBody3
+  }
+>>>
+private def mtd: Res =
+   val foo =
+      fooBody1
+      fooBody2
+   val foo =
+      fooBody1
+      fooBody2
+   val foo =
+      fooBody1
+
+      fooBody2
+   val foo =
+      fooBody1
+
+      fooBody2
+   val foo =
+      fooBody1
+
+      fooBody2
+
+      fooBody3
+   val foo =
+      fooBody1
+
+      fooBody2
+
+      fooBody3
+<<< convertToNewSyntax, removeOptionalBraces=yes, no insert, single-stat
+rewrite.scala3 {
+  convertToNewSyntax = true
+  removeOptionalBraces.enabled = true
+}
+===
+if (
+  tpe.classSymbol.isEmpty ||
+  tpeSymbol.flags.is(Flags.Abstract) ||
+  tpeSymbol.flags.is(Flags.Trait)
+) {
+  report.errorAndAbort(s"Failed to derive a ZLayer: type `${tpeSymbol.fullName}` is not a concrete class.")
+}
+>>>
+if tpe.classSymbol.isEmpty || tpeSymbol.flags.is(Flags.Abstract) ||
+   tpeSymbol.flags.is(Flags.Trait)
+then
+   report.errorAndAbort(
+     s"Failed to derive a ZLayer: type `${tpeSymbol
+         .fullName}` is not a concrete class."
+   )
