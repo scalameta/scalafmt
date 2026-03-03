@@ -9768,13 +9768,16 @@ private def mtd: Res =
 >>>
 private def mtd: Res =
    val foo = fooBar
-   val foo = fooQuxx
+   val foo = {
+     fooQuxx
+   }
    val foo =
       foo
       bar
-   val foo =
-      foo
-      quxx
+   val foo = {
+     foo
+     quxx
+   }
 <<< remove optional braces within range, removeBracesMaxBlankGaps=0
 rewrite.scala3.removeOptionalBraces {
   enabled = true
@@ -9803,16 +9806,18 @@ private def mtd: Res =
    val foo =
       fooBody1
       fooBody2
-   val foo =
-      fooBody1
+   val foo = {
+     fooBody1
 
-      fooBody2
-   val foo =
-      fooBody1
+     fooBody2
+   }
+   val foo = {
+     fooBody1
 
-      fooBody2
+     fooBody2
 
-      fooBody3
+     fooBody3
+   }
 <<< remove optional braces within range, removeBracesMaxBlankGaps=1
 rewrite.scala3.removeOptionalBraces {
   enabled = true
@@ -9845,9 +9850,10 @@ private def mtd: Res =
       fooBody1
 
       fooBody2
-   val foo =
-      fooBody1
+   val foo = {
+     fooBody1
 
-      fooBody2
+     fooBody2
 
-      fooBody3
+     fooBody3
+   }
