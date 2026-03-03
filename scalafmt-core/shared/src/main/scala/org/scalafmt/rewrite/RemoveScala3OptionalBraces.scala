@@ -222,11 +222,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
     val repl = onLeftForArgClause(tree)
     if (repl ne null) {
       repl.copySpanFrom(left)
-      var ftidx = left.idx
-      while (ftidx < lft.idx) {
-        ftidx += 1
-        repl.advanceSpan(ftoks(ftidx))
-      }
+      repl.advanceSpanRange(left.idx + 1, lft.idx, ftoks.arr)
     }
     repl
   }
