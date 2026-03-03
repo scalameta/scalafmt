@@ -9493,17 +9493,19 @@ private def mtd: Res =
     foo
     quxx
 >>>
-private def mtd: Res =
-   val foo =
-     fooBar
-   val foo =
-     fooQuxx
-   val foo =
-      foo
-      bar
-   val foo =
-      foo
-      quxx
+private def mtd: Res = {
+  val foo =
+    fooBar
+  val foo =
+    fooQuxx
+  val foo =
+     foo
+     bar
+  val foo = {
+    foo
+    quxx
+  }
+}
 <<< remove optional braces within range, insertBraces.minBlankGaps=1
 rewrite.scala3.removeOptionalBraces {
   enabled = true
@@ -9542,33 +9544,38 @@ private def mtd: Res =
     fooBody3
   }
 >>>
-private def mtd: Res =
-   val foo =
-      fooBody1
-      fooBody2
-   val foo =
-      fooBody1
-      fooBody2
-   val foo =
-      fooBody1
+private def mtd: Res = {
+  val foo =
+     fooBody1
+     fooBody2
+  val foo =
+     fooBody1
+     fooBody2
+  val foo = {
+    fooBody1
 
-      fooBody2
-   val foo =
-      fooBody1
+    fooBody2
+  }
+  val foo = {
+    fooBody1
 
-      fooBody2
-   val foo =
-      fooBody1
+    fooBody2
+  }
+  val foo = {
+    fooBody1
 
-      fooBody2
+    fooBody2
 
-      fooBody3
-   val foo =
-      fooBody1
+    fooBody3
+  }
+  val foo = {
+    fooBody1
 
-      fooBody2
+    fooBody2
 
-      fooBody3
+    fooBody3
+  }
+}
 <<< remove optional braces within range, insertBraces.minBlankGaps=2
 rewrite.scala3.removeOptionalBraces {
   enabled = true
@@ -9607,33 +9614,36 @@ private def mtd: Res =
     fooBody3
   }
 >>>
-private def mtd: Res =
-   val foo =
-      fooBody1
-      fooBody2
-   val foo =
-      fooBody1
-      fooBody2
-   val foo =
-      fooBody1
+private def mtd: Res = {
+  val foo =
+     fooBody1
+     fooBody2
+  val foo =
+     fooBody1
+     fooBody2
+  val foo =
+     fooBody1
 
-      fooBody2
-   val foo =
-      fooBody1
+     fooBody2
+  val foo =
+     fooBody1
 
-      fooBody2
-   val foo =
-      fooBody1
+     fooBody2
+  val foo = {
+    fooBody1
 
-      fooBody2
+    fooBody2
 
-      fooBody3
-   val foo =
-      fooBody1
+    fooBody3
+  }
+  val foo = {
+    fooBody1
 
-      fooBody2
+    fooBody2
 
-      fooBody3
+    fooBody3
+  }
+}
 <<< convertToNewSyntax, removeOptionalBraces=yes, no insert, single-stat
 rewrite.scala3 {
   convertToNewSyntax = true

@@ -46,10 +46,12 @@ object RewriteScala3Settings {
   ) {
     def isRemoveEnabled: Boolean = getRemoveBracesMaxSpan >= 0 ||
       getRemoveBracesMaxBlankGaps >= 0
+    def isInsertEnabled: Boolean = insertBraces.minSpan >= 0 ||
+      insertBraces.minBlankGaps >= 0
 
-    def getRemoveBracesMaxSpan: Int = removeBraces.maxSpan
-
-    def getRemoveBracesMaxBlankGaps: Int = removeBraces.maxBlankGaps
+    def getRemoveBracesMaxSpan: Int = removeBraces.getMaxSpan(insertBraces)
+    def getRemoveBracesMaxBlankGaps: Int = removeBraces
+      .getMaxBlankGaps(insertBraces)
   }
 
   object RemoveOptionalBraces {
@@ -77,7 +79,17 @@ object RewriteScala3Settings {
 
   }
 
-  case class RemoveBraces(maxSpan: Int = 0, maxBlankGaps: Int = -1)
+  case class RemoveBraces(maxSpan: Int = 0, maxBlankGaps: Int = -1) {
+    def getMaxSpan(ib: InsertBraces): Int =
+      if (ib.minSpan < 0) maxSpan
+      else if (maxSpan < 0 || ib.minSpan <= 1) -1
+      else if (maxSpan == 0) ib.minSpan - 1
+      else maxSpan.min(ib.minSpan - 1)
+
+    def getMaxBlankGaps(ib: InsertBraces): Int =
+      if (ib.minBlankGaps < 0) maxBlankGaps
+      else maxBlankGaps.min(ib.minBlankGaps - 1)
+  }
   object RemoveBraces {
     val default = new RemoveBraces()
     implicit val surface: generic.Surface[RemoveBraces] = generic.deriveSurface
