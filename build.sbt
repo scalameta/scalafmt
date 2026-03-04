@@ -38,7 +38,7 @@ inThisBuild {
     scalaVersion := scala213,
     crossScalaVersions := List(scala213, scala212),
     resolvers += Resolver.sonatypeCentralSnapshots,
-    testFrameworks += new TestFramework("munit.Framework"),
+    testFrameworks += TestFrameworks.MUnit,
     // causes native image issues
     dependencyOverrides += "org.jline" % "jline" % "3.30.6",
   )
