@@ -66,7 +66,7 @@ object RewriteScala3Settings {
       .deriveEncoder[RemoveOptionalBraces]
 
     implicit final val decoder: ConfDecoderEx[RemoveOptionalBraces] = generic
-      .deriveDecoderEx[RemoveOptionalBraces](no).detectSectionRenames
+      .deriveDecoderEx[RemoveOptionalBraces](no).noTypos.detectSectionRenames
       .contramap {
         case Conf.Bool(true) | Conf.Str("yes") => Conf
             .Obj("enabled" -> Conf(true))
@@ -93,20 +93,16 @@ object RewriteScala3Settings {
   object RemoveBraces {
     val default = new RemoveBraces()
     implicit val surface: generic.Surface[RemoveBraces] = generic.deriveSurface
-    implicit val encoder: ConfEncoder[RemoveBraces] = generic
-      .deriveEncoder[RemoveBraces]
-    implicit final val decoder: ConfDecoderEx[RemoveBraces] = generic
-      .deriveDecoderEx[RemoveBraces](default).detectSectionRenames
+    implicit val codec: ConfCodecEx[RemoveBraces] = generic
+      .deriveCodecEx(default).noTypos.detectSectionRenames
   }
 
   case class InsertBraces(minSpan: Int = -1, minBlankGaps: Int = -1)
   object InsertBraces {
     val default = new InsertBraces()
     implicit val surface: generic.Surface[InsertBraces] = generic.deriveSurface
-    implicit val encoder: ConfEncoder[InsertBraces] = generic
-      .deriveEncoder[InsertBraces]
-    implicit final val decoder: ConfDecoderEx[InsertBraces] = generic
-      .deriveDecoderEx[InsertBraces](default).detectSectionRenames
+    implicit val codec: ConfCodecEx[InsertBraces] = generic
+      .deriveCodecEx(default).noTypos.detectSectionRenames
   }
 
   case class FewerBraces(
@@ -117,10 +113,8 @@ object RewriteScala3Settings {
   object FewerBraces {
     val default = new FewerBraces()
     implicit val surface: generic.Surface[FewerBraces] = generic.deriveSurface
-    implicit val encoder: ConfEncoder[FewerBraces] = generic
-      .deriveEncoder[FewerBraces]
-    implicit final val decoder: ConfDecoderEx[FewerBraces] = generic
-      .deriveDecoderEx[FewerBraces](default).detectSectionRenames
+    implicit val codec: ConfCodecEx[FewerBraces] = generic.deriveCodecEx(default)
+      .noTypos.detectSectionRenames
   }
 
   case class EndMarker(
