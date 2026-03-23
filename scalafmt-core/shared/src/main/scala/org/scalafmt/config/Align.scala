@@ -158,13 +158,11 @@ object Align {
   implicit val alignTokensDecoder: ConfDecoderEx[Seq[AlignToken]] = AlignToken
     .seqDecoder.except { case (_, conf) =>
       preset.lift(conf).map(x => Configured.Ok(x.tokens))
-    }.contramap {
-      case Conf.Obj(List(("add", c))) =>
-        Console.err.println(
-          """'align.tokens.add' is deprecated; use align.tokens."+" instead.""",
-        )
-        Conf.Obj("+" -> c)
-      case conf => conf
+    }.contramapPartial { case Conf.Obj(List(("add", c))) =>
+      Console.err.println(
+        """'align.tokens.add' is deprecated; use align.tokens."+" instead.""",
+      )
+      Conf.Obj("+" -> c)
     }
 
 }
