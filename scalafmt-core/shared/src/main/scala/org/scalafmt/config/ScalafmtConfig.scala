@@ -495,11 +495,8 @@ object ScalafmtConfig {
         case c @ Conf.Obj(elems) =>
           val fileOverrideKey = Conf.nameOf(default.fileOverride).value
           elems.collectFirst {
-            case (`fileOverrideKey`, Conf.Obj(vv)) if vv.nonEmpty =>
-              val fo = fileOverrideKey -> Conf.Obj(vv.map {
-                case (k, v: Conf.Obj) => k -> baseDecoder.convert(v)
-                case x => x
-              })
+            case (`fileOverrideKey`, vv: Conf.Obj) if vv.values.nonEmpty =>
+              val fo = fileOverrideKey -> vv.mapValues(baseDecoder.convert)
               Conf.Obj(fo :: elems.filter(_._1 != fileOverrideKey))
           }.getOrElse(c)
         case c => c
