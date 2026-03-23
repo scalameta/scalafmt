@@ -810,10 +810,8 @@ object Newlines {
       .deriveSurface[SelectChain]
     implicit val encoder: ConfEncoder[SelectChain] = generic.deriveEncoder
     implicit val decoder: ConfDecoderEx[SelectChain] = generic
-      .deriveDecoderEx(default).noTypos.contramap {
-        case conf: Conf.Str => Conf.Obj("style" -> conf)
-        case conf => conf
-      }
+      .deriveDecoderEx(default).noTypos
+      .contramapPartial { case conf: Conf.Str => Conf.Obj("style" -> conf) }
   }
 
 }

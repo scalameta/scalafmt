@@ -67,14 +67,13 @@ object RewriteScala3Settings {
 
     implicit final val decoder: ConfDecoderEx[RemoveOptionalBraces] = generic
       .deriveDecoderEx[RemoveOptionalBraces](no).noTypos.detectSectionRenames
-      .contramap {
+      .contramapPartial {
         case Conf.Bool(true) | Conf.Str("yes") => Conf
             .Obj("enabled" -> Conf(true))
         case Conf.Bool(false) | Conf.Str("no") => Conf
             .Obj("enabled" -> Conf(false))
         case Conf.Str("oldSyntaxToo") => Conf
             .Obj("enabled" -> Conf(true), "oldSyntaxToo" -> Conf(true))
-        case conf => conf
       }
 
   }

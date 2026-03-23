@@ -6,13 +6,11 @@ object Presets {
 
   val presetKey = "preset"
 
-  def contramap[A <: Product](
-      baseDecoder: ConfDecoderEx[A],
-  )(f: PartialFunction[Conf, Conf]): ConfDecoderEx[A] = baseDecoder.contramap {
-    case conf @ Conf.Obj(v) => v.collectFirst { case (`presetKey`, x) => x }
-        .flatMap(f.lift.apply)
-        .fold(conf)(x => Conf.Obj((presetKey -> x) :: v.filter(_._1 != presetKey)))
-    case conf => conf
+  def contramap[A <: Product](baseDecoder: ConfDecoderEx[A])(
+      f: PartialFunction[Conf, Conf],
+  ): ConfDecoderEx[A] = baseDecoder.contramapPartialOpt { case Conf.Obj(v) =>
+    v.collectFirst { case (`presetKey`, x) => x }.flatMap(f.lift.apply)
+      .map(x => Conf.Obj((presetKey -> x) :: v.filter(_._1 != presetKey)))
   }
 
   def mapDecoder[A <: Product](
