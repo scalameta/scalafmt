@@ -24,7 +24,7 @@ object Presets {
         decodePresets(conf, sectionName, presets) match {
           case Some(x: Configured.NotOk) => x
           case Some(Configured.Ok((obj, cfg))) =>
-            if (cfg eq null) Configured.ok(obj)
+            if (cfg.values.isEmpty) Configured.ok(obj)
             else baseDecoder.read(Some(obj), cfg)
           case _ => baseDecoder.read(state, conf)
         }
@@ -41,17 +41,15 @@ object Presets {
       conf: Conf,
       sectionName: String,
       presets: PartialFunction[Conf, A],
-  ): Option[Configured[(A, Conf)]] = {
+  ): Option[Configured[(A, Conf.Obj)]] = {
     def me = getClass.getSimpleName
     object presetsMatch {
       def unapply(conf: Conf): Option[A] = presets.lift(conf)
     }
     conf match {
       case Conf.Obj(v) => v.collectFirst { case (`presetKey`, x) => x }.map {
-          case presetsMatch(x) =>
-            val filtered = v.filter(_._1 != presetKey)
-            val newConf = if (filtered.isEmpty) null else Conf.Obj(filtered)
-            Configured.ok((x, newConf))
+          case presetsMatch(x) => Configured
+              .ok((x, Conf.Obj(v.filter(_._1 != presetKey))))
           case x => Configured.error(s"$me: unsupported preset: $x")
         }
       case presetsMatch(_) =>
