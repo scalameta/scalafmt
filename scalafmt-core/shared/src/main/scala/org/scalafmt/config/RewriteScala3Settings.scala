@@ -121,6 +121,9 @@ object RewriteScala3Settings {
       spanHas: EndMarker.SpanHas = EndMarker.SpanHas.all,
       removeMaxSpan: Int = 0,
       insertMinSpan: Int = 0,
+      insert: EndMarker.Insert = EndMarker.Insert.default,
+      remove: EndMarker.Remove = EndMarker.Remove.default,
+      preferInsert: Boolean = true,
   )
 
   object EndMarker {
@@ -146,6 +149,25 @@ object RewriteScala3Settings {
       case object lastBlockOnly extends SpanHas
     }
 
+    case class Insert(minBreaks: Int = -1, minBlankGaps: Int = -1) {
+      def enabled: Boolean = minBreaks >= 0 || minBlankGaps >= 0
+    }
+    object Insert {
+      val default = new Insert()
+      implicit val surface: generic.Surface[Insert] = generic.deriveSurface
+      implicit val codec: ConfCodecEx[Insert] = generic.deriveCodecEx(default)
+        .noTypos
+    }
+
+    case class Remove(maxBreaks: Int = -1, maxBlankGaps: Int = -1) {
+      def enabled: Boolean = maxBreaks >= 0 || maxBlankGaps >= 0
+    }
+    object Remove {
+      val default = new Remove()
+      implicit val surface: generic.Surface[Remove] = generic.deriveSurface
+      implicit val codec: ConfCodecEx[Remove] = generic.deriveCodecEx(default)
+        .noTypos
+    }
   }
 
   case class ConvertToNewSyntax(
