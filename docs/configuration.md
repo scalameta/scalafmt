@@ -4644,25 +4644,55 @@ took three possible values (with their equivalent current settings shown):
 - `yes`: `enabled = true`
 - `oldSyntaxToo`: `enabled = true` and `oldSyntaxToo = true`
 
-### `rewrite.scala3.endMarker.insertMinSpan`
+### `rewrite.scala3.endMarker.preferInsert`
 
-If this flag is set to a positive value, when an expression containing an
+This setting, added in v3.10.8, controls whether we prefer to insert missing
+end markers over removing existing ones. See the two sections below for details.
+
+### `rewrite.scala3.endMarker.insert`
+
+This section controls when to insert an end marker (if one is missing) after an expression containing an
 [optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
-region spans at least as many lines and isn't followed by an end marker, one will be inserted.
+region.
+
+Several checks are defined, and the rule applies if:
+
+- at least one check is enabled
+- if `endMarker.preferInsert` is
+  - enabled: at least one check is satisfied
+  - disabled: all checks must be satisfied
+
+The following flags are defined, with corresponding checks:
+
+- (since v3.10.8) `minBreaks`: the check is enabled if this value is non-negative
+  and satisfied if the region contains at least as many line breaks
+- (since v3.10.8) `minBlankGaps`: the check is enabled if this value is non-negative
+  and satisfied if the region contains at least as many blank-line gaps
 
 > We will not insert end markers if the statement is not part of a template body,
 > or a multi-stat block. Doing so might turn a single-stat expression (which
 > doesn't require significant indentation handling) into a multi-stat block.
 
-Prior to v3.10.3, this setting was named `scala3.insertEndMarkerMinLines`.
+### `rewrite.scala3.endMarker.remove`
 
-### `rewrite.scala3.endMarker.removeMaxSpan`
-
-If this flag is set to a positive value, when an expression containing an
+This section controls when to delete a standalone end marker(i.e., no other
+tokens on that line, including comments) after an expression containing an
 [optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
-region spans at most as many lines and is followed by a standalone end marker
-(i.e., no other tokens on that line, including comments), the line containing
-the end marker will be deleted.
+region.
+
+Several checks are defined, and the rule applies if:
+
+- at least one check is enabled
+- if `endMarker.preferInsert` is
+  - enabled: all checks must be satisfied
+  - disabled: at least one check is satisfied
+
+The following flags are defined, with corresponding checks:
+
+- (since v3.10.8) `maxBreaks`: the check is enabled if this value is non-negative,
+  and satisfied if the region contains at most as many line breaks
+- (since v3.10.8) `maxBlankGaps`: the check is enabled if this value is non-negative,
+  and satisfied if the region contains at most as many blank-line gaps
 
 > We will not remove end markers if
 >
@@ -4672,16 +4702,12 @@ the end marker will be deleted.
 > - there are comments before the end marker, as without the end marker they
 >   would be treated as outside of the optional-braces region.
 
-Prior to v3.10.3, this setting was named `scala3.removeEndMarkerMaxLines`.
-
 ### `rewrite.scala3.endMarker.spanHas`
 
 > Since v3.0.6.
 
 This flag dictates which part of the expression terminated by the end marker
-is used to calculate the span for the purposes of applying
-[`insertMinSpan`](#rewritescala3endmarkerinsertminspan) and
-[`removeMaxSpan`](#rewritescala3endmarkerremovemaxspan).
+is used to calculate the span.
 
 - `all` (default): the entire expression
 - `lastBlockOnly`: only the last block with significant indentation relative to
@@ -4691,22 +4717,6 @@ is used to calculate the span for the purposes of applying
   - but for an if-else, this would be just the `else` part
 
 Prior to v3.10.3, this setting was named `scala3.countEndMarkerLines`.
-
-### `rewrite.scala3.endMarker.spanIs`
-
-```scala mdoc:defaults
-rewrite.scala3.endMarker.spanIs
-```
-
-> Since v3.10.3.
-
-This parameter defines what "span" refers to when applying
-[`insertMinSpan`](#rewritescala3endmarkerinsertminspan) and
-[`removeMaxSpan`](#rewritescala3endmarkerremovemaxspan).
-It takes the following values:
-
-- `lines`: span counts the number of lines
-- `blankGaps`: span counts the number of blank gaps instead
 
 ## Vertical Multiline
 
