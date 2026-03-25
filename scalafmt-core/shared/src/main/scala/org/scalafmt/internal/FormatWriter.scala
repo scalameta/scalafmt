@@ -215,60 +215,65 @@ class FormatWriter(formatOps: FormatOps) {
 
   private def checkRemoveEndMarkers(locations: Array[FormatLocation]): Unit = {
     var removedLines = 0
-    val endMarkers = new mutable.ListBuffer[(Int, Int)]
-    locations.foreach { x =>
-      val idx = x.formatToken.meta.idx
+
+    // "<left> end name <right>"
+    def process(getOwner: => Option[Tree])(idx: Int): Unit = {
+      val endIdx = locations.lastIndexWhere(_.isNotRemoved, idx)
+      val loc2 = locations(idx + 2)
+      val cfg = loc2.style.rewrite.scala3.endMarker
+      def processBody(begFt: FT, needBreak: Boolean): Unit = {
+        val bLoc = locations(begFt.idx)
+        val eLoc = locations(endIdx)
+        val span = cfg.spanIs match {
+          case RewriteScala3Settings.EndMarker.SpanIs.lines =>
+            getNumLines(bLoc, eLoc)(needBreak = needBreak)
+          case RewriteScala3Settings.EndMarker.SpanIs.blankGaps =>
+            getBlankGapsDiff(bLoc, eLoc)
+        }
+        if (span <= cfg.removeMaxSpan) {
+          locations(idx + 1) = locations(idx + 1).remove
+          locations(idx + 2) = loc2.remove
+          locations(endIdx) = eLoc.copy(state = loc2.state)
+          removedLines += 1
+        }
+      }
+      def processOwner(owner: Tree): Unit = cfg.spanHas match {
+        case RewriteScala3Settings.EndMarker.SpanHas.lastBlockOnly =>
+          val body = getEndMarkerBody(owner)
+          if (body ne null) processBody(tokenBefore(body), needBreak = true)
+        case RewriteScala3Settings.EndMarker.SpanHas.all =>
+          processBody(getHead(owner), needBreak = false)
+      }
+
+      // won't remove end marker if followed by comment
+      if (endIdx >= 0 && loc2.hasBreakAfter) getOwner.foreach(processOwner)
+    }
+
+    (1 until locations.length - 2).foreach { idx =>
+      val x = locations(idx)
       val floc =
         if (removedLines > 0 && x.isNotRemoved) {
           val floc = x.copy(leftLineId = x.leftLineId + removedLines)
           locations(idx) = floc
           floc
         } else x
-      if (endMarkers.nonEmpty && endMarkers(0)._1 == idx) {
-        val begIdx = endMarkers.remove(0)._2
-        val endIdx = locations.lastIndexWhere(_.isNotRemoved, idx)
-        if (endIdx >= 0) {
-          val bLoc = locations(begIdx)
-          val eLoc = locations(endIdx)
-          val span = bLoc.style.rewrite.scala3.endMarker.spanIs match {
-            case RewriteScala3Settings.EndMarker.SpanIs.lines =>
-              getLineDiff(bLoc, eLoc) + 1
-            case RewriteScala3Settings.EndMarker.SpanIs.blankGaps =>
-              getBlankGapsDiff(bLoc, eLoc)
-          }
-          if (span <= bLoc.style.rewrite.scala3.endMarker.removeMaxSpan) {
-            val loc2 = locations(idx + 2)
-            locations(idx + 1) = locations(idx + 1).remove
-            locations(idx + 2) = loc2.remove
-            locations(endIdx) = eLoc.copy(state = loc2.state)
-            removedLines += 1
-          }
-        }
-      } else getOptionalBracesOwner(floc, 3).foreach { owner =>
-        // do not skip comment lines, as the parser doesn't handle comments
-        // at end of optional braces region and treats them as outside
-        val endFt = nextNonCommentSameLine(getLast(owner))
-        val ok = endFt.meta.rightOwner match {
-          case em: Term.EndMarker => em.parent == owner.parent
-          case _ => false
-        }
-        if (ok) {
-          // "<left> end name <right>"
-          val end = endFt.meta.idx
-          val isStandalone = locations(end).hasBreakAfter &&
-            end + 2 < locations.length && locations(end + 2).hasBreakAfter
-          if (isStandalone) {
-            val settings = floc.style.rewrite.scala3
-            val idx = settings.endMarker.spanHas match {
-              case RewriteScala3Settings.EndMarker.SpanHas.lastBlockOnly =>
-                tokens.nextNonCommentSameLine(floc.formatToken).meta.idx + 1
-              case RewriteScala3Settings.EndMarker.SpanHas.all => tokens
-                  .getHead(owner).meta.idx
-            }
-            endMarkers.prepend(end -> idx)
-          }
-        }
-      }
+
+      val ft = floc.formatToken
+      val em = ft.rightOwner
+      if (em.is[Term.EndMarker] && floc.hasBreakAfter && soft.KwEnd(ft.right))
+        process(em.parent match {
+          case Some(p: Tree.Block) =>
+            var found = false
+            var needStats = if (p.is[Term.Block]) 2 else 0 // block can't remain with just one stat
+            var owner: Tree = null
+            val ok = p.stats.exists(x =>
+              if (found) { needStats -= 1; needStats <= 0 }
+              else if (x eq em) { found = true; needStats <= 0 }
+              else { owner = x; needStats -= 1; false }, // captures the last before em
+            )
+            if (ok) Option(owner) else None
+          case _ => None
+        })(idx)
     }
   }
 
@@ -297,10 +302,10 @@ class FormatWriter(formatOps: FormatOps) {
             locations(end) = eLoc.copy(optionalBraces = f(eLoc.optionalBraces))
           if (eLoc.hasBreakAfter) {
             val cfg = floc.style.rewrite.scala3.endMarker
-            def okSpan(loc: FormatLocation) = {
+            def okSpan(loc: FormatLocation, needBreak: Boolean = false) = {
               val span = cfg.spanIs match {
                 case RewriteScala3Settings.EndMarker.SpanIs.lines =>
-                  getLineDiff(loc, eLoc) + 1
+                  getNumLines(loc, eLoc)(needBreak = needBreak)
                 case RewriteScala3Settings.EndMarker.SpanIs.blankGaps =>
                   getBlankGapsDiff(loc, eLoc)
               }
@@ -314,8 +319,7 @@ class FormatWriter(formatOps: FormatOps) {
 
             cfg.spanHas match {
               case RewriteScala3Settings.EndMarker.SpanHas.lastBlockOnly =>
-                val i = nextNonCommentSameLine(floc.formatToken).meta.idx
-                if (okSpan(locations(i + 1))) appendOwner() else removeOwner()
+                if (okSpan(floc, true)) appendOwner() else removeOwner()
               case RewriteScala3Settings.EndMarker.SpanHas.all =>
                 if (!eLoc.optionalBraces.contains(begIndent) && okSpan(bLoc))
                   appendOwner()
@@ -2033,9 +2037,27 @@ object FormatWriter {
     case _ => null
   }
 
+  private def getEndMarkerBody(tree: Tree): Tree = tree match {
+    case t: Stat.WithTemplate => t.templ.body
+    case t: Tree.WithBody => t.body
+    case t: Pkg => t.body
+    case t: Ctor.Secondary => t.body
+    case t: Tree.WithCasesBlock => t.casesBlock
+    case t: Term.If => if (TreeOps.ifWithoutElse(t)) t.thenp else t.elsep
+    case t: Term.TryClause => t.finallyp.orElse(t.catchClause).getOrElse(t.expr)
+    case _ => null
+  }
+
   @inline
   private def getLineDiff(beg: FormatLocation, end: FormatLocation): Int =
     beg.leftLineId - end.leftLineId
+
+  private def getNumLines(beg: FormatLocation, end: FormatLocation)(
+      needBreak: Boolean,
+  )(implicit ftoks: FormatTokens): Int = {
+    val hasBreak = needBreak && ftoks.hasBreakBeforeNonComment(beg.formatToken)
+    getLineDiff(beg, end) + (if (hasBreak) 0 else 1)
+  }
 
   @inline
   private def getBlankGapsDiff(beg: FormatLocation, end: FormatLocation): Int =
