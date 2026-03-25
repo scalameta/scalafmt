@@ -293,24 +293,26 @@ class FormatWriter(formatOps: FormatOps) {
         if (ok) {
           val end = endFt.meta.idx
           val eLoc = locations(end)
-          val bLoc = locations(getHead(ownerTokens, owner).meta.idx)
-          val begIndent = bLoc.state.prev.indentation
-          def appendOwner() = locations(end) = eLoc
-            .copy(optionalBraces = eLoc.optionalBraces + (begIndent -> owner))
-          def removeOwner() = locations(end) = eLoc
-            .copy(optionalBraces = eLoc.optionalBraces - begIndent)
-          def processOwner() = {
-            val settings = floc.style.rewrite.scala3
+          def updateOwner(f: OptionalBraces => OptionalBraces): Unit =
+            locations(end) = eLoc.copy(optionalBraces = f(eLoc.optionalBraces))
+          if (eLoc.hasBreakAfter) {
+            val cfg = floc.style.rewrite.scala3.endMarker
             def okSpan(loc: FormatLocation) = {
-              val span = settings.endMarker.spanIs match {
+              val span = cfg.spanIs match {
                 case RewriteScala3Settings.EndMarker.SpanIs.lines =>
                   getLineDiff(loc, eLoc) + 1
                 case RewriteScala3Settings.EndMarker.SpanIs.blankGaps =>
                   getBlankGapsDiff(loc, eLoc)
               }
-              span >= settings.endMarker.insertMinSpan
+              span >= cfg.insertMinSpan
             }
-            settings.endMarker.spanHas match {
+
+            val bLoc = locations(getHead(ownerTokens, owner).idx)
+            val begIndent = bLoc.state.prev.indentation
+            def appendOwner(): Unit = updateOwner(_ + (begIndent -> owner))
+            def removeOwner(): Unit = updateOwner(_ - begIndent)
+
+            cfg.spanHas match {
               case RewriteScala3Settings.EndMarker.SpanHas.lastBlockOnly =>
                 val i = nextNonCommentSameLine(floc.formatToken).meta.idx
                 if (okSpan(locations(i + 1))) appendOwner() else removeOwner()
@@ -319,7 +321,6 @@ class FormatWriter(formatOps: FormatOps) {
                   appendOwner()
             }
           }
-          if (eLoc.hasBreakAfter) processOwner()
         }
       }
     }
@@ -1702,6 +1703,8 @@ object FormatWriter {
 
   private val NoLine = Int.MaxValue
 
+  type OptionalBraces = Map[Int, Tree]
+
   case class FormatLocation(
       formatToken: FT,
       state: State,
@@ -1709,7 +1712,7 @@ object FormatWriter {
       leftLineId: Int, // counts back from the end of the file
       leftBlankGapId: Int, // accumulates number of blank gaps, also from end
       var shift: Int = 0,
-      optionalBraces: Map[Int, Tree] = Map.empty,
+      optionalBraces: OptionalBraces = Map.empty,
       // if indent is empty, indicates open; otherwise, whether to tuck
       missingBracesOpenOrTuck: Boolean = false,
       missingBracesIndent: Set[Int] = Set.empty,
