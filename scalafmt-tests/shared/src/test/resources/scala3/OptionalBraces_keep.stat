@@ -2286,7 +2286,26 @@ object a:
       qux
       /* c1 */
    end if
-<<< ml=3 remove 0 end markers
+<<< remove no end markers
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 2
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b
+end a
+>>>
+object a:
+   class b:
+      val c =
+        d
+      end c
+   end b
+end a
+<<< remove end marker c
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 3
 ===
@@ -2305,7 +2324,7 @@ object a:
       end c
    end b
 end a
-<<< ml=4 remove 1 end marker
+<<< remove end markers b+c
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 4
 ===
@@ -2323,7 +2342,7 @@ object a:
         d
       end c
 end a
-<<< ml=5 remove 2 end markers
+<<< remove end markers a+b+c
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 5
 ===
@@ -2340,7 +2359,26 @@ object a:
       val c =
         d
       end c
-<<< ml=5 remove 0 end markers, comment 1
+<<< remove no end markers, comment b
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 4
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b // comment
+end a
+>>>
+object a:
+   class b:
+      val c =
+        d
+      end c
+   end b // comment
+end a
+<<< remove end marker c, comment b
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 5
 ===
@@ -2359,7 +2397,7 @@ object a:
       end c
    end b // comment
 end a
-<<< ml=6 remove 1 end marker, comment 1
+<<< remove end markers a+c, comment b
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 6
 ===
@@ -2377,25 +2415,7 @@ object a:
         d
       end c
    end b // comment
-<<< ml=10 remove 1 end marker, comment 1
-runner.parser = source
-rewrite.scala3.removeEndMarkerMaxLines = 10
-===
-object a:
-  class b:
-    val c =
-      d
-    end c
-  end b // comment
-end a
->>>
-object a:
-   class b:
-      val c =
-        d
-      end c
-   end b // comment
-<<< ml=3 remove 0 end markers, comment 2
+<<< remove no end markers, comment a
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 3
 ===
@@ -2414,7 +2434,26 @@ object a:
       end c
    end b
 end a // comment
-<<< ml=4 remove 1 end marker, comment 2
+<<< remove end marker c, comment a
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 3
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b
+end a // comment
+>>>
+object a:
+   class b:
+      val c =
+        d
+      end c
+   end b
+end a // comment
+<<< remove end markers b+c, comment a
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 4
 ===
@@ -2432,7 +2471,7 @@ object a:
         d
       end c
 end a // comment
-<<< ml=10 remove 1 end marker, comment 2
+<<< ml=10 remove end markers b+c, comment a
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 10
 ===
