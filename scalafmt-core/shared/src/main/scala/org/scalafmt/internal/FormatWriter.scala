@@ -133,9 +133,9 @@ class FormatWriter(formatOps: FormatOps) {
     if (depth == toks.length) { // format completed
       val initStyle = styleMap.init
       if (initStyle.dialect.allowEndMarker) {
-        if (initStyle.rewrite.scala3.endMarker.removeMaxSpan > 0)
+        if (initStyle.rewrite.scala3.endMarker.remove.enabled)
           checkRemoveEndMarkers(result)
-        if (initStyle.rewrite.scala3.endMarker.insertMinSpan > 0)
+        if (initStyle.rewrite.scala3.endMarker.insert.enabled)
           checkInsertEndMarkers(result)
       }
       if (initStyle.rewrite.insertBraces.isEnabled) checkInsertBraces(result)
@@ -224,13 +224,12 @@ class FormatWriter(formatOps: FormatOps) {
       def processBody(begFt: FT, needBreak: Boolean): Unit = {
         val bLoc = locations(begFt.idx)
         val eLoc = locations(endIdx)
-        val span = cfg.spanIs match {
-          case RewriteScala3Settings.EndMarker.SpanIs.lines =>
-            getNumLines(bLoc, eLoc)(needBreak = needBreak)
-          case RewriteScala3Settings.EndMarker.SpanIs.blankGaps =>
-            getBlankGapsDiff(bLoc, eLoc)
-        }
-        if (span <= cfg.removeMaxSpan) {
+        val ok = verifySpan(cfg.preferInsert)(
+          (cfg.remove.maxBreaks, getNumBreaks(needBreak)),
+          (cfg.remove.maxBlankGaps, getBlankGapsDiff),
+        ) { case (max, f) => max >= f(bLoc, eLoc) }
+        if (ok) {
+          val loc2 = locations(idx + 2)
           locations(idx + 1) = locations(idx + 1).remove
           locations(idx + 2) = loc2.remove
           locations(endIdx) = eLoc.copy(state = loc2.state)
@@ -302,15 +301,11 @@ class FormatWriter(formatOps: FormatOps) {
             locations(end) = eLoc.copy(optionalBraces = f(eLoc.optionalBraces))
           if (eLoc.hasBreakAfter) {
             val cfg = floc.style.rewrite.scala3.endMarker
-            def okSpan(loc: FormatLocation, needBreak: Boolean = false) = {
-              val span = cfg.spanIs match {
-                case RewriteScala3Settings.EndMarker.SpanIs.lines =>
-                  getNumLines(loc, eLoc)(needBreak = needBreak)
-                case RewriteScala3Settings.EndMarker.SpanIs.blankGaps =>
-                  getBlankGapsDiff(loc, eLoc)
-              }
-              span >= cfg.insertMinSpan
-            }
+            def okSpan(loc: FormatLocation, needBreak: Boolean = false) =
+              verifySpan(!cfg.preferInsert)(
+                (cfg.insert.minBreaks, getNumBreaks(needBreak)),
+                (cfg.insert.minBlankGaps, getBlankGapsDiff),
+              ) { case (min, f) => min <= f(loc, eLoc) }
 
             val bLoc = locations(getHead(ownerTokens, owner).idx)
             val begIndent = bLoc.state.prev.indentation
@@ -2052,11 +2047,13 @@ object FormatWriter {
   private def getLineDiff(beg: FormatLocation, end: FormatLocation): Int =
     beg.leftLineId - end.leftLineId
 
-  private def getNumLines(beg: FormatLocation, end: FormatLocation)(
+  private def getNumBreaks(
       needBreak: Boolean,
-  )(implicit ftoks: FormatTokens): Int = {
+  )(beg: FormatLocation, end: FormatLocation)(implicit
+      ftoks: FormatTokens,
+  ): Int = {
     val hasBreak = needBreak && ftoks.hasBreakBeforeNonComment(beg.formatToken)
-    getLineDiff(beg, end) + (if (hasBreak) 0 else 1)
+    getLineDiff(beg, end) - (if (hasBreak) 1 else 0)
   }
 
   @inline
@@ -2074,6 +2071,15 @@ object FormatWriter {
       extends AnyVal {
     def add(csq: CharSequence, beg: Int, end: Int): StringBuilder = sb
       .append(CharBuffer.wrap(csq, beg, end))
+  }
+
+  private type SpanCheck = (Int, (FormatLocation, FormatLocation) => Int)
+
+  private def verifySpan(
+      all: Boolean,
+  )(checks: SpanCheck*)(p: SpanCheck => Boolean): Boolean = {
+    val it = checks.iterator.filter(_._1 >= 0)
+    if (all) it.hasNext && it.forall(p) else it.exists(p)
   }
 
 }
