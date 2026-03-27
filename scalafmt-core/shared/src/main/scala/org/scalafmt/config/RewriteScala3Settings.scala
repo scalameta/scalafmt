@@ -117,10 +117,7 @@ object RewriteScala3Settings {
   }
 
   case class EndMarker(
-      spanIs: EndMarker.SpanIs = EndMarker.SpanIs.lines,
       spanHas: EndMarker.SpanHas = EndMarker.SpanHas.all,
-      removeMaxSpan: Int = 0,
-      insertMinSpan: Int = 0,
       insert: EndMarker.Insert = EndMarker.Insert.default,
       remove: EndMarker.Remove = EndMarker.Remove.default,
       preferInsert: Boolean = true,
@@ -130,16 +127,30 @@ object RewriteScala3Settings {
 
     val default = new EndMarker
     implicit val surface: generic.Surface[EndMarker] = generic.deriveSurface
-    implicit val codec: ConfCodecEx[EndMarker] = generic.deriveCodecEx(default)
-      .noTypos
-
-    sealed abstract class SpanIs
-    object SpanIs {
-      implicit val codec: ConfCodecEx[SpanIs] = ConfCodecEx
-        .oneOf(lines, blankGaps)
-      case object lines extends SpanIs
-      case object blankGaps extends SpanIs
-    }
+    implicit val encoder: ConfEncoder[EndMarker] = generic
+      .deriveEncoder[EndMarker]
+    implicit val decoder: ConfDecoderEx[EndMarker] = generic
+      .deriveDecoderEx(default).noTypos
+      .contramapPartial { case conf: Conf.Obj =>
+        var useBlankGaps = false
+        conf.removeKeyIfVal("spanIs") {
+          case Conf.Str("lines") => null
+          case Conf.Str("blankGaps") => useBlankGaps = true; null
+        }.fold(conf)(x => Conf.Obj(x._2)).replace {
+          case ("insertMinSpan", v: Conf.Num) =>
+            val obj = Insert.default
+            val kv =
+              if (useBlankGaps) Conf.nameOf(obj.minBlankGaps).value -> v
+              else Conf.nameOf(obj.minBreaks).value -> Conf.Num(v.value - 1)
+            List((Conf.nameOf(default.insert), Conf.Obj(kv)))
+          case ("removeMaxSpan", v: Conf.Num) =>
+            val obj = Remove.default
+            val kv =
+              if (useBlankGaps) Conf.nameOf(obj.maxBlankGaps).value -> v
+              else Conf.nameOf(obj.maxBreaks).value -> Conf.Num(v.value - 1)
+            List((Conf.nameOf(default.remove), Conf.Obj(kv)))
+        }
+      }
 
     sealed abstract class SpanHas
     object SpanHas {

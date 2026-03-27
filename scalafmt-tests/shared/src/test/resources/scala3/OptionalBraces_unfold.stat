@@ -9742,38 +9742,45 @@ object a:
       line1
       line2
       line3
+   end foo3lines0before0between0after
    def foo3lines0before0between1after() =
       line1
       line2
       line3
+   end foo3lines0before0between1after
 
    def foo3lines1before0between0after() =
 
       line1
       line2
       line3
+   end foo3lines1before0between0after
    def foo3lines1before0between1after() =
 
       line1
       line2
       line3
+   end foo3lines1before0between1after
 
    def foo3lines0before1between0after() =
       line1
 
       line2
       line3
+   end foo3lines0before1between0after
    def foo3lines1before1between0after() =
 
       line1
 
       line2
       line3
+   end foo3lines1before1between0after
    def foo3lines0before1between1after() =
       line1
 
       line2
       line3
+   end foo3lines0before1between1after
 
    def foo3lines1before1between1after() =
 
@@ -9781,6 +9788,7 @@ object a:
 
       line2
       line3
+   end foo3lines1before1between1after
 
    def foo3lines0before2between0after() =
       line1
@@ -9788,6 +9796,7 @@ object a:
       line2
 
       line3
+   end foo3lines0before2between0after
    def foo3lines1before2between0after() =
 
       line1
@@ -9795,12 +9804,14 @@ object a:
       line2
 
       line3
+   end foo3lines1before2between0after
    def foo3lines0before2between1after() =
       line1
 
       line2
 
       line3
+   end foo3lines0before2between1after
 
    def foo3lines1before2between1after() =
 
@@ -9809,54 +9820,54 @@ object a:
       line2
 
       line3
+   end foo3lines1before2between1after
 
    def foo2lines0before0between0after() =
       line1
       line2
-   end foo2lines0before0between0after
    def foo2lines1before0between0after() =
 
       line1
       line2
+   end foo2lines1before0between0after
    def foo2lines0before0between1after() =
       line1
       line2
-
-   end foo2lines0before0between1after
    def foo2lines1before0between1after() =
 
       line1
       line2
+   end foo2lines1before0between1after
 
    def foo2lines0before1between0after() =
       line1
 
       line2
+   end foo2lines0before1between0after
    def foo2lines1before1between0after() =
 
       line1
 
       line2
+   end foo2lines1before1between0after
    def foo2lines0before1between1after() =
       line1
 
       line2
+   end foo2lines0before1between1after
 
    def foo2lines1before1between1after() =
 
       line1
 
       line2
+   end foo2lines1before1between1after
 
    def foo1lines0before1between0after() = line1
-   end foo1lines0before1between0after
    def foo1lines1before1between0after() =
 
      line1
-   end foo1lines1before1between0after
    def foo1lines0before1between1after() = line1
-
-   end foo1lines0before1between1after
 <<< #5064 insert/remove end markers using breaks and blank gaps, !preferInsert
 rewrite.scala3.endMarker {
   preferInsert = false
@@ -10002,51 +10013,44 @@ object a:
       line1
       line2
       line3
-   end foo3lines0before0between0after
    def foo3lines0before0between1after() =
       line1
       line2
       line3
-
-   end foo3lines0before0between1after
    def foo3lines1before0between0after() =
 
       line1
       line2
       line3
-   end foo3lines1before0between0after
    def foo3lines1before0between1after() =
 
       line1
       line2
       line3
-
-   end foo3lines1before0between1after
    def foo3lines0before1between0after() =
       line1
 
       line2
       line3
-   end foo3lines0before1between0after
    def foo3lines1before1between0after() =
 
       line1
 
       line2
       line3
+   end foo3lines1before1between0after
    def foo3lines0before1between1after() =
       line1
 
       line2
       line3
-
-   end foo3lines0before1between1after
    def foo3lines1before1between1after() =
 
       line1
 
       line2
       line3
+   end foo3lines1before1between1after
 
    def foo3lines0before2between0after() =
       line1
@@ -10054,6 +10058,7 @@ object a:
       line2
 
       line3
+   end foo3lines0before2between0after
    def foo3lines1before2between0after() =
 
       line1
@@ -10061,12 +10066,14 @@ object a:
       line2
 
       line3
+   end foo3lines1before2between0after
    def foo3lines0before2between1after() =
       line1
 
       line2
 
       line3
+   end foo3lines0before2between1after
 
    def foo3lines1before2between1after() =
 
@@ -10075,58 +10082,48 @@ object a:
       line2
 
       line3
+   end foo3lines1before2between1after
 
    def foo2lines0before0between0after() =
       line1
       line2
-   end foo2lines0before0between0after
    def foo2lines1before0between0after() =
 
       line1
       line2
-   end foo2lines1before0between0after
    def foo2lines0before0between1after() =
       line1
       line2
-
-   end foo2lines0before0between1after
    def foo2lines1before0between1after() =
 
       line1
       line2
-
-   end foo2lines1before0between1after
    def foo2lines0before1between0after() =
       line1
 
       line2
-   end foo2lines0before1between0after
    def foo2lines1before1between0after() =
 
       line1
 
       line2
+   end foo2lines1before1between0after
    def foo2lines0before1between1after() =
       line1
 
       line2
-
-   end foo2lines0before1between1after
    def foo2lines1before1between1after() =
 
       line1
 
       line2
+   end foo2lines1before1between1after
 
    def foo1lines0before1between0after() = line1
-   end foo1lines0before1between0after
    def foo1lines1before1between0after() =
 
      line1
-   end foo1lines1before1between0after
    def foo1lines0before1between1after() = line1
-
-   end foo1lines0before1between1after
 <<< #5111
 runner.dialect = scala3future
 ===
