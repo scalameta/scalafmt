@@ -4586,9 +4586,10 @@ NB: You could control these rules individually by
 
 ### `rewrite.scala3.optionalBraces`
 
-If this section is enabled,
+If this section is enabled, depending on the configuration,
 [optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
-will be removed and significant indentation applied.
+will be removed and significant indentation applied, or a braceless region possibly
+enclosed in braces instead.
 
 ```scala mdoc:defaults
 rewrite.scala3.optionalBraces
@@ -4606,22 +4607,30 @@ The section contains the following settings (available since v3.8.1):
     - other flags below might extend rewrites to other cases
 - `oldSyntaxToo`
   - if `true`, applies also to expressions using deprecated syntax
-- (since v3.10.8) `insert`
-  - will add braces to a braceless region **unless** all of these hold:
-    - `insert.minSpan` is negative, or exceeds the cumulative span of all
-      visible tokens within the region
-      - or, for single-statement blocks, if that span is less than
-        `maxColumn` (to avoid non-idempotent formatting)
-    - `insert.minBlankGaps` is negative, or exceeds the number of
-      blank-line gaps within the region
-- (since v3.10.8) `remove`
-  - will remove braces **if** all of these hold:
-    - `remove.maxSpan` is zero, or positive and the cumulative span
-      of all visible tokens between the braces does not exceed it
-      (and is less than `insert.minSpan` if the latter is non-negative)
-    - `remove.maxBlankGaps` is negative, or the number of
-      blank-line gaps between the braces does not exceed it
-      (and is less than `insert.minBlankGaps` if the latter is non-negative)
+- (since v3.10.8) `insert`: will add braces to a braceless region if at least
+  one check below is enabled and **unless** all
+  of the enabled checks are satisfied
+  - `insert.minSpan`:
+    - disabled if negative
+    - satisfied if it exceeds the cumulative span of all visible tokens within the region
+    - or, for single-statement blocks, if that span is less than
+      `maxColumn` (to avoid non-idempotent formatting)
+  - `insert.minBlankGaps`:
+    - disabled if negative
+    - satisfied if it exceeds the number of blank-line gaps within the region
+- (since v3.10.8) `remove`: will remove braces if at least
+  one check below is enabled and **if** all
+  of the enabled checks are satisfied
+  - the only exception is when all checks both here and in `insert` above are
+    disabled, in which case the rule will **always** remove braces
+  - `remove.maxSpan`
+    - disabled if negative
+    - satisfied if the cumulative span of all visible tokens between the braces does not exceed it
+  - `remove.maxBlankGaps`
+    - disabled if negative
+    - satisfied if the number of blank-line gaps between the braces does not exceed it
+  - these values will be decreased, if necessary,
+    to be less than those in `insert` section
 - (since v3.8.1) `fewerBraces.minSpan` and `fewerBraces.maxSpan`
   - in v3.10.8, was renamed from `fewerBracesMinSpan` and `fewerBracesMaxSpan`
   - this is an additional restriction to the rule just above

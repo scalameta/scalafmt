@@ -153,11 +153,14 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   ): Option[(Replacement, Replacement)] = {
     val nextFt = ftoks.nextNonCommentAfter(ft)
     val notOkToRewrite = hasFormatOff || { // can't force significant indentation
-      val limit = settings.getRemoveBracesMaxSpan
-      limit < 0 || limit > 0 && limit < session.getSpan(left)
-    } || {
-      val limit = settings.getRemoveBracesMaxBlankGaps
-      limit >= 0 && limit < session.getBlankGaps(left)
+      val cfg = settings
+      !cfg.remove.forall { x =>
+        val checks = Iterator(
+          (x.maxSpan, (max: Int) => session.getSpan(left) <= max),
+          (x.maxBlankGaps, (max: Int) => session.getBlankGaps(left) <= max),
+        ).flatMap { case (max, f) => if (max < 0) None else Some(f(max)) }
+        checks.hasNext && !checks.contains(false)
+      }
     } ||
       (nextFt.meta.rightOwner match {
         case t: Term.Name => t.parent.exists {
@@ -195,24 +198,24 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   private[rewrite] def skipRightToBraces(
       left: Replacement,
   )(implicit session: Session, style: ScalafmtConfig): Boolean = {
-    val isSingleStatBlock = isTreeSingleExpr(left.how match {
-      case x: ReplacementType.AppendAfter => x.ft.rightOwner
-      case _ => left.ft.rightOwner
-    })
-
     // left must be a LeftBrace
-    {
-      val limit = settings.insert.minSpan
-      limit < 0 || {
-        if (isSingleStatBlock) session.getSpan(left) < limit.max(style.maxColumn)
-        else limit > 0 && session.getSpan(left) < limit
-      }
-    } && {
-      val limit = settings.insert.minBlankGaps
-      limit < 0 || {
-        if (isSingleStatBlock) session.getBlankGaps(left) < limit.max(1)
-        else limit > 0 && session.getBlankGaps(left) < limit
-      }
+    val cfg = settings
+    !cfg.insert.exists { ib =>
+      val isSingleStatBlock = isTreeSingleExpr(left.how match {
+        case x: ReplacementType.AppendAfter => x.ft.rightOwner
+        case _ => left.ft.rightOwner
+      })
+
+      val checkSpan = (x: Int) =>
+        if (isSingleStatBlock) session.getSpan(left) >= x.max(style.maxColumn)
+        else x == 0 || session.getSpan(left) >= x
+      val checkBlankGaps = (x: Int) =>
+        if (isSingleStatBlock) session.getBlankGaps(left) >= x.max(1)
+        else x == 0 || session.getBlankGaps(left) >= x
+      val checks =
+        Iterator((ib.minSpan, checkSpan), (ib.minBlankGaps, checkBlankGaps))
+          .flatMap { case (min, f) => if (min < 0) None else Some(f(min)) }
+      checks.contains(true)
     }
   }
 
