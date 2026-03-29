@@ -40,18 +40,23 @@ object RewriteScala3Settings {
   @annotation.SectionRename("fewerBracesParensToo", "fewerBraces.parensToo") // 3.10.8
   case class RemoveOptionalBraces(
       enabled: Boolean = true,
-      insert: InsertBraces = InsertBraces.default,
-      private[config] val remove: RemoveBraces = RemoveBraces.default,
+      insert: Option[InsertBraces] = None,
+      remove: Option[RemoveBraces] = None,
       fewerBraces: FewerBraces = FewerBraces.default,
       oldSyntaxToo: Boolean = false,
   ) {
-    def isRemoveEnabled: Boolean = getRemoveBracesMaxSpan >= 0 ||
-      getRemoveBracesMaxBlankGaps >= 0
-    def isInsertEnabled: Boolean = insert.minSpan >= 0 ||
-      insert.minBlankGaps >= 0
+    def isRemoveEnabled: Boolean = remove.forall(_.enabled)
+    def isInsertEnabled: Boolean = insert.exists(_.enabled)
 
-    def getRemoveBracesMaxSpan: Int = remove.getMaxSpan(insert)
-    def getRemoveBracesMaxBlankGaps: Int = remove.getMaxBlankGaps(insert)
+    private[config] def normalized: RemoveOptionalBraces = {
+      val ibOpt = insert.filter(_.enabled)
+      val rbOpt = remove.filter(_.enabled)
+      ibOpt.fold(copy(insert = None, remove = rbOpt))(ib =>
+        rbOpt.fold( // if insert is Some, remove must be too
+          copy(insert = ibOpt, remove = Some(RemoveBraces.default)),
+        )(rb => copy(insert = ibOpt, remove = Some(rb.normalize(ib)))),
+      )
+    }
   }
 
   object RemoveOptionalBraces {
@@ -66,8 +71,8 @@ object RewriteScala3Settings {
       .deriveEncoder[RemoveOptionalBraces]
 
     implicit final val decoder: ConfDecoderEx[RemoveOptionalBraces] = generic
-      .deriveDecoderEx[RemoveOptionalBraces](no).noTypos.detectSectionRenames
-      .contramapPartial {
+      .deriveDecoderEx[RemoveOptionalBraces](no).map(_.normalized).noTypos
+      .detectSectionRenames.contramapPartial {
         case Conf.Bool(true) | Conf.Str("yes") => Conf
             .Obj("enabled" -> Conf(true))
         case Conf.Bool(false) | Conf.Str("no") => Conf
@@ -78,16 +83,16 @@ object RewriteScala3Settings {
 
   }
 
-  case class RemoveBraces(maxSpan: Int = 0, maxBlankGaps: Int = -1) {
-    def getMaxSpan(ib: InsertBraces): Int =
-      if (ib.minSpan < 0) maxSpan
-      else if (maxSpan < 0 || ib.minSpan <= 1) -1
-      else if (maxSpan == 0) ib.minSpan - 1
-      else maxSpan.min(ib.minSpan - 1)
+  case class RemoveBraces(maxSpan: Int = -1, maxBlankGaps: Int = -1) {
+    def enabled: Boolean = maxSpan >= 0 || maxBlankGaps >= 0
 
-    def getMaxBlankGaps(ib: InsertBraces): Int =
-      if (ib.minBlankGaps < 0) maxBlankGaps
-      else maxBlankGaps.min(ib.minBlankGaps - 1)
+    def normalize(ib: InsertBraces): RemoveBraces = {
+      val span = if (ib.minSpan < 0) maxSpan else maxSpan.min(ib.minSpan - 1)
+      val blankGaps =
+        if (ib.minBlankGaps < 0) maxBlankGaps
+        else maxBlankGaps.min(ib.minBlankGaps - 1)
+      copy(maxSpan = span, maxBlankGaps = blankGaps)
+    }
   }
   object RemoveBraces {
     val default = new RemoveBraces()
@@ -96,7 +101,9 @@ object RewriteScala3Settings {
       .deriveCodecEx(default).noTypos.detectSectionRenames
   }
 
-  case class InsertBraces(minSpan: Int = -1, minBlankGaps: Int = -1)
+  case class InsertBraces(minSpan: Int = -1, minBlankGaps: Int = -1) {
+    def enabled: Boolean = minSpan >= 0 || minBlankGaps >= 0
+  }
   object InsertBraces {
     val default = new InsertBraces()
     implicit val surface: generic.Surface[InsertBraces] = generic.deriveSurface
