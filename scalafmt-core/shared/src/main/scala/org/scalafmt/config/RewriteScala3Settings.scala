@@ -40,19 +40,18 @@ object RewriteScala3Settings {
   @annotation.SectionRename("fewerBracesParensToo", "fewerBraces.parensToo") // 3.10.8
   case class RemoveOptionalBraces(
       enabled: Boolean = true,
-      insertBraces: InsertBraces = InsertBraces.default,
-      private[config] val removeBraces: RemoveBraces = RemoveBraces.default,
+      insert: InsertBraces = InsertBraces.default,
+      private[config] val remove: RemoveBraces = RemoveBraces.default,
       fewerBraces: FewerBraces = FewerBraces.default,
       oldSyntaxToo: Boolean = false,
   ) {
     def isRemoveEnabled: Boolean = getRemoveBracesMaxSpan >= 0 ||
       getRemoveBracesMaxBlankGaps >= 0
-    def isInsertEnabled: Boolean = insertBraces.minSpan >= 0 ||
-      insertBraces.minBlankGaps >= 0
+    def isInsertEnabled: Boolean = insert.minSpan >= 0 ||
+      insert.minBlankGaps >= 0
 
-    def getRemoveBracesMaxSpan: Int = removeBraces.getMaxSpan(insertBraces)
-    def getRemoveBracesMaxBlankGaps: Int = removeBraces
-      .getMaxBlankGaps(insertBraces)
+    def getRemoveBracesMaxSpan: Int = remove.getMaxSpan(insert)
+    def getRemoveBracesMaxBlankGaps: Int = remove.getMaxBlankGaps(insert)
   }
 
   object RemoveOptionalBraces {

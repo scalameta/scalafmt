@@ -202,13 +202,13 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
 
     // left must be a LeftBrace
     {
-      val limit = settings.insertBraces.minSpan
+      val limit = settings.insert.minSpan
       limit < 0 || {
         if (isSingleStatBlock) session.getSpan(left) < limit.max(style.maxColumn)
         else limit > 0 && session.getSpan(left) < limit
       }
     } && {
-      val limit = settings.insertBraces.minBlankGaps
+      val limit = settings.insert.minBlankGaps
       limit < 0 || {
         if (isSingleStatBlock) session.getBlankGaps(left) < limit.max(1)
         else limit > 0 && session.getBlankGaps(left) < limit

@@ -9906,10 +9906,10 @@ foo match {
 
   // quux2
 }
-<<< remove optional braces within range, removeBraces.maxSpan
+<<< remove optional braces within range, remove.maxSpan
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  removeBraces.maxSpan = 6
+  remove.maxSpan = 6
 }
 ===
 private def mtd: Res =
@@ -9941,10 +9941,10 @@ private def mtd: Res =
      foo
      quxx
    }
-<<< remove optional braces within range, removeBraces.maxBlankGaps=0
+<<< remove optional braces within range, remove.maxBlankGaps=0
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  removeBraces.maxBlankGaps = 0
+  remove.maxBlankGaps = 0
 }
 ===
 private def mtd: Res =
@@ -9981,10 +9981,10 @@ private def mtd: Res =
 
      fooBody3
    }
-<<< remove optional braces within range, removeBraces.maxBlankGaps=1
+<<< remove optional braces within range, remove.maxBlankGaps=1
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  removeBraces.maxBlankGaps = 1
+  remove.maxBlankGaps = 1
 }
 ===
 private def mtd: Res =
@@ -10020,11 +10020,11 @@ private def mtd: Res =
 
      fooBody3
    }
-<<< remove optional braces within range, insertBraces.minSpan
+<<< remove optional braces within range, insert.minSpan
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  insertBraces.minSpan = 7
-  removeBraces.maxSpan = 10
+  insert.minSpan = 7
+  remove.maxSpan = 10
 }
 ===
 private def mtd: Res =
@@ -10054,11 +10054,11 @@ private def mtd: Res = {
     quxx
   }
 }
-<<< remove optional braces within range, insertBraces.minBlankGaps=1
+<<< remove optional braces within range, insert.minBlankGaps=1
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  insertBraces.minBlankGaps = 1
-  removeBraces.maxBlankGaps = 10
+  insert.minBlankGaps = 1
+  remove.maxBlankGaps = 10
 }
 ===
 private def mtd: Res =
@@ -10124,11 +10124,11 @@ private def mtd: Res = {
     fooBody3
   }
 }
-<<< remove optional braces within range, insertBraces.minBlankGaps=2
+<<< remove optional braces within range, insert.minBlankGaps=2
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  insertBraces.minBlankGaps = 2
-  removeBraces.maxBlankGaps = 10
+  insert.minBlankGaps = 2
+  remove.maxBlankGaps = 10
 }
 ===
 private def mtd: Res =
