@@ -7,10 +7,11 @@ import metaconfig._
 @annotation.SectionRename("countEndMarkerLines", "endMarker.spanHas") // renamed in v3.10.3
 @annotation.SectionRename("removeEndMarkerMaxLines", "endMarker.removeMaxSpan") // renamed in v3.10.3
 @annotation.SectionRename("insertEndMarkerMinLines", "endMarker.insertMinSpan") // renamed in v3.10.3
+@annotation.SectionRename("removeOptionalBraces", "optionalBraces") // renamed in v3.10.8
 case class RewriteScala3Settings(
     convertToNewSyntax: Boolean = false,
     newSyntax: ConvertToNewSyntax = ConvertToNewSyntax.default,
-    removeOptionalBraces: RemoveOptionalBraces = RemoveOptionalBraces.no,
+    optionalBraces: RemoveOptionalBraces = RemoveOptionalBraces.no,
     endMarker: EndMarker = EndMarker.default,
 )
 
@@ -29,7 +30,7 @@ object RewriteScala3Settings {
     ) {
       case Conf.Bool(true) => new RewriteScala3Settings(
           convertToNewSyntax = true,
-          removeOptionalBraces = RemoveOptionalBraces.yes,
+          optionalBraces = RemoveOptionalBraces.yes,
         )
       case Conf.Bool(false) => default
     }

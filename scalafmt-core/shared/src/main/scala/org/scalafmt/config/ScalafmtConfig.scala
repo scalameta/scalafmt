@@ -411,7 +411,7 @@ object ScalafmtConfig {
       if (rewrite.scala3.endMarker.insert.minBlankGaps >= 0)
         addIf(rewrite.scala3.endMarker.remove.maxBlankGaps >= rewrite.scala3.endMarker.insert.minBlankGaps)
       addIf(rewrite.insertBraces.settings.minBreaks != 0 && rewrite.scala3.endMarker.insert.minBreaks >= 0)
-      addIf(rewrite.insertBraces.settings.minBreaks != 0 && rewrite.scala3.removeOptionalBraces.oldSyntaxToo)
+      addIf(rewrite.insertBraces.settings.minBreaks != 0 && rewrite.scala3.optionalBraces.oldSyntaxToo)
       if (RedundantBraces.usedIn(rewrite)) {
         if (rewrite.insertBraces.settings.minBreaks != 0) addIf(rewrite.insertBraces.settings.minBreaks <= rewrite.redundantBraces.maxBreaks)
         if (rewrite.redundantBraces.oneStatApply.bracesMinSpan >= 0)
@@ -419,10 +419,10 @@ object ScalafmtConfig {
       }
       addIf(align.beforeOpenParenDefnSite && !align.closeParenSite)
       addIf(align.beforeOpenParenCallSite && !align.closeParenSite)
-      if (rewrite.scala3.removeOptionalBraces.fewerBraces.maxSpan > 0) {
-        addIf(rewrite.scala3.removeOptionalBraces.fewerBraces.minSpan > rewrite.scala3.removeOptionalBraces.fewerBraces.maxSpan)
-        if (rewrite.scala3.removeOptionalBraces.removeBraces.maxSpan > 0)
-          addIf(rewrite.scala3.removeOptionalBraces.removeBraces.maxSpan < rewrite.scala3.removeOptionalBraces.fewerBraces.maxSpan)
+      if (rewrite.scala3.optionalBraces.fewerBraces.maxSpan > 0) {
+        addIf(rewrite.scala3.optionalBraces.fewerBraces.minSpan > rewrite.scala3.optionalBraces.fewerBraces.maxSpan)
+        if (rewrite.scala3.optionalBraces.removeBraces.maxSpan > 0)
+          addIf(rewrite.scala3.optionalBraces.removeBraces.maxSpan < rewrite.scala3.optionalBraces.fewerBraces.maxSpan)
       }
       if (rewrite.rules.contains(Imports)) binPack.importSelectors match {
         case Some(ImportSelectors.singleLine) => // if we fold but not bin pack, we might end up with very long lines

@@ -368,7 +368,7 @@ class FormatWriter(formatOps: FormatOps) {
       implicit val ib = style.rewrite.insertBraces
       val ft = floc.formatToken
       val ok = !ft.meta.formatOff && ib.isEnabled && hasBreakAfter(idx) &&
-        (!style.rewrite.scala3.removeOptionalBraces.enabled &&
+        (!style.rewrite.scala3.optionalBraces.enabled &&
           style.indent.main == style.indent.getSignificant ||
           !OptionalBraces.at(ft)) && floc.missingBracesIndent.isEmpty
       val mb =

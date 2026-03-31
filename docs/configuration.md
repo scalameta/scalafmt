@@ -3433,7 +3433,7 @@ s"user id is ${id}"
 #### `RedundantBraces`: `oneStatApply`
 
 Added in v3.8.4, controls treatment of single-argument apply delimiters,
-has lower priority than [fewer braces](#rewritescala3removeoptionalbraces),
+has lower priority than [fewer braces](#rewritescala3optionalbraces),
 and takes the following values:
 
 - `parensMaxSpan`: if non-negative, converts braces to parentheses in an
@@ -3452,7 +3452,7 @@ and takes the following values:
     [newlines.afterCurlyLambdaParams = squash](#newlinesaftercurlylambdaparams)
 
 > Here, the span is computed a bit differently than for
-> [fewer braces](#rewritescala3removeoptionalbraces) or
+> [fewer braces](#rewritescala3optionalbraces) or
 > [search optimizer](#route-search-optimizations-arg-or-param-clause),
 > in that it removes not only whitespace but also all punctuation (opening and
 > closing delimiters, commas, semicolons and dots), comments and any optional
@@ -3558,7 +3558,7 @@ def f() = {
 >
 > This rule cannot be used with
 > [`rewrite.scala3.endMarker.insertMinSpan`](#rewritescala3endmarkerinsertminspan) or
-> [`rewrite.scala3.removeOptionalBraces.oldSyntaxToo == true`](#rewritescala3removeoptionalbraces).
+> [`rewrite.scala3.optionalBraces.oldSyntaxToo == true`](#rewritescala3optionalbraces).
 
 This rewrite in essence provides the opposite of what `RedundantBraces` achieves,
 and somewhat similar to Scala3's end marker rewrite rules.
@@ -4584,14 +4584,14 @@ set to `false`, see below):
 NB: You could control these rules individually by
 [overriding dialect properties](#runnerdialectoverride).
 
-### `rewrite.scala3.removeOptionalBraces`
+### `rewrite.scala3.optionalBraces`
 
 If this section is enabled,
 [optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
 will be removed and significant indentation applied.
 
 ```scala mdoc:defaults
-rewrite.scala3.removeOptionalBraces
+rewrite.scala3.optionalBraces
 ```
 
 The section contains the following settings (available since v3.8.1):
@@ -4637,7 +4637,8 @@ The section contains the following settings (available since v3.8.1):
     - [`newlines.infix.xxxSite.style`](#newlinesinfix-stylekeep) is NOT `keep`; or
     - current dialect supports `allowInfixOperatorAfterNL`
 
-Prior to v3.8.1, `rewrite.scala3.removeOptionalBraces` was a flag which
+Prior to v3.10.8, the section was called `removeOptionalBraces`.
+Prior to v3.8.1, it was a single flag which
 took three possible values (with their equivalent current settings shown):
 
 - `no`: `enabled = false`
