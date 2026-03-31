@@ -4606,22 +4606,22 @@ The section contains the following settings (available since v3.8.1):
     - other flags below might extend rewrites to other cases
 - `oldSyntaxToo`
   - if `true`, applies also to expressions using deprecated syntax
-- (since v3.10.8) `insertBraces`
+- (since v3.10.8) `insert`
   - will add braces to a braceless region **unless** all of these hold:
-    - `insertBraces.minSpan` is negative, or exceeds the cumulative span of all
+    - `insert.minSpan` is negative, or exceeds the cumulative span of all
       visible tokens within the region
       - or, for single-statement blocks, if that span is less than
         `maxColumn` (to avoid non-idempotent formatting)
-    - `insertBraces.minBlankGaps` is negative, or exceeds the number of
+    - `insert.minBlankGaps` is negative, or exceeds the number of
       blank-line gaps within the region
-- (since v3.10.8) `removeBraces`
+- (since v3.10.8) `remove`
   - will remove braces **if** all of these hold:
-    - `removeBraces.maxSpan` is zero, or positive and the cumulative span
+    - `remove.maxSpan` is zero, or positive and the cumulative span
       of all visible tokens between the braces does not exceed it
-      (and is less than `insertBraces.minSpan` if the latter is non-negative)
-    - `removeBraces.maxBlankGaps` is negative, or the number of
+      (and is less than `insert.minSpan` if the latter is non-negative)
+    - `remove.maxBlankGaps` is negative, or the number of
       blank-line gaps between the braces does not exceed it
-      (and is less than `insertBraces.minBlankGaps` if the latter is non-negative)
+      (and is less than `insert.minBlankGaps` if the latter is non-negative)
 - (since v3.8.1) `fewerBraces.minSpan` and `fewerBraces.maxSpan`
   - in v3.10.8, was renamed from `fewerBracesMinSpan` and `fewerBracesMaxSpan`
   - this is an additional restriction to the rule just above
