@@ -238,8 +238,12 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
     else if (notOkToRewrite) None
     else {
       val rt = ft.right
-      val rbt = new T.RightBrace(rt.input, rt.dialect, rt.start + 1)
-      val rbmeta = left.ft.meta.copy(right = left.ft.meta.left.copy(text = "}"))
+      val rbt = new T.RightBrace(rt.input, rt.dialect, rt.end)
+      val lb = left.how match {
+        case how: ReplacementType.AppendAfter => how.ft
+        case _ => left.ft
+      }
+      val rbmeta = lb.meta.copy(right = lb.meta.right.copy(text = "}"))
       val replType = appendTokensType(FT(rt, rbt, rbmeta))
       Some((left, Replacement(this, ft, replType, style)))
     }
