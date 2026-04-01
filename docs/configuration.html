@@ -6137,7 +6137,7 @@ set to <code>false</code>, see below):</p>
 <p>If this section is enabled,
 <a href="https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html">optional braces</a>
 will be removed and significant indentation applied.</p>
-<p>Default: <code>rewrite.scala3.optionalBraces = {&quot;enabled&quot;: false, &quot;insertBraces&quot;: {&quot;minSpan&quot;: -1, &quot;minBlankGaps&quot;: -1}, &quot;removeBraces&quot;: {&quot;maxSpan&quot;: 0, &quot;maxBlankGaps&quot;: -1}, &quot;fewerBraces&quot;: {&quot;minSpan&quot;: 2, &quot;maxSpan&quot;: 0, &quot;parensToo&quot;: false}, &quot;oldSyntaxToo&quot;: false}</code></p>
+<p>Default: <code>rewrite.scala3.optionalBraces = {&quot;enabled&quot;: false, &quot;insert&quot;: {&quot;minSpan&quot;: -1, &quot;minBlankGaps&quot;: -1}, &quot;remove&quot;: {&quot;maxSpan&quot;: 0, &quot;maxBlankGaps&quot;: -1}, &quot;fewerBraces&quot;: {&quot;minSpan&quot;: 2, &quot;maxSpan&quot;: 0, &quot;parensToo&quot;: false}, &quot;oldSyntaxToo&quot;: false}</code></p>
 <p>The section contains the following settings (available since v3.8.1):</p>
 <ul>
 <li><code>enabled</code>:
@@ -6156,30 +6156,30 @@ flags in this section</li>
 <ul>
 <li>if <code>true</code>, applies also to expressions using deprecated syntax</li>
 </ul></li>
-<li>(since v3.10.8) <code>insertBraces</code>
+<li>(since v3.10.8) <code>insert</code>
 <ul>
 <li>will add braces to a braceless region <strong>unless</strong> all of these hold:
 <ul>
-<li><code>insertBraces.minSpan</code> is negative, or exceeds the cumulative span of all
+<li><code>insert.minSpan</code> is negative, or exceeds the cumulative span of all
 visible tokens within the region
 <ul>
 <li>or, for single-statement blocks, if that span is less than
 <code>maxColumn</code> (to avoid non-idempotent formatting)</li>
 </ul></li>
-<li><code>insertBraces.minBlankGaps</code> is negative, or exceeds the number of
+<li><code>insert.minBlankGaps</code> is negative, or exceeds the number of
 blank-line gaps within the region</li>
 </ul></li>
 </ul></li>
-<li>(since v3.10.8) <code>removeBraces</code>
+<li>(since v3.10.8) <code>remove</code>
 <ul>
 <li>will remove braces <strong>if</strong> all of these hold:
 <ul>
-<li><code>removeBraces.maxSpan</code> is zero, or positive and the cumulative span
+<li><code>remove.maxSpan</code> is zero, or positive and the cumulative span
 of all visible tokens between the braces does not exceed it
-(and is less than <code>insertBraces.minSpan</code> if the latter is non-negative)</li>
-<li><code>removeBraces.maxBlankGaps</code> is negative, or the number of
+(and is less than <code>insert.minSpan</code> if the latter is non-negative)</li>
+<li><code>remove.maxBlankGaps</code> is negative, or the number of
 blank-line gaps between the braces does not exceed it
-(and is less than <code>insertBraces.minBlankGaps</code> if the latter is non-negative)</li>
+(and is less than <code>insert.minBlankGaps</code> if the latter is non-negative)</li>
 </ul></li>
 </ul></li>
 <li>(since v3.8.1) <code>fewerBraces.minSpan</code> and <code>fewerBraces.maxSpan</code>
@@ -8807,11 +8807,11 @@ rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selecto
 rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.fewerBraces</span><span class="hljs-selector-class">.maxSpan</span> = <span class="hljs-number">0</span>
 rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.fewerBraces</span><span class="hljs-selector-class">.minSpan</span> = <span class="hljs-number">2</span>
 rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.fewerBraces</span><span class="hljs-selector-class">.parensToo</span> = false
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.insertBraces</span><span class="hljs-selector-class">.minBlankGaps</span> = -<span class="hljs-number">1</span>
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.insertBraces</span><span class="hljs-selector-class">.minSpan</span> = -<span class="hljs-number">1</span>
+rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.insert</span><span class="hljs-selector-class">.minBlankGaps</span> = -<span class="hljs-number">1</span>
+rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.insert</span><span class="hljs-selector-class">.minSpan</span> = -<span class="hljs-number">1</span>
 rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.oldSyntaxToo</span> = false
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.removeBraces</span><span class="hljs-selector-class">.maxBlankGaps</span> = -<span class="hljs-number">1</span>
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.removeBraces</span><span class="hljs-selector-class">.maxSpan</span> = <span class="hljs-number">0</span>
+rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.remove</span><span class="hljs-selector-class">.maxBlankGaps</span> = -<span class="hljs-number">1</span>
+rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.remove</span><span class="hljs-selector-class">.maxSpan</span> = <span class="hljs-number">0</span>
 rewrite<span class="hljs-selector-class">.sortModifiers</span><span class="hljs-selector-class">.order</span> = [
   implicit
   final
