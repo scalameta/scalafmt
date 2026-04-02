@@ -6134,10 +6134,11 @@ set to <code>false</code>, see below):</p>
 <p>NB: You could control these rules individually by
 <a href="#runnerdialectoverride">overriding dialect properties</a>.</p>
 <h3><a class="anchor" aria-hidden="true" id="rewritescala3optionalbraces"></a><a href="#rewritescala3optionalbraces" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>rewrite.scala3.optionalBraces</code></h3>
-<p>If this section is enabled,
+<p>If this section is enabled, depending on the configuration,
 <a href="https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html">optional braces</a>
-will be removed and significant indentation applied.</p>
-<p>Default: <code>rewrite.scala3.optionalBraces = {&quot;enabled&quot;: false, &quot;insert&quot;: {&quot;minSpan&quot;: -1, &quot;minBlankGaps&quot;: -1}, &quot;remove&quot;: {&quot;maxSpan&quot;: 0, &quot;maxBlankGaps&quot;: -1}, &quot;fewerBraces&quot;: {&quot;minSpan&quot;: 2, &quot;maxSpan&quot;: 0, &quot;parensToo&quot;: false}, &quot;oldSyntaxToo&quot;: false}</code></p>
+will be removed and significant indentation applied, or a braceless region possibly
+enclosed in braces instead.</p>
+<p>Default: <code>rewrite.scala3.optionalBraces = {&quot;enabled&quot;: false, &quot;insert&quot;: null, &quot;remove&quot;: null, &quot;fewerBraces&quot;: {&quot;minSpan&quot;: 2, &quot;maxSpan&quot;: 0, &quot;parensToo&quot;: false}, &quot;oldSyntaxToo&quot;: false}</code></p>
 <p>The section contains the following settings (available since v3.8.1):</p>
 <ul>
 <li><code>enabled</code>:
@@ -6156,31 +6157,41 @@ flags in this section</li>
 <ul>
 <li>if <code>true</code>, applies also to expressions using deprecated syntax</li>
 </ul></li>
-<li>(since v3.10.8) <code>insert</code>
+<li>(since v3.10.8) <code>insert</code>: will add braces to a braceless region if at least
+one check below is enabled and <strong>unless</strong> all
+of the enabled checks are satisfied
 <ul>
-<li>will add braces to a braceless region <strong>unless</strong> all of these hold:
+<li><code>insert.minSpan</code>:
 <ul>
-<li><code>insert.minSpan</code> is negative, or exceeds the cumulative span of all
-visible tokens within the region
-<ul>
+<li>disabled if negative</li>
+<li>satisfied if it exceeds the cumulative span of all visible tokens within the region</li>
 <li>or, for single-statement blocks, if that span is less than
 <code>maxColumn</code> (to avoid non-idempotent formatting)</li>
 </ul></li>
-<li><code>insert.minBlankGaps</code> is negative, or exceeds the number of
-blank-line gaps within the region</li>
-</ul></li>
-</ul></li>
-<li>(since v3.10.8) <code>remove</code>
+<li><code>insert.minBlankGaps</code>:
 <ul>
-<li>will remove braces <strong>if</strong> all of these hold:
-<ul>
-<li><code>remove.maxSpan</code> is zero, or positive and the cumulative span
-of all visible tokens between the braces does not exceed it
-(and is less than <code>insert.minSpan</code> if the latter is non-negative)</li>
-<li><code>remove.maxBlankGaps</code> is negative, or the number of
-blank-line gaps between the braces does not exceed it
-(and is less than <code>insert.minBlankGaps</code> if the latter is non-negative)</li>
+<li>disabled if negative</li>
+<li>satisfied if it exceeds the number of blank-line gaps within the region</li>
 </ul></li>
+</ul></li>
+<li>(since v3.10.8) <code>remove</code>: will remove braces if at least
+one check below is enabled and <strong>if</strong> all
+of the enabled checks are satisfied
+<ul>
+<li>the only exception is when all checks both here and in <code>insert</code> above are
+disabled, in which case the rule will <strong>always</strong> remove braces</li>
+<li><code>remove.maxSpan</code>
+<ul>
+<li>disabled if negative</li>
+<li>satisfied if the cumulative span of all visible tokens between the braces does not exceed it</li>
+</ul></li>
+<li><code>remove.maxBlankGaps</code>
+<ul>
+<li>disabled if negative</li>
+<li>satisfied if the number of blank-line gaps between the braces does not exceed it</li>
+</ul></li>
+<li>these values will be decreased, if necessary,
+to be less than those in <code>insert</code> section</li>
 </ul></li>
 <li>(since v3.8.1) <code>fewerBraces.minSpan</code> and <code>fewerBraces.maxSpan</code>
 <ul>
@@ -8807,11 +8818,9 @@ rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selecto
 rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.fewerBraces</span><span class="hljs-selector-class">.maxSpan</span> = <span class="hljs-number">0</span>
 rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.fewerBraces</span><span class="hljs-selector-class">.minSpan</span> = <span class="hljs-number">2</span>
 rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.fewerBraces</span><span class="hljs-selector-class">.parensToo</span> = false
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.insert</span><span class="hljs-selector-class">.minBlankGaps</span> = -<span class="hljs-number">1</span>
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.insert</span><span class="hljs-selector-class">.minSpan</span> = -<span class="hljs-number">1</span>
+rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.insert</span> = null
 rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.oldSyntaxToo</span> = false
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.remove</span><span class="hljs-selector-class">.maxBlankGaps</span> = -<span class="hljs-number">1</span>
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.remove</span><span class="hljs-selector-class">.maxSpan</span> = <span class="hljs-number">0</span>
+rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.remove</span> = null
 rewrite<span class="hljs-selector-class">.sortModifiers</span><span class="hljs-selector-class">.order</span> = [
   implicit
   final
