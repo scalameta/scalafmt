@@ -159,7 +159,8 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
           (x.maxSpan, (max: Int) => session.getSpan(left) <= max),
           (x.maxBlankGaps, (max: Int) => session.getBlankGaps(left) <= max),
         ).flatMap { case (max, f) => if (max < 0) None else Some(f(max)) }
-        checks.hasNext && !checks.contains(false)
+        if (!cfg.preferInsert) checks.contains(true)
+        else checks.hasNext && !checks.contains(false)
       }
     } ||
       (nextFt.meta.rightOwner match {
@@ -215,7 +216,8 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       val checks =
         Iterator((ib.minSpan, checkSpan), (ib.minBlankGaps, checkBlankGaps))
           .flatMap { case (min, f) => if (min < 0) None else Some(f(min)) }
-      checks.contains(true)
+      if (cfg.preferInsert) checks.contains(true)
+      else checks.hasNext && !checks.contains(false)
     }
   }
 
