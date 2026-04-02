@@ -6138,7 +6138,7 @@ set to <code>false</code>, see below):</p>
 <a href="https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html">optional braces</a>
 will be removed and significant indentation applied, or a braceless region possibly
 enclosed in braces instead.</p>
-<p>Default: <code>rewrite.scala3.optionalBraces = {&quot;enabled&quot;: false, &quot;insert&quot;: null, &quot;remove&quot;: null, &quot;fewerBraces&quot;: {&quot;minSpan&quot;: 2, &quot;maxSpan&quot;: 0, &quot;parensToo&quot;: false}, &quot;oldSyntaxToo&quot;: false}</code></p>
+<p>Default: <code>rewrite.scala3.optionalBraces = {&quot;enabled&quot;: false, &quot;preferInsert&quot;: true, &quot;insert&quot;: null, &quot;remove&quot;: null, &quot;fewerBraces&quot;: {&quot;minSpan&quot;: 2, &quot;maxSpan&quot;: 0, &quot;parensToo&quot;: false}, &quot;oldSyntaxToo&quot;: false}</code></p>
 <p>The section contains the following settings (available since v3.8.1):</p>
 <ul>
 <li><code>enabled</code>:
@@ -6157,8 +6157,11 @@ flags in this section</li>
 <ul>
 <li>if <code>true</code>, applies also to expressions using deprecated syntax</li>
 </ul></li>
+<li>(since v3.10.8) <code>preferInsert</code>: if set to <code>false</code>, the condition &quot;all&quot; should
+be replaced with &quot;any&quot; in descriptions of the next two sections
+(<code>insert</code> and <code>remove</code>)</li>
 <li>(since v3.10.8) <code>insert</code>: will add braces to a braceless region if at least
-one check below is enabled and <strong>unless</strong> all
+one check below is enabled and <strong>unless</strong> all (or &quot;any&quot; if <code>preferInsert = false</code>)
 of the enabled checks are satisfied
 <ul>
 <li><code>insert.minSpan</code>:
@@ -6173,9 +6176,11 @@ of the enabled checks are satisfied
 <li>disabled if negative</li>
 <li>satisfied if it exceeds the number of blank-line gaps within the region</li>
 </ul></li>
+<li>if <code>preferInsert = false</code>, these values will be increased, if necessary,
+to be greater than those in <code>remove</code> section</li>
 </ul></li>
 <li>(since v3.10.8) <code>remove</code>: will remove braces if at least
-one check below is enabled and <strong>if</strong> all
+one check below is enabled and <strong>if</strong> all (or &quot;any&quot; if <code>preferInsert = false</code>)
 of the enabled checks are satisfied
 <ul>
 <li>the only exception is when all checks both here and in <code>insert</code> above are
@@ -6190,7 +6195,7 @@ disabled, in which case the rule will <strong>always</strong> remove braces</li>
 <li>disabled if negative</li>
 <li>satisfied if the number of blank-line gaps between the braces does not exceed it</li>
 </ul></li>
-<li>these values will be decreased, if necessary,
+<li>if <code>preferInsert = true</code>, these values will be decreased, if necessary,
 to be less than those in <code>insert</code> section</li>
 </ul></li>
 <li>(since v3.8.1) <code>fewerBraces.minSpan</code> and <code>fewerBraces.maxSpan</code>
@@ -8820,6 +8825,7 @@ rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selecto
 rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.fewerBraces</span><span class="hljs-selector-class">.parensToo</span> = false
 rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.insert</span> = null
 rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.oldSyntaxToo</span> = false
+rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.preferInsert</span> = true
 rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.remove</span> = null
 rewrite<span class="hljs-selector-class">.sortModifiers</span><span class="hljs-selector-class">.order</span> = [
   implicit
