@@ -40,6 +40,7 @@ object RewriteScala3Settings {
   @annotation.SectionRename("fewerBracesParensToo", "fewerBraces.parensToo") // 3.10.8
   case class RemoveOptionalBraces(
       enabled: Boolean = true,
+      preferInsert: Boolean = true,
       insert: Option[InsertBraces] = None,
       remove: Option[RemoveBraces] = None,
       fewerBraces: FewerBraces = FewerBraces.default,
@@ -54,7 +55,10 @@ object RewriteScala3Settings {
       ibOpt.fold(copy(insert = None, remove = rbOpt))(ib =>
         rbOpt.fold( // if insert is Some, remove must be too
           copy(insert = ibOpt, remove = Some(RemoveBraces.default)),
-        )(rb => copy(insert = ibOpt, remove = Some(rb.normalize(ib)))),
+        )(rb =>
+          if (preferInsert) copy(insert = ibOpt, remove = Some(rb.normalize(ib)))
+          else copy(insert = Some(ib.normalize(rb)), remove = rbOpt),
+        ),
       )
     }
   }
@@ -103,6 +107,14 @@ object RewriteScala3Settings {
 
   case class InsertBraces(minSpan: Int = -1, minBlankGaps: Int = -1) {
     def enabled: Boolean = minSpan >= 0 || minBlankGaps >= 0
+
+    def normalize(rb: RemoveBraces): InsertBraces = {
+      val span = if (rb.maxSpan < 0) minSpan else minSpan.max(rb.maxSpan + 1)
+      val blankGaps =
+        if (rb.maxBlankGaps < 0) minBlankGaps
+        else minBlankGaps.max(rb.maxBlankGaps + 1)
+      copy(minSpan = span, minBlankGaps = blankGaps)
+    }
   }
   object InsertBraces {
     val default = new InsertBraces()
