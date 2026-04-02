@@ -4607,8 +4607,11 @@ The section contains the following settings (available since v3.8.1):
     - other flags below might extend rewrites to other cases
 - `oldSyntaxToo`
   - if `true`, applies also to expressions using deprecated syntax
+- (since v3.10.8) `preferInsert`: if set to `false`, the condition "all" should
+  be replaced with "any" in descriptions of the next two sections
+  (`insert` and `remove`)
 - (since v3.10.8) `insert`: will add braces to a braceless region if at least
-  one check below is enabled and **unless** all
+  one check below is enabled and **unless** all (or "any" if `preferInsert = false`)
   of the enabled checks are satisfied
   - `insert.minSpan`:
     - disabled if negative
@@ -4618,8 +4621,10 @@ The section contains the following settings (available since v3.8.1):
   - `insert.minBlankGaps`:
     - disabled if negative
     - satisfied if it exceeds the number of blank-line gaps within the region
+  - if `preferInsert = false`, these values will be increased, if necessary,
+    to be greater than those in `remove` section
 - (since v3.10.8) `remove`: will remove braces if at least
-  one check below is enabled and **if** all
+  one check below is enabled and **if** all (or "any" if `preferInsert = false`)
   of the enabled checks are satisfied
   - the only exception is when all checks both here and in `insert` above are
     disabled, in which case the rule will **always** remove braces
@@ -4629,7 +4634,7 @@ The section contains the following settings (available since v3.8.1):
   - `remove.maxBlankGaps`
     - disabled if negative
     - satisfied if the number of blank-line gaps between the braces does not exceed it
-  - these values will be decreased, if necessary,
+  - if `preferInsert = true`, these values will be decreased, if necessary,
     to be less than those in `insert` section
 - (since v3.8.1) `fewerBraces.minSpan` and `fewerBraces.maxSpan`
   - in v3.10.8, was renamed from `fewerBracesMinSpan` and `fewerBracesMaxSpan`
