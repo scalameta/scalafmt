@@ -40,6 +40,13 @@ object ScalafmtModuleLoader {
     override def close(): Unit = {}
   }
 
+  object CachedProxy {
+    def apply(loader: ScalafmtModuleLoader): CachedProxy = loader match {
+      case loader: CachedProxy => loader
+      case _ => new CachedProxy(loader)
+    }
+  }
+
   class CachedProxy(loader: ScalafmtModuleLoader)
       extends ScalafmtModuleLoader with Closeable {
     private[dynamic] type Value = FormatEval[ScalafmtReflect]
