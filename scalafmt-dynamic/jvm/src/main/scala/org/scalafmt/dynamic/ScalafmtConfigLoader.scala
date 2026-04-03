@@ -54,6 +54,13 @@ object ScalafmtConfigLoader extends ScalafmtConfigLoader {
           .toRight(new ConfigInvalidVersion(config, v))
     }
 
+  object CachedProxy {
+    def apply(loader: ScalafmtConfigLoader): CachedProxy = loader match {
+      case loader: CachedProxy => loader
+      case _ => new CachedProxy(loader)
+    }
+  }
+
   class CachedProxy(loader: ScalafmtConfigLoader) extends ScalafmtConfigLoader {
     private[dynamic] type Value = FormatEval[(ScalafmtReflectConfig, FileTime)]
     private[dynamic] val cache: ReentrantCache[Path, Value] = ReentrantCache()
