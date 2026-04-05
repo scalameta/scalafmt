@@ -5206,6 +5206,63 @@ package com.example
 object Main
 ```
 
+### `fileHeader.copyrightHolder`
+
+Prepended as `Copyright <year> <holder>` before the license identifier or text.
+
+```scala mdoc:scalafmt
+fileHeader.license = MIT
+fileHeader.copyrightHolder = "My Organization"
+fileHeader.year = 2025
+---
+package com.example
+
+object Main
+```
+
+Without `copyrightHolder`, only the SPDX identifier line is emitted.
+
+```scala mdoc:scalafmt
+fileHeader.license = MIT
+fileHeader.year = 2025
+---
+package com.example
+
+object Main
+```
+
+### `fileHeader.since`
+
+Project inception year. When set, copyright year is rendered as a range
+`since-year`. When `since` equals `year`, a single year is used.
+
+```scala mdoc:scalafmt
+fileHeader.license = MIT
+fileHeader.copyrightHolder = "Org"
+fileHeader.since = 2020
+fileHeader.year = 2025
+---
+package com.example
+
+object Main
+```
+
+```scala mdoc:scalafmt
+fileHeader.license = MIT
+fileHeader.copyrightHolder = "Org"
+fileHeader.since = 2025
+fileHeader.year = 2025
+---
+package com.example
+
+object Main
+```
+
+### `fileHeader.year`
+
+Copyright end year. Defaults to the current calendar year when absent. Set
+explicitly to freeze for reproducible output.
+
 ### `fileHeader.style`
 
 ```scala mdoc:defaults
@@ -5216,6 +5273,14 @@ fileHeader.style
 
 Default. Wraps content in `/* */`. Line prefix follows `docstrings.style`
 unless overridden by `fileHeader.comment.style`.
+
+```scala mdoc:scalafmt
+fileHeader.text = "My Header"
+---
+package com.example
+
+object Main
+```
 
 #### `fileHeader.style = line`
 
@@ -5386,6 +5451,46 @@ fileHeader.text = "My Header"
 fileHeader.style = framed
 fileHeader.comment.width = 40
 fileHeader.comment.blankLastLine = true
+---
+package com.example
+
+object Main
+```
+
+### `fileHeader.comment.style`
+
+Line prefix style for block comments. Defaults to `docstrings.style`.
+
+#### `fileHeader.comment.style = SpaceAsterisk`
+
+```scala mdoc:scalafmt
+fileHeader.text = "My Header"
+fileHeader.comment.style = SpaceAsterisk
+---
+package com.example
+
+object Main
+```
+
+#### `fileHeader.comment.style = Asterisk`
+
+```scala mdoc:scalafmt
+fileHeader.text = "My Header"
+fileHeader.comment.style = Asterisk
+---
+package com.example
+
+object Main
+```
+
+### `fileHeader.comment.width`
+
+Frame width for `style = framed`. Defaults to `maxColumn`.
+
+```scala mdoc:scalafmt
+fileHeader.text = "Header"
+fileHeader.style = framed
+fileHeader.comment.width = 30
 ---
 package com.example
 

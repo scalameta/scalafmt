@@ -12,13 +12,13 @@ class FileHeaderTest extends FunSuite {
     Scalafmt.format(code, cfg).get
   }
 
-  private def configOk(hocon: String): ScalafmtConfig =
-    ScalafmtConfig.fromHoconString(hocon).get
+  private def configOk(hocon: String): ScalafmtConfig = ScalafmtConfig
+    .fromHoconString(hocon).get
 
   private def configErr(hocon: String): String =
     ScalafmtConfig.fromHoconString(hocon) match {
       case Configured.NotOk(err) => err.msg
-      case Configured.Ok(_)      => fail("expected config error"); ""
+      case Configured.Ok(_) => fail("expected config error"); ""
     }
 
   // --- Config parsing / validation ---
@@ -56,9 +56,8 @@ class FileHeaderTest extends FunSuite {
   }
 
   test("HOCON: since > year - config error") {
-    val err = configErr(
-      "fileHeader { since = 2030, year = 2020, license = MIT }",
-    )
+    val err =
+      configErr("fileHeader { since = 2030, year = 2020, license = MIT }")
     assert(err.contains("fileHeader.since must be <= fileHeader.year"), err)
   }
 
@@ -93,7 +92,7 @@ class FileHeaderTest extends FunSuite {
     assert(err.contains("fileHeader"), err)
   }
 
-  test("cross-config: line style + comments.wrap = standalone - accepted") {
+  test("cross-config: line style + comments.wrap = standalone - accepted")(
     configOk(
       """|fileHeader {
          |  license = MIT
@@ -102,8 +101,8 @@ class FileHeaderTest extends FunSuite {
          |}
          |comments.wrap = standalone
          |""".stripMargin,
-    )
-  }
+    ),
+  )
 
   // --- Content resolution ---
 
@@ -196,8 +195,6 @@ class FileHeaderTest extends FunSuite {
   }
 
   test("block style: Asterisk prefix") {
-    // At indent 0, FormatMlc normalizes leading * to " *", so Asterisk
-    // and SpaceAsterisk produce the same formatted output.
     val cfg =
       """|fileHeader {
          |  text = "line"
@@ -206,9 +203,7 @@ class FileHeaderTest extends FunSuite {
          |}
          |""".stripMargin
     val result = format("object A\n", cfg)
-    assert(result.contains("/*"), result)
-    assert(result.contains("line"), result)
-    assert(result.contains("*/"), result)
+    assert(result.contains("/*\n* line\n*/"), result)
   }
 
   test("block style: blankFirstLine = unfold (default, content on next line)") {
@@ -285,9 +280,9 @@ class FileHeaderTest extends FunSuite {
          |""".stripMargin
     val result = format("object A\n", cfg)
     val headerLines = result.linesIterator.takeWhile(_.contains("*")).toSeq
-    headerLines.foreach { line =>
-      assertEquals(line.length, 40, s"Line not 40 chars: '$line'")
-    }
+    headerLines.foreach(line =>
+      assertEquals(line.length, 40, s"Line not 40 chars: '$line'"),
+    )
   }
 
   test("framed style: content is centered") {
@@ -304,7 +299,10 @@ class FileHeaderTest extends FunSuite {
       .find(l => l.contains("Hi") && l.startsWith(" * ")).get
     assertEquals(contentLine.length, 40)
     // Verify centering: " * " prefix (3 chars) + leftPad + "Hi" should be well past col 3
-    assert(contentLine.indexOf("Hi") > 5, s"Content should be centered: $contentLine")
+    assert(
+      contentLine.indexOf("Hi") > 5,
+      s"Content should be centered: $contentLine",
+    )
   }
 
   test("framed style: blankFirstLine and blankLastLine") {
@@ -351,18 +349,14 @@ class FileHeaderTest extends FunSuite {
          |
          |object A
          |""".stripMargin
-    val result =
-      format(code, """fileHeader { text = "New", style = line }""")
+    val result = format(code, """fileHeader { text = "New", style = line }""")
     assert(result.contains("// New"), result)
     assert(!result.contains("Old"), result)
   }
 
   test("shebang - preamble preserved, header after") {
     val code = "#!/usr/bin/env scala\nobject A\n"
-    val result = format(
-      code,
-      """fileHeader { text = "header", style = line }""",
-    )
+    val result = format(code, """fileHeader { text = "header", style = line }""")
     assert(result.startsWith("#!/usr/bin/env scala\n"), result)
     assert(result.contains("// header"), result)
   }
@@ -372,10 +366,7 @@ class FileHeaderTest extends FunSuite {
       """|// scalafmt: { maxColumn = 120 }
          |object A
          |""".stripMargin
-    val result = format(
-      code,
-      """fileHeader { text = "header", style = line }""",
-    )
+    val result = format(code, """fileHeader { text = "header", style = line }""")
     assert(result.contains("// header"), result)
     assert(result.contains("scalafmt: { maxColumn = 120 }"), result)
   }
@@ -385,10 +376,7 @@ class FileHeaderTest extends FunSuite {
       """|// @formatter:off
          |object A
          |""".stripMargin
-    val result = format(
-      code,
-      """fileHeader { text = "header", style = line }""",
-    )
+    val result = format(code, """fileHeader { text = "header", style = line }""")
     // Header should NOT be inserted
     assert(!result.contains("header"), result)
   }
@@ -399,10 +387,7 @@ class FileHeaderTest extends FunSuite {
       """|// format: official documentation
          |object A
          |""".stripMargin
-    val result = format(
-      code,
-      """fileHeader { text = "header", style = line }""",
-    )
+    val result = format(code, """fileHeader { text = "header", style = line }""")
     // format-off should NOT be triggered, so header IS inserted
     assert(result.contains("// header"), result)
   }
@@ -413,10 +398,7 @@ class FileHeaderTest extends FunSuite {
          |// format: off
          |object A
          |""".stripMargin
-    val result = format(
-      code,
-      """fileHeader { text = "header", style = line }""",
-    )
+    val result = format(code, """fileHeader { text = "header", style = line }""")
     assert(!result.contains("// header"), result)
   }
 
@@ -426,17 +408,18 @@ class FileHeaderTest extends FunSuite {
          |// Old Header
          |object A
          |""".stripMargin
-    val result = format(
-      code,
-      """fileHeader { text = "New Header", style = line }""",
-    )
+    val result =
+      format(code, """fileHeader { text = "New Header", style = line }""")
     assert(result.contains("// New Header"), result)
     assert(!result.contains("Old Header"), result)
     assert(result.contains("scalafmt: { maxColumn = 120 }"), result)
     // Header should appear before directive
     val headerIdx = result.indexOf("// New Header")
     val directiveIdx = result.indexOf("scalafmt:")
-    assert(headerIdx < directiveIdx, s"Header should precede directive:\n$result")
+    assert(
+      headerIdx < directiveIdx,
+      s"Header should precede directive:\n$result",
+    )
   }
 
   test("framed header with directive - idempotent") {
@@ -508,11 +491,9 @@ class FileHeaderTest extends FunSuite {
 
   test("range formatting - header NOT inserted") {
     val code = "object A { val x = 1 }\n"
-    val cfg = ScalafmtConfig.fromHoconString(
-      """fileHeader { text = "header", style = line }""",
-    ).get
-    val result = Scalafmt
-      .format(code, cfg, range = Set(Range(0, 0))).get
+    val cfg = ScalafmtConfig
+      .fromHoconString("""fileHeader { text = "header", style = line }""").get
+    val result = Scalafmt.format(code, cfg, range = Set(Range(0, 0))).get
     assert(!result.contains("header"), result)
   }
 

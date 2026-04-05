@@ -608,18 +608,15 @@ class FormatWriter(formatOps: FormatOps) {
 
       def formatComment(implicit sb: StringBuilder): Unit = {
         val text = tok.meta.left.text
+        // File header block comments are preserved verbatim to prevent
+        // FormatMlc/FormatMlDoc from altering the intended style.
+        // (// headers are already preserved by FormatSlc's isCommentedOut.)
+        def isFileHeader = style.fileHeader.isActive && tok.meta.idx <= 1 &&
+          prevState.indentation == 0
         if (text.startsWith("//")) new FormatSlc(text).format()
         else if (text == "/**/") sb.append(text)
-        else if (isDocstring(text))
-          // Preserve file header comments verbatim. The guard checks:
-          // 1. Config would produce a /** comment (framed style or raw /**)
-          // 2. This is the first token in the file (idx <= 1)
-          // 3. We're at the top level (indent 0)
-          if (
-            style.fileHeader.producesDocstringComment && tok.meta.idx <= 1 &&
-            prevState.indentation == 0
-          ) sb.append(text)
-          else formatDocstring(text)
+        else if (isFileHeader) sb.append(text)
+        else if (isDocstring(text)) formatDocstring(text)
         else new FormatMlc(text).format()
       }
 

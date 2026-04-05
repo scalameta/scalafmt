@@ -5,7 +5,7 @@ import munit.FunSuite
 class FileHeaderConfigTest extends FunSuite {
 
   test("fileOverride correctly merges fileHeader per glob") {
-    val cfg = ScalafmtConfig.fromHoconString(
+    val cfg = ScalafmtConfig.fromHoconString {
       """|fileHeader {
          |  license = Apache-2.0
          |  copyrightHolder = "Org"
@@ -19,8 +19,8 @@ class FileHeaderConfigTest extends FunSuite {
          |    fileHeader.text = "Test only"
          |  }
          |}
-         |""".stripMargin,
-    ).get
+         |""".stripMargin
+    }.get
 
     val sbtCfg = cfg.getConfigFor("build.sbt").get
     assert(sbtCfg.fileHeader.style eq FileHeader.Style.line)
@@ -34,7 +34,9 @@ class FileHeaderConfigTest extends FunSuite {
     assertEquals(mainCfg.fileHeader.license, Some(License.`Apache-2.0`))
   }
 
-  test("shortcut fileHeader = \"text\" in override replaces entire FileHeader") {
+  test(
+    "shortcut fileHeader = \"text\" in override replaces entire FileHeader",
+  ) {
     val cfg = ScalafmtConfig.fromHoconString(
       """|fileHeader {
          |  license = Apache-2.0
@@ -77,15 +79,22 @@ class FileHeaderConfigTest extends FunSuite {
 
   test("all 12 SPDX identifiers are accepted") {
     val ids = Seq(
-      "Apache-2.0", "MIT", "BSD-2-Clause", "BSD-3-Clause",
-      "MPL-2.0", "GPL-2.0-only", "GPL-3.0-only",
-      "LGPL-2.1-only", "LGPL-3.0-only",
-      "EPL-2.0", "ISC", "Unlicense",
+      "Apache-2.0",
+      "MIT",
+      "BSD-2-Clause",
+      "BSD-3-Clause",
+      "MPL-2.0",
+      "GPL-2.0-only",
+      "GPL-3.0-only",
+      "LGPL-2.1-only",
+      "LGPL-3.0-only",
+      "EPL-2.0",
+      "ISC",
+      "Unlicense",
     )
     ids.foreach { id =>
-      val cfg = ScalafmtConfig.fromHoconString(
-        s"""fileHeader.license = "$id" """,
-      )
+      val cfg = ScalafmtConfig
+        .fromHoconString(s"""fileHeader.license = "$id" """)
       assert(cfg.isOk, s"License $id should be accepted: ${cfg.toEither}")
     }
   }
@@ -102,9 +111,8 @@ class FileHeaderConfigTest extends FunSuite {
   }
 
   test("year out of range - config error") {
-    val result = ScalafmtConfig.fromHoconString(
-      "fileHeader { text = \"hi\", year = 100 }",
-    )
+    val result = ScalafmtConfig
+      .fromHoconString("fileHeader { text = \"hi\", year = 100 }")
     assert(result.isNotOk, "year = 100 should fail")
   }
 }

@@ -22,7 +22,8 @@ object FileHeaderOps {
     if (expectedHeader.isEmpty) {
       if (parts.header.isEmpty) return content
       val bodyTrimmed = parts.body.dropWhile(_.isWhitespace)
-      return s"${parts.preamble}${if (bodyTrimmed.nonEmpty) "\n" else ""}$bodyTrimmed"
+      return s"${parts
+          .preamble}${if (bodyTrimmed.nonEmpty) "\n" else ""}$bodyTrimmed"
     }
 
     // Idempotent short-circuit
@@ -45,38 +46,30 @@ object FileHeaderOps {
       style: ScalafmtConfig,
   ): Option[String] =
     if (!cfg.isActive) None
-    else cfg.raw.map(_.stripMargin.trim).orElse {
-      resolveInnerContent(cfg).map { c =>
-        if (c.isEmpty) ""
-        else wrapInComment(c, cfg, style)
-      }
-    }
+    else cfg.raw.map(_.stripMargin.trim).orElse(resolveInnerContent(cfg).map(
+      c => if (c.isEmpty) "" else wrapInComment(c, cfg, style),
+    ))
 
-  private def resolveInnerContent(cfg: FileHeader): Option[String] =
-    cfg.text.map(_.stripMargin.trim)
-      .orElse(cfg.license.map(generateFromLicense(_, cfg)))
+  private def resolveInnerContent(cfg: FileHeader): Option[String] = cfg.text
+    .map(_.stripMargin.trim).orElse(cfg.license.map(generateFromLicense(_, cfg)))
 
-  private def generateFromLicense(
-      license: License,
-      cfg: FileHeader,
-  ): String = {
+  private def generateFromLicense(license: License, cfg: FileHeader): String = {
     val year = cfg.year.getOrElse(currentYear)
     val yearStr = cfg.since match {
       case Some(s) if s < year => s"$s-$year"
-      case Some(s)             => s.toString
+      case Some(s) => s.toString
       case None if cfg.year.isDefined => year.toString
-      case None                => ""
+      case None => ""
     }
     val copyrightLine = cfg.copyrightHolder.map { holder =>
       val yr = if (yearStr.nonEmpty) s"$yearStr " else ""
       s"Copyright $yr$holder"
     }
     cfg.licenseStyle match {
-      case FileHeader.LicenseStyle.spdx =>
-        (copyrightLine.toSeq :+ s"SPDX-License-Identifier: $license")
-          .mkString("\n")
-      case FileHeader.LicenseStyle.detailed =>
-        License.detailed(license, copyrightLine)
+      case FileHeader.LicenseStyle.spdx => (copyrightLine.toSeq :+
+          s"SPDX-License-Identifier: $license").mkString("\n")
+      case FileHeader.LicenseStyle.detailed => License
+          .detailed(license, copyrightLine)
     }
   }
 
@@ -97,8 +90,7 @@ object FileHeaderOps {
         val blockStyle = comment.style.getOrElse(style.docstrings.style)
         wrapBlock(content, blockStyle, blankFirst, blankLast)
       case FileHeader.Style.line => wrapLine(content)
-      case FileHeader.Style.framed =>
-        wrapFramed(
+      case FileHeader.Style.framed => wrapFramed(
           content,
           comment.width.getOrElse(style.maxColumn),
           blankFirst,
@@ -115,7 +107,7 @@ object FileHeaderOps {
   ): String = {
     val (prefix, closer) = blockStyle match {
       case Docstrings.Asterisk => ("*", "*/")
-      case _                   => (" *", " */")
+      case _ => (" *", " */")
     }
     val last = if (blankLast) s"\n$prefix" else ""
     val contentLines = content.linesIterator.toSeq
@@ -134,10 +126,8 @@ object FileHeaderOps {
     }
   }
 
-  private def wrapLine(content: String): String =
-    content.linesIterator
-      .map(l => if (l.isEmpty) "//" else s"// $l")
-      .mkString("\n")
+  private def wrapLine(content: String): String = content.linesIterator
+    .map(l => if (l.isEmpty) "//" else s"// $l").mkString("\n")
 
   private def wrapFramed(
       content: String,
@@ -153,13 +143,13 @@ object FileHeaderOps {
 
     val top = "/" + "*" * (width - 1)
     val bottom = " " + "*" * (width - 2) + "/"
-    val lines = contentLines.map { l =>
+    val lines = contentLines.map(l =>
       if (l.isEmpty) blankLine
       else {
         val padded = (leftPad + l).take(innerWidth).padTo(innerWidth, ' ')
         s" * $padded *"
-      }
-    }
+      },
+    )
     val first = if (blankFirst) Seq(blankLine) else Seq.empty
     val last = if (blankLast) Seq(blankLine) else Seq.empty
     (Seq(top) ++ first ++ lines ++ last ++ Seq(bottom)).mkString("\n")
@@ -175,8 +165,8 @@ object FileHeaderOps {
   )
 
   // Reuses the canonical format-off strings from ScalafmtConfig (lines 550-556)
-  private def isFormatOff(commentContent: String): Boolean =
-    ScalafmtConfig.defaultFormatOff.contains(commentContent.trim.toLowerCase)
+  private def isFormatOff(commentContent: String): Boolean = ScalafmtConfig
+    .defaultFormatOff.contains(commentContent.trim.toLowerCase)
 
   // Matches the scalafmt directive pattern from StyleMap (line 16)
   private val scalafmtDirectivePattern = "\\s*scalafmt: ".r
@@ -208,7 +198,7 @@ object FileHeaderOps {
     var headerEnd = -1
     var scanning = true
 
-    while (scanning && pos < len) {
+    while (scanning && pos < len)
       if (content.startsWith("//", pos)) {
         // Single line comment - read to end of line
         val lineEnd = content.indexOf('\n', pos)
@@ -230,10 +220,10 @@ object FileHeaderOps {
         }
       } else if (content.startsWith("/*", pos)) {
         val blockEnd = findBlockCommentEnd(content, pos)
-        if (blockEnd < 0) {
+        if (blockEnd < 0)
           // Unterminated block comment - treat as no header
           scanning = false
-        } else {
+        else {
           val commentText = content.substring(pos + 2, blockEnd - 2)
           if (isFormatOff(commentText)) {
             formatOff = true
@@ -247,11 +237,9 @@ object FileHeaderOps {
             scanning = false
           }
         }
-      } else {
+      } else
         // Not a comment - no header found
         scanning = false
-      }
-    }
 
     if (formatOff) return FileParts(
       content.substring(0, preambleEnd),
@@ -268,14 +256,12 @@ object FileHeaderOps {
       val beforeHeader = content.substring(preambleEnd, headerStart)
       val afterHeader = content.substring(headerEnd)
       FileParts(preamble, header, beforeHeader + afterHeader, formatOff = false)
-    } else {
-      FileParts(
-        content.substring(0, preambleEnd),
-        "",
-        content.substring(preambleEnd),
-        formatOff = false,
-      )
-    }
+    } else FileParts(
+      content.substring(0, preambleEnd),
+      "",
+      content.substring(preambleEnd),
+      formatOff = false,
+    )
   }
 
   /** Finds end position of block comment starting at `pos`, or -1. */
@@ -294,8 +280,7 @@ object FileHeaderOps {
     var lastEnd = pos
     while (p < len && content.startsWith("//", p)) {
       val nl = content.indexOf('\n', p)
-      if (nl < 0) { lastEnd = len; p = len }
-      else { lastEnd = nl; p = nl + 1 }
+      if (nl < 0) { lastEnd = len; p = len } else { lastEnd = nl; p = nl + 1 }
     }
     lastEnd
   }
