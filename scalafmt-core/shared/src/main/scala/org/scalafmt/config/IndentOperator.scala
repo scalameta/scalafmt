@@ -109,8 +109,8 @@ object IndentOperator {
 
   val boolToAssign: PartialFunction[Conf, Conf] = { case Conf.Bool(value) =>
     if (value) Conf.Obj(
-      exemptScopeName -> Conf.nameOf(Exempt.notAssign),
-      Conf.nameOf(default.excludeRegex).value -> Conf.Str(".*"),
+      (exemptScopeName, Conf.nameOf(Exempt.notAssign)),
+      (Conf.nameOf(default.excludeRegex), Conf.Str(".*")),
     )
     else Conf.Obj.empty
   }

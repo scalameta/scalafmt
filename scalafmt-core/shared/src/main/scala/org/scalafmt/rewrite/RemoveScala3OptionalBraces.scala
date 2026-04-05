@@ -15,7 +15,7 @@ object RemoveScala3OptionalBraces extends FormatTokensRewrite.RuleFactory {
   private def settings(implicit
       style: ScalafmtConfig,
   ): RewriteScala3Settings.RemoveOptionalBraces =
-    style.rewrite.scala3.removeOptionalBraces
+    style.rewrite.scala3.optionalBraces
 
   override def enabled(implicit style: ScalafmtConfig): Boolean =
     style.dialect.allowSignificantIndentation && settings.enabled
@@ -153,11 +153,15 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   ): Option[(Replacement, Replacement)] = {
     val nextFt = ftoks.nextNonCommentAfter(ft)
     val notOkToRewrite = hasFormatOff || { // can't force significant indentation
-      val limit = settings.getRemoveBracesMaxSpan
-      limit < 0 || limit > 0 && limit < session.getSpan(left)
-    } || {
-      val limit = settings.getRemoveBracesMaxBlankGaps
-      limit >= 0 && limit < session.getBlankGaps(left)
+      val cfg = settings
+      !cfg.remove.forall { x =>
+        val checks = Iterator(
+          (x.maxSpan, (max: Int) => session.getSpan(left) <= max),
+          (x.maxBlankGaps, (max: Int) => session.getBlankGaps(left) <= max),
+        ).flatMap { case (max, f) => if (max < 0) None else Some(f(max)) }
+        if (!cfg.preferInsert) checks.contains(true)
+        else checks.hasNext && !checks.contains(false)
+      }
     } ||
       (nextFt.meta.rightOwner match {
         case t: Term.Name => t.parent.exists {
@@ -195,24 +199,25 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   private[rewrite] def skipRightToBraces(
       left: Replacement,
   )(implicit session: Session, style: ScalafmtConfig): Boolean = {
-    val isSingleStatBlock = isTreeSingleExpr(left.how match {
-      case x: ReplacementType.AppendAfter => x.ft.rightOwner
-      case _ => left.ft.rightOwner
-    })
-
     // left must be a LeftBrace
-    {
-      val limit = settings.insertBraces.minSpan
-      limit < 0 || {
-        if (isSingleStatBlock) session.getSpan(left) < limit.max(style.maxColumn)
-        else limit > 0 && session.getSpan(left) < limit
-      }
-    } && {
-      val limit = settings.insertBraces.minBlankGaps
-      limit < 0 || {
-        if (isSingleStatBlock) session.getBlankGaps(left) < limit.max(1)
-        else limit > 0 && session.getBlankGaps(left) < limit
-      }
+    val cfg = settings
+    !cfg.insert.exists { ib =>
+      val isSingleStatBlock = isTreeSingleExpr(left.how match {
+        case x: ReplacementType.AppendAfter => x.ft.rightOwner
+        case _ => left.ft.rightOwner
+      })
+
+      val checkSpan = (x: Int) =>
+        if (isSingleStatBlock) session.getSpan(left) >= x.max(style.maxColumn)
+        else x == 0 || session.getSpan(left) >= x
+      val checkBlankGaps = (x: Int) =>
+        if (isSingleStatBlock) session.getBlankGaps(left) >= x.max(1)
+        else x == 0 || session.getBlankGaps(left) >= x
+      val checks =
+        Iterator((ib.minSpan, checkSpan), (ib.minBlankGaps, checkBlankGaps))
+          .flatMap { case (min, f) => if (min < 0) None else Some(f(min)) }
+      if (cfg.preferInsert) checks.contains(true)
+      else checks.hasNext && !checks.contains(false)
     }
   }
 
@@ -238,8 +243,12 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
     else if (notOkToRewrite) None
     else {
       val rt = ft.right
-      val rbt = new T.RightBrace(rt.input, rt.dialect, rt.start + 1)
-      val rbmeta = left.ft.meta.copy(right = left.ft.meta.left.copy(text = "}"))
+      val rbt = new T.RightBrace(rt.input, rt.dialect, rt.end)
+      val lb = left.how match {
+        case how: ReplacementType.AppendAfter => how.ft
+        case _ => left.ft
+      }
+      val rbmeta = lb.meta.copy(right = lb.meta.right.copy(text = "}"))
       val replType = appendTokensType(FT(rt, rbt, rbmeta))
       Some((left, Replacement(this, ft, replType, style)))
     }
@@ -311,12 +320,12 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   private[rewrite] def onLeftForArgClause(
       tree: Term.ArgClause,
   )(implicit ft: FT, style: ScalafmtConfig): Replacement = {
-    def okLeftDelim = ft.right.is[T.LeftBrace] ||
-      style.rewrite.scala3.removeOptionalBraces.fewerBraces.parensToo &&
-      (style.dialect.allowInfixOperatorAfterNL ||
-        style.newlines.infix.sourceIgnoredAt(ft)(tree))
-    val ok = style.dialect.allowFewerBraces && okLeftDelim &&
-      style.rewrite.scala3.removeOptionalBraces.fewerBraces.maxSpan > 0 &&
+    val cfg = settings
+    val ok = style.dialect.allowFewerBraces && cfg.fewerBraces.maxSpan > 0 &&
+      (ft.right.is[T.LeftBrace] ||
+        cfg.fewerBraces.parensToo &&
+        (style.dialect.allowInfixOperatorAfterNL ||
+          style.newlines.infix.sourceIgnoredAt(ft)(tree))) &&
       isSeqSingle(tree.values)
     if (!ok) return null
 
@@ -349,7 +358,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   )(implicit session: Session, style: ScalafmtConfig): Boolean = {
     def shouldRewriteArgClause(ac: Term.ArgClause): Boolean =
       0 == ac.values.lengthCompare(1) && {
-        val rob = style.rewrite.scala3.removeOptionalBraces
+        val rob = settings
         val span = session.getSpan(left)
         span >= rob.fewerBraces.minSpan && span <= rob.fewerBraces.maxSpan
       }

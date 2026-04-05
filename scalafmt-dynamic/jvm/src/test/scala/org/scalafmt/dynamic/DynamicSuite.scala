@@ -45,14 +45,8 @@ class DynamicSuite extends FunSuite {
           e.getStackTrace.takeWhile(!_.getClassName.contains("DynamicSuite")),
         )
       }
-    val dynamic: ScalafmtDynamic = cfgFunc {
-      val configLoader = ScalafmtDynamic.defaultUncachedConfigLoader
-      new ScalafmtDynamic(
-        properties = ScalafmtProperties(reporter = reporter),
-        moduleLoader = new ScalafmtModuleLoader.CachedProxy(getModuleLoader),
-        configLoader = new ScalafmtConfigLoader.CachedProxy(configLoader),
-      )
-    }
+    val dynamic: ScalafmtDynamic =
+      cfgFunc(new ScalafmtDynamic(getModuleLoader, reporter = reporter))
     val config = Files.createTempFile("scalafmt", ".scalafmt.conf")
     val filename = Paths.get(name + ".scala")
     var timestamps = 100L
@@ -622,7 +616,7 @@ private object DynamicSuite {
     else s" [dialect ${if (sbt) "sbt" else dialect}]"
 
   // in tests, let's not try to download current version
-  def getModuleLoader = new ScalafmtModuleLoader {
+  def getModuleLoader: ScalafmtModuleLoader = new ScalafmtModuleLoader {
     private val downloader = ScalafmtDynamic.defaultUncachedModuleLoader
     private val clsLoader = org.scalafmt.Scalafmt.getClass.getClassLoader
     override def load(

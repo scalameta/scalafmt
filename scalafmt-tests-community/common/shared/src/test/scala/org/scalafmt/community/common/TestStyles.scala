@@ -42,8 +42,10 @@ private[community] object TestStyles {
         rules = Seq(RedundantParens, RedundantBraces, SortModifiers, AvoidInfix),
         scala3 = style.rewrite.scala3.copy(
           convertToNewSyntax = true,
-          removeOptionalBraces = RewriteScala3Settings.RemoveOptionalBraces.yes,
-          endMarker = style.rewrite.scala3.endMarker.copy(insertMinSpan = 5),
+          optionalBraces = RewriteScala3Settings.RemoveOptionalBraces.yes,
+          endMarker = style.rewrite.scala3.endMarker.copy(insert =
+            style.rewrite.scala3.endMarker.insert.copy(minBreaks = 4),
+          ),
         ),
         redundantBraces = RedundantBracesSettings.all
           .copy(maxBreaks = Int.MaxValue, oneStatApply = oneStatApply),

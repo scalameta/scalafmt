@@ -13,15 +13,20 @@ final case class ScalafmtDynamic(
     with RepositoryCredential.ScalafmtExtension
     with ScalafmtSessionFactory {
 
-  def this() = this(
-    ScalafmtProperties(),
-    new ScalafmtModuleLoader.CachedProxy(
-      ScalafmtDynamic.defaultUncachedModuleLoader,
-    ),
-    new ScalafmtConfigLoader.CachedProxy(
-      ScalafmtDynamic.defaultUncachedConfigLoader,
-    ),
+  def this(
+      moduleLoader: ScalafmtModuleLoader,
+      reporter: ScalafmtReporter = ConsoleScalafmtReporter,
+      configLoader: ScalafmtConfigLoader = ScalafmtConfigLoader,
+  ) = this(
+    properties = ScalafmtProperties(reporter = reporter),
+    moduleLoader = ScalafmtModuleLoader.CachedProxy(moduleLoader),
+    configLoader = ScalafmtConfigLoader.CachedProxy(configLoader),
   )
+
+  def this(dependencyDownloader: DependencyDownloaderFactory) =
+    this(new ScalafmtModuleLoader.WithDownloader(dependencyDownloader))
+
+  def this() = this(ScalafmtDynamic.defaultDependencyDownloader)
 
   override def clear(): Unit = moduleLoader.close()
 
@@ -61,9 +66,12 @@ final case class ScalafmtDynamic(
 
 private[dynamic] object ScalafmtDynamic {
 
-  def defaultUncachedModuleLoader =
-    new ScalafmtModuleLoader.WithDownloader(CoursierDependencyDownloader)
+  def defaultDependencyDownloader: DependencyDownloaderFactory =
+    CoursierDependencyDownloader
 
-  def defaultUncachedConfigLoader = ScalafmtConfigLoader
+  def defaultUncachedModuleLoader: ScalafmtModuleLoader =
+    new ScalafmtModuleLoader.WithDownloader(defaultDependencyDownloader)
+
+  def defaultUncachedConfigLoader: ScalafmtConfigLoader = ScalafmtConfigLoader
 
 }

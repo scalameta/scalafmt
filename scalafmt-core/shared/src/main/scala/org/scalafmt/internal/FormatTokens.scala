@@ -267,7 +267,7 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
   def getLast(tree: Tree): FT = getLast(tree.tokens, tree)
 
   def getOnOrAfterLast(tokens: Tokens, tree: Tree): FT = {
-    val last = tokens.last
+    val last = findLastVisibleToken(tokens)
     val beforeLast = before(last)
     val res = getOnOrAfterOwned(beforeLast, tree)
     val ok = (res eq beforeLast) && res.right.is[T.Comment] &&

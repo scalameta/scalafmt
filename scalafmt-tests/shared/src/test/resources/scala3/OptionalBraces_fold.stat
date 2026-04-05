@@ -2165,9 +2165,9 @@ object a:
       qux
       /* c1 */
    end if
-<<< ml=2 remove 0 end markers
+<<< remove no end markers
 runner.parser = source
-rewrite.scala3.removeEndMarkerMaxLines = 2
+rewrite.scala3.removeEndMarkerMaxLines = 0
 ===
 object a:
   class b:
@@ -2183,7 +2183,40 @@ object a:
       end c
    end b
 end a
-<<< ml=3 remove 1 end marker
+<<< remove end marker c
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 1
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b
+end a
+>>>
+object a:
+   class b:
+      val c = d
+   end b
+end a
+<<< remove end markers b+c
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 2
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b
+end a
+>>>
+object a:
+   class b:
+      val c = d
+end a
+<<< remove end markers a+b+c
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 3
 ===
@@ -2198,9 +2231,42 @@ end a
 object a:
    class b:
       val c = d
-      end c
+<<< remove no end markers, comment b
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 0
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b // comment
 end a
-<<< ml=4 remove 2 end markers
+>>>
+object a:
+   class b:
+      val c = d
+      end c
+   end b // comment
+end a
+<<< remove end marker c, comment b
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 3
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b // comment
+end a
+>>>
+object a:
+   class b:
+      val c = d
+   end b // comment
+end a
+<<< remove end markers a+c, comment b
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 4
 ===
@@ -2209,68 +2275,16 @@ object a:
     val c =
       d
     end c
-  end b
-end a
->>>
-object a:
-   class b:
-      val c = d
-      end c
-<<< ml=4 remove 0 end markers, comment 1
-runner.parser = source
-rewrite.scala3.removeEndMarkerMaxLines = 4
-===
-object a:
-  class b:
-    val c =
-      d
-    end c
   end b // comment
 end a
 >>>
 object a:
    class b:
       val c = d
-      end c
    end b // comment
-end a
-<<< ml=5 remove 1 end marker, comment 1
+<<< remove no end markers, comment a
 runner.parser = source
-rewrite.scala3.removeEndMarkerMaxLines = 5
-===
-object a:
-  class b:
-    val c =
-      d
-    end c
-  end b // comment
-end a
->>>
-object a:
-   class b:
-      val c = d
-      end c
-   end b // comment
-<<< ml=10 remove 1 end marker, comment 1
-runner.parser = source
-rewrite.scala3.removeEndMarkerMaxLines = 10
-===
-object a:
-  class b:
-    val c =
-      d
-    end c
-  end b // comment
-end a
->>>
-object a:
-   class b:
-      val c = d
-      end c
-   end b // comment
-<<< ml=2 remove 0 end markers, comment 2
-runner.parser = source
-rewrite.scala3.removeEndMarkerMaxLines = 2
+rewrite.scala3.removeEndMarkerMaxLines = 0
 ===
 object a:
   class b:
@@ -2286,7 +2300,24 @@ object a:
       end c
    end b
 end a // comment
-<<< ml=3 remove 1 end marker, comment 2
+<<< remove end marker c, comment a
+runner.parser = source
+rewrite.scala3.removeEndMarkerMaxLines = 1
+===
+object a:
+  class b:
+    val c =
+      d
+    end c
+  end b
+end a // comment
+>>>
+object a:
+   class b:
+      val c = d
+   end b
+end a // comment
+<<< remove end markers b+c, comment a
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 3
 ===
@@ -2301,9 +2332,8 @@ end a // comment
 object a:
    class b:
       val c = d
-      end c
 end a // comment
-<<< ml=10 remove 1 end marker, comment 2
+<<< ml=10 remove end markers b+c, comment a
 runner.parser = source
 rewrite.scala3.removeEndMarkerMaxLines = 10
 ===
@@ -2318,7 +2348,6 @@ end a // comment
 object a:
    class b:
       val c = d
-      end c
 end a // comment
 <<< package colonEol
 runner.parser = source
@@ -8816,6 +8845,523 @@ object a:
       line1
 
       line2
+<<< #5064 insert/remove end markers using breaks and blank gaps, preferInsert
+rewrite.scala3.endMarker {
+  preferInsert = true
+  insert { minBreaks = 3, minBlankGaps = 2 }
+  remove { maxBreaks = 2, maxBlankGaps = 1 }
+}
+===
+object a:
+  def foo3lines0before0between0after() =
+    line1
+    line2
+    line3
+  def foo3lines0before0between1after() =
+    line1
+    line2
+    line3
+
+  def foo3lines1before0between0after() =
+
+    line1
+    line2
+    line3
+  def foo3lines1before0between1after() =
+
+    line1
+    line2
+    line3
+
+  def foo3lines0before1between0after() =
+    line1
+
+    line2
+    line3
+  def foo3lines1before1between0after() =
+
+    line1
+
+    line2
+    line3
+  def foo3lines0before1between1after() =
+    line1
+
+    line2
+    line3
+
+  def foo3lines1before1between1after() =
+
+    line1
+
+    line2
+    line3
+
+  def foo3lines0before2between0after() =
+    line1
+
+    line2
+
+    line3
+  def foo3lines1before2between0after() =
+
+    line1
+
+    line2
+
+    line3
+  def foo3lines0before2between1after() =
+    line1
+
+    line2
+
+    line3
+
+  def foo3lines1before2between1after() =
+
+    line1
+
+    line2
+
+    line3
+
+  def foo2lines0before0between0after() =
+    line1
+    line2
+  end foo2lines0before0between0after
+  def foo2lines1before0between0after() =
+
+    line1
+    line2
+  def foo2lines0before0between1after() =
+    line1
+    line2
+
+  end foo2lines0before0between1after
+  def foo2lines1before0between1after() =
+
+    line1
+    line2
+
+  def foo2lines0before1between0after() =
+    line1
+
+    line2
+  def foo2lines1before1between0after() =
+
+    line1
+
+    line2
+  def foo2lines0before1between1after() =
+    line1
+
+    line2
+
+  def foo2lines1before1between1after() =
+
+    line1
+
+    line2
+
+  def foo1lines0before1between0after() =
+    line1
+  end foo1lines0before1between0after
+  def foo1lines1before1between0after() =
+
+    line1
+  end foo1lines1before1between0after
+  def foo1lines0before1between1after() =
+    line1
+
+  end foo1lines0before1between1after
+>>>
+object a:
+   def foo3lines0before0between0after() =
+      line1
+      line2
+      line3
+   end foo3lines0before0between0after
+   def foo3lines0before0between1after() =
+      line1
+      line2
+      line3
+   end foo3lines0before0between1after
+
+   def foo3lines1before0between0after() =
+
+      line1
+      line2
+      line3
+   end foo3lines1before0between0after
+   def foo3lines1before0between1after() =
+
+      line1
+      line2
+      line3
+   end foo3lines1before0between1after
+
+   def foo3lines0before1between0after() =
+      line1
+
+      line2
+      line3
+   end foo3lines0before1between0after
+   def foo3lines1before1between0after() =
+
+      line1
+
+      line2
+      line3
+   end foo3lines1before1between0after
+   def foo3lines0before1between1after() =
+      line1
+
+      line2
+      line3
+   end foo3lines0before1between1after
+
+   def foo3lines1before1between1after() =
+
+      line1
+
+      line2
+      line3
+   end foo3lines1before1between1after
+
+   def foo3lines0before2between0after() =
+      line1
+
+      line2
+
+      line3
+   end foo3lines0before2between0after
+   def foo3lines1before2between0after() =
+
+      line1
+
+      line2
+
+      line3
+   end foo3lines1before2between0after
+   def foo3lines0before2between1after() =
+      line1
+
+      line2
+
+      line3
+   end foo3lines0before2between1after
+
+   def foo3lines1before2between1after() =
+
+      line1
+
+      line2
+
+      line3
+   end foo3lines1before2between1after
+
+   def foo2lines0before0between0after() =
+      line1
+      line2
+   def foo2lines1before0between0after() =
+
+      line1
+      line2
+   end foo2lines1before0between0after
+   def foo2lines0before0between1after() =
+      line1
+      line2
+   def foo2lines1before0between1after() =
+
+      line1
+      line2
+   end foo2lines1before0between1after
+
+   def foo2lines0before1between0after() =
+      line1
+
+      line2
+   end foo2lines0before1between0after
+   def foo2lines1before1between0after() =
+
+      line1
+
+      line2
+   end foo2lines1before1between0after
+   def foo2lines0before1between1after() =
+      line1
+
+      line2
+   end foo2lines0before1between1after
+
+   def foo2lines1before1between1after() =
+
+      line1
+
+      line2
+   end foo2lines1before1between1after
+
+   def foo1lines0before1between0after() = line1
+   def foo1lines1before1between0after() =
+
+     line1
+   def foo1lines0before1between1after() = line1
+<<< #5064 insert/remove end markers using breaks and blank gaps, !preferInsert
+rewrite.scala3.endMarker {
+  preferInsert = false
+  insert { minBreaks = 3, minBlankGaps = 2 }
+  remove { maxBreaks = 2, maxBlankGaps = 1 }
+}
+===
+object a:
+  def foo3lines0before0between0after() =
+    line1
+    line2
+    line3
+  end foo3lines0before0between0after
+  def foo3lines0before0between1after() =
+    line1
+    line2
+    line3
+
+  end foo3lines0before0between1after
+  def foo3lines1before0between0after() =
+
+    line1
+    line2
+    line3
+  end foo3lines1before0between0after
+  def foo3lines1before0between1after() =
+
+    line1
+    line2
+    line3
+
+  end foo3lines1before0between1after
+  def foo3lines0before1between0after() =
+    line1
+
+    line2
+    line3
+  end foo3lines0before1between0after
+  def foo3lines1before1between0after() =
+
+    line1
+
+    line2
+    line3
+  def foo3lines0before1between1after() =
+    line1
+
+    line2
+    line3
+
+  end foo3lines0before1between1after
+  def foo3lines1before1between1after() =
+
+    line1
+
+    line2
+    line3
+
+  def foo3lines0before2between0after() =
+    line1
+
+    line2
+
+    line3
+  def foo3lines1before2between0after() =
+
+    line1
+
+    line2
+
+    line3
+  def foo3lines0before2between1after() =
+    line1
+
+    line2
+
+    line3
+
+  def foo3lines1before2between1after() =
+
+    line1
+
+    line2
+
+    line3
+
+  def foo2lines0before0between0after() =
+    line1
+    line2
+  end foo2lines0before0between0after
+  def foo2lines1before0between0after() =
+
+    line1
+    line2
+  end foo2lines1before0between0after
+  def foo2lines0before0between1after() =
+    line1
+    line2
+
+  end foo2lines0before0between1after
+  def foo2lines1before0between1after() =
+
+    line1
+    line2
+
+  end foo2lines1before0between1after
+  def foo2lines0before1between0after() =
+    line1
+
+    line2
+  end foo2lines0before1between0after
+  def foo2lines1before1between0after() =
+
+    line1
+
+    line2
+  def foo2lines0before1between1after() =
+    line1
+
+    line2
+
+  end foo2lines0before1between1after
+  def foo2lines1before1between1after() =
+
+    line1
+
+    line2
+
+  def foo1lines0before1between0after() =
+    line1
+  end foo1lines0before1between0after
+  def foo1lines1before1between0after() =
+
+    line1
+  end foo1lines1before1between0after
+  def foo1lines0before1between1after() =
+    line1
+
+  end foo1lines0before1between1after
+>>>
+object a:
+   def foo3lines0before0between0after() =
+      line1
+      line2
+      line3
+   def foo3lines0before0between1after() =
+      line1
+      line2
+      line3
+   def foo3lines1before0between0after() =
+
+      line1
+      line2
+      line3
+   def foo3lines1before0between1after() =
+
+      line1
+      line2
+      line3
+   def foo3lines0before1between0after() =
+      line1
+
+      line2
+      line3
+   def foo3lines1before1between0after() =
+
+      line1
+
+      line2
+      line3
+   end foo3lines1before1between0after
+   def foo3lines0before1between1after() =
+      line1
+
+      line2
+      line3
+   def foo3lines1before1between1after() =
+
+      line1
+
+      line2
+      line3
+   end foo3lines1before1between1after
+
+   def foo3lines0before2between0after() =
+      line1
+
+      line2
+
+      line3
+   end foo3lines0before2between0after
+   def foo3lines1before2between0after() =
+
+      line1
+
+      line2
+
+      line3
+   end foo3lines1before2between0after
+   def foo3lines0before2between1after() =
+      line1
+
+      line2
+
+      line3
+   end foo3lines0before2between1after
+
+   def foo3lines1before2between1after() =
+
+      line1
+
+      line2
+
+      line3
+   end foo3lines1before2between1after
+
+   def foo2lines0before0between0after() =
+      line1
+      line2
+   def foo2lines1before0between0after() =
+
+      line1
+      line2
+   def foo2lines0before0between1after() =
+      line1
+      line2
+   def foo2lines1before0between1after() =
+
+      line1
+      line2
+   def foo2lines0before1between0after() =
+      line1
+
+      line2
+   def foo2lines1before1between0after() =
+
+      line1
+
+      line2
+   end foo2lines1before1between0after
+   def foo2lines0before1between1after() =
+      line1
+
+      line2
+   def foo2lines1before1between1after() =
+
+      line1
+
+      line2
+   end foo2lines1before1between1after
+
+   def foo1lines0before1between0after() = line1
+   def foo1lines1before1between0after() =
+
+     line1
+   def foo1lines0before1between1after() = line1
 <<< #5111
 runner.dialect = scala3future
 ===
@@ -8974,10 +9520,10 @@ foo match {
 
   // quux2
 }
-<<< remove optional braces within range, removeBraces.maxSpan
+<<< remove optional braces within range, remove.maxSpan
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  removeBraces.maxSpan = 6
+  remove.maxSpan = 6
 }
 ===
 private def mtd: Res =
@@ -9006,10 +9552,10 @@ private def mtd: Res =
      foo
      quxx
    }
-<<< remove optional braces within range, removeBraces.maxBlankGaps=0
+<<< remove optional braces within range, remove.maxBlankGaps=0
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  removeBraces.maxBlankGaps = 0
+  remove.maxBlankGaps = 0
 }
 ===
 private def mtd: Res =
@@ -9046,10 +9592,10 @@ private def mtd: Res =
 
      fooBody3
    }
-<<< remove optional braces within range, removeBraces.maxBlankGaps=1
+<<< remove optional braces within range, remove.maxBlankGaps=1
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  removeBraces.maxBlankGaps = 1
+  remove.maxBlankGaps = 1
 }
 ===
 private def mtd: Res =
@@ -9085,11 +9631,11 @@ private def mtd: Res =
 
      fooBody3
    }
-<<< remove optional braces within range, insertBraces.minSpan
+<<< remove optional braces within range, insert.minSpan
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  insertBraces.minSpan = 7
-  removeBraces.maxSpan = 10
+  insert.minSpan = 7
+  remove.maxSpan = 10
 }
 ===
 private def mtd: Res =
@@ -9117,11 +9663,11 @@ private def mtd: Res = {
     quxx
   }
 }
-<<< remove optional braces within range, insertBraces.minBlankGaps=1
+<<< remove optional braces within range, insert.minBlankGaps=1
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  insertBraces.minBlankGaps = 1
-  removeBraces.maxBlankGaps = 10
+  insert.minBlankGaps = 1
+  remove.maxBlankGaps = 10
 }
 ===
 private def mtd: Res =
@@ -9187,11 +9733,11 @@ private def mtd: Res = {
     fooBody3
   }
 }
-<<< remove optional braces within range, insertBraces.minBlankGaps=2
+<<< remove optional braces within range, insert.minBlankGaps=2
 rewrite.scala3.removeOptionalBraces {
   enabled = true
-  insertBraces.minBlankGaps = 2
-  removeBraces.maxBlankGaps = 10
+  insert.minBlankGaps = 2
+  remove.maxBlankGaps = 10
 }
 ===
 private def mtd: Res =

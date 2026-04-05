@@ -3433,7 +3433,7 @@ s"user id is ${id}"
 #### `RedundantBraces`: `oneStatApply`
 
 Added in v3.8.4, controls treatment of single-argument apply delimiters,
-has lower priority than [fewer braces](#rewritescala3removeoptionalbraces),
+has lower priority than [fewer braces](#rewritescala3optionalbraces),
 and takes the following values:
 
 - `parensMaxSpan`: if non-negative, converts braces to parentheses in an
@@ -3452,7 +3452,7 @@ and takes the following values:
     [newlines.afterCurlyLambdaParams = squash](#newlinesaftercurlylambdaparams)
 
 > Here, the span is computed a bit differently than for
-> [fewer braces](#rewritescala3removeoptionalbraces) or
+> [fewer braces](#rewritescala3optionalbraces) or
 > [search optimizer](#route-search-optimizations-arg-or-param-clause),
 > in that it removes not only whitespace but also all punctuation (opening and
 > closing delimiters, commas, semicolons and dots), comments and any optional
@@ -3558,7 +3558,7 @@ def f() = {
 >
 > This rule cannot be used with
 > [`rewrite.scala3.endMarker.insertMinSpan`](#rewritescala3endmarkerinsertminspan) or
-> [`rewrite.scala3.removeOptionalBraces.oldSyntaxToo == true`](#rewritescala3removeoptionalbraces).
+> [`rewrite.scala3.optionalBraces.oldSyntaxToo == true`](#rewritescala3optionalbraces).
 
 This rewrite in essence provides the opposite of what `RedundantBraces` achieves,
 and somewhat similar to Scala3's end marker rewrite rules.
@@ -4584,14 +4584,15 @@ set to `false`, see below):
 NB: You could control these rules individually by
 [overriding dialect properties](#runnerdialectoverride).
 
-### `rewrite.scala3.removeOptionalBraces`
+### `rewrite.scala3.optionalBraces`
 
-If this section is enabled,
+If this section is enabled, depending on the configuration,
 [optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
-will be removed and significant indentation applied.
+will be removed and significant indentation applied, or a braceless region possibly
+enclosed in braces instead.
 
 ```scala mdoc:defaults
-rewrite.scala3.removeOptionalBraces
+rewrite.scala3.optionalBraces
 ```
 
 The section contains the following settings (available since v3.8.1):
@@ -4606,22 +4607,35 @@ The section contains the following settings (available since v3.8.1):
     - other flags below might extend rewrites to other cases
 - `oldSyntaxToo`
   - if `true`, applies also to expressions using deprecated syntax
-- (since v3.10.8) `insertBraces`
-  - will add braces to a braceless region **unless** all of these hold:
-    - `insertBraces.minSpan` is negative, or exceeds the cumulative span of all
-      visible tokens within the region
-      - or, for single-statement blocks, if that span is less than
-        `maxColumn` (to avoid non-idempotent formatting)
-    - `insertBraces.minBlankGaps` is negative, or exceeds the number of
-      blank-line gaps within the region
-- (since v3.10.8) `removeBraces`
-  - will remove braces **if** all of these hold:
-    - `removeBraces.maxSpan` is zero, or positive and the cumulative span
-      of all visible tokens between the braces does not exceed it
-      (and is less than `insertBraces.minSpan` if the latter is non-negative)
-    - `removeBraces.maxBlankGaps` is negative, or the number of
-      blank-line gaps between the braces does not exceed it
-      (and is less than `insertBraces.minBlankGaps` if the latter is non-negative)
+- (since v3.10.8) `preferInsert`: if set to `false`, the condition "all" should
+  be replaced with "any" in descriptions of the next two sections
+  (`insert` and `remove`)
+- (since v3.10.8) `insert`: will add braces to a braceless region if at least
+  one check below is enabled and **unless** all (or "any" if `preferInsert = false`)
+  of the enabled checks are satisfied
+  - `insert.minSpan`:
+    - disabled if negative
+    - satisfied if it exceeds the cumulative span of all visible tokens within the region
+    - or, for single-statement blocks, if that span is less than
+      `maxColumn` (to avoid non-idempotent formatting)
+  - `insert.minBlankGaps`:
+    - disabled if negative
+    - satisfied if it exceeds the number of blank-line gaps within the region
+  - if `preferInsert = false`, these values will be increased, if necessary,
+    to be greater than those in `remove` section
+- (since v3.10.8) `remove`: will remove braces if at least
+  one check below is enabled and **if** all (or "any" if `preferInsert = false`)
+  of the enabled checks are satisfied
+  - the only exception is when all checks both here and in `insert` above are
+    disabled, in which case the rule will **always** remove braces
+  - `remove.maxSpan`
+    - disabled if negative
+    - satisfied if the cumulative span of all visible tokens between the braces does not exceed it
+  - `remove.maxBlankGaps`
+    - disabled if negative
+    - satisfied if the number of blank-line gaps between the braces does not exceed it
+  - if `preferInsert = true`, these values will be decreased, if necessary,
+    to be less than those in `insert` section
 - (since v3.8.1) `fewerBraces.minSpan` and `fewerBraces.maxSpan`
   - in v3.10.8, was renamed from `fewerBracesMinSpan` and `fewerBracesMaxSpan`
   - this is an additional restriction to the rule just above
@@ -4637,32 +4651,63 @@ The section contains the following settings (available since v3.8.1):
     - [`newlines.infix.xxxSite.style`](#newlinesinfix-stylekeep) is NOT `keep`; or
     - current dialect supports `allowInfixOperatorAfterNL`
 
-Prior to v3.8.1, `rewrite.scala3.removeOptionalBraces` was a flag which
+Prior to v3.10.8, the section was called `removeOptionalBraces`.
+Prior to v3.8.1, it was a single flag which
 took three possible values (with their equivalent current settings shown):
 
 - `no`: `enabled = false`
 - `yes`: `enabled = true`
 - `oldSyntaxToo`: `enabled = true` and `oldSyntaxToo = true`
 
-### `rewrite.scala3.endMarker.insertMinSpan`
+### `rewrite.scala3.endMarker.preferInsert`
 
-If this flag is set to a positive value, when an expression containing an
+This setting, added in v3.10.8, controls whether we prefer to insert missing
+end markers over removing existing ones. See the two sections below for details.
+
+### `rewrite.scala3.endMarker.insert`
+
+This section controls when to insert an end marker (if one is missing) after an expression containing an
 [optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
-region spans at least as many lines and isn't followed by an end marker, one will be inserted.
+region.
+
+Several checks are defined, and the rule applies if:
+
+- at least one check is enabled
+- if `endMarker.preferInsert` is
+  - enabled: at least one check is satisfied
+  - disabled: all checks must be satisfied
+
+The following flags are defined, with corresponding checks:
+
+- (since v3.10.8) `minBreaks`: the check is enabled if this value is non-negative
+  and satisfied if the region contains at least as many line breaks
+- (since v3.10.8) `minBlankGaps`: the check is enabled if this value is non-negative
+  and satisfied if the region contains at least as many blank-line gaps
 
 > We will not insert end markers if the statement is not part of a template body,
 > or a multi-stat block. Doing so might turn a single-stat expression (which
 > doesn't require significant indentation handling) into a multi-stat block.
 
-Prior to v3.10.3, this setting was named `scala3.insertEndMarkerMinLines`.
+### `rewrite.scala3.endMarker.remove`
 
-### `rewrite.scala3.endMarker.removeMaxSpan`
-
-If this flag is set to a positive value, when an expression containing an
+This section controls when to delete a standalone end marker(i.e., no other
+tokens on that line, including comments) after an expression containing an
 [optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
-region spans at most as many lines and is followed by a standalone end marker
-(i.e., no other tokens on that line, including comments), the line containing
-the end marker will be deleted.
+region.
+
+Several checks are defined, and the rule applies if:
+
+- at least one check is enabled
+- if `endMarker.preferInsert` is
+  - enabled: all checks must be satisfied
+  - disabled: at least one check is satisfied
+
+The following flags are defined, with corresponding checks:
+
+- (since v3.10.8) `maxBreaks`: the check is enabled if this value is non-negative,
+  and satisfied if the region contains at most as many line breaks
+- (since v3.10.8) `maxBlankGaps`: the check is enabled if this value is non-negative,
+  and satisfied if the region contains at most as many blank-line gaps
 
 > We will not remove end markers if
 >
@@ -4672,16 +4717,12 @@ the end marker will be deleted.
 > - there are comments before the end marker, as without the end marker they
 >   would be treated as outside of the optional-braces region.
 
-Prior to v3.10.3, this setting was named `scala3.removeEndMarkerMaxLines`.
-
 ### `rewrite.scala3.endMarker.spanHas`
 
 > Since v3.0.6.
 
 This flag dictates which part of the expression terminated by the end marker
-is used to calculate the span for the purposes of applying
-[`insertMinSpan`](#rewritescala3endmarkerinsertminspan) and
-[`removeMaxSpan`](#rewritescala3endmarkerremovemaxspan).
+is used to calculate the span.
 
 - `all` (default): the entire expression
 - `lastBlockOnly`: only the last block with significant indentation relative to
@@ -4691,22 +4732,6 @@ is used to calculate the span for the purposes of applying
   - but for an if-else, this would be just the `else` part
 
 Prior to v3.10.3, this setting was named `scala3.countEndMarkerLines`.
-
-### `rewrite.scala3.endMarker.spanIs`
-
-```scala mdoc:defaults
-rewrite.scala3.endMarker.spanIs
-```
-
-> Since v3.10.3.
-
-This parameter defines what "span" refers to when applying
-[`insertMinSpan`](#rewritescala3endmarkerinsertminspan) and
-[`removeMaxSpan`](#rewritescala3endmarkerremovemaxspan).
-It takes the following values:
-
-- `lines`: span counts the number of lines
-- `blankGaps`: span counts the number of blank gaps instead
 
 ## Vertical Multiline
 
