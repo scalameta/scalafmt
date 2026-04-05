@@ -17,7 +17,7 @@ import munit.FunSuite
   */
 class FidelityTest extends FunSuite with FormatAssertions {
 
-  private val numFiles = 277
+  private val numFiles = 282
 
   private val denyList = Set(
     "ConfigReader.scala",

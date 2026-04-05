@@ -610,7 +610,16 @@ class FormatWriter(formatOps: FormatOps) {
         val text = tok.meta.left.text
         if (text.startsWith("//")) new FormatSlc(text).format()
         else if (text == "/**/") sb.append(text)
-        else if (isDocstring(text)) formatDocstring(text)
+        else if (isDocstring(text))
+          // Preserve file header comments verbatim. The guard checks:
+          // 1. Config would produce a /** comment (framed style or raw /**)
+          // 2. This is the first token in the file (idx <= 1)
+          // 3. We're at the top level (indent 0)
+          if (
+            style.fileHeader.producesDocstringComment && tok.meta.idx <= 1 &&
+            prevState.indentation == 0
+          ) sb.append(text)
+          else formatDocstring(text)
         else new FormatMlc(text).format()
       }
 

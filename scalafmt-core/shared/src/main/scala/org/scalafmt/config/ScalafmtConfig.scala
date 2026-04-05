@@ -124,6 +124,7 @@ case class ScalafmtConfig(
     project: ProjectFiles = ProjectFiles(),
     fileOverride: Conf.Obj = Conf.Obj.empty,
     xmlLiterals: XmlLiterals = XmlLiterals(),
+    fileHeader: FileHeader = FileHeader(),
     private val formatOn: List[String] = ScalafmtConfig.defaultFormatOn,
     private val formatOff: List[String] = ScalafmtConfig.defaultFormatOff,
 ) {
@@ -422,6 +423,10 @@ object ScalafmtConfig {
         if (rewrite.scala3.removeOptionalBraces.removeBraces.maxSpan > 0)
           addIf(rewrite.scala3.removeOptionalBraces.removeBraces.maxSpan < rewrite.scala3.removeOptionalBraces.fewerBraces.maxSpan)
       }
+      if (fileHeader.isActive) {
+        val usesBlockComment = fileHeader.raw.isEmpty && (fileHeader.style ne FileHeader.Style.line)
+        if (usesBlockComment && comments.willWrap) addIfDirect(true, "fileHeader with block/framed style requires comments.wrap = no")
+      }
       if (rewrite.rules.contains(Imports)) binPack.importSelectors match {
         case Some(ImportSelectors.singleLine) => // if we fold but not bin pack, we might end up with very long lines
           addIfDirect(importSelectorsRewrite eq Newlines.fold, "rewrite.imports.selectors == fold && binPack.importSelectors == singleLine")
@@ -539,7 +544,7 @@ object ScalafmtConfig {
       case x => x
     }
 
-  private lazy val (defaultFormatOn, defaultFormatOff) = {
+  private[scalafmt] lazy val (defaultFormatOn, defaultFormatOff) = {
     val prefixes = List(
       "@formatter:", // IntelliJ
       "format: ", // scalariform

@@ -5172,6 +5172,237 @@ object Stuff {
 }
 ```
 
+## File Headers
+
+> Since v3.11.0.
+
+### `fileHeader`
+
+Inserts, replaces, or removes a file header (license notice, copyright line)
+at the top of each formatted file. Inactive by default.
+
+Three content sources, checked in order: `raw` (verbatim with delimiters),
+`text` (inner content, wrapped by `style`), `license` (SPDX identifier).
+First defined source wins. Setting a source to `""` activates **strip mode**
+(existing header removed).
+
+Shortcut forms: `fileHeader = none` (inactive), `fileHeader = "text"` (text
+shortcut).
+
+### `fileHeader.license`
+
+SPDX license identifier. Supported: `Apache-2.0`, `MIT`, `BSD-2-Clause`,
+`BSD-3-Clause`, `MPL-2.0`, `GPL-2.0-only`, `GPL-3.0-only`, `LGPL-2.1-only`,
+`LGPL-3.0-only`, `EPL-2.0`, `ISC`, `Unlicense`.
+
+```scala mdoc:scalafmt
+fileHeader.license = Apache-2.0
+fileHeader.copyrightHolder = "Org"
+fileHeader.since = 2020
+fileHeader.year = 2025
+---
+package com.example
+
+object Main
+```
+
+### `fileHeader.style`
+
+```scala mdoc:defaults
+fileHeader.style
+```
+
+#### `fileHeader.style = block`
+
+Default. Wraps content in `/* */`. Line prefix follows `docstrings.style`
+unless overridden by `fileHeader.comment.style`.
+
+#### `fileHeader.style = line`
+
+Wraps each line with `//`.
+
+```scala mdoc:scalafmt
+fileHeader.license = Apache-2.0
+fileHeader.copyrightHolder = "Org"
+fileHeader.since = 2020
+fileHeader.year = 2025
+fileHeader.style = line
+---
+package com.example
+
+object Main
+```
+
+#### `fileHeader.style = framed`
+
+Fixed-width bordered box. Width defaults to `maxColumn`; override with
+`fileHeader.comment.width`.
+
+```scala mdoc:scalafmt
+fileHeader.text = "My Header"
+fileHeader.style = framed
+fileHeader.comment.width = 40
+---
+package com.example
+
+object Main
+```
+
+### `fileHeader.licenseStyle`
+
+```scala mdoc:defaults
+fileHeader.licenseStyle
+```
+
+`spdx` (default) emits a `SPDX-License-Identifier:` tag. `detailed` emits
+the full license text.
+
+```scala mdoc:scalafmt
+fileHeader.license = MIT
+fileHeader.licenseStyle = detailed
+fileHeader.copyrightHolder = "Org"
+fileHeader.year = 2025
+---
+package com.example
+
+object Main
+```
+
+### `fileHeader.text`
+
+Inner content string. Wrapped according to `style`.
+
+```scala mdoc:scalafmt
+fileHeader.text = "Proprietary.\nAll rights reserved."
+fileHeader.style = line
+---
+package com.example
+
+object Main
+```
+
+### `fileHeader.raw`
+
+Complete header including comment delimiters, inserted verbatim after
+`stripMargin.trim`. `style` and `comment` settings are ignored.
+
+```scala mdoc:scalafmt
+fileHeader.raw = "// Copyright (C) 2025 My Corp."
+---
+package com.example
+
+object Main
+```
+
+### `fileHeader.blankLineAfter`
+
+```scala mdoc:defaults
+fileHeader.blankLineAfter
+```
+
+Controls blank line between header and first code line.
+
+```scala mdoc:scalafmt
+fileHeader.text = "My Header"
+fileHeader.style = line
+fileHeader.blankLineAfter = false
+---
+package com.example
+
+object Main
+```
+
+### `fileHeader.comment.blankFirstLine`
+
+Controls whether content starts on the `/*` line or the next line.
+
+- `unfold` (default): first line blank, content on next line
+- `fold`: content on the `/*` line
+
+For **block** style:
+
+```scala mdoc:scalafmt
+fileHeader.text = "My Header"
+fileHeader.comment.blankFirstLine = fold
+---
+package com.example
+
+object Main
+```
+
+```scala mdoc:scalafmt
+fileHeader.text = "My Header"
+fileHeader.comment.blankFirstLine = unfold
+---
+package com.example
+
+object Main
+```
+
+For **framed** style, controls whether a padding row appears after the top
+border:
+
+```scala mdoc:scalafmt
+fileHeader.text = "My Header"
+fileHeader.style = framed
+fileHeader.comment.width = 40
+fileHeader.comment.blankFirstLine = fold
+---
+package com.example
+
+object Main
+```
+
+```scala mdoc:scalafmt
+fileHeader.text = "My Header"
+fileHeader.style = framed
+fileHeader.comment.width = 40
+fileHeader.comment.blankFirstLine = unfold
+---
+package com.example
+
+object Main
+```
+
+### `fileHeader.comment.blankLastLine`
+
+```scala mdoc:defaults
+fileHeader.comment.blankLastLine
+```
+
+Adds a blank line before the closing `*/` (block) or bottom border (framed).
+
+```scala mdoc:scalafmt
+fileHeader.text = "My Header"
+fileHeader.comment.blankLastLine = true
+---
+package com.example
+
+object Main
+```
+
+```scala mdoc:scalafmt
+fileHeader.text = "My Header"
+fileHeader.style = framed
+fileHeader.comment.width = 40
+fileHeader.comment.blankLastLine = true
+---
+package com.example
+
+object Main
+```
+
+### Per-file overrides
+
+Use [`fileOverride`](#fileoverride) to vary header settings per file pattern.
+
+```conf
+fileOverride {
+  "glob:**.sbt" { fileHeader.style = line }
+  "glob:**/generated/**" { fileHeader = none }
+}
+```
+
 ## Disabling or customizing formatting
 
 ### `Search state exploded`
