@@ -1,16 +1,16 @@
 package org.scalafmt.dynamic
 
-case class Dependency(group: String, artifact: String, version: String)
+import org.scalafmt.interfaces.RepositoryPackage
 
-object Dependency {
+private[dynamic] object Dependency {
 
-  def dependencies(version: ScalafmtVersion): Seq[Dependency] = {
+  def dependencies(version: ScalafmtVersion): (String, Seq[RepositoryPackage]) = {
     val scalaVersion = getScalaVersion(version)
     val scalaBinaryVersion = getScalaBinaryVersion(scalaVersion)
     val core = "scalafmt-core_" + scalaBinaryVersion
-    Seq(
-      Dependency(organization(version), core, version.toString),
-      Dependency("org.scala-lang", "scala-reflect", scalaVersion),
+    scalaVersion -> Seq(
+      new RepositoryPackage(organization(version), core, version.toString),
+      new RepositoryPackage("org.scala-lang", "scala-reflect", scalaVersion),
     )
   }
 

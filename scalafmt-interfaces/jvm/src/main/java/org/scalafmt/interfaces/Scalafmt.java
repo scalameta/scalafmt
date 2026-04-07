@@ -131,4 +131,16 @@ public interface Scalafmt {
      */
     ScalafmtSession createSession(Path config);
 
+    /**
+     * Builder method.
+     *
+     * @param factory custom implementation of package downloader factory
+     * @return
+     *   an updated interface instance if the functionality is supported, or the
+     *   same instance, unchanged, if it doesn't support downloader injection.
+     */
+    default Scalafmt withRepositoryPackageDownloader(RepositoryPackageDownloaderFactory factory) {
+        return this;
+    }
+
 }

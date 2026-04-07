@@ -1,10 +1,12 @@
 package org.scalafmt.dynamic
 
+import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.dynamic.ScalafmtDynamicError._
 import org.scalafmt.dynamic.utils.ReentrantCache
+import org.scalafmt.interfaces.RepositoryPackageDownloaderFactory
 
-import java.io.Closeable
-import java.net.{URL, URLClassLoader}
+import java.io.{Closeable, File}
+import java.net.URLClassLoader
 import java.nio.file.Path
 
 import scala.concurrent.ExecutionContext
@@ -22,16 +24,20 @@ trait ScalafmtModuleLoader extends Closeable {
 
 object ScalafmtModuleLoader {
 
-  class WithDownloader(downloader: DependencyDownloaderFactory)
+  class WithDownloader(factory: RepositoryPackageDownloaderFactory)
       extends ScalafmtModuleLoader {
     override def load(
         configPath: Path,
         version: ScalafmtVersion,
         properties: ScalafmtProperties,
     ): FormatEval[ScalafmtReflect] = {
-      val dependencies = Dependency.dependencies(version)
-      val urls = downloader.create(properties).download(dependencies)
-      urls.fold(
+      val (scalaVersion, dependencies) = Dependency.dependencies(version)
+      Try(factory.create(properties.reporter, properties).download(
+        scalaVersion,
+        version.toString,
+        properties.reporter,
+        dependencies.asJava,
+      )).fold(
         x => Left(new CannotDownload(configPath, version, x)),
         loadClassPath(configPath, version),
       )
@@ -70,14 +76,17 @@ object ScalafmtModuleLoader {
   }
 
   private def loadClassPath(configPath: Path, version: ScalafmtVersion)(
-      urls: Seq[URL],
-  ): FormatEval[ScalafmtReflect] = Try {
-    val classloader = new URLClassLoader(urls.toArray, null)
-    ScalafmtReflect(classloader, version)
-  }.toEither.left.map {
-    case e: ReflectiveOperationException =>
-      new CorruptedClassPath(configPath, version, urls, e)
-    case e => new UnknownConfigError(configPath, e)
+      jars: java.lang.Iterable[File],
+  ): FormatEval[ScalafmtReflect] = {
+    val urls = jars.asScala.map(_.toURI.toURL).toSeq
+    Try {
+      val classloader = new URLClassLoader(urls.toArray, null)
+      ScalafmtReflect(classloader, version)
+    }.toEither.left.map {
+      case e: ReflectiveOperationException =>
+        new CorruptedClassPath(configPath, version, urls, e)
+      case e => new UnknownConfigError(configPath, e)
+    }
   }
 
 }

@@ -1,29 +1,29 @@
 package org.scalafmt.dynamic.coursier
 
-import org.scalafmt.dynamic.{Dependency => RepositoryPackage, _}
+import org.scalafmt.CompatCollections.JavaConverters._
+import org.scalafmt.interfaces._
 
-import java.io.{File, OutputStreamWriter}
-import java.net.URL
-
-import scala.util.Try
+import java.io.File
+import java.{lang => jl}
 
 import _root_.coursier._
 
-private class CoursierDependencyDownloader(
-    downloadProgressWriter: OutputStreamWriter,
-    customRepositories: Seq[MavenRepository],
-) extends DependencyDownloader {
+class CoursierDependencyDownloader(customRepositories: Seq[MavenRepository])
+    extends RepositoryPackageDownloader {
 
-  override def download(dependencies: Seq[RepositoryPackage]): Try[Seq[URL]] =
-    Try(downloadImpl(dependencies).map(_.toURI.toURL).toList)
-
-  private def downloadImpl(dependencies: Seq[RepositoryPackage]): Seq[File] = {
+  override def download(
+      scalaVersion: String,
+      scalafmtVersion: String,
+      reporter: ScalafmtReporter,
+      dependencies: jl.Iterable[RepositoryPackage],
+  ): jl.Iterable[File] = {
+    val downloadProgressWriter = reporter.downloadOutputStreamWriter()
     val fileCache = cache.FileCache() // this ctor preserves COURSIER_CREDENTIALS
       .withLogger(cache.loggers.RefreshLogger.create(downloadProgressWriter))
-    Fetch(fileCache).addDependencies(dependencies.map { dep =>
+    Fetch(fileCache).addDependencies(dependencies.asScala.map { dep =>
       val mod = Module(Organization(dep.group), ModuleName(dep.artifact))
       Dependency(mod, dep.version)
-    }: _*).addRepositories(repositories: _*).run()
+    }.toSeq: _*).addRepositories(repositories: _*).run().asJava
   }
 
   private def repositories = customRepositories ++
