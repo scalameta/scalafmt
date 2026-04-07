@@ -3,7 +3,7 @@ package org.scalafmt
 import org.scalafmt.Error.PreciseIncomplete
 import org.scalafmt.config._
 import org.scalafmt.internal._
-import org.scalafmt.rewrite.Rewrite
+import org.scalafmt.rewrite.{FileHeaderOps, Rewrite}
 import org.scalafmt.sysops.FileOps
 import org.scalafmt.util.{LoggerOps, MarkdownParser}
 
@@ -93,7 +93,10 @@ object Scalafmt {
         case Some(LineEndings.windows) => res.map(LoggerOps.crlf)
         case _ => res
       }
-    } else doFormatOne(code, style, file, range)
+    } else {
+      val withHeader = FileHeaderOps(code, style, range)
+      doFormatOne(withHeader, style, file, range)
+    }
 
   private[scalafmt] def toInput(code: String, file: String): Input = {
     val fileInput = Input.VirtualFile(file, code).withTokenizerOptions
