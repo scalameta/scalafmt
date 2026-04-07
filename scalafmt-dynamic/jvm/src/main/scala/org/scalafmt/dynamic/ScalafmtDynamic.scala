@@ -4,6 +4,9 @@ import org.scalafmt.dynamic.ScalafmtDynamicError._
 import org.scalafmt.interfaces._
 
 import java.nio.file.Path
+import java.util.ServiceLoader
+
+import scala.util.DynamicVariable
 
 final case class ScalafmtDynamic(
     properties: ScalafmtProperties,
@@ -74,12 +77,39 @@ final case class ScalafmtDynamic(
 
 private[dynamic] object ScalafmtDynamic {
 
-  val defaultDependencyDownloader: RepositoryPackageDownloaderFactory =
-    coursier.CoursierDependencyDownloaderFactory
+  val defaultDependencyDownloaderOpt
+      : DynamicVariable[Option[RepositoryPackageDownloaderFactory]] =
+    new DynamicVariable(None)
+
+  def defaultDependencyDownloader: RepositoryPackageDownloaderFactory =
+    defaultDependencyDownloaderOpt.value.getOrElse(loadedDependencyDownloader)
 
   def defaultUncachedModuleLoader: ScalafmtModuleLoader =
     new ScalafmtModuleLoader.WithDownloader(defaultDependencyDownloader)
 
   def defaultUncachedConfigLoader: ScalafmtConfigLoader = ScalafmtConfigLoader
+
+  private lazy val loadedDependencyDownloader
+      : RepositoryPackageDownloaderFactory = {
+    val factories = ServiceLoader
+      .load(classOf[RepositoryPackageDownloaderFactory]).iterator()
+    if (factories.hasNext) factories.next()
+    else EmptyDependencyDownloaderFactory
+  }
+
+  private object EmptyDependencyDownloaderFactory
+      extends RepositoryPackageDownloaderFactory {
+    override def create(
+        reporter: ScalafmtReporter,
+        properties: RepositoryProperties,
+    ): RepositoryPackageDownloader = throw new UnsupportedOperationException(
+      """|Please register an implementation of
+         |  `org.scalafmt.interfaces.RepositoryPackageDownloaderFactory`
+         |as a service provider, or inject it directly into an instance of
+         |  `org.scalafmt.interfaces.Scalafmt`
+         |using the `withRepositoryPackageDownloader` method.
+         |""".stripMargin,
+    )
+  }
 
 }
