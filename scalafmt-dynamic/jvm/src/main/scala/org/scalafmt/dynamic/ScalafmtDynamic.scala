@@ -7,11 +7,14 @@ import java.nio.file.Path
 
 final case class ScalafmtDynamic(
     properties: ScalafmtProperties,
-    moduleLoader: ScalafmtModuleLoader,
+    _moduleLoader: ScalafmtModuleLoader,
     configLoader: ScalafmtConfigLoader,
 ) extends Scalafmt
     with RepositoryCredential.ScalafmtExtension
     with ScalafmtSessionFactory {
+
+  val moduleLoader: ScalafmtModuleLoader = ScalafmtModuleLoader
+    .CachedProxy(_moduleLoader)
 
   def this(
       moduleLoader: ScalafmtModuleLoader,
@@ -19,11 +22,11 @@ final case class ScalafmtDynamic(
       configLoader: ScalafmtConfigLoader = ScalafmtConfigLoader,
   ) = this(
     properties = ScalafmtProperties(reporter = reporter),
-    moduleLoader = ScalafmtModuleLoader.CachedProxy(moduleLoader),
+    _moduleLoader = moduleLoader,
     configLoader = ScalafmtConfigLoader.CachedProxy(configLoader),
   )
 
-  def this(dependencyDownloader: DependencyDownloaderFactory) =
+  def this(dependencyDownloader: RepositoryPackageDownloaderFactory) =
     this(new ScalafmtModuleLoader.WithDownloader(dependencyDownloader))
 
   def this() = this(ScalafmtDynamic.defaultDependencyDownloader)
@@ -59,6 +62,11 @@ final case class ScalafmtDynamic(
       ScalafmtDynamicSession(config, properties),
     )
 
+  override def withRepositoryPackageDownloader(
+      factory: RepositoryPackageDownloaderFactory,
+  ): Scalafmt =
+    copy(_moduleLoader = new ScalafmtModuleLoader.WithDownloader(factory))
+
   def resolveConfig(configPath: Path): FormatEval[ScalafmtReflectConfig] =
     configLoader.load(configPath, properties, moduleLoader)
 
@@ -66,7 +74,7 @@ final case class ScalafmtDynamic(
 
 private[dynamic] object ScalafmtDynamic {
 
-  def defaultDependencyDownloader: DependencyDownloaderFactory =
+  val defaultDependencyDownloader: RepositoryPackageDownloaderFactory =
     coursier.CoursierDependencyDownloaderFactory
 
   def defaultUncachedModuleLoader: ScalafmtModuleLoader =

@@ -1,24 +1,31 @@
 package org.scalafmt.dynamic.coursier
 
-import org.scalafmt.dynamic._
+import org.scalafmt.CompatCollections.JavaConverters._
+import org.scalafmt.interfaces._
 
 import java.net.URI
 
 import _root_.coursier._
 
-object CoursierDependencyDownloaderFactory extends DependencyDownloaderFactory {
+class CoursierDependencyDownloaderFactory
+    extends RepositoryPackageDownloaderFactory {
 
-  override def create(properties: ScalafmtProperties): DependencyDownloader = {
-    val writer = properties.reporter.downloadOutputStreamWriter()
-    val repositories = properties.repositories.map { x =>
+  override def create(
+      reporter: ScalafmtReporter,
+      props: RepositoryProperties,
+  ): RepositoryPackageDownloader = {
+    val repositories = props.getRepositories.asScala.map { x =>
       val host = new URI(x).getHost
       val repo = MavenRepository(x)
-      properties.repositoryCredentials.find(_.host == host).fold(repo) { cred =>
+      props.getCredentials.asScala.find(_.host == host).fold(repo) { cred =>
         val auth = core.Authentication(cred.username, cred.password)
         repo.withAuthentication(Some(auth))
       }
-    }
-    new CoursierDependencyDownloader(writer, repositories)
+    }.toList
+    new CoursierDependencyDownloader(repositories)
   }
 
 }
+
+object CoursierDependencyDownloaderFactory
+    extends CoursierDependencyDownloaderFactory
