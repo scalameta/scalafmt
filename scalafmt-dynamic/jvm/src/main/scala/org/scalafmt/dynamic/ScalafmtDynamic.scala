@@ -67,7 +67,7 @@ final case class ScalafmtDynamic(
 private[dynamic] object ScalafmtDynamic {
 
   def defaultDependencyDownloader: DependencyDownloaderFactory =
-    CoursierDependencyDownloader
+    coursier.CoursierDependencyDownloaderFactory
 
   def defaultUncachedModuleLoader: ScalafmtModuleLoader =
     new ScalafmtModuleLoader.WithDownloader(defaultDependencyDownloader)
