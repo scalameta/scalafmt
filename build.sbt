@@ -69,15 +69,12 @@ addCommandAlias("test-jvm", "tests/test;cli/test")
 addCommandAlias("test-js", "testsJS/test;cliJS/test")
 addCommandAlias("test-native", "testsNative/test;cliNative/test")
 
-lazy val dynamic = crossProject(JVMPlatform) // don't build for NativePlatform
-  .withoutSuffixFor(JVMPlatform).in(file("scalafmt-dynamic")).settings(
-    moduleName := "scalafmt-dynamic",
+lazy val dynamicCore = crossProject(JVMPlatform) // don't build for NativePlatform
+  .withoutSuffixFor(JVMPlatform).in(file("scalafmt-dynamic-core")).settings(
+    moduleName := "scalafmt-dynamic-core",
     description := "Implementation of scalafmt-interfaces",
     buildInfoSettings("org.scalafmt.dynamic", "BuildInfo"),
-    libraryDependencies ++= List(
-      "io.get-coursier" %% "coursier" % coursier,
-      "com.typesafe" % "config" % "1.4.5",
-    ),
+    libraryDependencies ++= List("com.typesafe" % "config" % "1.4.5"),
     sharedTestSettings,
     scalacOptions ++= scalacJvmOptions.value,
     assembly / assemblyMergeStrategy := {
@@ -91,6 +88,14 @@ lazy val dynamic = crossProject(JVMPlatform) // don't build for NativePlatform
     },
   ).dependsOn(interfaces, sysops).dependsOn(core % "test")
   .enablePlugins(BuildInfoPlugin)
+
+lazy val dynamic = project.in(file("scalafmt-dynamic")).settings(
+  moduleName := "scalafmt-dynamic",
+  description := "Implementation of scalafmt-dynamic using coursier",
+  libraryDependencies ++= List("io.get-coursier" %% "coursier" % coursier),
+  sharedTestSettings,
+  scalacOptions ++= scalacJvmOptions.value,
+).dependsOn(dynamicCore.jvm).dependsOn(core.jvm % "test")
 
 lazy val interfaces = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-interfaces")).settings(
@@ -230,7 +235,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   // TODO: enable NPM publishing
   .jsSettings(scalaJsSettings, scalaJSUseMainModuleInitializer := true)
   .jvmEnablePlugins(NativeImagePlugin)
-  .jvmConfigure(_.dependsOn(dynamic.jvm).aggregate(dynamic.jvm))
+  .jvmConfigure(_.dependsOn(dynamic).aggregate(dynamic))
 
 lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-tests")).settings(
@@ -311,7 +316,7 @@ lazy val docs = project.in(file("scalafmt-docs")).settings(
   crossScalaVersions := List(scala212),
   publish / skip := true,
   mdoc := (Compile / run).evaluated,
-).dependsOn(cli.jvm, dynamic.jvm).enablePlugins(DocusaurusPlugin)
+).dependsOn(cli.jvm, dynamic).enablePlugins(DocusaurusPlugin)
 
 val V = "\\d+\\.\\d+\\.\\d+"
 val ReleaseCandidate = s"($V-RC\\d+).*".r
