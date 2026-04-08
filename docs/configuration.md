@@ -3557,7 +3557,7 @@ def f() = {
 > formatter might need to be run twice.
 >
 > This rule cannot be used with
-> [`rewrite.scala3.endMarker.insertMinSpan`](#rewritescala3endmarkerinsertminspan) or
+> [`rewrite.scala3.endMarker.insertMinSpan`](#rewritescala3endmarkerinsert) or
 > [`rewrite.scala3.optionalBraces.oldSyntaxToo == true`](#rewritescala3optionalbraces).
 
 This rewrite in essence provides the opposite of what `RedundantBraces` achieves,
@@ -4648,7 +4648,7 @@ The section contains the following settings (available since v3.8.1):
   - in v3.10.8, was renamed from `fewerBracesParensToo`
   - will apply the rule just above to an argument in parentheses as well,
     if the one of following is also satisfied:
-    - [`newlines.infix.xxxSite.style`](#newlinesinfix-stylekeep) is NOT `keep`; or
+    - [`newlines.infix.xxxSite.style`](#newlinesinfix-stylenonekeep) is NOT `keep`; or
     - current dialect supports `allowInfixOperatorAfterNL`
 
 Prior to v3.10.8, the section was called `removeOptionalBraces`.
@@ -6504,8 +6504,8 @@ Currently, the formatting process consists of several stages:
       many line breaks we have selected to output for a given code passage);
       for instance,
       - [inserting](#inserting-braces) braces,
-      - [adding](#rewritescala3endmarkerinsertminspan) or
-        [removing](#rewritescala3endmarkerremovemaxspan) end markers
+      - [adding](#rewritescala3endmarkerinsert) or
+        [removing](#rewritescala3endmarkerremove) end markers
       - modifying [blank lines](#newlines-around-package-or-template-body)
     - rewrite comments and docstrings if configured
     - [rewrite trailing commas](#trailing-commas):
