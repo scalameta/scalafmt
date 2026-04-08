@@ -69,24 +69,23 @@ addCommandAlias("test-jvm", "tests/test;cli/test")
 addCommandAlias("test-js", "testsJS/test;cliJS/test")
 addCommandAlias("test-native", "testsNative/test;cliNative/test")
 
-lazy val dynamicCore = crossProject(JVMPlatform) // don't build for NativePlatform
-  .withoutSuffixFor(JVMPlatform).in(file("scalafmt-dynamic-core")).settings(
-    moduleName := "scalafmt-dynamic-core",
-    description := "Implementation of scalafmt-interfaces",
-    buildInfoSettings("org.scalafmt.dynamic", "BuildInfo"),
-    libraryDependencies ++= List("com.typesafe" % "config" % "1.4.5"),
-    sharedTestSettings,
-    scalacOptions ++= scalacJvmOptions.value,
-    assembly / assemblyMergeStrategy := {
-      case PathList("META-INF", "versions", "9", "module-info.class") =>
-        MergeStrategy.discard
-      case PathList("META-INF", "sisu", "javax.inject.Named") =>
-        MergeStrategy.concat
-      case x =>
-        val oldStrategy = (assembly / assemblyMergeStrategy).value
-        oldStrategy(x)
-    },
-  ).dependsOn(interfaces, sysops).dependsOn(core % "test")
+lazy val dynamicCore = project.in(file("scalafmt-dynamic-core")).settings(
+  moduleName := "scalafmt-dynamic-core",
+  description := "Implementation of scalafmt-interfaces",
+  buildInfoSettings("org.scalafmt.dynamic", "BuildInfo"),
+  libraryDependencies ++= List("com.typesafe" % "config" % "1.4.5"),
+  sharedTestSettings,
+  scalacOptions ++= scalacJvmOptions.value,
+  assembly / assemblyMergeStrategy := {
+    case PathList("META-INF", "versions", "9", "module-info.class") =>
+      MergeStrategy.discard
+    case PathList("META-INF", "sisu", "javax.inject.Named") =>
+      MergeStrategy.concat
+    case x =>
+      val oldStrategy = (assembly / assemblyMergeStrategy).value
+      oldStrategy(x)
+  },
+).dependsOn(interfaces.jvm, sysops.jvm).dependsOn(core.jvm % "test")
   .enablePlugins(BuildInfoPlugin)
 
 lazy val dynamic = project.in(file("scalafmt-dynamic")).settings(
@@ -95,7 +94,7 @@ lazy val dynamic = project.in(file("scalafmt-dynamic")).settings(
   libraryDependencies ++= List("io.get-coursier" %% "coursier" % coursier),
   sharedTestSettings,
   scalacOptions ++= scalacJvmOptions.value,
-).dependsOn(dynamicCore.jvm).dependsOn(core.jvm % "test")
+).dependsOn(dynamicCore).dependsOn(core.jvm % "test")
 
 lazy val interfaces = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-interfaces")).settings(
