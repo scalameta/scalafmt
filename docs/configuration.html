@@ -4759,7 +4759,7 @@ rewrite.redundantBraces.maxBreaks = <span class="hljs-number">3</span>
 <p>Warning: this rewrite might cause non-idempotent formatting,
 formatter might need to be run twice.</p>
 <p>This rule cannot be used with
-<a href="#rewritescala3endmarkerinsertminspan"><code>rewrite.scala3.endMarker.insertMinSpan</code></a> or
+<a href="#rewritescala3endmarkerinsert"><code>rewrite.scala3.endMarker.insertMinSpan</code></a> or
 <a href="#rewritescala3optionalbraces"><code>rewrite.scala3.optionalBraces.oldSyntaxToo == true</code></a>.</p>
 </blockquote>
 <p>This rewrite in essence provides the opposite of what <code>RedundantBraces</code> achieves,
@@ -6214,7 +6214,7 @@ the visible span between the braces is within this range (inclusive)</li>
 <li>will apply the rule just above to an argument in parentheses as well,
 if the one of following is also satisfied:
 <ul>
-<li><a href="#newlinesinfix-stylekeep"><code>newlines.infix.xxxSite.style</code></a> is NOT <code>keep</code>; or</li>
+<li><a href="#newlinesinfix-stylenonekeep"><code>newlines.infix.xxxSite.style</code></a> is NOT <code>keep</code>; or</li>
 <li>current dialect supports <code>allowInfixOperatorAfterNL</code></li>
 </ul></li>
 </ul></li>
@@ -8409,8 +8409,8 @@ many line breaks we have selected to output for a given code passage);
 for instance,
 <ul>
 <li><a href="#inserting-braces">inserting</a> braces,</li>
-<li><a href="#rewritescala3endmarkerinsertminspan">adding</a> or
-<a href="#rewritescala3endmarkerremovemaxspan">removing</a> end markers</li>
+<li><a href="#rewritescala3endmarkerinsert">adding</a> or
+<a href="#rewritescala3endmarkerremove">removing</a> end markers</li>
 <li>modifying <a href="#newlines-around-package-or-template-body">blank lines</a></li>
 </ul></li>
 <li>rewrite comments and docstrings if configured</li>
