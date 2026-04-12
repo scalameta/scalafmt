@@ -8,8 +8,8 @@ import munit.FunSuite
 
 class CustomStructureTest extends FunSuite {
 
-  private implicit val parserOptions: ParserOptions =
-    new ParserOptions(captureComments = false)
+  private implicit val parserOptions: ParserOptions = ParserOptions.default
+    .withCaptureComments(false)
 
   private def check(original: String, expected: Tree, dialect: Dialect)(implicit
       loc: munit.Location,

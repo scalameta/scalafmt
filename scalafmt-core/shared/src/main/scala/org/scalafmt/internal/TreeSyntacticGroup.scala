@@ -17,7 +17,7 @@ object TreeSyntacticGroup {
     case _: m.Term.Apply => SimpleExpr1
     case _: m.Term.ApplyType => SimpleExpr1
     case _: m.Term.SelectMatch => SimpleExpr1
-    case t: m.Term.ApplyInfix => InfixExpr(t)
+    case t: m.Term.ApplyInfix => new InfixExpr(t)
     case _: m.Term.ApplyUnary => PrefixExpr
     case _: m.Term.Assign => Expr1
     case _: m.Term.Return => Expr1
@@ -48,7 +48,7 @@ object TreeSyntacticGroup {
     case _: m.Type.Project => SimpleTyp
     case _: m.Type.Singleton => SimpleTyp
     case _: m.Type.Apply => SimpleTyp
-    case t: m.Type.ApplyInfix => InfixTyp(t)
+    case t: m.Type.ApplyInfix => new InfixTyp(t)
     case _: m.Type.ParamFunctionType => Typ
     case _: m.Type.PolyFunction => Typ
     case _: m.Type.Tuple => SimpleTyp
@@ -73,7 +73,7 @@ object TreeSyntacticGroup {
     case _: m.Pat.Alternative => Pattern
     case _: m.Pat.Tuple => SimplePattern
     case _: m.Pat.Extract => SimplePattern
-    case t: m.Pat.ExtractInfix => InfixPat(t)
+    case t: m.Pat.ExtractInfix => new InfixPat(t)
     case _: m.Pat.Interpolate => SimplePattern
     case _: m.Pat.Xml => SimplePattern
     case _: m.Pat.Typed => Pattern1
