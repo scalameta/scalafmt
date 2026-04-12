@@ -61,8 +61,8 @@ case class RunnerSettings(
   def event(evt: => FormatEvent): Unit =
     if (null != eventCallback) eventCallback(evt)
 
-  private implicit val parserOptions: ParserOptions =
-    new ParserOptions(captureComments = false)
+  private implicit val parserOptions: ParserOptions = ParserOptions.default
+    .withCaptureComments(false)
 
   def parse(input: meta.inputs.Input): Parsed[_ <: Tree] = getParser(input)
 

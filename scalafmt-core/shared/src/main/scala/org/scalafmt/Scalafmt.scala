@@ -24,8 +24,8 @@ import metaconfig.Configured
 object Scalafmt {
 
   private val defaultFilename = "<input>"
-  private implicit val tokenizerOptions: TokenizerOptions =
-    new TokenizerOptions(groupWhitespace = true)
+  private implicit val tokenizerOptions: TokenizerOptions = TokenizerOptions
+    .default.withGroupWhitespace(true)
 
   // XXX: don't modify signature, scalafmt-dynamic expects it via reflection
   /** Format Scala code using scalafmt.
