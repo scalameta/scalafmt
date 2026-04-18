@@ -185,7 +185,7 @@ object Imports extends RewriteFactory {
     }
 
     protected final def selectorToTuple(tree: Importee): (Importee, String) =
-      (tree, tree.toString)
+      (tree, tree.text)
   }
 
   private[scalafmt] object Sort {
@@ -385,7 +385,7 @@ object Imports extends RewriteFactory {
         selector: Importee,
         needRaw: Boolean = true,
     ): Selectors = {
-      val selectorString = selector.toString()
+      val selectorString = selector.text
       val (commentsBefore, commentAfter) = getCommentsAround(selector)
       if (mustUseBraces(selector)) {
         val sb = new StringBuilder
@@ -931,7 +931,7 @@ object Imports extends RewriteFactory {
   }
 
   private def getRef(importer: Importer): String = {
-    val ref = importer.ref.toString()
+    val ref = importer.ref.text
     if (ref.isEmpty) "" else ref + "."
   }
 
