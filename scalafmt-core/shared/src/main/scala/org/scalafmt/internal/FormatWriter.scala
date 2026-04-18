@@ -1993,33 +1993,33 @@ object FormatWriter {
   private def getEndMarkerLabel(tree: Tree): String = tree match {
     // templates
     case _: Term.NewAnonymous => "new"
-    case t: Defn.Class => t.name.toString
-    case t: Defn.Object => t.name.toString
-    case t: Defn.Trait => t.name.toString
-    case t: Defn.Enum => t.name.toString
+    case t: Defn.Class => t.name.text
+    case t: Defn.Object => t.name.text
+    case t: Defn.Trait => t.name.text
+    case t: Defn.Enum => t.name.text
     case t: Defn.Given =>
-      val label = t.name.toString
+      val label = t.name.text
       if (label.isEmpty) "given" else label
-    case t: Pkg.Object => t.name.toString
+    case t: Pkg.Object => t.name.text
     // definitions
-    case t: Defn.Def => t.name.toString
-    case t: Defn.Macro => t.name.toString
+    case t: Defn.Def => t.name.text
+    case t: Defn.Macro => t.name.text
     case t: Defn.GivenAlias =>
-      val label = t.name.toString
+      val label = t.name.text
       if (label.isEmpty) "given" else label
-    case t: Defn.Type => t.name.toString
+    case t: Defn.Type => t.name.text
     case t: Defn.Val => t.pats match {
-        case List(Pat.Var(n)) => n.toString
+        case (p: Pat.Var) :: Nil => p.name.text
         case _ => "val"
       }
     case t: Defn.Var => t.pats match {
-        case List(Pat.Var(n)) => n.toString
+        case (p: Pat.Var) :: Nil => p.name.text
         case _ => "var"
       }
     // other
     case t: Pkg => t.ref match {
-        case x: Term.Name => x.toString
-        case x: Term.Select => x.name.toString
+        case x: Term.Name => x.text
+        case x: Term.Select => x.name.text
         case _ => null
       }
     case _: Ctor.Secondary => "this"
