@@ -25,7 +25,7 @@ inThisBuild {
         else s"${out.ref.dropPrefix}-next-SNAPSHOT" // modified for local builds
       dynverGitDescribeOutput.value.mkVersion(dynVer, curVersion)
     },
-    organization := "org.scalameta",
+    organization := smorgN,
     homepage := Some(url("https://github.com/scalameta/scalafmt")),
     licenses :=
       List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
@@ -125,7 +125,7 @@ lazy val sysops = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     scalacOptions ++= scalacJvmOptions.value,
     sharedTestSettings,
   ).jsEnablePlugins(ScalaJSPlugin).jsSettings(
-    libraryDependencies += "org.scalameta" %%% "io" % scalametaV,
+    libraryDependencies += smorgN %%% "io" % scalametaV,
     scalaJsSettings,
   )
 
@@ -145,7 +145,7 @@ lazy val core = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     moduleName := "scalafmt-core",
     buildInfoSettings("org.scalafmt", "Versions"),
     scalacOptions ++= scalacJvmOptions.value,
-    libraryDependencies ++= Seq("org.scalameta" %%% "mdoc-parser" % mdocV),
+    libraryDependencies ++= Seq(smorgN %%% "mdoc-parser" % mdocV),
     libraryDependencies ++= {
       if (!isScala212.value) Nil
       else Seq(compilerPlugin(
@@ -200,7 +200,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
         oldStrategy(x)
     },
     libraryDependencies ++= Seq(
-      "org.scalameta" %%% "munit-diff" % munitV,
+      smorgN %%% "munit-diff" % munitV,
       "com.github.scopt" %%% "scopt" % "4.1.0",
     ),
     scalacOptions ++= scalacJvmOptions.value,
