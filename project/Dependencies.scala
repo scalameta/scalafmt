@@ -6,8 +6,8 @@ import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 // scalafmt: { maxColumn = 120, align.preset = more, align.allowOverflow = true }
 
 object Dependencies {
-  val metaconfigV = "0.18.5"
-  val scalametaV  = "4.16.2"
+  val metaconfigV = "0.18.6"
+  val scalametaV  = "4.17.0"
   val coursier    = "2.1.24"
   val munitV      = "1.3.0"
   val mdocV       = mdoc.BuildInfo.version
