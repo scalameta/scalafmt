@@ -383,7 +383,7 @@ class DynamicSuite extends FunSuite {
     assert(thrown.getMessage.contains("Missing config"))
   }
 
-  check("intellij-default-config") { f: Format =>
+  check("intellij-default-config") { f =>
     val version = ScalafmtVersion(1, 5, 1)
     f.setVersion(version.toString, "Scala211")
     f.assertFormat()

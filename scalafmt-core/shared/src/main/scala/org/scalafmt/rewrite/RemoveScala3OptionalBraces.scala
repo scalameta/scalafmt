@@ -5,7 +5,7 @@ import org.scalafmt.internal._
 import org.scalafmt.util.TreeOps._
 
 import scala.meta._
-import scala.meta.tokens.{Token => T}
+import scala.meta.tokens.{Token => T, _}
 
 import scala.annotation.tailrec
 import scala.reflect.ClassTag

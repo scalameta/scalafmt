@@ -3,6 +3,7 @@ package org.scalafmt.config
 import org.scalafmt.util.TokenOps
 
 import scala.meta.Type
+import scala.meta.classifiers._
 import scala.meta.tokens.{Token => T}
 
 import metaconfig._

@@ -38,14 +38,14 @@ trait HasTests extends FormatAssertions {
     .orElse(stripPrefixOpt(name, onlyPrefix)).getOrElse(name)
 
   def filename2parse(filename: String): Option[ScalafmtParser] =
-    extension(filename) match {
+    fileExtension(filename) match {
       case "source" | "scala" | "scalafmt" => Some(ScalafmtParser.Source)
       case "stat" => Some(ScalafmtParser.Stat)
       case "case" => Some(ScalafmtParser.Case)
       case _ => None
     }
 
-  def extension(filename: String): String = filename.replaceAll(".*\\.", "")
+  def fileExtension(filename: String): String = filename.replaceAll(".*\\.", "")
 
   def parseDiffTests(path: Path, notOnly: Boolean): Seq[DiffTest] = {
     val filename = path.toString
@@ -193,7 +193,7 @@ trait HasTests extends FormatAssertions {
     Option(debug.locations).foreach(_.foreach { entry =>
       val token = entry.curr.formatToken
       implicit val sb = new StringBuilder()
-      sb.append(token.left.syntax)
+      sb.append(token.left.text)
       entry.formatWhitespace(0)
       builder += FormatOutput(
         sb.result(),

@@ -1,7 +1,7 @@
 package org.scalafmt.config
 
 import scala.meta.Mod
-import scala.meta.classifiers.Classifier
+import scala.meta.classifiers._
 
 import metaconfig._
 import sourcecode.Text

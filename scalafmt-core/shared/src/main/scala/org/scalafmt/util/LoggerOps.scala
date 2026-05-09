@@ -5,7 +5,7 @@ import org.scalafmt.internal._
 import org.scalameta.FileLine
 import scala.meta.Tree
 import scala.meta.inputs.InputRange
-import scala.meta.prettyprinters.Structure
+import scala.meta.prettyprinters._
 import scala.meta.tokens.{Token => T, Tokens}
 
 import scala.annotation.tailrec

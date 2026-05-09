@@ -2,8 +2,8 @@ package org.scalafmt.util
 
 import org.scalafmt.config.ScalafmtConfig
 
-import scala.meta.Input
-import scala.meta.tokens.{Token => T, Tokens}
+import scala.meta._
+import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec
 

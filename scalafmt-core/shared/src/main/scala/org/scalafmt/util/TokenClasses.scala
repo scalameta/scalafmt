@@ -1,8 +1,8 @@
 package org.scalafmt.util
 
 import scala.meta.Dialect
+import scala.meta.classifiers._
 import scala.meta.internal.parsers.SoftKeywords
-import scala.meta.tokens.Token._
 import scala.meta.tokens.{Token => T}
 
 sealed trait TokenClassifier extends Function[T, Boolean] {
@@ -13,29 +13,29 @@ sealed trait TokenClassifier extends Function[T, Boolean] {
 
 object Reserved extends TokenClassifier {
   def matches(token: T): Boolean = token match {
-    case _: Keyword | _: KwNull | _: BooleanConstant => true
+    case _: T.Keyword | _: T.KwNull | _: T.BooleanConstant => true
     case _ => false
   }
 }
 
 object LeftParenOrBracket extends TokenClassifier {
-  def matches(tok: T): Boolean = tok.isAny[LeftParen, LeftBracket]
+  def matches(tok: T): Boolean = tok.isAny[T.LeftParen, T.LeftBracket]
 }
 
 object RightParenOrBracket extends TokenClassifier {
-  def matches(tok: T): Boolean = tok.isAny[RightParen, RightBracket]
+  def matches(tok: T): Boolean = tok.isAny[T.RightParen, T.RightBracket]
 }
 
 object LeftParenOrBrace extends TokenClassifier {
-  def matches(tok: T): Boolean = tok.isAny[LeftParen, LeftBrace]
+  def matches(tok: T): Boolean = tok.isAny[T.LeftParen, T.LeftBrace]
 }
 
 class SoftKeywordClasses(dialect: Dialect) extends SoftKeywords(dialect) {
   object ImplicitOrUsing extends TokenClassifier {
-    def matches(tok: T): Boolean = tok.is[KwImplicit] || KwUsing.matches(tok)
+    def matches(tok: T): Boolean = tok.is[T.KwImplicit] || KwUsing.matches(tok)
   }
 
   object ExtendsOrDerives extends TokenClassifier {
-    def matches(tok: T): Boolean = tok.is[KwExtends] || KwDerives.matches(tok)
+    def matches(tok: T): Boolean = tok.is[T.KwExtends] || KwDerives.matches(tok)
   }
 }

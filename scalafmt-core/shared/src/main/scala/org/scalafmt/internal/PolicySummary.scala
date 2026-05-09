@@ -2,6 +2,7 @@ package org.scalafmt.internal
 
 import org.scalafmt.util.LoggerOps
 
+import scala.meta.classifiers._
 import scala.meta.tokens.{Token => T}
 
 class PolicySummary(val policies: Seq[Policy]) extends AnyVal {

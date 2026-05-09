@@ -3,7 +3,7 @@ package org.scalafmt.internal
 import org.scalafmt.util.LoggerOps
 import org.scalafmt.util.TokenOps._
 
-import scala.meta.Tree
+import scala.meta._
 import scala.meta.tokens.{Token => T}
 
 import scala.annotation.tailrec

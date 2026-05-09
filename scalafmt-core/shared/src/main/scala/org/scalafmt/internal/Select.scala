@@ -2,8 +2,8 @@ package org.scalafmt.internal
 
 import org.scalafmt.config.ScalafmtConfig
 
+import scala.meta._
 import scala.meta.tokens.{Token => T}
-import scala.meta.{Member, Term, Tree}
 
 import scala.annotation.tailrec
 
