@@ -1,10 +1,9 @@
 package org.scalafmt
 
+import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.sysops._
 import org.scalafmt.util.FormatAssertions
-
-import scala.meta.dialects.Scala213
 
 import java.io.File
 import java.nio.file.Path
@@ -60,16 +59,20 @@ class FidelityTest extends FunSuite with FormatAssertions {
     .endsWith(".scala") && {
     val filename = path.toString
     val ok = !denyList.exists(filename.contains)
-    if (ok) test(filename)(
+    if (ok) test(filename) {
       PlatformFileOps.readFileAsync(path).map { code =>
-        val formatted = Scalafmt
-          .formatCode(code, ScalafmtConfig.default, filename = filename)
+        val cfg = {
+          val cfg = ScalafmtConfig.default
+          if (path.iterator().asScala.forall(_.toString != "scala-3")) cfg
+          else cfg.withDialect(meta.dialects.Scala3, "scala3")
+        }
+        val formatted = Scalafmt.formatCode(code, cfg, filename = filename)
         assertFormatPreservesAst(filename, code, formatted.get)(
           scala.meta.parsers.Parse.parseSource,
-          Scala213,
+          cfg.dialect,
         )
-      }(munitExecutionContext),
-    )
+      }(munitExecutionContext)
+    }
     ok
   }
 
