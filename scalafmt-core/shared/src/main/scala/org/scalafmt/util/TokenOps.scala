@@ -5,7 +5,7 @@ import org.scalafmt.internal._
 
 import scala.meta._
 import scala.meta.classifiers.Classifier
-import scala.meta.tokens.{Token => T, Tokens}
+import scala.meta.tokens.{Token => T, _}
 
 import scala.annotation.tailrec
 

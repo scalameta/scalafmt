@@ -93,6 +93,8 @@ object RunnerSettings {
 
   implicit val encoder: ConfEncoder[RunnerSettings] = generic.deriveEncoder
 
+  private lazy val dialectMap = DialectMacro.dialectMap
+
   private[config] def overrideDialect[T: ClassTag](
       d: Dialect,
       k: String,
@@ -101,7 +103,7 @@ object RunnerSettings {
     val methodName =
       if (k.isEmpty || k.startsWith("with")) k
       else "with" + Character.toUpperCase(k.head) + k.tail
-    DialectMacro.dialectMap(methodName)(d, v)
+    dialectMap(methodName)(d, v)
   }
 
   implicit val decoder: ConfDecoderEx[RunnerSettings] = generic

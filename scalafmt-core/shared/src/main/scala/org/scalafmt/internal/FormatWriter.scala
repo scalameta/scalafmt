@@ -10,7 +10,6 @@ import org.scalafmt.{Error, Formatted, Scalafmt}
 import scala.meta.internal.Scaladoc
 import scala.meta.internal.parsers.ScaladocParser
 import scala.meta.tokens.{Token => T}
-import scala.meta.transversers.Traverser
 import scala.meta.{Token => _, _}
 
 import java.nio.CharBuffer
@@ -781,8 +780,10 @@ class FormatWriter(formatOps: FormatOps) {
                 private var hasPara: Boolean = true
                 override def hasNext: Boolean = hasPara && lineIter.hasNext && {
                   hasPara = !paraEnds
-                  if (!hasPara)
-                    do lineIter.next() while (lineIter.hasNext && paraEnds)
+                  if (!hasPara) while ({
+                    lineIter.next()
+                    lineIter.hasNext && paraEnds
+                  }) {}
                   hasPara
                 }
                 override def next() = new ParaLineIter()
@@ -1464,7 +1465,7 @@ class FormatWriter(formatOps: FormatOps) {
       }
     }
 
-    lazy val extraBlankTokens = {
+    private class ExtraBlankTokens {
       val extraBlankMap = new mutable.HashMap[Int, Int]
       val allowNonTop = initStyle.newlines.allowNonTopStatBlankLines
       def setIdx(idx: Int, cnt: Int) = extraBlankMap.updateWith(idx) {
@@ -1585,62 +1586,67 @@ class FormatWriter(formatOps: FormatOps) {
         if (insideBody(stats, nl, Newlines.after))
           setFt(trailingComment(ft, owner.pos.end))
       }
-      val trav = new Traverser {
-        private def applySeq(t: Tree, notUnindentedPkg: Boolean = true)(
-            seq: Seq[Tree],
-        ): Unit = if (seq.nonEmpty) {
-          setTopStats(t, notUnindentedPkg)(seq)
-          super.apply(seq)
-        }
-        private def applySeqWith[A <: Tree](
-            t: Tree,
-            notUnindentedPkg: Boolean = true,
-        )(seq: Seq[A])(f: Seq[A] => Unit): Unit = if (seq.nonEmpty) {
-          f(seq)
-          setTopStats(t, notUnindentedPkg)(seq)
-          super.apply(seq)
-        }
-        override def apply(tree: Tree): Unit = tree match {
-          case t: Source => applySeq(t)(t.stats)
-          case t: Stat.WithTemplate => apply(t.templ)
-          case t: Template => applySeqWith(t.body)(t.body.stats) { stats =>
-              beforeBody(stats)(_.beforeTemplateBodyIfBreakInParentCtors && {
-                val beg = leadingComment(t).meta.idx
-                val end = templateCurlyOrLastNonTrivial(t).meta.idx
-                locations(beg).leftLineId != locations(end).leftLineId
-              })
-              afterBody(t, stats)
-            }
-          case _: Template.Body => // it was processed above
-          case t: Defn.ExtensionGroup => applySeqWith(t)(t.body match {
-              case b: Term.Block => b.stats
-              case b => List(b)
-            }) { stats =>
-              beforeBody(stats)(_ => false)
-              afterBody(t, stats)
-            }
-          case t: Pkg => apply(t.body)
-          case t: Pkg.Body =>
-            if (indentedPackage(t)) applySeqWith(t)(t.stats) { stats =>
-              beforeBody(stats)(_ => false)
-              afterBody(t, stats)
-            }
-            else applySeqWith(t, notUnindentedPkg = false)(t.stats) { stats =>
-              val ok = stats.head match {
-                case t: Pkg => indentedPackage(t)
-                case _ => true
-              }
-              if (ok) beforeBody(stats)(_.hasTopStatBlankLines)
-            }
-          case _ if !allowNonTop => // everything else is not "top-level"
-          case t: Tree.Block => applySeq(t)(t.stats)
-          case _ => super.apply(tree)
-        }
+
+      private def traverse(tree: Tree): Unit = tree.dfsIf(traverseFunc)
+
+      private def traverseSeq(t: Tree, notUnindentedPkg: Boolean = true)(
+          seq: Seq[Tree],
+      ): Unit = if (seq.nonEmpty) {
+        setTopStats(t, notUnindentedPkg)(seq)
+        seq.foreach(traverse)
       }
 
-      if (locations.length == tokens.length) trav(topSourceTree)
-      extraBlankMap.toMap
+      private def traverseSeqWith[A <: Tree](
+          t: Tree,
+          notUnindentedPkg: Boolean = true,
+      )(seq: Seq[A])(f: Seq[A] => Unit): Unit = if (seq.nonEmpty) {
+        f(seq)
+        traverseSeq(t, notUnindentedPkg)(seq)
+      }
+
+      private val traversePf: PartialFunction[Tree, Unit] = {
+        case t: Source => traverseSeq(t)(t.stats)
+        case t: Stat.WithTemplate => traverse(t.templ)
+        case t: Template => traverseSeqWith(t.body)(t.body.stats) { stats =>
+            beforeBody(stats)(_.beforeTemplateBodyIfBreakInParentCtors && {
+              val beg = leadingComment(t).meta.idx
+              val end = templateCurlyOrLastNonTrivial(t).meta.idx
+              locations(beg).leftLineId != locations(end).leftLineId
+            })
+            afterBody(t, stats)
+          }
+        case _: Template.Body => // it was processed above
+        case t: Defn.ExtensionGroup => traverseSeqWith(t)(t.body match {
+            case b: Term.Block => b.stats
+            case b => List(b)
+          }) { stats =>
+            beforeBody(stats)(_ => false)
+            afterBody(t, stats)
+          }
+        case t: Pkg => traverse(t.body)
+        case t: Pkg.Body =>
+          if (indentedPackage(t)) traverseSeqWith(t)(t.stats) { stats =>
+            beforeBody(stats)(_ => false)
+            afterBody(t, stats)
+          }
+          else traverseSeqWith(t, notUnindentedPkg = false)(t.stats) { stats =>
+            val ok = stats.head match {
+              case t: Pkg => indentedPackage(t)
+              case _ => true
+            }
+            if (ok) beforeBody(stats)(_.hasTopStatBlankLines)
+          }
+        case _ if !allowNonTop => // everything else is not "top-level"
+        case t: Tree.Block => traverseSeq(t)(t.stats)
+      }
+
+      private val traverseFunc: Tree => Boolean = traversePf.lift(_).isEmpty
+
+      if (locations.length == tokens.length) traverse(topSourceTree)
     }
+
+    lazy val extraBlankTokens: Map[Int, Int] =
+      new ExtraBlankTokens().extraBlankMap.toMap
 
     @tailrec
     final def getNest(

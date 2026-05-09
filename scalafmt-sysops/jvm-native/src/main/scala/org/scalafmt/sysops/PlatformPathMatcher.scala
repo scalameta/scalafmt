@@ -1,11 +1,12 @@
 package org.scalafmt.sysops
 
 import java.nio.file
+import java.nio.file.Path
 
 object PlatformPathMatcher {
   val fs: file.FileSystem = file.FileSystems.getDefault
 
-  def apply(pattern: String): PathMatcher = {
+  private def getNioPathMatcher(pattern: String): file.PathMatcher =
     try fs.getPathMatcher(pattern)
     catch {
       case e: IllegalArgumentException =>
@@ -15,5 +16,9 @@ object PlatformPathMatcher {
         if (null != err && err.nonEmpty) sb.append("; ").append(err)
         throw new ScalafmtSysException(sb.toString())
     }
-  }.matches
+
+  def apply(pattern: String): PathMatcher = new PathMatcher {
+    private val pathMatcher = getNioPathMatcher(pattern)
+    override def matches(path: Path): Boolean = pathMatcher.matches(path)
+  }
 }

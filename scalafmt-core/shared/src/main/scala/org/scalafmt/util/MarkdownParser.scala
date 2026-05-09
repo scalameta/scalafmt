@@ -11,21 +11,25 @@ private[scalafmt] object MarkdownParser {
   }
 
   def transformMdoc(code: String)(fmt: String => Try[String]): Try[String] = {
-    var hadFencedParts = false
     val parts = MarkdownPart.parse(code, settings)
-    parts.foreach {
+
+    var hadFencedParts = false
+    var hadFailure: Try[String] = null
+    val iter = parts.iterator
+    while (iter.hasNext && hadFailure == null) iter.next() match {
       case p: CodeFence if p.getMdocMode.isDefined =>
         val old = p.body.value
         fmt(old) match {
           case Success(b) =>
             hadFencedParts = true
             p.newBody = Some(if (old.endsWith("\n")) b else b.trim)
-          case failure => return failure // RETURNING!
+          case failure => hadFailure = failure
         }
       case _ =>
     }
 
-    Success(
+    if (hadFailure != null) hadFailure
+    else Success(
       if (hadFencedParts) {
         val out = new StringBuilder()
         parts.foreach(_.renderToString(out))

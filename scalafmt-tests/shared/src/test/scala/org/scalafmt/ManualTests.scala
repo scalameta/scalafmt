@@ -11,7 +11,7 @@ import munit.Location
 
 object ManualTests extends HasTests {
   lazy val tests: Seq[DiffTest] = {
-    val testPrefix = testDir + File.separator
+    val testPrefix = testDir.toString + File.separator
     val testFiles = FileOps.listFiles(testDir).map(x => (x, x.toString))
     val manualFiles = for {
       (path, filename) <- testFiles if filename.endsWith(manual)

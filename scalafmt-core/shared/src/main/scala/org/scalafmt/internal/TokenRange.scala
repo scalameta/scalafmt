@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import scala.meta.classifiers._
 import scala.meta.tokens.{Token => T}
 
 class TokenRange private (val lt: FT, val rt: FT) {

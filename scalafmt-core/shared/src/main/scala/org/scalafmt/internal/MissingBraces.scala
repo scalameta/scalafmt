@@ -3,8 +3,8 @@ package org.scalafmt.internal
 import org.scalafmt.config.RewriteSettings.InsertBraces
 import org.scalafmt.util.TreeOps
 
+import scala.meta._
 import scala.meta.tokens.{Token => T}
-import scala.meta.{Ctor, Defn, Term, Tree}
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer

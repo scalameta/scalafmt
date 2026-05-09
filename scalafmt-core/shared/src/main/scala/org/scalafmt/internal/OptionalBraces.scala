@@ -227,7 +227,8 @@ object OptionalBraces {
                       case _ => true // multiple params are always in parens
                     }) =>
                 getSplits(ac, forceNL = false, indentOpt = indent) match {
-                  case s +: rs if !s.isNL => funcSplit(tf)(s.fileLine) +: rs
+                  case Seq(s, rs @ _*) if !s.isNL =>
+                    funcSplit(tf)(s.fileLine) +: rs
                   case ss => ss
                 }
               case _ => getSplits(ac, forceNL = true, indentOpt = indent)

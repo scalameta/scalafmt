@@ -3,8 +3,8 @@ package org.scalafmt.internal
 import org.scalafmt.config.{Newlines, ScalafmtConfig}
 
 sealed abstract class Modification {
-  val newlines: Int
-  val length: Int
+  def newlines: Int
+  def length: Int
   @inline
   final def isNL: Boolean = newlines != 0
   @inline
@@ -12,10 +12,11 @@ sealed abstract class Modification {
 }
 
 case class Provided(ft: FT) extends Modification {
-  override val newlines: Int = ft.newlinesBetween
-  override lazy val length: Int =
-    if (isNL) betweenText.indexOf('\n') else betweenText.length
+  override def newlines: Int = ft.newlinesBetween
+  override def length: Int = lengthImpl
   lazy val betweenText: String = ft.between.map(_.text).mkString
+  private lazy val lengthImpl: Int =
+    if (isNL) betweenText.indexOf('\n') else betweenText.length
 }
 
 case object NoSplit extends Modification {

@@ -1,6 +1,5 @@
 package org.scalafmt
 
-import org.scalafmt.TestCompatCollections.ParConverters._
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.sysops.AbsoluteFile
 import org.scalafmt.util.FormatAssertions
@@ -19,7 +18,7 @@ class ScalafmtProps extends FunSuite with FormatAssertions {
       config: ScalafmtConfig = ScalafmtConfig.default,
       count: Int = Int.MaxValue,
   ): mutable.Seq[(CorpusFile, Observation[Bug])] = {
-    val corpus = Corpus.files(Corpus.fastparse).take(count).toBuffer.par
+    val corpus = Corpus.files(Corpus.fastparse).take(count).toBuffer
     SyntaxAnalysis.run[Observation[Bug]](corpus) { file =>
       val code = file.read
       try Scalafmt.format(code, config) match {
