@@ -8,12 +8,11 @@ import scala.reflect.macros.blackbox
 // Builds a map between string (the scalafmt method name)
 // and dialect method application
 private[scalafmt] object DialectMacro {
-  def dialectMap: Map[String, ((Dialect, Any) => Dialect)] =
-    macro dialectMap_impl
+  import DialectMap.MapType
 
-  def dialectMap_impl(
-      c: blackbox.Context,
-  ): c.Expr[Map[String, ((Dialect, Any) => Dialect)]] = {
+  def dialectMap: MapType = macro dialectMap_impl
+
+  def dialectMap_impl(c: blackbox.Context): c.Expr[MapType] = {
     import c.universe._
     val methods = typeOf[Dialect].members.flatMap {
       case v: MethodSymbol => v.paramLists match {
@@ -28,8 +27,6 @@ private[scalafmt] object DialectMacro {
         }
       case _ => None
     }
-    c.Expr[Map[String, ((Dialect, Any) => Dialect)]](
-      q"""scala.collection.immutable.Map(..$methods)""",
-    )
+    c.Expr[MapType](q"""scala.collection.immutable.Map(..$methods)""")
   }
 }

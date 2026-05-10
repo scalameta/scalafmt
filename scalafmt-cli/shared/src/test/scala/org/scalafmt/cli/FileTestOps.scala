@@ -14,9 +14,12 @@ object FileTestOps {
   def string2dir(layout: String): AbsoluteFile = {
     val root = AbsoluteFile(PlatformFileOps.mkdtemp("root"))
     RegexCompat.splitByBeforeTextMatching(layout, "\n/").foreach { row =>
-      val path :: contents :: Nil = row.stripPrefix("\n").split("\n", 2).toList
+      val strippedRow = row.stripPrefix("\n")
+      val eolIdx = strippedRow.indexOf('\n')
+      val path = strippedRow.substring(0, eolIdx)
       val file = root / path.stripPrefix("/")
       file.parent.mkdirs()
+      val contents = strippedRow.substring(eolIdx + 1)
       file.writeFile(contents)
     }
     root

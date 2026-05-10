@@ -25,6 +25,7 @@ jobs:
         scala:
           - '2.12.21'
           - '2.13.18'
+          - '3.3.7'
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
@@ -50,7 +51,8 @@ jobs:
       - run: sbt ++${{ matrix.scala }} publishLocal
         if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
       - run: sbt ++${{ matrix.scala }} "mdoc --check-link-hygiene"
-        if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
+        if: ${{ startsWith(matrix.scala, '2.') &&
+          (success() || failure()) && steps.gitconfig.outcome == 'success' }}
       # Build and sanity-check the fat jar
       - run: sbt ++${{ matrix.scala }} "cli/assembly; cli/runAssembly --non-interactive"
         if: ${{ (success() || failure()) && steps.testjvm.outcome == 'success' }}
