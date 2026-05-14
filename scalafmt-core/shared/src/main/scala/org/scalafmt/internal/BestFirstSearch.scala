@@ -39,9 +39,25 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   private def getBlockCloseToRecurse(ft: FT)(implicit
       style: ScalafmtConfig,
   ): Option[Int] = TokenOps.getEndOfBlock(ft, parens = true).collect {
-    // Block must span at least 3 lines to be worth recursing.
-    case (close, _) if tokens.width(ft, close) > style.maxColumn * 3 =>
-      close.idx
+    // Block must span at least 3 lines to be worth recursing, except for
+    // narrow blocks that are one of several Term.Block siblings inside a
+    // wide arg clause, which would combinatorially explode BFS without
+    // recursion+memoization (e.g., `Seq({ s1; s2 }, { s1; s2 }, ...)` × N).
+    case (close, _)
+        if tokens.width(ft, close) > style.maxColumn * 3 ||
+        isInWideMultiBlockArgClause(ft.meta.leftOwner) => close.idx
+  }
+
+  private def isInWideMultiBlockArgClause(t: Tree)(implicit
+      style: ScalafmtConfig,
+  ): Boolean = t match {
+    case b: Term.Block => b.parent.exists {
+        case ac: Term.ArgClause =>
+          ac.values.count(_.is[Term.Block]) > 1 &&
+          tokens.span(ac) > style.maxColumn * 3
+        case _ => false
+      }
+    case _ => false
   }
 
   private val memo = mutable.Map.empty[Long, Option[State]]
