@@ -565,3 +565,47 @@ else {
           uri.getRawQuery(),
           uri.getRawFragment()).normalize()
 }
+<<< many narrow Term.Block siblings in arg clause
+runner.dialect = scala213
+maxColumn = 120
+onTestFailure = "Search state exploded"
+===
+object X {
+  val cases = Seq(
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+  )
+}
+>>> { stateVisits = 150001 }
+object X {
+  val cases = Seq(
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+    { val node = NetworkNode(label = Some(defaultRootLabel)); GraphEdge(source = node, isDirected = true, includeMetadata = false, attributes = (Map(EdgeKind.SolidLine -> Set(idOf(defaultStartNode))), node)) },
+  )
+}
