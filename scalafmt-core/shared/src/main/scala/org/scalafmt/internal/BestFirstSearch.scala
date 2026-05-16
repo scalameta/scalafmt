@@ -40,8 +40,11 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       style: ScalafmtConfig,
   ): Option[Int] = TokenOps.getEndOfBlock(ft, parens = true).collect {
     // Block must span at least 3 lines to be worth recursing.
-    case (close, _) if tokens.width(ft, close) > style.maxColumn * 3 =>
-      close.idx
+    case (close, _) if (ft.leftOwner match {
+          case Term.Block(_ :: tail) if tail.nonEmpty =>
+            tokens.width(ft, close) > style.maxColumn
+          case _ => tokens.width(ft, close) > style.maxColumn * 3
+        }) => close.idx
   }
 
   private val memo = mutable.Map.empty[Long, Option[State]]
