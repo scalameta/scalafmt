@@ -20,7 +20,7 @@ val bindingFuture = Http().bindAndHandleSync({
           upgrade.handleMessages(Flow.fromSinkAndSource(Sink.ignore, Source.fromPublisher(source)), None)
       }, interface = "localhost", port = 0)
 }}}
->>> { stateVisits = 1416, stateVisits2 = 815 }
+>>> { stateVisits = 1491, stateVisits2 = 892 }
 {
   {
     {
@@ -57,7 +57,7 @@ val bindingFuture = Http().bindAndHandleSync({
     }
   }
 }
->>> { stateVisits = 1322 }
+>>> { stateVisits = 1397 }
 {
   {
     {
