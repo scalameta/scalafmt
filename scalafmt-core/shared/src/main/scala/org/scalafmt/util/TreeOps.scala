@@ -1175,4 +1175,10 @@ object TreeOps {
     if (res.size == cnt) runner else runner.copy(dialectFeatures = res.toSeq)
   }
 
+  def isCurlyWithNextKeyword(rbOwner: Tree, rft: FT): Boolean = rbOwner.parent
+    .contains(rft.rightOwner)
+
+  def isCurlyWithNextKeyword(lft: FT, rft: FT): Boolean =
+    isCurlyWithNextKeyword(lft.leftOwner, rft)
+
 }
