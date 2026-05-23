@@ -13152,5 +13152,7 @@ object a {
 }
 >>>
 object a {
-  if (foo) bar else baz
+  if (foo) bar
+
+  else baz
 }

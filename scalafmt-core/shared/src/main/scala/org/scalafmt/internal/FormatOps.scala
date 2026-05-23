@@ -255,7 +255,7 @@ class FormatOps(
 
   def getBreakBeforeElsePolicy(beforeElse: FT): Policy = Policy
     .onlyFor(beforeElse, prefix = "ELSE")(
-      Decision.onlyNewlinesWithFallback(_, Seq(Split(Newline, 0))),
+      Decision.onlyNewlinesWithFallback(_, Seq(Split(Newline2x(beforeElse), 0))),
     )
 
   def getBreakBeforeElsePolicy(term: Term.If)(implicit

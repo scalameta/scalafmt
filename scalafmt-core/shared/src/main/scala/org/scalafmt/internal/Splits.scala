@@ -3249,7 +3249,8 @@ object SplitsBeforeElseYield extends Splits {
       cfg: ScalafmtConfig,
   ): Seq[Split] = {
     import fo._, tokens._, ft._
-    if (left.is[T.RightBrace]) Seq(Split(Space, 0))
+    if (ft.hasBlankLine) Seq(Split(Newline2x, 0))
+    else if (left.is[T.RightBrace]) Seq(Split(Space, 0))
     else {
       val noSplit =
         if (cfg.newlines.okSpaceForSource(newlinesBetween)) {
