@@ -3129,7 +3129,7 @@ object SplitsBeforeWhile extends Splits {
     else {
       val nlOnly = left.is[T.RightBrace] &&
         cfg.newlines.alwaysBeforeElseAfterCurlyIf &&
-        leftOwner.parent.contains(rightOwner) ||
+        isCurlyWithNextKeyword(ft, ft) ||
         !cfg.newlines.sourceIgnored && hasBreak
       val noSplit = Split(nlOnly, 0)(Space)
       val nlSplit = Split(Newline, 1)
@@ -3411,8 +3411,7 @@ object SplitsBeforeCatchFinally extends Splits {
   ): Seq[Split] = {
     import ft._
     val ok = cfg.newlines.alwaysBeforeElseAfterCurlyIf ||
-      !left.is[T.RightBrace] ||
-      leftOwner.ne(rightOwner) && !leftOwner.parent.contains(rightOwner)
+      !(left.is[T.RightBrace] && isCurlyWithNextKeyword(ft, ft))
     if (ok) Seq(Split(Newline2x(hasBlankLine), 0)) else Seq.empty
   }
 }

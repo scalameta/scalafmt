@@ -409,7 +409,7 @@ class FormatWriter(formatOps: FormatOps) {
           val addLine = style.newlines.alwaysBeforeElseAfterCurlyIf ||
             (endFt.right match {
               case _: T.KwElse | _: T.KwCatch | _: T.KwFinally =>
-                !owner.parent.contains(endFt.meta.rightOwner)
+                !TreeOps.isCurlyWithNextKeyword(owner, endFt)
               case _ => true
             })
           if (addLine) willAddLines.prepend(end)
