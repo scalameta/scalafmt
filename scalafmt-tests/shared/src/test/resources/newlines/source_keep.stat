@@ -13830,3 +13830,18 @@ object a {
     !(baz + /* c2 */
       quxQuxQuxQuxQuxQuxQuxQuxQuxQuxQux)
 }
+<<< blank before else
+object a {
+  if (foo)
+    bar
+
+  else
+    baz
+}
+>>>
+object a {
+  if (foo)
+    bar
+  else
+    baz
+}

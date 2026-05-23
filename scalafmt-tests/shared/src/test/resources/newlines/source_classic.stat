@@ -13997,3 +13997,18 @@ object a {
   foo + bar + /* c1 */ (baz + /* c2 */ quxQuxQuxQuxQuxQuxQuxQuxQuxQuxQux)
   foo + bar + /* c1 */ !(baz + /* c2 */ quxQuxQuxQuxQuxQuxQuxQuxQuxQuxQux)
 }
+<<< blank before else
+object a {
+  if (foo)
+    bar
+
+  else
+    baz
+}
+>>>
+object a {
+  if (foo)
+    bar
+  else
+    baz
+}
