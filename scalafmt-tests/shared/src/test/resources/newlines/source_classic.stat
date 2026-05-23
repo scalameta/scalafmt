@@ -14009,6 +14009,7 @@ object a {
 object a {
   if (foo)
     bar
+
   else
     baz
 }

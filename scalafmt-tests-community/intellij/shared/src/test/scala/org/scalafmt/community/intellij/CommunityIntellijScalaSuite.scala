@@ -13,7 +13,7 @@ abstract class CommunityIntellijScalaSuite(name: String)
 class CommunityIntellijScala_2024_2_Suite
     extends CommunityIntellijScalaSuite("intellij-scala-2024.2") {
 
-  override protected def totalStatesVisited: Option[Int] = Some(59726204)
+  override protected def totalStatesVisited: Option[Int] = Some(59726110)
 
   override protected def builds = Seq {
     getBuild(
@@ -54,7 +54,7 @@ class CommunityIntellijScala_2024_2_Suite
 class CommunityIntellijScala_2024_3_Suite
     extends CommunityIntellijScalaSuite("intellij-scala-2024.3") {
 
-  override protected def totalStatesVisited: Option[Int] = Some(59941464)
+  override protected def totalStatesVisited: Option[Int] = Some(59941370)
 
   override protected def builds = Seq {
     getBuild(
