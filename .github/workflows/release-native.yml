@@ -43,6 +43,10 @@ jobs:
       - run: sbt scala-native
         env:
           CI: true
+          # Workaround for scala-native/scala-native#4917 (intermittent SIGSEGV
+          # in the multithreaded native binary). Disables trap-based GC
+          # yieldpoints in the released binary.
+          SCALANATIVE_GC_TRAP_BASED_YIELDPOINTS: "0"
       - name: Zip artifact for deployment
         if:  ${{ !startsWith(matrix.deploy.os, 'windows') }}
         run: zip ${{ matrix.deploy.name }} scalafmt
