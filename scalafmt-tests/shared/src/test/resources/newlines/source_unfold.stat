@@ -14374,3 +14374,50 @@ object a {
   else
     baz
 }
+<<< #5290 binPack.defnSite
+maxColumn = 160
+binPack.defnSite = always
+align.beforeOpenParenDefnSite = true
+align.closeParenSite = true
+newlines.beforeOpenParenDefnSite = fold
+align.openParenDefnSite = true
+newlines.sometimesBeforeColonInMethodReturnType = false
+===
+object Example {
+  def notificationEventDispatcher[T <: PayloadMarkerBase](eventData: T, errors: Seq[IssueDetail], originalRawContent: String)(implicit ctx: RequestContext): Future[Int] = ???
+  object Nested {
+    def notificationEventDispatcher[T <: PayloadMarkerBase](eventData: T, errors: Seq[IssueDetail], originalRawContent: String)(implicit ctx: RequestContext): Future[Int] = ???
+  }
+}
+>>>
+object Example {
+  def notificationEventDispatcher[T <: PayloadMarkerBase](eventData: T, errors: Seq[IssueDetail], originalRawContent: String)
+                          (implicit ctx: RequestContext): Future[Int] = ???
+  object Nested {
+    def notificationEventDispatcher[T <: PayloadMarkerBase](eventData: T, errors: Seq[IssueDetail], originalRawContent: String)
+                            (implicit ctx: RequestContext): Future[Int] = ???
+  }
+}
+<<< #5290 !binPack.defnSite
+maxColumn = 160
+align.beforeOpenParenDefnSite = true
+align.closeParenSite = true
+newlines.beforeOpenParenDefnSite = fold
+align.openParenDefnSite = true
+newlines.sometimesBeforeColonInMethodReturnType = false
+===
+object Example {
+  def notificationEventDispatcher[T <: PayloadMarkerBase](eventData: T, errors: Seq[IssueDetail], originalRawContent: String)(implicit ctx: RequestContext): Future[Int] = ???
+  object Nested {
+    def notificationEventDispatcher[T <: PayloadMarkerBase](eventData: T, errors: Seq[IssueDetail], originalRawContent: String)(implicit ctx: RequestContext): Future[Int] = ???
+  }
+}
+>>>
+object Example {
+  def notificationEventDispatcher[T <: PayloadMarkerBase](eventData: T, errors: Seq[IssueDetail], originalRawContent: String)
+                                                         (implicit ctx: RequestContext): Future[Int] = ???
+  object Nested {
+    def notificationEventDispatcher[T <: PayloadMarkerBase](eventData: T, errors: Seq[IssueDetail], originalRawContent: String)
+                                                           (implicit ctx: RequestContext): Future[Int] = ???
+  }
+}
