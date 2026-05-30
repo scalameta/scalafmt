@@ -1448,9 +1448,10 @@ class FormatWriter(formatOps: FormatOps) {
 
     private def shiftStateColumnIndent(startIdx: Int, offset: Int): Unit = {
       // look for StateColumn; it returns indent=0 for withStateOffset(0)
-      val stateIndentOpt = locations(startIdx).state.modExt.indents
-        .filter(_.hasStateColumn).flatMap(_.withStateOffset(0))
-      stateIndentOpt.headOption.foreach { indent =>
+      val stateIndentIter = locations(startIdx).state.modExt.indents.iterator
+        .flatMap(x => if (x.hasStateColumn) x.withStateOffset(0) else None)
+      if (stateIndentIter.hasNext) {
+        val indent = stateIndentIter.next()
         @tailrec
         def updateLocation(idx: Int): Unit = {
           val floc = locations(idx)

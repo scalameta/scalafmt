@@ -100,7 +100,7 @@ case class ModExt(
     * }
     * ```
     */
-  def getActualIndents(offset: Int): Seq[ActualIndent] = indents
+  def getActualIndents(offset: Int): Iterator[ActualIndent] = indents.iterator
     .flatMap(_.withStateOffset(offset + mod.length))
 
 }
