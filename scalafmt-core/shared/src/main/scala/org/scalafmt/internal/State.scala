@@ -65,10 +65,9 @@ final class State(
     val (nextSplit, nextIndent, nextIndents) =
       if (right.is[T.EOF]) (initialNextSplit, 0, Seq.empty)
       else {
-        val offset = column - indentation
         def getUnexpired(modExt: ModExt) = {
           val extendedEnd = getRelativeToLhsLastLineEnd(modExt.isNL)
-          (modExt.getActualIndents(offset) ++ pushes).flatMap(x =>
+          (modExt.getActualIndents(column) ++ pushes).flatMap(x =>
             if (x.notExpiredBy(tok)) Some(x)
             else extendedEnd
               .map(y => x.copy(expire = y, expiresAt = ExpiresOn.After)),
