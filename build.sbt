@@ -182,21 +182,30 @@ lazy val macros = crossProject(JVMPlatform, NativePlatform, JSPlatform)
 
 import sbtassembly.AssemblyPlugin.defaultUniversalScript
 
-// TODO: handle scala3 settings as well
 val scalacJvmOptions = Def.setting {
-  val cross =
-    if (!isScala213.value) Nil
-    else Seq("-Ymacro-annotations", "-Xfatal-warnings", "-deprecation:false")
+  val cross = if (!isScala213.value) Nil else Seq("-Ymacro-annotations")
 
-  val unused = Seq("imports", "privates", "locals", "patvars", "implicits")
-    .map(x => s"-Ywarn-unused:$x")
+  val warningAsError =
+    if (isScala212.value) Seq("-Xfatal-warnings", "-deprecation:false")
+    else Seq("-Wconf:any:error,cat=deprecation:silent")
 
-  cross ++ unused ++ Seq("-target:8", "-release:8")
+  val unused =
+    if (isScala3.value) "-Wunused:all"
+    else if (isScala213.value)
+      "-Wunused:imports,privates,locals,patvars,implicits,explicits,params"
+    else "-Ywarn-unused:imports,privates,locals,patvars,implicits"
+
+  val javaver =
+    if (isScala3.value) Seq("-java-output-version:8")
+    else Seq("-target:8", "-release:8")
+
+  cross ++ warningAsError ++ javaver :+ unused
 }
 
 val scalacSettings = Def.settings(
-  // TODO: must exclude scaladoc pass
-  scalacOptions ++= scalacJvmOptions.value,
+  javacOptions ++= Seq("-source", "8", "-target", "8"),
+  Compile / compile / scalacOptions ++= scalacJvmOptions.value,
+  Test / compile / scalacOptions ++= scalacJvmOptions.value,
 )
 
 lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
