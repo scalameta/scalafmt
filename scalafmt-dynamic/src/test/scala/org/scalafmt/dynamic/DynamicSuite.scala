@@ -435,8 +435,8 @@ class DynamicSuite extends FunSuite {
     f.assertFormat()
     val cache = f.dynamic.configLoader match {
       case x: ScalafmtConfigLoader.CachedProxy => x.cache
-      case x =>
-        fail("ReflectConfigResolver is not cached: " + x.getClass.getSimpleName)
+      case x => fail(s"ReflectConfigResolver[$version] is not cached: ${x
+            .getClass.getSimpleName}")
     }
     val configOpt = cache.getFromCache(f.config)
       .collect { case Right((cfg, _)) => cfg }
