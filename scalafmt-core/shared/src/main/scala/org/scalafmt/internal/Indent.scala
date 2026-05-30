@@ -48,7 +48,7 @@ object Length {
     */
   case object StateColumn extends Length {
     override def withStateOffset(offset: Int): Int = offset
-    override val reset: Boolean = false
+    override val reset: Boolean = true
   }
 }
 

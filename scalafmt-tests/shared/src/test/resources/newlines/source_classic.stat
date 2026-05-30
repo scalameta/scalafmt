@@ -14031,10 +14031,10 @@ object Example {
 >>>
 object Example {
   def notificationEventDispatcher[T <: PayloadMarkerBase](eventData: T, errors: Seq[IssueDetail], originalRawContent: String)
-                          (implicit ctx: RequestContext): Future[Int] = ???
+                                                         (implicit ctx: RequestContext): Future[Int] = ???
   object Nested {
     def notificationEventDispatcher[T <: PayloadMarkerBase](eventData: T, errors: Seq[IssueDetail], originalRawContent: String)
-                            (implicit ctx: RequestContext): Future[Int] = ???
+                                                           (implicit ctx: RequestContext): Future[Int] = ???
   }
 }
 <<< #5290 !binPack.defnSite
