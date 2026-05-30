@@ -79,7 +79,7 @@ lazy val dynamicCore = project.in(file("scalafmt-dynamic-core")).settings(
   buildInfoSettings("org.scalafmt.dynamic", "BuildInfo"),
   libraryDependencies ++= List("com.typesafe" % "config" % "1.4.5"),
   sharedTestSettings,
-  scalacOptions ++= scalacJvmOptions.value,
+  scalacSettings,
   assembly / assemblyMergeStrategy := {
     case PathList("META-INF", "versions", "9", "module-info.class") =>
       MergeStrategy.discard
@@ -102,7 +102,7 @@ lazy val dynamic = project.in(file("scalafmt-dynamic")).settings(
     else pkg
   },
   sharedTestSettings,
-  scalacOptions ++= scalacJvmOptions.value,
+  scalacSettings,
 ).dependsOn(dynamicCore).dependsOn(core.jvm % "test")
 
 lazy val interfaces = crossProject(JVMPlatform, NativePlatform, JSPlatform)
@@ -131,7 +131,7 @@ lazy val sysops = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-sysops")).settings(
     moduleName := "scalafmt-sysops",
     description := "Scalafmt systems operations",
-    scalacOptions ++= scalacJvmOptions.value,
+    scalacSettings,
     sharedTestSettings,
   ).jsEnablePlugins(ScalaJSPlugin).jsSettings(
     libraryDependencies +=
@@ -143,7 +143,7 @@ lazy val config = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-config")).settings(
     moduleName := "scalafmt-config",
     description := "Scalafmt config parsing",
-    scalacOptions ++= scalacJvmOptions.value,
+    scalacSettings,
     libraryDependencies += metaconfigCore.value,
   ).jvmSettings(libraryDependencies += metaconfigTypesafe.value)
   .platformsSettings(NativePlatform, JSPlatform)(
@@ -154,7 +154,7 @@ lazy val core = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .in(file("scalafmt-core")).settings(
     moduleName := "scalafmt-core",
     buildInfoSettings("org.scalafmt", "Versions"),
-    scalacOptions ++= scalacJvmOptions.value,
+    scalacSettings,
     libraryDependencies += scalameta.value,
     libraryDependencies ++= Seq(smorgN %%% "mdoc-parser" % mdocV),
     libraryDependencies ++= {
@@ -172,7 +172,7 @@ lazy val coreJVM = core.jvm
 lazy val macros = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .in(file("scalafmt-macros")).settings(
     moduleName := "scalafmt-macros",
-    scalacOptions ++= scalacJvmOptions.value,
+    scalacSettings,
     libraryDependencies += scalameta.value,
     libraryDependencies ++= {
       if (isScala3.value) Nil
@@ -182,6 +182,7 @@ lazy val macros = crossProject(JVMPlatform, NativePlatform, JSPlatform)
 
 import sbtassembly.AssemblyPlugin.defaultUniversalScript
 
+// TODO: handle scala3 settings as well
 val scalacJvmOptions = Def.setting {
   val cross =
     if (!isScala213.value) Nil
@@ -192,6 +193,11 @@ val scalacJvmOptions = Def.setting {
 
   cross ++ unused ++ Seq("-target:8", "-release:8")
 }
+
+val scalacSettings = Def.settings(
+  // TODO: must exclude scaladoc pass
+  scalacOptions ++= scalacJvmOptions.value,
+)
 
 lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-cli")).settings(
@@ -216,7 +222,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
       smorgN %%% "munit-diff" % munitV,
       "com.github.scopt" %%% "scopt" % "4.1.0",
     ),
-    scalacOptions ++= scalacJvmOptions.value,
+    scalacSettings,
     Compile / mainClass := Some("org.scalafmt.cli.Cli"),
     sharedTestSettings,
   ).jvmSettings(
@@ -255,7 +261,7 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
     sharedTestSettings,
     libraryDependencies += scalametaTestkit.value % Test,
     libraryDependencies += "com.lihaoyi" %%% "scalatags" % "0.13.1" % Test,
-    scalacOptions ++= scalacJvmOptions.value,
+    scalacSettings,
     buildInfoPackage := "org.scalafmt.tests",
     buildInfoKeys := Seq[BuildInfoKey]("resourceDirectory" -> {
       val sharedTests = (baseDirectory.value.getParentFile / "shared").toPath
@@ -360,9 +366,9 @@ def buildInfoSettings(pkg: String, obj: String): Seq[Def.Setting[_]] = Seq(
   buildInfoObject := obj,
 )
 
-lazy val communityTestsSettings: Seq[Def.Setting[_]] = Seq(
+lazy val communityTestsSettings: Seq[Def.Setting[_]] = Def.settings(
   publish / skip := true,
-  scalacOptions ++= scalacJvmOptions.value,
+  scalacSettings,
   javaOptions += "-Dfile.encoding=UTF8",
 )
 
