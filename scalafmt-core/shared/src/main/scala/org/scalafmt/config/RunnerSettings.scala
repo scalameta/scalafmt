@@ -3,8 +3,6 @@ package org.scalafmt.config
 import scala.meta.parsers.{Parsed, ParserOptions}
 import scala.meta.{Dialect, Tree}
 
-import scala.reflect.ClassTag
-
 import metaconfig._
 
 /** A FormatRunner configures how formatting should behave.
@@ -95,11 +93,7 @@ object RunnerSettings {
 
   private lazy val dialectMap = DialectMacro.dialectMap
 
-  private[config] def overrideDialect[T: ClassTag](
-      d: Dialect,
-      k: String,
-      v: T,
-  ) = {
+  private[config] def overrideDialect[T](d: Dialect, k: String, v: T) = {
     val methodName =
       if (k.isEmpty || k.startsWith("with")) k
       else "with" + Character.toUpperCase(k.head) + k.tail

@@ -6,6 +6,8 @@ import org.scalafmt.sysops.PlatformRunOps
 import java.nio.file.{Path, Paths}
 import java.util.Date
 
+import scala.annotation.nowarn
+
 import scopt.OptionParser
 
 object CliArgParser {
@@ -34,9 +36,10 @@ object CliArgParser {
     new scopt.OptionParser[CliOptions]("scalafmt") {
       override def showUsageOnError: Option[Boolean] = Some(false)
 
+      @nowarn
       private def printAndExit(
           includeUsage: Boolean,
-      )(ignore: Unit, c: CliOptions): CliOptions = {
+      )(_ignore: Unit, c: CliOptions): CliOptions = {
         if (includeUsage) displayToOut(usage) else displayToOut(header)
         PlatformRunOps.exit(0)
         c

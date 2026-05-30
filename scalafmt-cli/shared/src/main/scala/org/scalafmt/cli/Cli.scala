@@ -97,8 +97,7 @@ object Cli extends CliUtils {
   private val isNativeImage: Boolean = "true" ==
     System.getProperty("scalafmt.native-image", "false")
 
-  private def getProposedConfigVersion(options: CliOptions): String =
-    s"version = $stableVersion"
+  private def proposedConfigVersion: String = s"version = $stableVersion"
 
   private type MaybeRunner = Either[String, ScalafmtRunner]
 
@@ -122,7 +121,7 @@ object Cli extends CliUtils {
       s"""|error: missing Scalafmt configuration file.
           |Consider creating '${options.getProposedConfigFile}'
           |with the following (other parameters may also be required):
-          |${getProposedConfigVersion(options)}
+          |$proposedConfigVersion
           |""".stripMargin,
     )) {
       // Run format using
@@ -138,7 +137,7 @@ object Cli extends CliUtils {
         Left(
           s"""|error: missing Scalafmt version.
               |Consider adding the following to $where:
-              |${getProposedConfigVersion(options)}
+              |$proposedConfigVersion
               |""".stripMargin,
         )
       } {

@@ -342,7 +342,7 @@ object OptionalBraces {
           def block: Tree = b
           def splits = Some(getSplits(b, forceNL = true))
         })
-      case t: Term.FunctionLike => FunctionArrowImpl.get(t, nft)
+      case t: Term.FunctionLike => FunctionArrowImpl.get(t)
       case _ => BlockImpl.create(nft)
     }
   }
@@ -353,13 +353,13 @@ object OptionalBraces {
         ft: FT,
         ftoks: FormatTokens,
     ): Option[OptionalBraces] = ft.leftOwner match {
-      case t: Term.FunctionLike => FunctionArrowImpl.get(t, nft)
+      case t: Term.FunctionLike => FunctionArrowImpl.get(t)
       case _ => BlockImpl.create(nft)
     }
   }
 
   private object FunctionArrowImpl {
-    def get(t: Term.FunctionLike, nft: FT)(implicit
+    def get(t: Term.FunctionLike)(implicit
         style: ScalafmtConfig,
         ft: FT,
         ftoks: FormatTokens,
