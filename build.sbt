@@ -77,7 +77,7 @@ lazy val dynamicCore = project.in(file("scalafmt-dynamic-core")).settings(
   moduleName := "scalafmt-dynamic-core",
   description := "Implementation of scalafmt-interfaces",
   buildInfoSettings("org.scalafmt.dynamic", "BuildInfo"),
-  libraryDependencies ++= List("com.typesafe" % "config" % "1.4.5"),
+  libraryDependencies ++= List("com.typesafe" % "config" % "1.4.9"),
   sharedTestSettings,
   scalacSettings,
   assembly / assemblyMergeStrategy := {
