@@ -44,7 +44,7 @@ inThisBuild {
     resolvers += Resolver.sonatypeCentralSnapshots,
     testFrameworks += TestFrameworks.MUnit,
     // causes native image issues
-    dependencyOverrides += "org.jline" % "jline" % "3.30.6",
+    dependencyOverrides += "org.jline" % "jline" % "3.30.13",
   )
 }
 
@@ -77,7 +77,7 @@ lazy val dynamicCore = project.in(file("scalafmt-dynamic-core")).settings(
   moduleName := "scalafmt-dynamic-core",
   description := "Implementation of scalafmt-interfaces",
   buildInfoSettings("org.scalafmt.dynamic", "BuildInfo"),
-  libraryDependencies ++= List("com.typesafe" % "config" % "1.4.5"),
+  libraryDependencies ++= List("com.typesafe" % "config" % "1.4.9"),
   sharedTestSettings,
   scalacSettings,
   assembly / assemblyMergeStrategy := {
