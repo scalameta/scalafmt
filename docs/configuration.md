@@ -3557,7 +3557,7 @@ def f() = {
 > formatter might need to be run twice.
 >
 > This rule cannot be used with
-> [`rewrite.scala3.endMarker.insertMinSpan`](#rewritescala3endmarkerinsert) or
+> [`rewrite.scala3.endMarker.insert.span`](#rewritescala3endmarkerinsertremove) or
 > [`rewrite.scala3.optionalBraces.oldSyntaxToo == true`](#rewritescala3optionalbraces).
 
 This rewrite in essence provides the opposite of what `RedundantBraces` achieves,
@@ -4613,43 +4613,49 @@ The section contains the following settings (available since v3.8.1):
 - (since v3.10.8) `insert`: will add braces to a braceless region if at least
   one check below is enabled and **unless** all (or "any" if `preferInsert = false`)
   of the enabled checks are satisfied
-  - `insert.minSpan`:
-    - disabled if negative
-    - satisfied if it exceeds the cumulative span of all visible tokens within the region
-    - or, for single-statement blocks, if that span is less than
+  - (since v3.11.2) `insert.span`
+    - an [interval](#rewritescala3-interval-checks) parameter,
+      applied to the cumulative span of all visible tokens within the region
+    - for single-statement blocks, that span may not be less than
       `maxColumn` (to avoid non-idempotent formatting)
-  - `insert.minBlankGaps`:
-    - disabled if negative
-    - satisfied if it exceeds the number of blank-line gaps within the region
-  - if `preferInsert = false`, these values will be increased, if necessary,
-    to be greater than those in `remove` section
+    - `insert.minSpan` was used earlier for `insert.span.min`
+  - (since v3.11.2) `insert.blankGaps`
+    - an [interval](#rewritescala3-interval-checks) parameter,
+      applied to the number of blank-line gaps within the region
+    - `remove.maxBlankGaps` was used earlier for `remove.blankGaps.max`
+  - if `preferInsert = false`, these intervals will be modified, if necessary,
+    to exclude those in `remove` section
 - (since v3.10.8) `remove`: will remove braces if at least
   one check below is enabled and **if** all (or "any" if `preferInsert = false`)
   of the enabled checks are satisfied
   - the only exception is when all checks both here and in `insert` above are
     disabled, in which case the rule will **always** remove braces
-  - `remove.maxSpan`
-    - disabled if negative
-    - satisfied if the cumulative span of all visible tokens between the braces does not exceed it
-  - `remove.maxBlankGaps`
-    - disabled if negative
-    - satisfied if the number of blank-line gaps between the braces does not exceed it
+  - `remove.span`
+    - an [interval](#rewritescala3-interval-checks) parameter,
+      applied to the cumulative span of all visible tokens between the braces
+    - before v3.11.2, `remove.maxSpan` was used instead of `remove.span.max`
+  - `remove.blankGaps`
+    - an [interval](#rewritescala3-interval-checks) parameter,
+      applied to the number of blank-line gaps between the braces
+    - before v3.11.2, `remove.maxBlankGaps` was used instead of `remove.blankGaps.max`
   - if `preferInsert = true`, these values will be decreased, if necessary,
     to be less than those in `insert` section
-- (since v3.8.1) `fewerBraces.minSpan` and `fewerBraces.maxSpan`
-  - in v3.10.8, was renamed from `fewerBracesMinSpan` and `fewerBracesMaxSpan`
-  - this is an additional restriction to the rule just above
-  - will apply the rewrite to last curried single-argument group if
-    it is enclosed in curly braces (or would be rewritten to curly
-    braces by the `RedundantBraces` rule)
-  - will only apply the rewrite if `fewerBraces.maxSpan` is positive and
-    the visible span between the braces is within this range (inclusive)
-- (since v3.8.1) `fewerBraces.parensToo`
-  - in v3.10.8, was renamed from `fewerBracesParensToo`
-  - will apply the rule just above to an argument in parentheses as well,
-    if the one of following is also satisfied:
-    - [`newlines.infix.xxxSite.style`](#newlinesinfix-stylenonekeep) is NOT `keep`; or
-    - current dialect supports `allowInfixOperatorAfterNL`
+- (since v3.8.1) `fewerBraces`
+  - will apply the `remove` rule just above, as an additional restriction,
+    to last curried single-argument group if it is enclosed in curly braces
+    (or would be rewritten to curly braces by the `RedundantBraces` rule)
+  - `fewerBraces.span`
+    - an [interval](#rewritescala3-interval-checks) parameter,
+      applied to the visible span between the braces
+    - disabled unless `span.max` is positive
+    - in v3.11.2, was renamed from `fewerBraces.{minSpan,maxSpan}`
+    - in v3.10.8, was renamed from `fewerBracesMinSpan` and `fewerBracesMaxSpan`
+  - `fewerBraces.parensToo`
+    - will apply to an argument in parentheses as well,
+      if the one of following is also satisfied:
+      - [`newlines.infix.xxxSite.style`](#newlinesinfix-stylenonekeep) is NOT `keep`; or
+      - current dialect supports `allowInfixOperatorAfterNL`
+    - in v3.10.8, was renamed from `fewerBracesParensToo`
 
 Prior to v3.10.8, the section was called `removeOptionalBraces`.
 Prior to v3.8.1, it was a single flag which
@@ -4664,33 +4670,10 @@ took three possible values (with their equivalent current settings shown):
 This setting, added in v3.10.8, controls whether we prefer to insert missing
 end markers over removing existing ones. See the two sections below for details.
 
-### `rewrite.scala3.endMarker.insert`
+### `rewrite.scala3.endMarker.{insert,remove}`
 
-This section controls when to insert an end marker (if one is missing) after an expression containing an
-[optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
-region.
-
-Several checks are defined, and the rule applies if:
-
-- at least one check is enabled
-- if `endMarker.preferInsert` is
-  - enabled: at least one check is satisfied
-  - disabled: all checks must be satisfied
-
-The following flags are defined, with corresponding checks:
-
-- (since v3.10.8) `minBreaks`: the check is enabled if this value is non-negative
-  and satisfied if the region contains at least as many line breaks
-- (since v3.10.8) `minBlankGaps`: the check is enabled if this value is non-negative
-  and satisfied if the region contains at least as many blank-line gaps
-
-> We will not insert end markers if the statement is not part of a template body,
-> or a multi-stat block. Doing so might turn a single-stat expression (which
-> doesn't require significant indentation handling) into a multi-stat block.
-
-### `rewrite.scala3.endMarker.remove`
-
-This section controls when to delete a standalone end marker(i.e., no other
+This section controls when to insert an end marker (if one is missing) or,
+conversely, when to remove an existing standalone end marker (i.e., no other
 tokens on that line, including comments) after an expression containing an
 [optional braces](https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html)
 region.
@@ -4699,23 +4682,34 @@ Several checks are defined, and the rule applies if:
 
 - at least one check is enabled
 - if `endMarker.preferInsert` is
-  - enabled: all checks must be satisfied
-  - disabled: at least one check is satisfied
+  - enabled: all checks must be satisfied to remove, and at least one to insert
+  - disabled: all checks must be satisfied to insert, and at least one to remove
 
 The following flags are defined, with corresponding checks:
 
-- (since v3.10.8) `maxBreaks`: the check is enabled if this value is non-negative,
-  and satisfied if the region contains at most as many line breaks
-- (since v3.10.8) `maxBlankGaps`: the check is enabled if this value is non-negative,
-  and satisfied if the region contains at most as many blank-line gaps
+- (since v3.11.2) `breaks`:
+  - an [interval](#rewritescala3-interval-checks) parameter,
+    applied to the number of line breaks in the region
+  - (since v3.10.8) `remove.maxBreaks` was used earlier for `remove.breaks.max`
+  - (since v3.10.8) `insert.minBreaks` was used earlier for `insert.breaks.min`
+- (since v3.11.2) `blankGaps.{min,max}`:
+  - an [interval](#rewritescala3-interval-checks) parameter,
+    applied to the number of blank-line gaps in the region
+  - (since v3.10.8) `remove.maxBlankGaps` was used earlier for `remove.blankGaps.max`
+  - (since v3.10.8) `insert.minBlankGaps` was used earlier for `insert.blankGaps.min`
 
-> We will not remove end markers if
+> We will not
 >
-> - the statement is not part of a template body, or a block with at least 3
->   statements. Doing so might turn a multi-stat expression (which requires
->   significant indentation handling) into a single-stat.
-> - there are comments before the end marker, as without the end marker they
->   would be treated as outside of the optional-braces region.
+> - remove end markers if
+>   - the statement is not part of a template body, or a block with at least 3
+>     statements. Doing so might turn a multi-stat expression (which requires
+>     significant indentation handling) into a single-stat.
+>   - there are comments before the end marker, as without the end marker they
+>     would be treated as outside of the optional-braces region.
+> - insert end markers if
+>   - the statement is not part of a template body, or a multi-stat block.
+>     Doing so might turn a single-stat expression (which doesn't require
+>     significant indentation handling) into a multi-stat block.
 
 ### `rewrite.scala3.endMarker.spanHas`
 
@@ -4732,6 +4726,17 @@ is used to calculate the span.
   - but for an if-else, this would be just the `else` part
 
 Prior to v3.10.3, this setting was named `scala3.countEndMarkerLines`.
+
+### `rewrite.scala3` interval checks
+
+In v3.11.2, some single-bound parameters have been converted to an interval,
+with two bounds, `min` and `max`, and the check associated with this interval
+parameter works as follows:
+
+- enabled if at least one of `min` or `max` is non-negative
+- satisfied for a given value if both hold:
+  - `min` is negative or value is at least `min`
+  - `max` is negative or value is at most `max`
 
 ## Vertical Multiline
 
@@ -6504,8 +6509,7 @@ Currently, the formatting process consists of several stages:
       many line breaks we have selected to output for a given code passage);
       for instance,
       - [inserting](#inserting-braces) braces,
-      - [adding](#rewritescala3endmarkerinsert) or
-        [removing](#rewritescala3endmarkerremove) end markers
+      - [adding or removing](#rewritescala3endmarkerinsertremove) end markers
       - modifying [blank lines](#newlines-around-package-or-template-body)
     - rewrite comments and docstrings if configured
     - [rewrite trailing commas](#trailing-commas):
