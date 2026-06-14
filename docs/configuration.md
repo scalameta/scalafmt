@@ -4555,6 +4555,18 @@ This section describes rules which are applied if the appropriate dialect (e.g.,
 > This logic is not triggered via the `rewrite.rules` parameter, but by setting
 > parameters under `rewrite.scala3` subsection.
 
+### `rewrite.scala3` presets
+
+The following presets are available for the `rewrite.scala3` section:
+
+- `common`: intends to approximate the
+  [common style recommendation](https://contributors.scala-lang.org/t/towards-a-common-scala-style-recommendation/7383)
+  - as of v3.11.2, it includes:
+    - `rewrite.scala3.convertToNewSyntax = true`
+    - `rewrite.scala3.newSyntax.deprecated = false`
+    - `rewrite.scala3.endMarker.remove.blankGaps.min = 1`
+    - `rewrite.scala3.optionalBraces.insert.blankGaps.min = 1`
+
 ### `rewrite.scala3.convertToNewSyntax`
 
 If this flag is enabled, the following new syntax will be applied (also,
