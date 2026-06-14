@@ -23,11 +23,21 @@ object RewriteScala3Settings {
 
   val default = new RewriteScala3Settings
 
+  private val styleGuideCommon = new RewriteScala3Settings(
+    convertToNewSyntax = true,
+    newSyntax = ConvertToNewSyntax(deprecated = false),
+    optionalBraces = RemoveOptionalBraces(insert =
+      Some(BracesFilters(blankGaps = Between(min = 1))),
+    ),
+    endMarker = EndMarker(remove = EndMarker.Filters(blankGaps = Between(min = 1))),
+  )
+
   implicit val decodec: ConfDecoderEx[RewriteScala3Settings] = Presets
     .mapDecoder(
       generic.deriveDecoderEx(default).noTypos.detectSectionRenames,
       "rewrite.scala3",
     ) {
+      case Conf.Str("common") => styleGuideCommon
       case Conf.Bool(true) => new RewriteScala3Settings(
           convertToNewSyntax = true,
           optionalBraces = RemoveOptionalBraces.yes,
