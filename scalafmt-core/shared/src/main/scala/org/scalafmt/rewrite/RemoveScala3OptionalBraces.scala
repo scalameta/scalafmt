@@ -155,10 +155,11 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
     val notOkToRewrite = hasFormatOff || { // can't force significant indentation
       val cfg = settings
       !cfg.remove.forall { x =>
-        val checks = Iterator(
-          (x.maxSpan, (max: Int) => session.getSpan(left) <= max),
-          (x.maxBlankGaps, (max: Int) => session.getBlankGaps(left) <= max),
-        ).flatMap { case (max, f) => if (max < 0) None else Some(f(max)) }
+        import RewriteScala3Settings.Between
+        val checks = Iterator[(Between, Between => Boolean)](
+          (x.span, _.satisfied(session.getSpan(left))),
+          (x.blankGaps, _.satisfied(session.getBlankGaps(left))),
+        ).flatMap { case (bw, f) => if (bw.enabled) Some(f(bw)) else None }
         if (!cfg.preferInsert) checks.contains(true)
         else checks.hasNext && !checks.contains(false)
       }
@@ -206,16 +207,20 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
         case x: ReplacementType.AppendAfter => x.ft.rightOwner
         case _ => left.ft.rightOwner
       })
-
-      val checkSpan = (x: Int) =>
-        if (isSingleStatBlock) session.getSpan(left) >= x.max(style.maxColumn)
-        else x == 0 || session.getSpan(left) >= x
-      val checkBlankGaps = (x: Int) =>
-        if (isSingleStatBlock) session.getBlankGaps(left) >= x.max(1)
-        else x == 0 || session.getBlankGaps(left) >= x
-      val checks =
-        Iterator((ib.minSpan, checkSpan), (ib.minBlankGaps, checkBlankGaps))
-          .flatMap { case (min, f) => if (min < 0) None else Some(f(min)) }
+      def getSpan = session.getSpan(left)
+      def getBlankGaps = session.getBlankGaps(left)
+      val checkSpan = (x: RewriteScala3Settings.Between) =>
+        if (isSingleStatBlock) {
+          val range = getSpan
+          range >= style.maxColumn && x.satisfied(range)
+        } else x.max == 0 || x.satisfied(getSpan)
+      val checkBlankGaps = (x: RewriteScala3Settings.Between) =>
+        if (isSingleStatBlock) {
+          val range = getBlankGaps
+          range >= 1 && x.satisfied(range)
+        } else x.max == 0 || x.satisfied(getBlankGaps)
+      val checks = Iterator((ib.span, checkSpan), (ib.blankGaps, checkBlankGaps))
+        .flatMap { case (bw, f) => if (bw.enabled) Some(f(bw)) else None }
       if (cfg.preferInsert) checks.contains(true)
       else checks.hasNext && !checks.contains(false)
     }
@@ -321,7 +326,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       tree: Term.ArgClause,
   )(implicit ft: FT, style: ScalafmtConfig): Replacement = {
     val cfg = settings
-    val ok = style.dialect.allowFewerBraces && cfg.fewerBraces.maxSpan > 0 &&
+    val ok = style.dialect.allowFewerBraces && cfg.fewerBraces.span.max > 0 &&
       (ft.right.is[T.LeftBrace] ||
         cfg.fewerBraces.parensToo &&
         (style.dialect.allowInfixOperatorAfterNL ||
@@ -357,11 +362,8 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       left: Replacement,
   )(implicit session: Session, style: ScalafmtConfig): Boolean = {
     def shouldRewriteArgClause(ac: Term.ArgClause): Boolean =
-      0 == ac.values.lengthCompare(1) && {
-        val rob = settings
-        val span = session.getSpan(left)
-        span >= rob.fewerBraces.minSpan && span <= rob.fewerBraces.maxSpan
-      }
+      0 == ac.values.lengthCompare(1) &&
+        settings.fewerBraces.span.satisfied(session.getSpan(left))
     val lft = left.ft
     lft.meta.rightOwner match {
       case t: Term.ArgClause => shouldRewriteArgClause(t)

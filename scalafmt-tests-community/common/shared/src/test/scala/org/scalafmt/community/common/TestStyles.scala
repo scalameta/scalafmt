@@ -44,7 +44,8 @@ private[community] object TestStyles {
           convertToNewSyntax = true,
           optionalBraces = RewriteScala3Settings.RemoveOptionalBraces.yes,
           endMarker = style.rewrite.scala3.endMarker.copy(insert =
-            style.rewrite.scala3.endMarker.insert.copy(minBreaks = 4),
+            style.rewrite.scala3.endMarker.insert
+              .copy(breaks = RewriteScala3Settings.Between(min = 4)),
           ),
         ),
         redundantBraces = RedundantBracesSettings.all

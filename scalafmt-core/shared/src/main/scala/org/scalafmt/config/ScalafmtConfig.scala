@@ -406,11 +406,15 @@ object ScalafmtConfig {
       checkPositive(indent.main, indent.callSite, indent.defnSite, indent.commaSiteRelativeToExtends)
       checkNonNeg(indent.caseSite, indent.extendSite, indent.withSiteRelativeToExtends)
       checkPositiveOpt(indent.significant, indent.ctorSite)
-      if (rewrite.scala3.endMarker.insert.minBreaks >= 0)
-        addIf(rewrite.scala3.endMarker.remove.maxBreaks >= rewrite.scala3.endMarker.insert.minBreaks)
-      if (rewrite.scala3.endMarker.insert.minBlankGaps >= 0)
-        addIf(rewrite.scala3.endMarker.remove.maxBlankGaps >= rewrite.scala3.endMarker.insert.minBlankGaps)
-      addIf(rewrite.insertBraces.settings.minBreaks != 0 && rewrite.scala3.endMarker.insert.minBreaks >= 0)
+      addIfDirect(
+        rewrite.scala3.endMarker.insert.breaks.overlaps(rewrite.scala3.endMarker.remove.breaks),
+        "rewrite.scala3.endMarker.insert.breaks and rewrite.scala3.endMarker.remove.breaks overlap",
+      )
+      addIfDirect(
+        rewrite.scala3.endMarker.insert.blankGaps.overlaps(rewrite.scala3.endMarker.remove.blankGaps),
+        "rewrite.scala3.endMarker.insert.blankGaps and rewrite.scala3.endMarker.remove.blankGaps overlap",
+      )
+      addIf(rewrite.insertBraces.settings.minBreaks != 0 && rewrite.scala3.endMarker.insert.breaks.enabled)
       addIf(rewrite.insertBraces.settings.minBreaks != 0 && rewrite.scala3.optionalBraces.oldSyntaxToo)
       if (RedundantBraces.usedIn(rewrite)) {
         if (rewrite.insertBraces.settings.minBreaks != 0) addIf(rewrite.insertBraces.settings.minBreaks <= rewrite.redundantBraces.maxBreaks)
@@ -419,8 +423,8 @@ object ScalafmtConfig {
       }
       addIf(align.beforeOpenParenDefnSite && !align.closeParenSite)
       addIf(align.beforeOpenParenCallSite && !align.closeParenSite)
-      if (rewrite.scala3.optionalBraces.fewerBraces.maxSpan > 0)
-        addIf(rewrite.scala3.optionalBraces.fewerBraces.minSpan > rewrite.scala3.optionalBraces.fewerBraces.maxSpan)
+      if (rewrite.scala3.optionalBraces.fewerBraces.span.max > 0)
+        addIf(rewrite.scala3.optionalBraces.fewerBraces.span.min > rewrite.scala3.optionalBraces.fewerBraces.span.max)
       if (rewrite.rules.contains(Imports)) binPack.importSelectors match {
         case Some(ImportSelectors.singleLine) => // if we fold but not bin pack, we might end up with very long lines
           addIfDirect(importSelectorsRewrite eq Newlines.fold, "rewrite.imports.selectors == fold && binPack.importSelectors == singleLine")

@@ -223,10 +223,10 @@ class FormatWriter(formatOps: FormatOps) {
       def processBody(begFt: FT, needBreak: Boolean): Unit = {
         val bLoc = locations(begFt.idx)
         val eLoc = locations(endIdx)
-        val ok = verifySpan(cfg.preferInsert)(
-          (cfg.remove.maxBreaks, getNumBreaks(needBreak)),
-          (cfg.remove.maxBlankGaps, getBlankGapsDiff),
-        ) { case (max, f) => max >= f(bLoc, eLoc) }
+        val ok = verifySpanInRange(cfg.preferInsert)(
+          (cfg.remove.breaks, getNumBreaks(needBreak)),
+          (cfg.remove.blankGaps, getBlankGapsDiff),
+        )(bLoc, eLoc)
         if (ok) {
           val loc2 = locations(idx + 2)
           locations(idx + 1) = locations(idx + 1).remove
@@ -301,10 +301,10 @@ class FormatWriter(formatOps: FormatOps) {
           if (eLoc.hasBreakAfter) {
             val cfg = floc.style.rewrite.scala3.endMarker
             def okSpan(loc: FormatLocation, needBreak: Boolean = false) =
-              verifySpan(!cfg.preferInsert)(
-                (cfg.insert.minBreaks, getNumBreaks(needBreak)),
-                (cfg.insert.minBlankGaps, getBlankGapsDiff),
-              ) { case (min, f) => min <= f(loc, eLoc) }
+              verifySpanInRange(!cfg.preferInsert)(
+                (cfg.insert.breaks, getNumBreaks(needBreak)),
+                (cfg.insert.blankGaps, getBlankGapsDiff),
+              )(loc, eLoc)
 
             val bLoc = locations(getHead(ownerTokens, owner).idx)
             val begIndent = bLoc.state.prev.indentation
@@ -2080,13 +2080,19 @@ object FormatWriter {
       .append(CharBuffer.wrap(csq, beg, end))
   }
 
-  private type SpanCheck = (Int, (FormatLocation, FormatLocation) => Int)
+  private type SpanCheck =
+    (RewriteScala3Settings.Between, (FormatLocation, FormatLocation) => Int)
 
   private def verifySpan(
       all: Boolean,
   )(checks: SpanCheck*)(p: SpanCheck => Boolean): Boolean = {
-    val it = checks.iterator.filter(_._1 >= 0)
+    val it = checks.iterator.filter(_._1.enabled)
     if (all) it.hasNext && it.forall(p) else it.exists(p)
   }
+
+  private def verifySpanInRange(
+      all: Boolean,
+  )(checks: SpanCheck*)(bLoc: FormatLocation, eLoc: FormatLocation): Boolean =
+    verifySpan(all)(checks: _*) { case (bw, f) => bw.satisfied(f(bLoc, eLoc)) }
 
 }
