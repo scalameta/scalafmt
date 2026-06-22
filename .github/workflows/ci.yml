@@ -28,7 +28,7 @@ jobs:
           - '3.3.7'
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Set up JVM
@@ -65,7 +65,7 @@ jobs:
         group: [ Scala2, Scala3, Spark, Intellij, Other ]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Set up JVM
@@ -79,7 +79,7 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-java@v5
         with:
           java-version: '11'
@@ -114,7 +114,7 @@ jobs:
               NATIVE_IMAGE_STATIC: musl
     env: ${{ matrix.env }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
         with:
