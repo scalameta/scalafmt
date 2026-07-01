@@ -1,6 +1,7 @@
 package org.scalafmt.benchmarks
 
 import org.scalafmt.Scalafmt
+import org.scalafmt.config.{Indents, ScalafmtConfig}
 import org.scalafmt.sysops.{FileOps, PlatformFileOps}
 
 import java.nio.file.Path
@@ -44,6 +45,17 @@ abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
 
   @Benchmark
   def scalafmt(): String = Scalafmt.format(code).get
+
+  // exercises State.getUnexpired's non-empty `relativeToLhsLastLine` path
+  private val relLhsConfig: ScalafmtConfig = ScalafmtConfig.default
+    .copy(indent =
+      ScalafmtConfig.default.indent.copy(relativeToLhsLastLine =
+        Seq(Indents.RelativeToLhs.`match`, Indents.RelativeToLhs.`infix`),
+      ),
+    )
+
+  @Benchmark
+  def scalafmt_relLhs(): String = Scalafmt.format(code, relLhsConfig).get
 
   @Benchmark
   def scalafmt_rewrite(): String = formatRewrite(code)
