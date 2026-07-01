@@ -121,7 +121,8 @@ object Scalafmt {
       },
       tree => {
         implicit val formatOps = new FormatOps(tree, style, file)
-        runner.event(FormatEvent.CreateFormatOps(formatOps))
+        val evtCb = runner.eventCallback
+        if (evtCb ne null) evtCb(FormatEvent.CreateFormatOps(formatOps))
         implicit val formatWriter = new FormatWriter(formatOps)
         Try(BestFirstSearch(range)).flatMap { res =>
           val formattedString = formatWriter.mkString(res.state)

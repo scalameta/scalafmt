@@ -12,13 +12,18 @@ import scala.reflect.ClassTag
 class OptimizationEntities(
     argumentStarts: Map[Int, Tree],
     optionalNewlines: Set[Int],
-    val statementStarts: Map[Int, Tree],
+    // indexed by token idx (null = absent); array, not boxed-Int Map, since
+    // `isStatementStart` is read per NL state in the search
+    statementStarts: Array[Tree],
     val semicolons: Map[Int, FT],
 ) {
   def argumentAt(idx: Int): Option[Tree] = argumentStarts.get(idx)
   def argument(implicit ft: FT): Option[Tree] = argumentAt(ft.meta.idx)
   def optionalNL(implicit ft: FT): Boolean = optionalNewlines(ft.meta.idx)
   def semicolonAfterStatement(idx: Int): Option[FT] = semicolons.get(idx)
+  def statementStart(idx: Int): Tree =
+    if (idx >= 0 && idx < statementStarts.length) statementStarts(idx) else null
+  def isStatementStart(idx: Int): Boolean = statementStart(idx) ne null
 }
 
 object OptimizationEntities {
@@ -34,7 +39,7 @@ object OptimizationEntities {
 
     private val arguments = mutable.Map.empty[Int, Tree]
     private val optional = Set.newBuilder[Int]
-    private val statements = Map.newBuilder[Int, Tree]
+    private val statements = new Array[Tree](ftoks.length)
     private val semicolons = Map.newBuilder[Int, FT]
 
     def build(): OptimizationEntities = {
@@ -48,7 +53,7 @@ object OptimizationEntities {
       new OptimizationEntities(
         arguments.toMap,
         optional.result(),
-        statements.result(),
+        statements,
         semicolons.result(),
       )
     }
@@ -93,7 +98,7 @@ object OptimizationEntities {
       if (stmt ne null) {
         val isComment = ft.left.is[T.Comment]
         val nft = if (isComment) ftoks.nextAfterNonComment(ft) else ft
-        statements += nft.meta.idx -> stmt
+        statements(nft.meta.idx) = stmt
       }
       prev.foreach { prev =>
         val pft = ftoks.prevNonCommentBefore(ft)

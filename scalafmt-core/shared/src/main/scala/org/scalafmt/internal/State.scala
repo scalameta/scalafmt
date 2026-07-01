@@ -18,7 +18,7 @@ final class State(
     val depth: Int,
     val prev: State,
     var indentation: Int,
-    pushes: Seq[ActualIndent],
+    pushes: Array[ActualIndent],
     var column: Int,
     var pendingSpaces: List[Policy.End.WithPos],
     val appliedPenalty: Int, // penalty applied from overflow
@@ -62,41 +62,103 @@ final class State(
     val tok = tokens(depth)
     val right = tok.right
 
-    val (nextSplit, nextIndent, nextIndents) =
-      if (right.is[T.EOF]) (initialNextSplit, 0, Seq.empty)
-      else {
-        def getUnexpired(modExt: ModExt) = {
-          val extendedEnd = getRelativeToLhsLastLineEnd(modExt.isNL)
-          (modExt.getActualIndents(column) ++ pushes).flatMap(x =>
-            if (x.notExpiredBy(tok)) Some(x)
-            else extendedEnd
-              .map(y => x.copy(expire = y, expiresAt = ExpiresOn.After)),
-          ).toSeq
-        }
-
-        val initialModExt = initialNextSplit.modExt
-        val nextPushes = getUnexpired(initialModExt)
-        val nextIndent = Indent.getIndent(nextPushes)
-        initialModExt.altOpt.flatMap(alt =>
-          if (tok.left.is[T.Comment]) None
-          else if (nextIndent < alt.mod.length + column) None
-          else if (initialModExt.noAltIndent) Some(alt)
-          else Some(alt.withIndents(initialModExt.indents)),
-        ).fold((initialNextSplit, nextIndent, nextPushes)) { alt =>
-          val altPushes = getUnexpired(alt)
-          val altIndent = Indent.getIndent(altPushes)
-          val split = initialNextSplit.withMod(alt)
-          (split, altIndent, altPushes)
+    // vars (not a Tuple3-valued val) to avoid a per-state tuple alloc on the
+    // hot path; the declared defaults are the EOF case.
+    var nextSplit: Split = initialNextSplit
+    var nextIndent: Int = 0
+    var nextIndents: Array[ActualIndent] = State.noIndents
+    if (!right.is[T.EOF]) {
+      // Build the next indents into one pre-sized array (this runs per state
+      // transition); avoids the ListBuffer + per-element cons cells the old
+      // `List.newBuilder` allocated. The element logic is INLINED at both
+      // sources (not a nested `def add`) on purpose: a nested closure would
+      // capture the `k`/`end` vars and allocate an Int/ObjectRef holder per
+      // call. `end` sentinels: `nullFT` = relative-end not yet computed
+      // (computed at most once, on first expiry), `null` = computed-but-none,
+      // else the FT. `out` is over-sized by the upper bound and trimmed only
+      // when something actually expired (the common case adds everything).
+      def getUnexpired(modExt: ModExt): Array[ActualIndent] = {
+        val srcIndents = modExt.indents
+        val maxSize = srcIndents.length + pushes.length
+        if (maxSize == 0) State.noIndents
+        else {
+          val out = new Array[ActualIndent](maxSize)
+          var k = 0
+          var end: FT = State.nullFT
+          // indents are taken relative to the column *after* this token's mod
+          // (hence `+ mod.length`); that extra gap pretty-aligns continuation
+          // lines of a multiline expression on an enumerator's RHS, e.g. the
+          // `else` of `x <- if (cond) a else b` in a `for` comprehension
+          val offset = column + modExt.mod.length
+          var indents = srcIndents
+          while (indents ne Nil) {
+            // `withStateOffset` returns null when there's no actual indent
+            val x = indents.head.withStateOffset(offset)
+            if (x ne null)
+              if (x.notExpiredBy(tok)) { out(k) = x; k += 1 }
+              else {
+                if (end eq State.nullFT)
+                  end = getRelativeToLhsLastLineEnd(modExt.isNL)
+                if (end ne null) {
+                  out(k) = x.copy(expire = end, expiresAt = ExpiresOn.After)
+                  k += 1
+                }
+              }
+            indents = indents.tail
+          }
+          var i = 0
+          while (i < pushes.length) {
+            val x = pushes(i)
+            if (x.notExpiredBy(tok)) { out(k) = x; k += 1 }
+            else {
+              if (end eq State.nullFT)
+                end = getRelativeToLhsLastLineEnd(modExt.isNL)
+              if (end ne null) {
+                out(k) = x.copy(expire = end, expiresAt = ExpiresOn.After)
+                k += 1
+              }
+            }
+            i += 1
+          }
+          if (k == maxSize) out
+          else if (k == 0) State.noIndents
+          else java.util.Arrays.copyOf(out, k)
         }
       }
 
-    val (prevPendingSpaces, confirmedSpaces) =
-      if (nextSplit.isNL) Nil -> pendingSpaces.count(_.notExpiredBy(tok))
-      else pendingSpaces.filter(_.notExpiredBy(tok)) -> 0
-    val (nextPendingSpaces, modLength) = nextSplit.mod match {
-      case SpaceOrNoSplit(p) if p.notExpiredBy(tok) =>
-        (p :: prevPendingSpaces, 0)
-      case m => (prevPendingSpaces, m.length)
+      val initialModExt = initialNextSplit.modExt
+      val nextPushes = getUnexpired(initialModExt)
+      val initIndent = Indent.getIndent(nextPushes)
+      initialModExt.altOpt.flatMap(alt =>
+        if (tok.left.is[T.Comment]) None
+        else if (initIndent < alt.mod.length + column) None
+        else if (initialModExt.noAltIndent) Some(alt)
+        else Some(alt.withIndents(initialModExt.indents)),
+      ) match {
+        case Some(alt) =>
+          nextIndents = getUnexpired(alt)
+          nextIndent = Indent.getIndent(nextIndents)
+          nextSplit = initialNextSplit.withMod(alt)
+        case None =>
+          nextIndent = initIndent
+          nextIndents = nextPushes
+      }
+    }
+
+    // vars instead of tuple-valued vals: avoids a Tuple2 alloc per next() on
+    // the hottest path (the tuples never escape, but don't rely on EA here)
+    var confirmedSpaces = 0
+    val prevPendingSpaces: List[Policy.End.WithPos] =
+      if (nextSplit.isNL) {
+        confirmedSpaces = pendingSpaces.count(_.notExpiredBy(tok))
+        Nil
+      } else pendingSpaces.filter(_.notExpiredBy(tok))
+    var modLength = 0
+    val nextPendingSpaces = nextSplit.mod match {
+      case SpaceOrNoSplit(p) if p.notExpiredBy(tok) => p :: prevPendingSpaces
+      case m =>
+        modLength = m.length
+        prevPendingSpaces
     }
 
     // Some tokens contain newline, like multiline strings/comments.
@@ -282,47 +344,51 @@ final class State(
 
   private def getRelativeToLhsLastLineEnd(
       isNL: Boolean,
-  )(implicit style: ScalafmtConfig, tokens: FormatTokens): Option[FT] = {
+  )(implicit style: ScalafmtConfig, tokens: FormatTokens): FT = {
     val allowed = style.indent.relativeToLhsLastLine
 
     def treeEnd(x: Tree) = tokens.getLast(x)
-    def indentEnd(ft: FT, isNL: Boolean)(onComment: => Option[FT]) = {
+    def indentEnd(ft: FT, isNL: Boolean) = {
       val leftOwner = ft.meta.leftOwner
       ft.left match {
         case _: T.KwMatch
             if leftOwner.is[Term.Match] &&
               allowed.contains(Indents.RelativeToLhs.`match`) =>
-          Some(treeEnd(leftOwner))
+          treeEnd(leftOwner)
         case _: T.Ident if !isNL =>
           leftOwner.parent match {
             case Some(p: Term.ApplyInfix)
                 if p.op.eq(leftOwner) &&
-                  allowed.contains(Indents.RelativeToLhs.`infix`) =>
-              Some(treeEnd(p))
-            case _ => None
+                  allowed.contains(Indents.RelativeToLhs.`infix`) => treeEnd(p)
+            case _ => null
           }
-        case _: T.Comment if !isNL => onComment
-        case _ => None
+        case _ => null
       }
     }
 
     val tok = tokens(depth)
     val right = tok.right
-    if (allowed.isEmpty) None
-    else if (!isNL && right.is[T.Comment]) Some(tokens.next(tok))
-    else indentEnd(tok, isNL) {
-      val earlierState = prev.prevNonCommentSameLine
-      indentEnd(tokens(earlierState.depth), earlierState.split.isNL)(None)
-    }.orElse {
-      val delay = !isNL &&
-        (right match {
+    if (allowed.isEmpty) null
+    else if (!isNL && right.is[T.Comment]) tokens.next(tok)
+    else {
+      val end =
+        if (!tok.left.is[T.Comment]) indentEnd(tok, isNL)
+        else if (isNL) null
+        else {
+          val earlierState = prev.prevNonCommentSameLine
+          indentEnd(tokens(earlierState.depth), earlierState.split.isNL)
+        }
+      if ((end ne null) || isNL) end
+      else {
+        val delay = right match {
           case _: T.KwMatch => tok.meta.rightOwner.is[Term.Match] &&
             allowed.contains(Indents.RelativeToLhs.`match`)
           case _: T.Ident => tok.meta.rightOwner.parent.is[Term.ApplyInfix] &&
             allowed.contains(Indents.RelativeToLhs.`infix`)
           case _ => false
-        })
-      if (delay) Some(tokens.next(tok)) else None
+        }
+        if (delay) tokens.next(tok) else null
+      }
     }
   }
 
@@ -334,6 +400,9 @@ final class State(
 
 object State {
 
+  // shared empty indents array (immutable when empty, safe to share per state)
+  private val noIndents = new Array[ActualIndent](0)
+
   val start: State = new State(
     cost = 0,
     policy = PolicySummary.empty,
@@ -341,7 +410,7 @@ object State {
     depth = 0,
     prev = null,
     indentation = 0,
-    pushes = Nil,
+    pushes = noIndents,
     column = 0,
     pendingSpaces = Nil,
     appliedPenalty = 0,
@@ -392,7 +461,7 @@ object State {
     private def compareSplitOrigin(s1: State, s2: State): Int = {
       // We assume the same number of splits, see compareSplitsLength
       // Break ties by the last split's line origin.
-      val r = s1.split.rank.compare(s2.split.rank)
+      val r = Integer.compare(s1.split.rank, s2.split.rank)
       if (r != 0) r
       else {
         val r = s1.split.fileLineStack.compare(s2.split.fileLineStack)
@@ -534,4 +603,5 @@ object State {
   private def isWithinInterpolation(tree: Tree): Boolean =
     findTreeOrParentSimple(tree)(isInterpolation).isDefined
 
+  private val nullFT = FT(null, null, null)
 }

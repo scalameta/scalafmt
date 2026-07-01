@@ -11,7 +11,7 @@ import scala.annotation.tailrec
   */
 case class ModExt(
     mod: Modification,
-    indents: Seq[Indent] = Nil,
+    indents: List[Indent] = Nil,
     altOpt: Option[ModExt] = None,
     noAltIndent: Boolean = false,
 ) {
@@ -76,31 +76,5 @@ case class ModExt(
       .flatMap(x => Some(x.switch(trigger, on)).filter(_ ne Indent.Empty))
     copy(indents = newIndents)
   }
-
-  /** This gap is necessary for pretty alignment multiline expressions on the
-    * right-side of enumerator. Without:
-    * ```
-    * for {
-    *   a <- new Integer {
-    *         value = 1
-    *       }
-    *   x <- if (variable) doSomething
-    *       else doAnything
-    * }
-    * ```
-    *
-    * With:
-    * ```
-    * for {
-    *   a <- new Integer {
-    *           value = 1
-    *        }
-    *   x <- if (variable) doSomething
-    *        else doAnything
-    * }
-    * ```
-    */
-  def getActualIndents(offset: Int): Iterator[ActualIndent] = indents.iterator
-    .flatMap(_.withStateOffset(offset + mod.length))
 
 }
