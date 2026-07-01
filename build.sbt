@@ -323,19 +323,11 @@ lazy val benchmarks = project.in(file("scalafmt-benchmarks")).settings(
   libraryDependencies += scalametaTestkit.value,
   run / javaOptions ++= Seq(
     "-Djava.net.preferIPv4Stack=true",
-    "-XX:+AggressiveOpts",
-    "-XX:+UseParNewGC",
-    "-XX:+UseConcMarkSweepGC",
-    "-XX:+CMSParallelRemarkEnabled",
-    "-XX:+CMSClassUnloadingEnabled",
     "-XX:ReservedCodeCacheSize=128m",
     "-XX:MaxMetaspaceSize=1024m",
-    "-XX:SurvivorRatio=128",
-    "-XX:MaxTenuringThreshold=0",
     "-Xss8M",
     "-Xms512M",
     "-Xmx2G",
-    "-server",
   ),
 ).dependsOn(coreJVM).enablePlugins(JmhPlugin)
 
