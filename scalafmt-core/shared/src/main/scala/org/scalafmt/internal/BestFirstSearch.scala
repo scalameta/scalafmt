@@ -27,9 +27,13 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     */
   val routes: Array[Seq[Split]] = {
     val router = new Router
-    val result = Array.newBuilder[Seq[Split]]
-    tokens.foreach(t => result += router.getSplits(t))
-    result.result()
+    val result = new Array[Seq[Split]](tokens.length)
+    var i = 0
+    while (i < result.length) {
+      result(i) = router.getSplits(tokens(i))
+      i += 1
+    }
+    result
   }
   private val noOptZones =
     if (useNoOptZones(initStyle)) getNoOptZones(tokens) else null
@@ -47,8 +51,14 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         }) => close.idx
   }
 
-  private val memo = mutable.Map.empty[Long, Option[State]]
-  private val slbMemo = mutable.Map.empty[Long, Option[State]]
+  // LongMap: primitive Long key, no boxing on get/update in the search recursion
+  private val memo = mutable.LongMap.empty[Option[State]]
+  private val slbMemo = mutable.LongMap.empty[Option[State]]
+
+  // out-param for getActiveSplits: number of valid splits in the returned array
+  // (avoids a per-state `(Array[Split], Int)` tuple). Single-threaded search, so
+  // a field is safe; every caller reads it into a local right after the call.
+  private[this] var activeSplitsCount: Int = 0
 
   def shortestPathMemo(
       start: State,
@@ -109,10 +119,10 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       import style.runner.optimizer
 
       if (idx > deepestState.depth) deepestState = curr
-      val noOptZoneOrBlock =
-        if (noOptZones == null || !useNoOptZones) Some(true)
-        else noOptZones.get(idx)
-      val noOptZone = noOptZoneOrBlock.contains(true)
+      // 0 = absent (no block here), 1 = Some(false), 2 = Some(true)/no-opt
+      val noOptZoneCode: Int =
+        if (noOptZones == null || !useNoOptZones) 2 else noOptZones(idx)
+      val noOptZone = noOptZoneCode == 2
 
       if (noOptZone || stats.shouldEnterState(curr)) {
         if (Q.generation.nonEmpty) preFork = false
@@ -124,14 +134,14 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           if (
             emptyQueueSpots.contains(idx) ||
             optimizer.dequeueOnNewStatements && !(depth == 0 && noOptZone) &&
-            optimizationEntities.statementStarts.contains(idx)
+            optimizationEntities.isStatementStart(idx)
           ) {
             preFork = false
             Q.addGeneration()
           }
 
-        val noBlockClose = start == curr && !isOpt ||
-          noOptZoneOrBlock.isEmpty || !optimizer.recurseOnBlocks
+        val noBlockClose = start == curr && !isOpt || noOptZoneCode == 0 ||
+          !optimizer.recurseOnBlocks
         val blockCloseState =
           if (noBlockClose) None
           else getBlockCloseToRecurse(splitToken, curr.indentation)
@@ -146,10 +156,11 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             )
 
           val actualSplits = getActiveSplits(curr)(activeSplitsFilter)
+          val numSplits = activeSplitsCount
 
           var optimalFound = false
           val handleOptimalTokens = optimizer.acceptOptimalAtHints &&
-            depth < optimizer.maxDepth && actualSplits.lengthCompare(1) > 0
+            depth < optimizer.maxDepth && numSplits > 1
 
           def processNextState(implicit nextState: State): Unit = {
             val split = nextState.split
@@ -173,10 +184,13 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             } else preFork = false
           }
 
-          actualSplits.foreach(split =>
-            if (optimalFound) sendEvent(split)
-            else processNextState(getNext(curr, split)),
-          )
+          var sidx = 0
+          while (sidx < numSplits) {
+            val split = actualSplits(sidx)
+            sidx += 1
+            if (optimalFound) stats.sendEvent(split)
+            else processNextState(getNext(curr, split))
+          }
         }
       }
     }
@@ -189,13 +203,10 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     else Left(preForkState)
   }
 
-  private def sendEvent(split: Split): Unit = initStyle.runner
-    .event(FormatEvent.Enqueue(split))
-
   private def getNext(state: State, split: Split)(implicit
       style: ScalafmtConfig,
   ): State = {
-    sendEvent(split)
+    stats.sendEvent(split)
     state.next(split)
   }
 
@@ -247,32 +258,57 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     }
   }
 
+  // returns the splits array; the valid-count is written to `activeSplitsCount`
   private def getActiveSplits(
       state: State,
-  )(pred: Split => Boolean)(implicit Q: StateQueue): Seq[Split] = {
+  )(pred: Split => Boolean)(implicit Q: StateQueue): Array[Split] = {
     stats.trackState(state)
     val idx = state.depth
     val ft = tokens(idx)
-    val active = state.policy.execute(Decision(ft, routes(idx)))
-      .filter(s => s.isActive && pred(s))
-    val splits =
-      if (active.isEmpty || !ft.meta.formatOff && ft.inside(range)) active
-      else {
-        val isNL = ft.hasBreak
-        val mod = Provided(ft)
-        active.map { x =>
-          val penalty = if (x.isNL == isNL) 0 else Constants.ShouldBeNewline
-          x.withMod(mod).withPenalty(penalty)
-        }
+    // with no policies, `execute` is the identity, so skip the Decision alloc
+    // copy into an array we own (`routes(idx)` is shared), then filter/map/sort
+    // in place; `pred` may have side effects, so call it exactly once per split
+    val arr = {
+      val splits = routes(idx)
+      if (state.policy.numPolicies == 0) splits
+      else state.policy.execute(ft, splits)
+    }.toArray
+    var widx = 0
+    var ridx = 0
+    while (ridx < arr.length) {
+      val s = arr(ridx)
+      if (s.isActive && pred(s)) { arr(widx) = s; widx += 1 }
+      ridx += 1
+    }
+    if (widx != 0 && (ft.meta.formatOff || !ft.inside(range))) {
+      val isNL = ft.hasBreak
+      val mod = Provided(ft)
+      var i = 0
+      while (i < widx) {
+        val x = arr(i)
+        val penalty = if (x.isNL == isNL) 0 else Constants.ShouldBeNewline
+        arr(i) = x.withMod(mod).withPenalty(penalty)
+        i += 1
       }
-    splits.sortBy(_.costWithPenalty)
+    }
+    if (widx > 1) java.util.Arrays
+      .sort(arr, 0, widx, BestFirstSearch.splitByCost)
+    activeSplitsCount = widx
+    arr
   }
 
-  private def stateAsOptimal(state: State, splits: Seq[Split]) = {
-    val isOptimal = splits
-      .exists(s => s.isNL && s.penalty < Constants.ShouldBeNewline) ||
-      tokens.isRightCommentWithBreak(tokens(state.depth))
-    if (isOptimal) Some(state) else None
+  private def stateIsOptimal(
+      state: State,
+      splits: Array[Split],
+      numSplits: Int,
+  ): Boolean = {
+    var i = 0
+    while (i < numSplits) {
+      val s = splits(i)
+      if (s.isNL && s.penalty < Constants.ShouldBeNewline) return true
+      i += 1
+    }
+    tokens.isRightCommentWithBreak(tokens(state.depth))
   }
 
   /** Follow states having single active non-newline split
@@ -282,19 +318,24 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       state: State,
   )(implicit queue: StateQueue): Either[State, State] =
     if (state.depth >= tokens.length) Right(state)
-    else getActiveSplits(state)(_ => true) match {
-      case Seq() => Left(null) // dead end if empty
-      case Seq(split) =>
+    else {
+      val ss = getActiveSplits(state)(_ => true)
+      val numSplits = activeSplitsCount
+      if (numSplits == 0) Left(null) // dead end if empty
+      else if (numSplits == 1) {
+        val split = ss(0)
         if (split.isNL) Right(state)
         else {
           implicit val style: ScalafmtConfig = styleMap.at(tokens(state.depth))
           traverseSameLine(getNext(state, split))
         }
-      case ss => stateAsOptimal(state, ss).toRight(state)
+      } else if (stateIsOptimal(state, ss, numSplits)) Right(state)
+      else Left(state)
     }
 
   def getBestPath: SearchResult = {
-    initStyle.runner.event(FormatEvent.Routes(routes))
+    if (stats.eventCallback ne null) stats
+      .eventCallback(FormatEvent.Routes(routes))
     val state = {
       def run = shortestPath(State.start, Int.MaxValue)
       run.getOrElse(stats.retry.flatMap { x =>
@@ -309,12 +350,12 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       val deepestYet = stats.deepestYet
       val nextSplits = routes(deepestYet.depth)
       val tok = tokens(deepestYet.depth)
-      val splitsAfterPolicy = deepestYet.policy.execute(Decision(tok, nextSplits))
-      def printSeq(vals: Seq[_]): String = vals.mkString("\n  ", "\n  ", "")
+      val splitsAfterPolicy = deepestYet.policy.execute(tok, nextSplits)
+      def printSeq(vals: Iterable[_]): String = vals.mkString("\n  ", "\n  ", "")
       val msg =
         s"""|UNABLE TO FORMAT,
             |tok #${deepestYet.depth}/${tokens.length}: $tok
-            |policies:${printSeq(deepestYet.policy.policies)}
+            |policies:${printSeq(deepestYet.policy.toIterable)}
             |splits (before policy):${printSeq(nextSplits)}
             |splits (after policy):${printSeq(splitsAfterPolicy)}
             |""".stripMargin
@@ -332,21 +373,29 @@ case class SearchResult(state: State, reachedEOF: Boolean)
 
 object BestFirstSearch {
 
+  // stable in-place sort key for getActiveSplits (matches `sortBy(costWithPenalty)`)
+  private val splitByCost: java.util.Comparator[Split] =
+    (a: Split, b: Split) => Integer.compare(a.costWithPenalty, b.costWithPenalty)
+
   def apply(
       range: Set[Range],
   )(implicit formatOps: FormatOps, formatWriter: FormatWriter): SearchResult =
     new BestFirstSearch(range).getBestPath
 
-  private def getNoOptZones(tokens: FormatTokens)(implicit styleMap: StyleMap) = {
-    val result = mutable.Map.empty[Int, Boolean]
+  // dense table keyed by token idx: 0 = absent, 1 = Some(false), 2 = Some(true)
+  // (an array, not a boxed-Int Map, since it's read on every search state)
+  private def getNoOptZones(
+      tokens: FormatTokens,
+  )(implicit styleMap: StyleMap): Array[Byte] = {
+    val result = new Array[Byte](tokens.length)
     var expire: FT = null
     @inline
     def addRange(ft: FT): Unit = expire = tokens.matchingLeft(ft)
     @inline
-    def addBlock(idx: Int): Unit = result.getOrElseUpdate(idx, false)
+    def addBlock(idx: Int): Unit = if (result(idx) == 0) result(idx) = 1
     tokens.foreach {
       case ft if expire ne null =>
-        if (ft eq expire) expire = null else result.update(ft.idx, true)
+        if (ft eq expire) expire = null else result(ft.idx) = 2
       case ft @ FT(t: T.LeftParen, _, m) if (m.leftOwner match {
             case lo: Term.ArgClause => !lo.parent.is[Term.ApplyInfix] &&
               !styleMap.at(t).newlines.keep
@@ -364,7 +413,7 @@ object BestFirstSearch {
         }
       case _ =>
     }
-    result.result()
+    result
   }
 
   private def useNoOptZones(implicit style: ScalafmtConfig): Boolean =
@@ -401,7 +450,9 @@ object BestFirstSearch {
   ) {
     var explored = 0
     var deepestYet = State.start
-    val best = mutable.Map.empty[Int, State]
+    // keyed by dense state depth; array (null = absent) avoids the per-state
+    // Int-key box + Some that mutable.Map.get allocated in shouldEnterState
+    val best = new Array[State](tokens.length)
     val visits = new Array[Int](tokens.length)
 
     def this(tokens: FormatTokens, runner: RunnerSettings) =
@@ -410,22 +461,30 @@ object BestFirstSearch {
     /** Returns true if it's OK to skip over state.
       */
     def shouldEnterState(state: State): Boolean = state.policy.noDequeue ||
-      (pruneSlowStates eq ScalafmtOptimizer.PruneSlowStates.No) ||
-      // TODO(olafur) document why/how this optimization works.
-      best.get(state.depth).forall(state.possiblyBetter)
+      (pruneSlowStates eq ScalafmtOptimizer.PruneSlowStates.No) || {
+        // TODO(olafur) document why/how this optimization works.
+        val b = best(state.depth)
+        (b eq null) || state.possiblyBetter(b)
+      }
+
+    val eventCallback = runner.eventCallback
 
     def trackState(state: State)(implicit Q: StateQueue): Unit = {
       val idx = state.depth
       if (idx > deepestYet.depth) deepestYet = state
-      runner.event(FormatEvent.VisitToken(tokens(idx)))
+      if (eventCallback ne null) eventCallback(FormatEvent.VisitToken(tokens(idx)))
       visits(idx) += 1
       explored += 1
-      runner.event(FormatEvent.Explored(explored, Q.nested, Q.length))
+      if (eventCallback ne null)
+        eventCallback(FormatEvent.Explored(explored, Q.nested, Q.length))
     }
 
     private def updateBestImpl(state: State): Boolean = state.split.isNL &&
-      !state.terminal() &&
-      (best.getOrElseUpdate(state.prev.depth, state) eq state)
+      !state.terminal() && {
+        val d = state.prev.depth
+        val b = best(d)
+        if (b eq null) { best(d) = state; true } else b eq state
+      }
 
     def updateBest(state: State, furtherState: State)(implicit
         Q: StateQueue,
@@ -448,10 +507,13 @@ object BestFirstSearch {
     }
 
     def complete(state: State): Unit = runner
-      .event(FormatEvent.CompleteFormat(explored, state, visits, best))
+      .completeCallback(FormatEvent.CompleteFormat(explored, state, visits, best))
+
+    def sendEvent(split: Split): Unit =
+      if (eventCallback ne null) eventCallback(FormatEvent.Enqueue(split))
 
     def retry: Option[StateStats] = {
-      val ok = best.nonEmpty &&
+      val ok = best.exists(_ ne null) &&
         (pruneSlowStates eq ScalafmtOptimizer.PruneSlowStates.Yes)
       if (ok)
         Some(new StateStats(tokens, runner, ScalafmtOptimizer.PruneSlowStates.No))

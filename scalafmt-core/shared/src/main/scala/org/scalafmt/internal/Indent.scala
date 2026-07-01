@@ -2,7 +2,6 @@ package org.scalafmt.internal
 
 import scala.meta.tokens.{Token => T}
 
-import scala.annotation.tailrec
 import scala.language.implicitConversions
 
 sealed abstract class ExpiresOn {
@@ -65,7 +64,11 @@ case class ActualIndent(
 
 abstract class Indent {
   def switch(trigger: T, on: Boolean): Indent
-  def withStateOffset(offset: Int): Option[ActualIndent]
+
+  /** Returns `null` (rather than an `Option`) when there's no indent, to avoid
+    * a per-element allocation on the hot path in [[State.next]].
+    */
+  def withStateOffset(offset: Int): ActualIndent
   def hasStateColumn: Boolean
 }
 
@@ -89,9 +92,8 @@ private class IndentImpl(length: Length, expire: FT, expiresAt: ExpiresOn)
     extends Indent {
   override def hasStateColumn: Boolean = length eq Length.StateColumn
   override def switch(trigger: T, on: Boolean): Indent = this
-  override def withStateOffset(offset: Int): Option[ActualIndent] = Some(
-    ActualIndent(length.withStateOffset(offset), expire, expiresAt, length.reset),
-  )
+  override def withStateOffset(offset: Int): ActualIndent =
+    ActualIndent(length.withStateOffset(offset), expire, expiresAt, length.reset)
   override def toString: String = {
     val when = if (expiresAt == ExpiresOn.Before) '<' else '>'
     s"$length$when${expire.left}[${expire.idx}]"
@@ -109,7 +111,7 @@ object Indent {
   @inline
   def empty: Indent = Empty
   case object Empty extends Indent {
-    override def withStateOffset(offset: Int): Option[ActualIndent] = None
+    override def withStateOffset(offset: Int): ActualIndent = null
     override def switch(trigger: T, on: Boolean): Indent = this
     override def hasStateColumn: Boolean = false
   }
@@ -120,7 +122,7 @@ object Indent {
       if (trigger ne this.trigger) this
       else if (on) before
       else after.switch(trigger, false)
-    override def withStateOffset(offset: Int): Option[ActualIndent] = before
+    override def withStateOffset(offset: Int): ActualIndent = before
       .withStateOffset(offset)
     override def hasStateColumn: Boolean = before.hasStateColumn
     override def toString: String = s"$before>($trigger:${trigger.end})?$after"
@@ -137,17 +139,16 @@ object Indent {
   def after(trigger: T, indent: Indent): Indent =
     Switch(Indent.Empty, trigger, indent)
 
-  def getIndent(indents: Iterable[ActualIndent]): Int = {
-    val iter = indents.iterator
-    @tailrec
-    def run(indent: Int): Int =
-      if (!iter.hasNext) indent
-      else {
-        val actualIndent = iter.next()
-        val nextIndent = indent + actualIndent.length
-        if (actualIndent.reset) nextIndent else run(nextIndent)
-      }
-    run(0)
+  def getIndent(indents: Array[ActualIndent]): Int = {
+    var indent = 0
+    var i = 0
+    while (i < indents.length) {
+      val actualIndent = indents(i)
+      indent += actualIndent.length
+      if (actualIndent.reset) return indent
+      i += 1
+    }
+    indent
   }
 
 }

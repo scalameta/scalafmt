@@ -11,7 +11,6 @@ import scala.meta.classifiers.Classifier
 import scala.meta.tokens.{Token => T, Tokens}
 
 import scala.annotation.tailrec
-import scala.collection.immutable.HashMap
 import scala.collection.mutable
 
 /** Stateless helper functions on `scala.meta.Tree`.
@@ -791,17 +790,20 @@ object TreeOps {
   def getStyleAndOwners(
       topSourceTree: Tree,
       baseStyle: ScalafmtConfig,
-  ): (ScalafmtConfig, collection.Map[TokenHash, Tree]) = {
+  ): (ScalafmtConfig, Array[Tree]) = {
     var termInfixCount = 0
     var typeInfixCount = 0
     var patInfixCount = 0
-    // Creates lookup table from token offset to its closest scala.meta tree
-    val ownersMap = HashMap.newBuilder[TokenHash, Tree]
-    @inline
-    def setOwner(tok: T, tree: Tree): Unit = ownersMap += hash(tok) -> tree
-
     val allTokens = topSourceTree.tokens
-    var prevParens: List[T] = Nil
+    // Lookup table from token index to its closest scala.meta tree. Token
+    // indices are dense (== position in `allTokens`), so an array beats a
+    // boxed-Long-keyed map and skips per-token hashing; every token gets an
+    // owner, so the array is no sparser than the map was.
+    val ownersArr = new Array[Tree](allTokens.length)
+    @inline
+    def setOwner(idx: Int, tree: Tree): Unit = ownersArr(idx) = tree
+
+    var prevParens: List[Int] = Nil
 
     def treeAt(
         elemIdx: Int,
@@ -819,21 +821,30 @@ object TreeOps {
 
       val treeBeg = elemBeg.start
       val treeEnd = elemEnd.end
+      // Explicit loop (not a for-comprehension, which allocates a binding-tuple
+      // per `x = ...` step) + `sortWith` (primitive `<`, no Int boxing like
+      // `sortBy`); `sortWith` is stable, so equal-start children keep order.
       val allChildren: List[(Tree, T, T)] = {
-        for {
-          x <- elem.children
-          tokens = x.tokens if tokens.nonEmpty
-          beg = tokens.head if beg.start >= treeBeg // sometimes with implicit
-          end = tokens.last if end.end <= treeEnd
-        } yield (x, beg, end)
-      }.sortBy(_._2.start)
+        val buf = List.newBuilder[(Tree, T, T)]
+        elem.children.foreach { x =>
+          val tokens = x.tokens
+          if (tokens.nonEmpty) {
+            val beg = tokens.head
+            if (beg.start >= treeBeg) { // sometimes with implicit
+              val end = tokens.last
+              if (end.end <= treeEnd) buf += ((x, beg, end))
+            }
+          }
+        }
+        buf.result()
+      }.sortWith(_._2.start < _._2.start)
 
       allChildren match {
         case Nil =>
           @tailrec
           def tokenAt(idx: Int): Int = {
             val tok = allTokens(idx)
-            setOwner(tok, elem)
+            setOwner(idx, elem)
             val nextIdx = idx + 1
             if (tok eq elemEnd) nextIdx else tokenAt(nextIdx)
           }
@@ -846,7 +857,7 @@ object TreeOps {
           var children = rest
           var prevChild: Tree = null
           var prevLPs = outerPrevLPs
-          var prevComma: T = null
+          var prevComma: Int = -1
 
           @tailrec
           def tokenAt(idx: Int): Int =
@@ -865,7 +876,7 @@ object TreeOps {
                     nextChildBeg = beg
                     nextChildEnd = end
                 }
-                prevComma = null
+                prevComma = -1
                 tokenAt(nextIdx)
               } else {
                 def excludeRightParen: Boolean = elem match {
@@ -881,26 +892,26 @@ object TreeOps {
 
                 if (prevParens.nonEmpty && tok.is[T.RightParen]) {
                   if (prevChild == null || prevLPs <= 0 || excludeRightParen)
-                    setOwner(tok, elem)
+                    setOwner(idx, elem)
                   else {
-                    setOwner(tok, prevChild)
+                    setOwner(idx, prevChild)
                     setOwner(prevParens.head, prevChild)
-                    if (prevComma != null) setOwner(prevComma, prevChild)
+                    if (prevComma >= 0) setOwner(prevComma, prevChild)
                   }
                   prevLPs -= 1
                   prevParens = prevParens.tail
-                  prevComma = null
+                  prevComma = -1
                 } else if (tok.is[T.Comma]) {
-                  prevComma = tok
-                  setOwner(tok, elem)
+                  prevComma = idx
+                  setOwner(idx, elem)
                 } else {
-                  setOwner(tok, elem)
+                  setOwner(idx, elem)
                   if (!tok.is[T.Trivia] && !tok.isEmpty) {
-                    prevComma = null
+                    prevComma = -1
                     prevChild = null
                     if (tok.is[T.LeftParen]) {
                       prevLPs += 1
-                      prevParens = tok :: prevParens
+                      prevParens = idx :: prevParens
                     } else prevLPs = 0
                   }
                 }
@@ -921,7 +932,7 @@ object TreeOps {
     val initStyle =
       if (ok) baseStyle
       else baseStyle.copy(newlines = checkedNewlines, runner = checkedRunner)
-    (initStyle, ownersMap.result())
+    (initStyle, ownersArr)
   }
 
   def isFewerBraces(

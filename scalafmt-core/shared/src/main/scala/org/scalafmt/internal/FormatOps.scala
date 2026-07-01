@@ -11,6 +11,7 @@ import scala.meta.tokens.{Token => T}
 import scala.meta.{Token => _, _}
 
 import scala.annotation.tailrec
+import scala.collection.immutable.BitSet
 
 /** Helper functions for generating splits/policies for a given tree.
   */
@@ -555,12 +556,14 @@ class FormatOps(
     }
   }
 
-  def getForceConfigStyle: (Set[Int], Set[Int]) = {
+  // BitSet (not Set[Int]): contains/apply take a primitive Int, no key boxing
+  // on the per-state `emptyQueueSpots.contains` / `forceConfigStyle(idx)` reads
+  def getForceConfigStyle: (BitSet, BitSet) = {
     val callSite = initStyle.runner.optimizer.callSite
     val defnSite = initStyle.runner.optimizer.defnSite
     if (callSite.isEnabled || defnSite.isEnabled) {
-      val clearQueues = Set.newBuilder[Int]
-      val forces = Set.newBuilder[Int]
+      val clearQueues = BitSet.newBuilder
+      val forces = BitSet.newBuilder
       def process(clause: Member.SyntaxValuesClause, ftOpen: FT)(
           cfg: ScalafmtOptimizer.ClauseElement,
       ): Unit = if (cfg.isEnabled) {
@@ -588,7 +591,7 @@ class FormatOps(
         case _ =>
       }
       (forces.result(), clearQueues.result())
-    } else (Set.empty, Set.empty)
+    } else (BitSet.empty, BitSet.empty)
   }
 
   /** Implementation for `verticalMultiline`

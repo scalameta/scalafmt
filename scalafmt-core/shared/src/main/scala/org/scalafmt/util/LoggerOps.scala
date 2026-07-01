@@ -28,10 +28,11 @@ object LoggerOps {
 
   def log(s: State, indent: String = "", nlIndices: Boolean = true): String = {
     val delim = s"\n$indent  "
-    val policies = s.policy.policies match {
-      case Nil => ""
-      case p :: Nil => s";${delim}P($p)"
-      case pp => pp.map(_.toString).mkString(s";${delim}P[", s",$delim  ", s"]")
+    val policies = s.policy.numPolicies match {
+      case 0 => ""
+      case 1 => s";${delim}P(${s.policy.toIterable.head})"
+      case _ => s.policy.toIterable.map(_.toString)
+          .mkString(s";${delim}P[", s",$delim  ", s"]")
     }
     @tailrec
     def getNlIndices(x: State, res: List[String]): List[String] =

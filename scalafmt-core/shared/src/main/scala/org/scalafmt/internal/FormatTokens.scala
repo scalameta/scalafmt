@@ -11,7 +11,7 @@ import scala.annotation.tailrec
 
 import TokenOps._
 
-class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
+class FormatTokens(leftTok2tok: FormatTokens.TokenToIndexMap)(val arr: Array[FT])
     extends IndexedSeq[FT] {
 
   private def this(arr: Array[FT]) = this {
@@ -38,10 +38,13 @@ class FormatTokens(leftTok2tok: Map[TokenHash, Int])(val arr: Array[FT])
       else at(idx + 1)
     }
 
-  private def get(tok: T, isBefore: Boolean): FT = getAt(tok, isBefore)(
-    leftTok2tok
-      .getOrElse(hash(tok), FormatTokens.throwNoToken(tok, "Missing token index")),
-  )
+  private def get(tok: T, isBefore: Boolean): FT = {
+    val idx = leftTok2tok.getIndex(hash(tok))
+    getAt(tok, isBefore)(
+      if (idx >= 0) idx
+      else FormatTokens.throwNoToken(tok, "Missing token index"),
+    )
+  }
 
   def at(off: Int): FT =
     if (off < 0) arr.head else if (off < arr.length) arr(off) else arr.last
@@ -446,7 +449,7 @@ object FormatTokens {
     * Since tokens might be very large, we try to allocate as little memory as
     * possible.
     */
-  def apply(tokens: Tokens, owners: collection.Map[TokenHash, Tree])(implicit
+  def apply(tokens: Tokens, owners: Array[Tree])(implicit
       style: ScalafmtConfig,
   ): (FormatTokens, StyleMap) = {
     var left: T = null
@@ -456,7 +459,7 @@ object FormatTokens {
     var prevNonWsIdx = -1
     var fmtWasOff = false
     def process(right: T, tokIdx: Int): Unit = if (!right.is[T.Whitespace]) {
-      val rmeta = FT.TokenMeta(owners(hash(right)), right.text)
+      val rmeta = FT.TokenMeta(owners(tokIdx), right.text)
       if (left eq null) fmtWasOff = style.isFormatOff(right)
       else {
         val between = tokens.arraySlice(prevNonWsIdx + 1, tokIdx)
@@ -484,10 +487,84 @@ object FormatTokens {
     )
 
   class TokenToIndexMapBuilder {
-    private val builder = Map.newBuilder[TokenHash, Int]
-    def sizeHint(size: Int): Unit = builder.sizeHint(size)
-    def add(idx: Int)(token: T): Unit = builder += hash(token) -> idx
-    def result(): Map[TokenHash, Int] = builder.result()
+    private var builder = new TokenToIndexMap(16)
+    def sizeHint(size: Int): Unit = builder = new TokenToIndexMap(size)
+    def add(idx: Int)(token: T): Unit = builder.update(hash(token), idx)
+    def result(): TokenToIndexMap = builder
+  }
+
+  /** Open-addressing `Long`→`Int` map (linear probing), replacing
+    * `mutable.LongMap[Int]` which boxes the `Int` *value* on every insert and
+    * lookup. Parallel primitive arrays ⇒ zero boxing of key or value.
+    *
+    * Occupancy lives in the **value** slot, not the key: an empty slot has
+    * `vals == 0`, and stored indices are offset by `+1` (token indices are
+    * always `>= 0`). So *any* `Long` hash works as a key — negative, zero, or
+    * positive — with no key sentinel. Bucketing uses the unsigned shift `>>>`,
+    * so negative hashes still map into `[0, cap)`. Auto-grows (init-time only),
+    * so correctness never depends on the `sizeHint`.
+    */
+  final class TokenToIndexMap(sizeHint: Int) {
+    private[this] var cap = {
+      var c = 16
+      val target = if (sizeHint > 0) sizeHint * 2 else 16
+      while (c < target) c <<= 1
+      c
+    }
+    private[this] var shift = 64 - java.lang.Integer.numberOfTrailingZeros(cap)
+    private[this] var keys = new Array[Long](cap)
+    private[this] var vals = new Array[Int](cap) // 0 = empty, else idx + 1
+    private[this] var size = 0
+    private[this] var maxFill = cap - (cap >> 2) // grow past 0.75 load
+
+    @inline
+    private[this] def slotOf(key: Long, sh: Int): Int =
+      (key * 0x9e3779b97f4a7c15L >>> sh).toInt // Fibonacci hash, unsigned
+
+    def update(key: Long, idx: Int): Unit = {
+      var i = slotOf(key, shift)
+      while (vals(i) != 0) {
+        if (keys(i) == key) { vals(i) = idx + 1; return }
+        i += 1; if (i == cap) i = 0
+      }
+      keys(i) = key
+      vals(i) = idx + 1
+      size += 1
+      if (size >= maxFill) grow()
+    }
+
+    /** Stored index for `key`, or `-1` if absent (real indices are `>= 0`). */
+    def getIndex(key: Long): Int = {
+      var i = slotOf(key, shift)
+      while (vals(i) != 0) {
+        if (keys(i) == key) return vals(i) - 1
+        i += 1; if (i == cap) i = 0
+      }
+      -1
+    }
+
+    private[this] def grow(): Unit = {
+      val oldKeys = keys
+      val oldVals = vals
+      val oldCap = cap
+      cap <<= 1
+      shift = 64 - java.lang.Integer.numberOfTrailingZeros(cap)
+      maxFill = cap - (cap >> 2)
+      keys = new Array[Long](cap)
+      vals = new Array[Int](cap)
+      var j = 0
+      while (j < oldCap) {
+        val v = oldVals(j)
+        if (v != 0) {
+          val k = oldKeys(j)
+          var i = slotOf(k, shift)
+          while (vals(i) != 0) { i += 1; if (i == cap) i = 0 }
+          keys(i) = k
+          vals(i) = v
+        }
+        j += 1
+      }
+    }
   }
 
   class Offsets(val nonWs: Int, val width: Int, val nonWsNonPunct: Int) {

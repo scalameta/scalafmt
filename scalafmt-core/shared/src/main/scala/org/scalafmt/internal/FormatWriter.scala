@@ -29,7 +29,8 @@ class FormatWriter(formatOps: FormatOps) {
   def mkString(state: State): String = {
     implicit val sb = new StringBuilder()
     val locations = getFormatLocations(state)
-    styleMap.init.runner.event(FormatEvent.Written(locations))
+    val evtCb = styleMap.init.runner.eventCallback
+    if (evtCb ne null) evtCb(FormatEvent.Written(locations))
 
     var delayedAlign = 0
     var totalAlignShift = 0
@@ -1446,25 +1447,24 @@ class FormatWriter(formatOps: FormatOps) {
       }
     }
 
-    private def shiftStateColumnIndent(startIdx: Int, offset: Int): Unit = {
+    private def shiftStateColumnIndent(startIdx: Int, offset: Int): Unit =
       // look for StateColumn; it returns indent=0 for withStateOffset(0)
-      val stateIndentIter = locations(startIdx).state.modExt.indents.iterator
-        .flatMap(x => if (x.hasStateColumn) x.withStateOffset(0) else None)
-      if (stateIndentIter.hasNext) {
-        val indent = stateIndentIter.next()
-        @tailrec
-        def updateLocation(idx: Int): Unit = {
-          val floc = locations(idx)
-          if (indent.notExpiredBy(floc.formatToken)) {
-            val state = floc.state
-            if (state.split.isNL) floc.state.indentation += offset
-            val nextIdx = idx + 1
-            if (nextIdx < locations.length) updateLocation(nextIdx)
+      locations(startIdx).state.modExt.indents.iterator.foreach(x =>
+        if (x.hasStateColumn) {
+          val indent = x.withStateOffset(0)
+          @tailrec
+          def updateLocation(idx: Int): Unit = {
+            val floc = locations(idx)
+            if (indent.notExpiredBy(floc.formatToken)) {
+              val state = floc.state
+              if (state.split.isNL) floc.state.indentation += offset
+              val nextIdx = idx + 1
+              if (nextIdx < locations.length) updateLocation(nextIdx)
+            }
           }
-        }
-        updateLocation(startIdx)
-      }
-    }
+          updateLocation(startIdx)
+        },
+      )
 
     private class ExtraBlankTokens {
       val extraBlankMap = new mutable.HashMap[Int, Int]

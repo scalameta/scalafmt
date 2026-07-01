@@ -17,8 +17,8 @@ import metaconfig._
   */
 case class RunnerSettings(
     debug: Boolean = false,
-    private val completeCallback: FormatEvent.CompleteFormat => Unit = _ => (),
-    private val eventCallback: FormatEvent => Unit = null,
+    completeCallback: FormatEvent.CompleteFormat => Unit = _ => (),
+    eventCallback: FormatEvent => Unit = null,
     private[config] val parser: ScalafmtParser = ScalafmtParser.Source,
     optimizer: ScalafmtOptimizer = ScalafmtOptimizer.default,
     maxStateVisits: Option[Int] = None,
@@ -53,11 +53,6 @@ case class RunnerSettings(
   private[scalafmt] def withCompleteCallback(
       cb: FormatEvent.CompleteFormat => Unit,
   ) = copy(completeCallback = cb)
-
-  def event(evt: FormatEvent.CompleteFormat): Unit = completeCallback(evt)
-
-  def event(evt: => FormatEvent): Unit =
-    if (null != eventCallback) eventCallback(evt)
 
   private implicit val parserOptions: ParserOptions = ParserOptions.default
     .withCaptureComments(false)

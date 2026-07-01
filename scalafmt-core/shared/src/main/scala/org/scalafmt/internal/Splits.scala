@@ -78,7 +78,7 @@ object SplitsNewline2X extends Splits {
 object SplitsBeforeStatement extends Splits { // New statement
   def get(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig) = {
     import fo._, tokens._, ft._
-    if (optimizationEntities.statementStarts.contains(idx + 1)) {
+    if (optimizationEntities.isStatementStart(idx + 1)) {
       val annoRight = right.is[T.At]
       val annoLeft = isSingleIdentifierAnnotation(prev(ft))
 
@@ -1126,8 +1126,8 @@ object SplitsAfterSemicolon extends Splits {
       cfg: ScalafmtConfig,
   ): Seq[Split] = {
     import fo._, tokens._, ft._
-    optimizationEntities.statementStarts.get(idx + 1) match {
-      case Some(stmt) if !stmt.is[Term.EndMarker] =>
+    optimizationEntities.statementStart(idx + 1) match {
+      case stmt if (stmt ne null) && !stmt.is[Term.EndMarker] =>
         val noSpace = !cfg.newlines.okSpaceForSource(newlinesBetween) ||
           cfg.dialect.allowSignificantIndentation &&
           stmt.is[Case] && stmt.parent.forall {
@@ -3347,7 +3347,7 @@ object SplitsAfterCase extends Splits {
     val bodyIndent = if (bodyBlock) 0 else cfg.indent.main
     val arrowIndent = cfg.indent.caseSite - bodyIndent
     val indents =
-      Seq(Indent(bodyIndent, expire, After), Indent(arrowIndent, arrow, After))
+      List(Indent(bodyIndent, expire, After), Indent(arrowIndent, arrow, After))
     val mod = ModExt(Space, indents)
     val slbExpireOpt = prevNotTrailingComment(ownerEnd).toOption
     val policy = slbExpireOpt.fold(postArrowPolicy) { slbExpire =>

@@ -16,7 +16,8 @@ object FormatEvent {
       totalExplored: Int,
       finalState: State,
       visits: IndexedSeq[Int],
-      best: collection.Map[Int, State],
+      // indexed by state depth; null entries are absent
+      best: IndexedSeq[State],
   ) extends FormatEvent
   case class Written(formatLocations: FormatWriter#FormatLocations)
       extends FormatEvent
