@@ -1207,16 +1207,16 @@ class FormatWriter(formatOps: FormatOps) {
         val isMultiline = styleMap.init.align.multiline
 
         // all blocks must be here, to get final flush
-        val blocks = new mutable.HashMap[Tree, AlignBlock]
-        def createBlock(x: Tree) = blocks.getOrElseUpdate(x, new AlignBlock)
+        val blocks = new java.util.HashMap[Tree, AlignBlock]
+        def createBlock(x: Tree) = blocks.computeIfAbsent(x, _ => new AlignBlock)
         var prevAlignContainer: Tree = null
         var prevBlock: AlignBlock = if (isMultiline) null else createBlock(null)
         val getOrCreateBlock: Tree => AlignBlock =
           if (isMultiline) createBlock else _ => prevBlock
-        val getBlockToFlush: (=> Tree, Boolean) => Option[AlignBlock] =
+        val getBlockToFlush: (=> Tree, Boolean) => AlignBlock =
           if (isMultiline) // don't flush unless blank line
-            (x, isBlankLine) => if (isBlankLine) blocks.get(x) else None
-          else (_, _) => Some(prevBlock)
+            (x, isBlankLine) => if (isBlankLine) blocks.get(x) else null
+          else (_, _) => prevBlock
         val shouldFlush: Tree => Boolean =
           if (!isMultiline) _ => true else (x: Tree) => x eq prevAlignContainer
         val wasSameContainer: Tree => Boolean =
@@ -1258,9 +1258,13 @@ class FormatWriter(formatOps: FormatOps) {
               prevAlignContainer = alignContainer
               prevBlock = block
             }
-            if (isBlankLine || alignContainer.eq(null))
-              getBlockToFlush(getAlignContainer(isSlc = wasSlc)._1, isBlankLine)
-                .foreach(flushAlignBlock)
+            if (isBlankLine || alignContainer.eq(null)) {
+              val toFlush = getBlockToFlush(
+                getAlignContainer(isSlc = wasSlc)._1,
+                isBlankLine,
+              )
+              if (toFlush ne null) flushAlignBlock(toFlush)
+            }
           }
 
           @tailrec
@@ -1311,7 +1315,7 @@ class FormatWriter(formatOps: FormatOps) {
 
           processLine(wasSlc = false)
         }
-        blocks.valuesIterator.foreach(flushAlignBlock)
+        blocks.values.forEach(flushAlignBlock(_))
         finalResult.result()
       }
     }

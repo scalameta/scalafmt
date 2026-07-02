@@ -20,14 +20,6 @@ import TreeOps._
 
 sealed trait Splits {
   def get(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig): Seq[Split]
-  final def getOpt(implicit
-      ft: FT,
-      fo: FormatOps,
-      cfg: ScalafmtConfig,
-  ): Option[Seq[Split]] = {
-    val res = get
-    if (res.isEmpty) None else Some(res)
-  }
 }
 
 object Splits {
@@ -761,21 +753,25 @@ object SplitsBeforeLeftBrace extends Splits {
           .map(_.preActivateFor(SplitTag.OneArgPerLine))
         else otherSplits.map(_.onlyFor(SplitTag.OneArgPerLine))
       singleSplit +: oneArgPerLineSplits
-    } else SplitsBeforeStatement.getOpt.getOrElse {
-      def maybeBracesToParensWithRB(rb: FT)(implicit fl: FileLine) =
-        Seq(Split(getBracesToParensModOnly(rb, isWithinBraces = false), 0))
-      def maybeBracesToParens()(implicit fl: FileLine) =
-        maybeBracesToParensWithRB(matchingRight(ft))
-      // partial initial expr
-      if (!isTokenHeadOrBefore(right, rightOwner)) maybeBracesToParens()
-      else rightOwner.parent.fold(Seq.empty[Split]) {
-        case _: Term.ApplyInfix => Seq.empty // exclude start of infix
-        case _: Term.ArgClause => maybeBracesToParens()
-        case p => matchingOptRight(ft).fold(Seq.empty[Split]) { rb =>
-            val ko = isTokenHeadOrBefore(right, p) &&
-              isTokenLastOrAfter(rb.left, rightOwner)
-            if (ko) Seq.empty else maybeBracesToParensWithRB(rb)
-          }
+    } else {
+      val beforeStmt = SplitsBeforeStatement.get
+      if (beforeStmt.nonEmpty) beforeStmt
+      else {
+        def maybeBracesToParensWithRB(rb: FT)(implicit fl: FileLine) =
+          Seq(Split(getBracesToParensModOnly(rb, isWithinBraces = false), 0))
+        def maybeBracesToParens()(implicit fl: FileLine) =
+          maybeBracesToParensWithRB(matchingRight(ft))
+        // partial initial expr
+        if (!isTokenHeadOrBefore(right, rightOwner)) maybeBracesToParens()
+        else rightOwner.parent.fold(Seq.empty[Split]) {
+          case _: Term.ApplyInfix => Seq.empty // exclude start of infix
+          case _: Term.ArgClause => maybeBracesToParens()
+          case p => matchingOptRight(ft).fold(Seq.empty[Split]) { rb =>
+              val ko = isTokenHeadOrBefore(right, p) &&
+                isTokenLastOrAfter(rb.left, rightOwner)
+              if (ko) Seq.empty else maybeBracesToParensWithRB(rb)
+            }
+        }
       }
     }
   }
