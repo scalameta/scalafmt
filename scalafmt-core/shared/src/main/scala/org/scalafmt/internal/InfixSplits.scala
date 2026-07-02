@@ -180,7 +180,7 @@ class InfixSplits(
   private val isLeftInfix = leftInfix eq app
   private val isAfterOp = ft.meta.leftOwner eq app.op
   private val appPrecedence = app.precedence
-  private val beforeLhs = !isAfterOp && ft.left.start < app.pos.start
+  private val beforeLhs = !isAfterOp && ft.left.start < app.begOffset
   private val isFirstOp = beforeLhs || isLeftInfix && isAfterOp
   private val fullExpire = ftoks
     .nextNonCommentSameLine(ftoks.getLastExceptParen(fullInfix))

@@ -43,12 +43,13 @@ object OptimizationEntities {
     private val semicolons = Map.newBuilder[Int, FT]
 
     def build(): OptimizationEntities = {
-      val queue = new mutable.ListBuffer[Seq[Tree]]
-      queue += topSourceTree :: Nil
-      while (queue.nonEmpty) queue.remove(0).foreach { tree =>
+      val queue = new mutable.ListBuffer[Tree]
+      queue += topSourceTree
+      while (queue.nonEmpty) {
+        val tree = queue.remove(0)
         processForArguments(tree)
         processForStatements(tree)
-        queue += tree.children
+        tree.foreachChild(queue += _)
       }
       new OptimizationEntities(
         arguments.toMap,

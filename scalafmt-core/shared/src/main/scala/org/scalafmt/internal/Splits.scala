@@ -767,14 +767,13 @@ object SplitsBeforeLeftBrace extends Splits {
       def maybeBracesToParens()(implicit fl: FileLine) =
         maybeBracesToParensWithRB(matchingRight(ft))
       // partial initial expr
-      val roPos = rightOwner.pos
-      if (!isTokenHeadOrBefore(right, roPos)) maybeBracesToParens()
+      if (!isTokenHeadOrBefore(right, rightOwner)) maybeBracesToParens()
       else rightOwner.parent.fold(Seq.empty[Split]) {
         case _: Term.ApplyInfix => Seq.empty // exclude start of infix
         case _: Term.ArgClause => maybeBracesToParens()
         case p => matchingOptRight(ft).fold(Seq.empty[Split]) { rb =>
             val ko = isTokenHeadOrBefore(right, p) &&
-              isTokenLastOrAfter(rb.left, roPos)
+              isTokenLastOrAfter(rb.left, rightOwner)
             if (ko) Seq.empty else maybeBracesToParensWithRB(rb)
           }
       }
@@ -1046,7 +1045,7 @@ object SplitsBeforeRightArrow extends Splits {
             val nlOnly = !cfg.newlines.sourceIgnored && hasBreak
             def spaceSplit(implicit fl: FileLine) = Split(nlOnly, 0)(Space)
             val nextParamClause = (pcg.tparamClause +: pcg.paramClauses).find(
-              _.pos.end > right.end,
+              _.endOffset > right.end,
             ).orElse(gvn.paramClauseGroups.dropWhile(_ ne pcg) match {
               case `pcg` :: pcgNext :: _ =>
                 val tpc = pcgNext.tparamClause
@@ -1359,7 +1358,7 @@ object SplitsBeforeLeftBracket extends Splits {
       fo: FormatOps,
       cfg: ScalafmtConfig,
   ): Seq[Split] =
-    if (!ft.rightOwner.parent.exists(_.pos.start < ft.right.start)) Seq.empty
+    if (!ft.rightOwner.parent.exists(_.begOffset < ft.right.start)) Seq.empty
     else Seq(Split(Space(!ft.leftOwner.is[Mod.WithWithin]), 0))
 }
 
@@ -1412,7 +1411,8 @@ object SplitsAfterTemplateKeyword extends Splits {
       case lo: Stat.WithTemplate =>
         import lo._
         val policy = Policy ?
-          (cfg.binPack.keepParentConstructors || templ.pos.isEmpty) || {
+          (cfg.binPack.keepParentConstructors ||
+            templ.begOffset == templ.endOffset) || {
             val expire = templateDerivesOrCurlyOrLastNonTrivial(templ)
             val forceNewlineBeforeExtends = Policy.beforeLeft(expire, "NLPCTOR") {
               case Decision(FT(_, soft.ExtendsOrDerives(), m), s)
@@ -2960,7 +2960,7 @@ object SplitsBeforeWith extends Splits {
       case t: Template
           if t.parent.isAny[Term.New, Term.NewAnonymous, Defn.Given] =>
         val (isFirstCtor, extendsThenWith) = t.inits match {
-          case _ :: x :: _ => (x.pos.start > ft.right.start, true)
+          case _ :: x :: _ => (x.begOffset > ft.right.start, true)
           case _ => (false, false)
         }
         binPackParentConstructorSplits(
