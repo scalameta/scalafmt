@@ -18,6 +18,11 @@ import scala.collection.mutable
 object TreeOps {
   import TokenOps._
 
+  // Shared (allocated once) stable comparator for treeAt's children array,
+  // ordering by the child's first-token start offset without boxing.
+  private val byChildBegStart: java.util.Comparator[(Tree, T, T)] =
+    (a, b) => Integer.compare(a._2.start, b._2.start)
+
   @tailrec
   def topTypeWith(typeWith: Type.With): Type.With = typeWith.parent match {
     case Some(t: Type.With) => topTypeWith(t)
@@ -819,104 +824,121 @@ object TreeOps {
 
       val treeBeg = elemBeg.start
       val treeEnd = elemEnd.end
-      // Explicit loop (not a for-comprehension, which allocates a binding-tuple
-      // per `x = ...` step) + `sortWith` (primitive `<`, no Int boxing like
-      // `sortBy`); `sortWith` is stable, so equal-start children keep order.
-      val allChildren: List[(Tree, T, T)] = {
-        val buf = List.newBuilder[(Tree, T, T)]
-        elem.foreachChild { x =>
-          val tokens = x.tokens
-          if (tokens.nonEmpty) {
-            val beg = tokens.head
-            if (beg.start >= treeBeg) { // sometimes with implicit
-              val end = tokens.last
-              if (end.end <= treeEnd) buf += ((x, beg, end))
+      // Collect qualifying children into a pre-sized array (childrenCount is an
+      // upper bound; some are filtered out), then sort the used prefix in place.
+      // Uses foreachChild so scalameta never materializes its `children` List,
+      // and java.util.Arrays.sort (stable) instead of List.sortWith (which
+      // rebuilds a List). Leaf nodes (childrenCount == 0) skip all of it.
+      val childCap = elem.childrenCount
+      val allChildren =
+        if (childCap == 0) null else new Array[(Tree, T, T)](childCap)
+      var childCount = 0
+      if (allChildren ne null) elem.foreachChild { x =>
+        val tokens = x.tokens
+        if (tokens.nonEmpty) {
+          val beg = tokens.head
+          if (beg.start >= treeBeg) { // sometimes with implicit
+            val end = tokens.last
+            if (end.end <= treeEnd) {
+              allChildren(childCount) = (x, beg, end)
+              childCount += 1
             }
           }
         }
-        buf.result()
-      }.sortWith(_._2.start < _._2.start)
+      }
+      if (childCount > 1) java.util.Arrays
+        .sort(allChildren, 0, childCount, byChildBegStart)
 
-      allChildren match {
-        case Nil =>
-          @tailrec
-          def tokenAt(idx: Int): Int = {
-            val tok = allTokens(idx)
-            setOwner(idx, elem)
-            val nextIdx = idx + 1
-            if (tok eq elemEnd) nextIdx else tokenAt(nextIdx)
+      if (childCount == 0) {
+        @tailrec
+        def tokenAt(idx: Int): Int = {
+          val tok = allTokens(idx)
+          setOwner(idx, elem)
+          val nextIdx = idx + 1
+          if (tok eq elemEnd) nextIdx else tokenAt(nextIdx)
+        }
+        tokenAt(elemIdx)
+      } else {
+        val firstEntry = allChildren(0)
+        val firstChild = firstEntry._1
+        var nextChild = firstChild
+        var nextChildBeg = firstEntry._2
+        var nextChildEnd = firstEntry._3
+        var childIdx = 1
+        var prevChild: Tree = null
+        var prevLPs = outerPrevLPs
+        var prevComma: Int = -1
+
+        // `excludeRightParen` takes prevLPs/prevChild as params (rather than
+        // capturing the loop vars) so the loop's mutable state is never closed
+        // over -- otherwise each captured-and-mutated var would be lifted to a
+        // heap Ref cell per node.
+        def excludeRightParen(tok: T, prevLPs: Int, prevChild: Tree): Boolean =
+          elem match {
+            case t: Term.If => prevLPs == 1 && prevChild == t.cond // `expr` after `mods`
+            case _: Term.While | _: Term.ForClause => prevLPs == 1 &&
+              prevChild == firstChild // `expr` is first
+            case _: Member.SyntaxValuesClause | _: Member.Tuple | _: Term.Do |
+                _: Term.AnonymousFunction => elemEnd eq tok
+            case t: Init => prevChild ne t.tpe // include tpe
+            case _: Ctor.Primary | _: Term.EnumeratorsBlock => true
+            case _ => false
           }
-          tokenAt(elemIdx)
 
-        case (firstChild, firstChildBeg, firstChildEnd) :: rest =>
-          var nextChild = firstChild
-          var nextChildBeg = firstChildBeg
-          var nextChildEnd = firstChildEnd
-          var children = rest
-          var prevChild: Tree = null
-          var prevLPs = outerPrevLPs
-          var prevComma: Int = -1
-
-          @tailrec
-          def tokenAt(idx: Int): Int =
-            if (idx > 0 && (elemEnd eq allTokens(idx - 1))) idx
-            else {
-              val tok = allTokens(idx)
-              if (tok eq nextChildBeg) {
-                if (prevChild != null) prevLPs = 0
-                prevChild = nextChild
-                val nextIdx = treeAt(idx, nextChild, tok, nextChildEnd, prevLPs)
-                children match {
-                  case Nil => nextChildBeg = null
-                  case (head, beg, end) :: rest =>
-                    children = rest
-                    nextChild = head
-                    nextChildBeg = beg
-                    nextChildEnd = end
+        // Explicit while-loop (not a nested @tailrec def) so idx/nextChild/...
+        // stay stack-local; a nested def would capture the mutated vars and
+        // lift each to a heap Ref cell on every treeAt call (per node).
+        var idx = elemIdx
+        var result = -1
+        while (result < 0)
+          if (idx > 0 && (elemEnd eq allTokens(idx - 1))) result = idx
+          else {
+            val tok = allTokens(idx)
+            if (tok eq nextChildBeg) {
+              if (prevChild != null) prevLPs = 0
+              prevChild = nextChild
+              val nextIdx = treeAt(idx, nextChild, tok, nextChildEnd, prevLPs)
+              if (childIdx < childCount) {
+                val c = allChildren(childIdx)
+                childIdx += 1
+                nextChild = c._1
+                nextChildBeg = c._2
+                nextChildEnd = c._3
+              } else nextChildBeg = null
+              prevComma = -1
+              idx = nextIdx
+            } else {
+              if (prevParens.nonEmpty && tok.is[T.RightParen]) {
+                if (
+                  prevChild == null || prevLPs <= 0 ||
+                  excludeRightParen(tok, prevLPs, prevChild)
+                ) setOwner(idx, elem)
+                else {
+                  setOwner(idx, prevChild)
+                  setOwner(prevParens.head, prevChild)
+                  if (prevComma >= 0) setOwner(prevComma, prevChild)
                 }
+                prevLPs -= 1
+                prevParens = prevParens.tail
                 prevComma = -1
-                tokenAt(nextIdx)
+              } else if (tok.is[T.Comma]) {
+                prevComma = idx
+                setOwner(idx, elem)
               } else {
-                def excludeRightParen: Boolean = elem match {
-                  case t: Term.If => prevLPs == 1 && prevChild == t.cond // `expr` after `mods`
-                  case _: Term.While | _: Term.ForClause => prevLPs == 1 &&
-                    prevChild == firstChild // `expr` is first
-                  case _: Member.SyntaxValuesClause | _: Member.Tuple |
-                      _: Term.Do | _: Term.AnonymousFunction => elemEnd eq tok
-                  case t: Init => prevChild ne t.tpe // include tpe
-                  case _: Ctor.Primary | _: Term.EnumeratorsBlock => true
-                  case _ => false
-                }
-
-                if (prevParens.nonEmpty && tok.is[T.RightParen]) {
-                  if (prevChild == null || prevLPs <= 0 || excludeRightParen)
-                    setOwner(idx, elem)
-                  else {
-                    setOwner(idx, prevChild)
-                    setOwner(prevParens.head, prevChild)
-                    if (prevComma >= 0) setOwner(prevComma, prevChild)
-                  }
-                  prevLPs -= 1
-                  prevParens = prevParens.tail
+                setOwner(idx, elem)
+                if (!tok.is[T.Trivia] && !tok.isEmpty) {
                   prevComma = -1
-                } else if (tok.is[T.Comma]) {
-                  prevComma = idx
-                  setOwner(idx, elem)
-                } else {
-                  setOwner(idx, elem)
-                  if (!tok.is[T.Trivia] && !tok.isEmpty) {
-                    prevComma = -1
-                    prevChild = null
-                    if (tok.is[T.LeftParen]) {
-                      prevLPs += 1
-                      prevParens = idx :: prevParens
-                    } else prevLPs = 0
-                  }
+                  prevChild = null
+                  if (tok.is[T.LeftParen]) {
+                    prevLPs += 1
+                    prevParens = idx :: prevParens
+                  } else prevLPs = 0
                 }
-                tokenAt(idx + 1)
               }
+              idx = idx + 1
             }
-          tokenAt(elemIdx)
+          }
+        result
       }
     }
 
