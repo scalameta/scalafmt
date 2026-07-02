@@ -274,19 +274,11 @@ object TreeOps {
   }
 
   @inline
-  def isTokenHeadOrBefore(token: T, owner: Tree): Boolean =
-    isTokenHeadOrBefore(token, owner.pos)
-
-  @inline
-  def isTokenHeadOrBefore(token: T, pos: Position): Boolean = pos.start >=
+  def isTokenHeadOrBefore(token: T, owner: Tree): Boolean = owner.begOffset >=
     token.start
 
   @inline
-  def isTokenLastOrAfter(token: T, owner: Tree): Boolean =
-    isTokenLastOrAfter(token, owner.pos)
-
-  @inline
-  def isTokenLastOrAfter(token: T, pos: Position): Boolean = pos.end <=
+  def isTokenLastOrAfter(token: T, owner: Tree): Boolean = owner.endOffset <=
     token.end
 
   def isArgClauseSite(tree: Tree): Boolean = tree match {
@@ -593,8 +585,8 @@ object TreeOps {
     * `var i3` has a ``Mod.Implicit`` which is included.
     */
   def noExplicitImplicit(m: Mod.Implicit, ownerStart: Int): Boolean = {
-    val modPos = m.pos
-    modPos.start < ownerStart || modPos.isEmpty
+    val beg = m.begOffset
+    beg < ownerStart || beg == m.endOffset
   }
 
   def noExplicitImplicit(ownerStart: Int, orElse: Boolean)(m: Mod): Boolean =
@@ -604,7 +596,7 @@ object TreeOps {
     }
 
   def noExplicitImplicit(param: Term.Param): Boolean = {
-    val pStart = param.pos.start
+    val pStart = param.begOffset
     param.mods.forall(noExplicitImplicit(pStart, true))
   }
 
@@ -661,7 +653,7 @@ object TreeOps {
   }
 
   def findArgAfter(end: Int, trees: Seq[Tree]): Option[Tree] = trees
-    .find(_.pos.start >= end)
+    .find(_.begOffset >= end)
 
   def getStripMarginCharForInterpolate(tree: Tree): Option[Char] =
     findInterpolate(tree).flatMap(getStripMarginChar)
@@ -769,22 +761,28 @@ object TreeOps {
   def findEnclosedBetweenParens(lt: T, rt: T, tree: Tree): Option[Tree] = {
     val beforeParens = lt.start
     val afterParens = rt.end
-    @tailrec
-    def iter(trees: List[Tree]): Option[Tree] = trees match {
-      case head :: rest =>
-        val headPos = head.pos
-        val headEnd = headPos.end
-        if (headEnd <= beforeParens) iter(rest)
-        else if (
-          headEnd <= afterParens && headPos.start < headEnd &&
-          rest.headOption.forall(_.pos.start >= afterParens)
-        ) Some(head)
-        else None
-      case _ => None
+    val found = beforeParens <= tree.begOffset && tree.endOffset <= afterParens
+    if (found) Some(tree)
+    else {
+      // `result` (null until decided) + a decided-flag avoids a non-local return
+      // out of the `foreachChild` closure (which would allocate/throw a
+      // NonLocalReturnControl); we just skip work once decided.
+      var candidate: Tree = null
+      var result: Option[Tree] = null
+      tree.foreachChild { child =>
+        if (result eq null)
+          if (candidate ne null) result =
+            if (child.begOffset >= afterParens) Some(candidate) else None
+          else {
+            val headEnd = child.endOffset
+            if (headEnd > beforeParens)
+              if (headEnd > afterParens || child.begOffset >= headEnd)
+                result = None
+              else candidate = child
+          }
+      }
+      if (result ne null) result else Option(candidate)
     }
-    val pos = tree.pos
-    val found = beforeParens <= pos.start && pos.end <= afterParens
-    if (found) Some(tree) else iter(tree.children)
   }
 
   def getStyleAndOwners(
@@ -826,7 +824,7 @@ object TreeOps {
       // `sortBy`); `sortWith` is stable, so equal-start children keep order.
       val allChildren: List[(Tree, T, T)] = {
         val buf = List.newBuilder[(Tree, T, T)]
-        elem.children.foreach { x =>
+        elem.foreachChild { x =>
           val tokens = x.tokens
           if (tokens.nonEmpty) {
             val beg = tokens.head

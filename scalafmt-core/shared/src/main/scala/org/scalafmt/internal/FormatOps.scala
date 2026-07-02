@@ -233,7 +233,7 @@ class FormatOps(
       trees: Seq[Tree],
       func: TemplateSupertypeGroup => A,
   )(expireFunc: Seq[Tree] => FT)(implicit ft: FT): Option[A] = trees
-    .find(_.pos.end >= ft.right.end)
+    .find(_.endOffset >= ft.right.end)
     .map(x => func(TemplateSupertypeGroup(x, trees, expireFunc)))
 
   def findTemplateGroupOnRight[A](
@@ -281,7 +281,7 @@ class FormatOps(
           ft.leftOwner.is[Term.Block] && ft.left.is[T.RightBrace] &&
           !prevNonCommentSameLineBefore(ft).left.is[T.LeftBrace] &&
           matchingOptLeft(ft)
-            .exists(lb => prev(lb).left.start < term.thenp.pos.start)
+            .exists(lb => prev(lb).left.start < term.thenp.begOffset)
         }
         if (ok) Some(ft) else None
       case _ => None
@@ -398,7 +398,7 @@ class FormatOps(
         case _: T.LeftBrace => matchingOptRight(ft)
         case _ => None
       }) match {
-        case Some(cft) if cft.right.end >= app.arg.pos.end =>
+        case Some(cft) if cft.right.end >= app.arg.endOffset =>
           sourceIgnoredSplits
             .map(s => if (s.isNL) s.copy(cost = 0, rank = -1) else s)
         case _ => withIndent(nl(1))
@@ -630,7 +630,7 @@ class FormatOps(
         }
       case _ => Nil
     }
-    val allParenOwners = allClauses.filter(_.pos.start > open.start)
+    val allParenOwners = allClauses.filter(_.begOffset > open.start)
     val allOwners = lpOwner +: allParenOwners
 
     // find the last param on the defn so that we can apply our `policy`
@@ -1268,7 +1268,7 @@ class FormatOps(
       tbounds: Type.Bounds,
       bounds: => Seq[Type],
   )(implicit style: ScalafmtConfig, ft: FT): Seq[Split] = {
-    val boundOpt = bounds.find(_.pos.start > ft.right.end)
+    val boundOpt = bounds.find(_.begOffset > ft.right.end)
     val expireOpt = boundOpt.map(getLastNonTrivial)
     getSplitsForTypeBounds(noNLMod, tbounds, expireOpt)
   }

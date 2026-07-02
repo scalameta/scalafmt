@@ -90,12 +90,10 @@ class StyleMap(tokens: FormatTokens, initStyle: ScalafmtConfig) {
   private def isSimpleLiteral(tree: Tree): Boolean = tree match {
     case t: Term.SelectLike => isSimpleLiteral(t.qual)
     case t: Term.Assign => isSimpleLiteral(t.rhs)
-    case _ => isBasicLiteral(tree) ||
-      (tree.children match {
-        case Nil => true
-        case one :: Nil => isSimpleLiteral(one)
-        case _ => false
-      })
+    case _ => isBasicLiteral(tree) || {
+        val child = getSingleChild(tree)
+        (child eq Tree.NoTree) || (child ne null) && isSimpleLiteral(child)
+      }
   }
 
   @tailrec
@@ -113,12 +111,10 @@ class StyleMap(tokens: FormatTokens, initStyle: ScalafmtConfig) {
         case Term.ArgClause(arg :: Nil, None) :: Nil => isComplexLiteral(arg)
         case _ => false
       })
-    case _ => isSimpleLiteral(tree) ||
-      (tree.children match {
-        case Nil => true
-        case one :: Nil => isComplexLiteral(one)
-        case _ => false
-      })
+    case _ => isSimpleLiteral(tree) || {
+        val child = getSingleChild(tree)
+        (child eq Tree.NoTree) || (child ne null) && isComplexLiteral(child)
+      }
   }
 
   private def opensLiteralArgumentList(
@@ -164,5 +160,14 @@ object StyleMap {
   def setBinPack(curr: ScalafmtConfig, callSite: BinPack.Site): ScalafmtConfig =
     if (curr.binPack.callSite == callSite) curr
     else curr.copy(binPack = curr.binPack.copy(callSite = callSite))
+
+  private def getSingleChild(tree: Tree): Tree = {
+    var singleChild = Tree.NoTree
+    tree.foreachChild { child =>
+      if (singleChild ne null)
+        singleChild = if (singleChild eq Tree.NoTree) child else null
+    }
+    singleChild
+  }
 
 }

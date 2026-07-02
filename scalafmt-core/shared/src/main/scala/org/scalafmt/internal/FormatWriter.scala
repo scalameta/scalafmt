@@ -1291,19 +1291,18 @@ class FormatWriter(formatOps: FormatOps) {
                   isSlc,
                 )
                 if (alignContainer eq null) alignContainer = container
-                else if (alignContainer ne container) {
-                  val pos1 = alignContainer.pos
+                else if (alignContainer ne container)
                   if (isSlc) {
                     val prevFt = prevNonCommentSameLine(ft)
-                    if (pos1.end >= prevFt.left.end) appendCandidate()
-                  } else {
-                    val pos2 = container.pos
-                    if (pos2.start <= pos1.start && pos2.end >= pos1.end) {
-                      alignContainer = container
-                      columnCandidates.clear()
-                    }
+                    if (alignContainer.endOffset >= prevFt.left.end)
+                      appendCandidate()
+                  } else if (
+                    container.begOffset <= alignContainer.begOffset &&
+                    container.endOffset >= alignContainer.endOffset
+                  ) {
+                    alignContainer = container
+                    columnCandidates.clear()
                   }
-                }
                 if (alignContainer eq container) appendCandidate()
               }
               processLine(wasSlc = isSlc)
@@ -1487,7 +1486,7 @@ class FormatWriter(formatOps: FormatOps) {
       ): Unit = {
         val (nest, isTop) = getNest(Some(owner))
         if (nest < 0) return
-        val end = owner.pos.end
+        val end = owner.endOffset
         def setStat(
             stat: Tree,
             idx: Int,
@@ -1586,7 +1585,7 @@ class FormatWriter(formatOps: FormatOps) {
         val ft = getLast(stats.last)
         val nl = locations(ft.meta.idx).style.newlines
         if (insideBody(stats, nl, Newlines.after))
-          setFt(trailingComment(ft, owner.pos.end))
+          setFt(trailingComment(ft, owner.endOffset))
       }
 
       private def traverse(tree: Tree): Unit = tree.dfsIf(traverseFunc)
@@ -1883,7 +1882,8 @@ object FormatWriter {
           case (false, false) =>
             val isMatchPossible = sameOwner &&
               (floc.style.align.multiline ||
-                refStop.ft.rightOwner.pos.end <= curStop.ft.rightOwner.pos.start)
+                refStop.ft.rightOwner.endOffset <=
+                curStop.ft.rightOwner.begOffset)
             if (isMatchPossible) {
               val cmpDepth = Integer.compare(refStop.depth, curStop.depth)
               if (0 < cmpDepth) {

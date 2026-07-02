@@ -249,7 +249,7 @@ object OptionalBraces {
       def createImpl(tb: Tree.Block, ownerOpt: => Option[Tree]) =
         if (
           nft.right.is[T.LeftBrace] && (nft.meta.rightOwner eq tb) ||
-          tb.pos.start > nft.right.start
+          tb.begOffset > nft.right.start
         ) None
         else Some(new OptionalBraces {
           def owner = ownerOpt
@@ -402,8 +402,8 @@ object OptionalBraces {
     ): Option[OptionalBraces] = ft.meta.leftOwner match {
       case t: Term.While => t.expr match {
           case b: Term.Block
-              if isMultiStatBlock(b) &&
-                !ftoks.matchingOptRight(nft).exists(_.left.end >= b.pos.end) =>
+              if isMultiStatBlock(b) && !ftoks.matchingOptRight(nft)
+                .exists(_.left.end >= b.endOffset) =>
             Some(new OptionalBraces {
               def owner = Some(t)
               def block: Tree = b
@@ -590,7 +590,7 @@ object OptionalBraces {
     ): Option[OptionalBraces] = ft.meta.leftOwner match {
       case t: Term.If => t.cond match {
           case b: Term.Block if (ftoks.matchingOptRight(nft) match {
-                case Some(t) => t.left.end < b.pos.end
+                case Some(t) => t.left.end < b.endOffset
                 case None => isMultiStatBlock(b)
               }) =>
             Some(new OptionalBraces {
@@ -754,7 +754,7 @@ object OptionalBraces {
       case _: T.LeftBrace => false
       case _ => !isTreeSingleExpr(thenp) &&
         (!before.right.is[T.LeftBrace] || matchingOptRight(before)
-          .exists(_.left.end < thenp.pos.end))
+          .exists(_.left.end < thenp.endOffset))
     }
   }
 
