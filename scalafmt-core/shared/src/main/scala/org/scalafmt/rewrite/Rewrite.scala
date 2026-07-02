@@ -1,6 +1,7 @@
 package org.scalafmt.rewrite
 
 import org.scalafmt.config.{RewriteSettings, ScalafmtConfig}
+import org.scalafmt.internal.FormatWriter
 import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps}
 
 import scala.meta.tokens.{Token => T}
@@ -32,8 +33,16 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
   @inline
   def getIndex(token: T): Int = tokenTraverser.getIndex(token)
 
-  def applyPatches: String = tokens.iterator
-    .map(x => patchBuilder.get(lookupKey(x)).fold(x.text)(_.newTok)).mkString
+  def applyPatches: String = {
+    // pre-sized, coder-matched builder; append directly, avoiding an intermediate
+    // mapped iterator, mkString's regrowth, and a Some per patched token
+    val sb = FormatWriter.presizedStringBuilder(input.text)
+    tokens.foreach { x =>
+      val p = patchBuilder.getOrElse(lookupKey(x), null)
+      sb.append(if (p eq null) x.text else p.newTok)
+    }
+    sb.toString
+  }
 
   def addPatchSet(ps: TokenPatch*): Unit =
     if (!ps.exists(p => tokenTraverser.isExcluded(p.tok))) ps.foreach(p =>
