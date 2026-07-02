@@ -22,28 +22,47 @@ class Router(implicit formatOps: FormatOps) {
   def getSplits(implicit ft: FT): Seq[Split] = {
     implicit val style = styleMap.at(ft)
     import ft._, SplitsBuilder._
-    val splitsRaw = lookupAfter.get(left.getClass).flatMap(_.getOpt)
-      .orElse(lookupBefore.get(right.getClass).flatMap(_.getOpt))
-      .orElse(SplitsBeforeStatement.getOpt)
-      .orElse(lookupAfterLowPriority.get(left.getClass).flatMap(_.getOpt))
-      .orElse(lookupBeforeLowPriority.get(right.getClass).flatMap(_.getOpt))
-      .orElse(SplitsWithOptionalNL.getOpt).getOrElse(Seq(Split(Space, 0)))
-      .flatMap(s =>
-        if (s.isIgnored) None
-        else {
-          val penalize = !s.isNL && s.policy.exists {
-            case p: PolicyOps.PenalizeAllNewlines => p.failsSyntaxNL(ft)
-            case _ => false
-          }
-          if (penalize) Some(s.withPenalty(1)) else Some(s)
-        },
-      )
-    val splits = optimizationEntities.semicolonAfterStatement(idx)
-      .fold(splitsRaw) { xft =>
-        import PolicyOps._
-        val policy = delayedBreakPolicyFor(xft)(decideNewlinesOnlyAfterToken)
-        splitsRaw.map(_.andPolicy(policy))
+    // null-returning ju.HashMap lookup + Splits.get (empty Seq = no match, fall
+    // through), avoiding a `Some` per hit from immutable.Map.get/getOpt and the
+    // intermediate Options of an `orElse` chain (this runs once per token)
+    def fromMap(m: LookupMap, cls: Class[_]): Seq[Split] = {
+      val s = m.get(cls)
+      if (s eq null) Nil else s.get
+    }
+    def fromMaps(): Seq[Split] = {
+      var raw = fromMap(lookupAfter, left.getClass)
+      if (raw.nonEmpty) return raw
+      raw = fromMap(lookupBefore, right.getClass)
+      if (raw.nonEmpty) return raw
+      raw = SplitsBeforeStatement.get
+      if (raw.nonEmpty) return raw
+      raw = fromMap(lookupAfterLowPriority, left.getClass)
+      if (raw.nonEmpty) return raw
+      raw = fromMap(lookupBeforeLowPriority, right.getClass)
+      if (raw.nonEmpty) return raw
+      raw = SplitsWithOptionalNL.get
+      if (raw.nonEmpty) return raw
+      Seq(Split(Space, 0))
+    }
+    val optimizationPolicy =
+      optimizationEntities.semicolonAfterStatement(idx) match {
+        case Some(xft) =>
+          import PolicyOps._
+          delayedBreakPolicyFor(xft)(decideNewlinesOnlyAfterToken)
+        case _ => Policy.NoPolicy
       }
+    val splitsBuilder = Seq.newBuilder[Split]
+    fromMaps().foreach(s =>
+      if (!s.isIgnored) {
+        val penalize = !s.isNL && s.policy.exists {
+          case p: PolicyOps.PenalizeAllNewlines => p.failsSyntaxNL(ft)
+          case _ => false
+        }
+        splitsBuilder += // .andPolicy is a no-op on NoPolicy
+          (if (penalize) s.withPenalty(1) else s).andPolicy(optimizationPolicy)
+      },
+    )
+    val splits = splitsBuilder.result()
     require(
       splits.nonEmpty,
       s"""|

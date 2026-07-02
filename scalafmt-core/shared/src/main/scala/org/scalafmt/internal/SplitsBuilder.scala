@@ -2,7 +2,9 @@ package org.scalafmt.internal
 
 import scala.meta.tokens.{Token => T}
 
-import scala.collection.{immutable, mutable}
+import java.{util => ju}
+
+import scala.collection.mutable
 import scala.reflect.ClassTag
 
 /* scalafmt: {
@@ -13,7 +15,7 @@ import scala.reflect.ClassTag
  */
 object SplitsBuilder {
 
-  type LookupMap = immutable.Map[Class[_], Splits]
+  type LookupMap = ju.HashMap[Class[_], Splits]
 
   def build(f: SplitsBuilder => Unit): LookupMap = {
     val builder = new SplitsBuilder
@@ -153,9 +155,9 @@ private[internal] class SplitsBuilder {
   }
 
   def result(): SplitsBuilder.LookupMap = {
-    val builder = immutable.Map.newBuilder[Class[_], Splits]
-    map.foreach { case (k, v) => builder += k -> Splits(v.toList) }
-    builder.result()
+    val jmap = new ju.HashMap[Class[_], Splits](map.size * 2)
+    map.foreach { case (k, v) => jmap.put(k, Splits(v.toList)) }
+    jmap
   }
 
 }

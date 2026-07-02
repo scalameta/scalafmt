@@ -17,7 +17,7 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
 
   implicit val dialect: Dialect = style.dialect
 
-  private val patchBuilder = mutable.Map.empty[(Int, Int), TokenPatch]
+  private val patchBuilder = mutable.LongMap.empty[TokenPatch]
 
   val tokens: Tokens = tree.tokens
   val tokenTraverser = new TokenTraverser(tokens, input)(style)
@@ -169,6 +169,7 @@ object RewriteCtx {
     }
 
   @inline
-  private def lookupKey(tok: T) = tok.start -> tok.end
+  private def lookupKey(tok: T): Long = tok.start.toLong << 32 |
+    tok.end.toLong & 0xffffffffL
 
 }
