@@ -27,7 +27,8 @@ class FormatWriter(formatOps: FormatOps) {
   import formatOps.tokens._
 
   def mkString(state: State): String = {
-    implicit val sb = new StringBuilder()
+    implicit val sb: StringBuilder =
+      presizedStringBuilder(arr.head.left.input.text)
     val locations = getFormatLocations(state)
     styleMap.init.runner.event(FormatEvent.Written(locations))
 
@@ -1708,6 +1709,35 @@ class FormatWriter(formatOps: FormatOps) {
 object FormatWriter {
 
   private val NoLine = Int.MaxValue
+
+  /** A StringBuilder pre-sized to `source.length` plus an overflow margin (the
+    * formatted output is normally within a few % of the source), with its coder
+    * matched to the source. scalafmt only inserts ASCII, so the output is
+    * Latin1 iff the source is; if the source has any non-Latin1 char
+    * (>=U+0100), force the still-empty builder to UTF16 up front (the inflate
+    * discards only the tiny default buffer) so appends never hit a mid-stream
+    * Latin1->UTF16 inflate that copies the accumulated output. Capacity is a
+    * perf hint only -- a wrong value can only mis-size, never change the
+    * output.
+    */
+  private[scalafmt] def presizedStringBuilder(
+      source: CharSequence,
+  ): StringBuilder = {
+    val n = source.length
+    val cap = n + n / 8
+    var i = 0
+    var utf16 = false
+    while (i < n && !utf16) { utf16 = source.charAt(i) >= 0x100; i += 1 }
+    if (!utf16) new StringBuilder(cap)
+    else {
+      val b = new StringBuilder()
+      // append the first non-Latin1 code point, then clear: inflates the (empty)
+      // buffer to UTF16 so later appends never trigger a mid-stream inflate
+      b.append(0x100.toChar).setLength(0)
+      b.ensureCapacity(cap)
+      b
+    }
+  }
 
   type OptionalBraces = Map[Int, Tree]
 
