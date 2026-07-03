@@ -3964,3 +3964,18 @@ private def mtd: Res =
      fooBody2
      fooBody3
    }
+<<< coordinated fewer-braces on paren argclause guards double-colon
+rewrite.rules = [RedundantBraces, RedundantParens]
+rewrite.scala3.removeOptionalBraces = {
+  enabled = yes
+  fewerBracesParensToo = yes
+  fewerBracesMinSpan = 0
+  fewerBracesMaxSpan = 100
+}
+===
+object a:
+  foo(({ x }))
+>>>
+object a:
+   foo:
+      x
