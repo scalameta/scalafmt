@@ -1,4 +1,5 @@
-package org.scalafmt.rewrite
+package org.scalafmt
+package rewrite
 
 import org.scalafmt.config._
 import org.scalafmt.util._
@@ -35,8 +36,8 @@ object Imports extends RewriteFactory {
 
     def noGroups: Boolean = sort.eq(Sort.none) && numGroups == 0
 
-    def group(str: String): Int = regex.find(_._1.matcher(str).matches())
-      .fold(numGroups)(_._2)
+    def group(str: String): Int = regex.findOrNull(_._1.matcher(str).matches())
+      .nnFold(numGroups)(_._2)
   }
 
   object Settings {
@@ -72,14 +73,14 @@ object Imports extends RewriteFactory {
   override def hasChanged(v1: RewriteSettings, v2: RewriteSettings): Boolean =
     v1.imports ne v2.imports
 
-  override def create(implicit ctx: RewriteCtx): Option[RewriteSession] = {
+  override def create(implicit ctx: RewriteCtx): RewriteSession = {
     val settings = ctx.style.rewrite.imports
     val selectors = ctx.style.importSelectorsRewrite
-    if (selectors eq Newlines.unfold) Some(new ExpandFull)
-    else if (selectors eq Newlines.fold) Some(new Fold)
-    else if (settings.numGroups != 0) Some(new ExpandPart)
-    else if (settings.sort ne Sort.none) Some(new ExpandNone)
-    else None
+    if (selectors eq Newlines.unfold) new ExpandFull
+    else if (selectors eq Newlines.fold) new Fold
+    else if (settings.numGroups != 0) new ExpandPart
+    else if (settings.sort ne Sort.none) new ExpandNone
+    else null
   }
 
   private val allImportRules: Set[Rewrite] =
@@ -137,7 +138,7 @@ object Imports extends RewriteFactory {
       raw: String,
       importees: Seq[Importee],
       commentsBefore: Seq[T] = Seq.empty,
-      commentAfter: Option[T] = None,
+      commentAfter: T = null,
   )
 
   private class Grouping(
@@ -396,9 +397,10 @@ object Imports extends RewriteFactory {
           sb.append(x.text).appendNL
         }
         sb.append(selectorString)
-        commentAfter.foreach(x => sb.append(' ').append(x.text).appendNL)
+        if (commentAfter ne null) sb.append(' ').append(commentAfter.text)
+          .appendNL
         val pretty = sb.append('}').result()
-        val hadComments = commentsBefore.nonEmpty || commentAfter.isDefined
+        val hadComments = commentsBefore.nonEmpty || (commentAfter ne null)
         Selectors(
           pretty,
           if (needRaw && hadComments) s"{$selector}" else pretty,
@@ -435,9 +437,9 @@ object Imports extends RewriteFactory {
           }
           sb.append(selectorString)
           if (index != selectorCount) sb.append(',')
-          commentAfter.foreach { x =>
+          if (commentAfter ne null) {
             hadComments = true
-            sb.append(' ').append(x).appendNL
+            sb.append(' ').append(commentAfter).appendNL
           }
         }
         val pretty = sb.append('}').result()
@@ -489,24 +491,21 @@ object Imports extends RewriteFactory {
       ctx.tokenTraverser.nextNonTrivialToken(x.tokens.last).is[T.RightArrow],
     )
 
-    protected final def getCommentsAround(tree: Tree): (Seq[T], Option[T]) = {
-      val tokens = tree.tokens
-      val beg = getCommentsBefore(tokens)
-      val end = getCommentAfter(tokens)
-      beg -> end
-    }
+    protected final def getCommentsAround(tree: Tree): (Seq[T], T) =
+      getCommentsBefore(tree.tokens) -> getCommentAfter(tree)
 
     protected final def getCommentsBefore(tok: T): Seq[T] = {
       var hadLf = false
       val slc = new ListBuffer[T]
       ctx.tokenTraverser.findAtOrBefore(ctx.getIndex(tok) - 1) {
         case t: T.AtEOL =>
-          if (hadLf || t.newlines > 1) Some(true) else { hadLf = true; None }
+          if (hadLf || t.newlines > 1) MaybeBool.True
+          else { hadLf = true; MaybeBool.Maybe }
         case t: T.Comment if TokenOps.isSingleLineIfComment(t) =>
-          slc.prepend(t); hadLf = false; None
-        case _: T.Whitespace => None
-        case _: T.LeftBrace => Some(false)
-        case _ => if (!hadLf && slc.nonEmpty) slc.remove(0); Some(false)
+          slc.prepend(t); hadLf = false; MaybeBool.Maybe
+        case _: T.Whitespace => MaybeBool.Maybe
+        case _: T.LeftBrace => MaybeBool.False
+        case _ => if (!hadLf && slc.nonEmpty) slc.remove(0); MaybeBool.False
       }
       slc.result()
     }
@@ -514,15 +513,15 @@ object Imports extends RewriteFactory {
     protected final def getCommentsBefore(tokens: Tokens): Seq[T] =
       getCommentsBefore(tokens.head)
 
-    protected final def getCommentAfter(tok: T): Option[T] = ctx.tokenTraverser
+    protected final def getCommentAfter(tok: T): T = ctx.tokenTraverser
       .findAtOrAfter(ctx.getIndex(tok) + 1) {
-        case _: T.HSpace | _: T.Comma => None
-        case t: T.Comment => Some(TokenOps.isSingleLineIfComment(t))
-        case _ => Some(false)
+        case _: T.HSpace | _: T.Comma => MaybeBool.Maybe
+        case t: T.Comment => MaybeBool(TokenOps.isSingleLineIfComment(t))
+        case _ => MaybeBool.False
       }
 
-    protected final def getCommentAfter(tokens: Tokens): Option[T] =
-      getCommentAfter(tokens.last)
+    protected final def getCommentAfter(tree: Tree): T =
+      getCommentAfter(tree.tokens.last)
 
     private val eol = LineEndings
       .eol(ctx.style.lineEndings.contains(LineEndings.windows))
@@ -598,7 +597,7 @@ object Imports extends RewriteFactory {
           val pTokens = p.tokens
           val isHead = newSeen.contains(1)
           val isLast = newSeen.contains(p.importees.length)
-          if (isLast) getCommentAfter(pTokens).foreach(appendTailComment)
+          if (isLast) getCommentAfter(p).nnFor(appendTailComment)
           p.parent match {
             case Some(pp: ImportExportStat) =>
               if (isHead && pp.importers.headOption.contains(p))
@@ -634,13 +633,16 @@ object Imports extends RewriteFactory {
             importees.foreach(processImporteeComments(appendTailComment))
             commentsBefore.foreach(appendComment)
             val commentsAfter = commentsAfterBuilder.result().iterator
-            val trailingComment = commentAfter.orElse(commentsAfter.nextOption())
+            val trailingComment = commentAfter ?? {
+              if (commentsAfter.hasNext) commentsAfter.next() else null
+            }
             commentsAfter.foreach(comment =>
-              if (!commentAfter.contains(comment)) appendComment(comment),
+              if (commentAfter ne comment) appendComment(comment),
             )
             appendIndent()
             sb.append(stat)
-            trailingComment.foreach(x => sb.append(' ').append(x.text))
+            if (trailingComment ne null) sb.append(' ')
+              .append(trailingComment.text)
             sb.appendNL
           }
         }
@@ -661,7 +663,7 @@ object Imports extends RewriteFactory {
       val lastTok = x.last.tokens.last
       (
         getCommentsBefore(headTok).headOption.getOrElse(headTok),
-        getCommentAfter(lastTok).getOrElse(lastTok),
+        getCommentAfter(lastTok) ?? lastTok,
       )
     }
 
@@ -938,7 +940,7 @@ object Imports extends RewriteFactory {
 }
 
 abstract class ShouldUseImports extends RewriteFactory {
-  override final def create(implicit ctx: RewriteCtx): Option[RewriteSession] =
+  override final def create(implicit ctx: RewriteCtx): RewriteSession =
     throw new NotImplementedError("should use Imports")
 }
 

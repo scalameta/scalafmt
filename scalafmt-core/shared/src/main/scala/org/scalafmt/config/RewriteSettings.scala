@@ -1,4 +1,5 @@
-package org.scalafmt.config
+package org.scalafmt
+package config
 
 import org.scalafmt.rewrite._
 
@@ -87,7 +88,7 @@ object RewriteSettings {
     def nonBlocks: Boolean = allBlocks && settings.nonBlocksMinBreaks != 0
 
     def settingsFor(tree: meta.Tree): InsertBraces.Settings = overrideFor
-      .find(_.matches(tree)).getOrElse(settings)
+      .findOrNull(_.matches(tree)) ?? settings
   }
 
   object InsertBraces {

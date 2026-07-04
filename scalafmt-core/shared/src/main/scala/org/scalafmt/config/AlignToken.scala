@@ -1,4 +1,5 @@
-package org.scalafmt.config
+package org.scalafmt
+package config
 
 import metaconfig._
 
@@ -39,7 +40,7 @@ object AlignToken {
     ).except {
       case (_, Conf.Str("caseArrow")) => Some(Configured.Ok(caseArrow))
       case (_, Conf.Str(regex)) => Some(
-          Configured.Ok(default.find(_.code == regex).getOrElse(AlignToken(regex))),
+          Configured.Ok(default.findOrNull(_.code == regex) ?? AlignToken(regex)),
         )
       case _ => None
     }

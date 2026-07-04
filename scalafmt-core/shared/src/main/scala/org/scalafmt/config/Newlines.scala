@@ -1,4 +1,5 @@
-package org.scalafmt.config
+package org.scalafmt
+package config
 
 import org.scalafmt.config.Newlines._
 import org.scalafmt.internal._
@@ -311,18 +312,26 @@ case class Newlines(
   def allowNonTopStatBlankLines = topLevelStatementBlankLines
     .exists(_.allowNonTop)
 
-  def getTopStatBlankLines(tree: Tree)(
-      params: TopStatBlanksParams,
-  ): Option[NumBlanks] = topStatBlankLinesSorted.iterator
-    .takeWhile(_.minBreaks <= params.numBreaks)
-    .find(x => x.checkParams(params, tree)).flatMap(_.blanks)
+  def getTopStatBlankLines(tree: Tree)(params: TopStatBlanksParams): NumBlanks = {
+    val iter = topStatBlankLinesSorted.iterator
+    while (iter.hasNext) {
+      val elem = iter.next()
+      if (elem.minBreaks > params.numBreaks) return null
+      if (elem.checkParams(params, tree)) return elem.blanks.orNull
+    }
+    null
+  }
 
-  private def getBeforeOpenParen(bop: BeforeOpenParen): SourceHints =
-    Option(bop.src).getOrElse(source)
-  def getBeforeOpenParenCallSite: Option[SourceHints] = beforeOpenParenCallSite
-    .map(getBeforeOpenParen)
-  def getBeforeOpenParenDefnSite: Option[SourceHints] = beforeOpenParenDefnSite
-    .map(getBeforeOpenParen)
+  private def getBeforeOpenParen(bop: BeforeOpenParen): SourceHints = bop.src ??
+    source
+  def getBeforeOpenParenCallSite: SourceHints = beforeOpenParenCallSite match {
+    case Some(x) => getBeforeOpenParen(x)
+    case _ => null
+  }
+  def getBeforeOpenParenDefnSite: SourceHints = beforeOpenParenDefnSite match {
+    case Some(x) => getBeforeOpenParen(x)
+    case _ => null
+  }
   def isBeforeOpenParenCallSite: Boolean = beforeOpenParenCallSite.isDefined
   def isBeforeOpenParenDefnSite: Boolean = beforeOpenParenDefnSite.isDefined
 
@@ -584,11 +593,11 @@ object Newlines {
       def apply(tree: Tree): Boolean = {
         // find the first invalid tree
         val nonMemberTree = TreeOps.findTreeWithParentEx(tree) {
-          case t: Template.Body => t.parent.parent
-          case _: Pkg.Body => None // all trees valid, no need to go further
-          case _ => Some(null) // reached invalid parent, no need to go further
+          case t: Template.Body => t.parentOrNoTree.parentOrNoTree
+          case _: Pkg.Body => Tree.NoTree // all trees valid, no need to go further
+          case _ => null // reached invalid parent, no need to go further
         }
-        nonMemberTree.isEmpty
+        nonMemberTree eq null
       }
     }
 
@@ -602,13 +611,20 @@ object Newlines {
   case class NumBlanks(
       before: Int = 0,
       after: Int = 0,
-      beforeAll: Option[Int] = None,
-      afterAll: Option[Int] = None,
+      private val beforeAll: Option[Int] = None,
+      private val afterAll: Option[Int] = None,
       beforeEndMarker: Int = 0,
   ) {
     def isEmpty: Boolean = before == 0 && after == 0
+    val beforeAllOrUnset: Int = beforeAll.getOrElse(NumBlanks.unset)
+    val afterAllOrUnset: Int = afterAll.getOrElse(NumBlanks.unset)
   }
   object NumBlanks {
+
+    /** Sentinel for an unset `beforeAll`/`afterAll` (formerly `None`); ordinary
+      * values, including negatives, are valid and distinct from this.
+      */
+    final val unset: Int = Int.MinValue
     implicit val surface: generic.Surface[NumBlanks] = generic
       .deriveSurface[NumBlanks]
     implicit val encoder: ConfEncoder[NumBlanks] = generic

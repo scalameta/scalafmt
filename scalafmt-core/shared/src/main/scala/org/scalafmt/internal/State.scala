@@ -1,4 +1,5 @@
-package org.scalafmt.internal
+package org.scalafmt
+package internal
 
 import org.scalafmt.config.{Comments, Indents, Newlines, ScalafmtConfig}
 import org.scalafmt.util.PolicyOps
@@ -129,19 +130,19 @@ final class State(
       val initialModExt = initialNextSplit.modExt
       val nextPushes = getUnexpired(initialModExt)
       val initIndent = Indent.getIndent(nextPushes)
-      initialModExt.altOpt.flatMap(alt =>
-        if (tok.left.is[T.Comment]) None
-        else if (initIndent < alt.mod.length + column) None
-        else if (initialModExt.noAltIndent) Some(alt)
-        else Some(alt.withIndents(initialModExt.indents)),
+      initialModExt.alt.nnMap(alt =>
+        if (tok.left.is[T.Comment]) null
+        else if (initIndent < alt.mod.length + column) null
+        else if (initialModExt.noAltIndent) alt
+        else alt.withIndents(initialModExt.indents),
       ) match {
-        case Some(alt) =>
+        case null =>
+          nextIndent = initIndent
+          nextIndents = nextPushes
+        case alt =>
           nextIndents = getUnexpired(alt)
           nextIndent = Indent.getIndent(nextIndents)
           nextSplit = initialNextSplit.withMod(alt)
-        case None =>
-          nextIndent = initIndent
-          nextIndents = nextPushes
       }
     }
 
@@ -249,12 +250,13 @@ final class State(
         val isComment = ft.right.is[T.Comment]
         /* we only delay penalty for overflow tokens which are part of a
          * statement that started at the beginning of the current line */
-        val startFtOpt =
-          if (!State.allowSplitForLineStart(nextSplit, ft, isComment)) None
+        val startFt =
+          if (!State.allowSplitForLineStart(nextSplit, ft, isComment)) null
           else lineStartsStatement(isComment)
-        val delay = startFtOpt.exists {
-          case xft @ FT(_, _: T.Interpolation.Start, _) => tokens
-              .matchingRight(xft).left ne ft.right
+        val delay = startFt match {
+          case null => false
+          case FT(_, _: T.Interpolation.Start, _) => tokens
+              .matchingRight(startFt).left ne ft.right
           case _ => true
         }
         // if delaying, estimate column if the split had been a newline
@@ -294,29 +296,28 @@ final class State(
     *   [[State.allowSplitForLineStart]] which tokens can be traversed.
     */
   @tailrec
-  private def getLineStartOwner(isComment: Boolean)(implicit
-      style: ScalafmtConfig,
-      tokens: FormatTokens,
-  ): Option[(FT, Tree)] = {
+  private def getLineStartOwner(
+      isComment: Boolean,
+  )(implicit style: ScalafmtConfig, tokens: FormatTokens): (FT, Tree) = {
     val ft = tokens(depth)
-    if (ft.meta.left.hasNL) None
+    if (ft.meta.left.hasNL) null
     else if (!split.isNL) {
       val ok = (prev ne State.start) &&
         State.allowSplitForLineStart(split, ft, isComment)
-      if (ok) prev.getLineStartOwner(isComment) else None
+      if (ok) prev.getLineStartOwner(isComment) else null
     } else {
-      def startsWithLeft(tree: Tree): Boolean = tokens.getHeadOpt(tree)
-        .contains(ft)
-      def optionIfStartsWithLeft(tree: Tree): Option[Tree] = Some(tree)
-        .filter(startsWithLeft)
-      val owner = optionIfStartsWithLeft(ft.meta.rightOwner)
-        .orElse(optionIfStartsWithLeft(ft.meta.leftOwner))
-      owner.map { x =>
-        val y = x.parent.flatMap(p =>
-          if (!startsWithLeft(p)) None
-          else findTreeWithParentSimple(p, false)(startsWithLeft),
-        )
-        (ft, y.getOrElse(x))
+      def startsWithLeft(tree: Tree): Boolean = tokens.getHead(tree) eq ft
+      val owner =
+        if (startsWithLeft(ft.rightOwner)) ft.rightOwner
+        else if (startsWithLeft(ft.leftOwner)) ft.leftOwner
+        else null
+      owner &&& {
+        val y = owner.parent match {
+          case Some(p) if startsWithLeft(p) =>
+            findTreeWithParentSimple(p, false)(startsWithLeft)
+          case _ => null
+        }
+        (ft, y ?? owner)
       }
     }
   }
@@ -327,20 +328,17 @@ final class State(
   private def lineStartsStatement(isComment: Boolean)(implicit
       style: ScalafmtConfig,
       tokens: FormatTokens,
-  ): Option[FT] = getLineStartOwner(isComment)
-    .flatMap { case (lineFt, lineOwner) =>
-      val ft = tokens(depth)
-      val ok =
-        // comment could be preceded by a comma
-        isComment && ft.left.is[T.Comma] &&
-          (tokens.prev(ft).meta.leftOwner match {
-            case `lineOwner` => true
-            case t: Member.SyntaxValuesClause => t.parent.contains(lineOwner)
-            case _ => false
-          }) || findTreeOrParentSimple(ft.meta.leftOwner)(_ eq lineOwner)
-            .isDefined
-      if (ok) Some(lineFt) else None
-    }
+  ): FT = getLineStartOwner(isComment).nnMap { case (lineFt, lineOwner) =>
+    val ft = tokens(depth)
+    // comment could be preceded by a comma
+    val ok = isComment && ft.left.is[T.Comma] &&
+      (tokens.prev(ft).meta.leftOwner match {
+        case `lineOwner` => true
+        case t: Member.SyntaxValuesClause => t.parent.contains(lineOwner)
+        case _ => false
+      }) || (findTreeOrParentSimple(ft.meta.leftOwner)(_ eq lineOwner) ne null)
+    if (ok) lineFt else null
+  }
 
   private def getRelativeToLhsLastLineEnd(
       isNL: Boolean,
@@ -601,7 +599,7 @@ object State {
 
   @inline
   private def isWithinInterpolation(tree: Tree): Boolean =
-    findTreeOrParentSimple(tree)(isInterpolation).isDefined
+    findTreeOrParentSimple(tree)(isInterpolation) ne null
 
   private val nullFT = FT(null, null, null)
 }

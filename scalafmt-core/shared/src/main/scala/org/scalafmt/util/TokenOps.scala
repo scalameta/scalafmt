@@ -1,4 +1,5 @@
-package org.scalafmt.util
+package org.scalafmt
+package util
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal._
@@ -52,11 +53,10 @@ object TokenOps {
   def findLastVisibleTokenIndex(tokens: Tokens): Int = tokens
     .rskipIf(_.isAny[T.Whitespace, T.EOF], tokens.length - 1)
 
-  def findLastVisibleTokenOpt(tokens: Tokens): Option[T] = {
+  def findLastVisibleTokenOrNull(tokens: Tokens): T = {
     val idx = findLastVisibleTokenIndex(tokens)
-    if (idx < 0) None else Some(tokens(idx))
+    if (idx < 0) null else tokens(idx)
   }
-
   def findLastVisibleToken(tokens: Tokens): T =
     tokens(findLastVisibleTokenIndex(tokens).max(0))
 
@@ -124,25 +124,30 @@ object TokenOps {
 
   def getIndentTrigger(tree: Tree): T = tree.tokens.head
 
-  def getEndOfBlock(ft: FT)(f: FT => Option[Boolean])(implicit
-      style: ScalafmtConfig,
-      ftoks: FormatTokens,
-  ): Option[(FT, Boolean)] = ft.left match {
-    case _: T.OpenDelim => f(ft)
-        .flatMap(ok => ftoks.matchingOptLeft(ft).map(_ -> ok))
-    case _ => OptionalBraces.get(ft).flatMap(ob =>
-        ftoks.getLastOpt(ob.block).map(ftoks.nextNonCommentSameLine(_) -> true),
-      )
-  }
+  def getEndOfBlock(ft: FT)(
+      f: FT => MaybeBool,
+  )(implicit style: ScalafmtConfig, ftoks: FormatTokens): (FT, Boolean) =
+    ft.left match {
+      case _: T.OpenDelim =>
+        val ok = f(ft)
+        if (ok eq MaybeBool.Maybe) null
+        else ftoks.matchingLeftOrNull(ft).nnMap(_ -> ok.asBoolean)
+      case _ => OptionalBraces.get(ft).nnMap { ob =>
+          val last = ftoks.getLast(ob.block)
+          if (last eq null) null else ftoks.nextNonCommentSameLine(last) -> true
+        }
+    }
 
   def getEndOfBlock(ft: FT, parens: => Boolean, brackets: => Boolean = false)(
       implicit
       style: ScalafmtConfig,
       ftoks: FormatTokens,
-  ): Option[(FT, Boolean)] = getEndOfBlock(ft) {
-    case FT(_: T.LeftParen, _, _) => if (parens) Some(true) else None
-    case FT(_: T.LeftBracket, _, _) => if (brackets) Some(true) else None
-    case _ => Some(true)
+  ): (FT, Boolean) = getEndOfBlock(ft) {
+    case FT(_: T.LeftParen, _, _) =>
+      if (parens) MaybeBool.True else MaybeBool.Maybe
+    case FT(_: T.LeftBracket, _, _) =>
+      if (brackets) MaybeBool.True else MaybeBool.Maybe
+    case _ => MaybeBool.True
   }
 
   def insideBlock[A](start: FT, end: FT)(implicit
@@ -153,7 +158,7 @@ object TokenOps {
   def insideBlock(start: FT, end: FT, matches: FT => Boolean)(implicit
       ftoks: FormatTokens,
   ): TokenRanges = insideBlock(x =>
-    if (matches(x)) ftoks.matchingOptLeft(x).map(_ -> true) else None,
+    if (!matches(x)) null else ftoks.matchingLeftOrNull(x).nnMap(_ -> true),
   )(start, end)
 
   def insideBracesBlock(
@@ -167,20 +172,20 @@ object TokenOps {
     )(start, end)
 
   def insideBlock(
-      matches: FT => Option[(FT, Boolean)],
+      matches: FT => (FT, Boolean),
   )(start: FT, end: FT)(implicit ftoks: FormatTokens): TokenRanges = {
     var result = TokenRanges.empty
 
     @tailrec
     def run(tok: FT): Unit = if (tok.idx < end.idx) {
-      val nextTokOpt = matches(tok).flatMap { case (closeFt, keep) =>
-        if (tok.left.start >= closeFt.left.end) None
+      val nextTokOpt = matches(tok).nnMap { case (closeFt, keep) =>
+        if (tok.left.start >= closeFt.left.end) null
         else {
           if (keep) result = result.append(TokenRange(tok, closeFt))
-          Some(closeFt)
+          closeFt
         }
       }
-      val nextTok = nextTokOpt.getOrElse(ftoks.next(tok))
+      val nextTok = if (nextTokOpt ne null) nextTokOpt else ftoks.next(tok)
       if (nextTok ne tok) run(nextTok)
     }
 

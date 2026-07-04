@@ -1,4 +1,5 @@
-package org.scalafmt.internal
+package org.scalafmt
+package internal
 
 import org.scalafmt.config.RewriteSettings.InsertBraces
 import org.scalafmt.util.TreeOps
@@ -15,19 +16,20 @@ object MissingBraces {
   type AllRanges = Seq[AllRange]
 
   case class Result(tree: Tree, all: AllRanges = Nil, non: AllRanges = Nil)
-  type ResultOpt = Option[Result]
 
   private trait Factory {
     def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
         ib: InsertBraces,
-    ): ResultOpt
+    ): Result
   }
 
   def getBlocks(
       ft: FT,
-  )(implicit ftoks: FormatTokens, ib: InsertBraces): ResultOpt = {
-    val impl = ft.left match {
+  )(implicit ftoks: FormatTokens, ib: InsertBraces): Result = {
+    // ascribed to the supertype: Scala 3 otherwise infers a union of the *Impl
+    // singleton types (+ Null), on which `.nnMap` won't resolve
+    val impl: Factory = ft.left match {
       case _: T.RightArrow => RightArrowImpl
       case _: T.RightParen => RightParenImpl
       case _: T.RightBrace => RightBraceImpl
@@ -41,17 +43,25 @@ object MissingBraces {
       case _: T.KwYield => YieldImpl
       case _ => null
     }
-    if (null eq impl) None
-    else {
+    impl &&& {
       val nft = ftoks.nextNonComment(ft)
       impl.getBlocks(ft, nft)
-        .filter(r => (r.tree ne nft.rightOwner) || !nft.right.is[T.LeftBrace])
+        .nnIf(r => (r.tree ne nft.rightOwner) || !nft.right.is[T.LeftBrace])
     }
   }
 
   private def rng(t: Tree): AllRange = t -> t
-  private def rng(t: Iterable[Tree]*): Option[AllRange] = t.find(_.nonEmpty)
-    .map(_.head -> t.view.filter(_.nonEmpty).last.last)
+  private def rngs(t: Iterable[Tree]*): AllRanges = {
+    val outer = t.iterator.map(_.iterator).filter(_.hasNext)
+    if (outer.hasNext) {
+      var inner = outer.next()
+      val head: Tree = inner.next()
+      var last = head
+      while (outer.hasNext) inner = outer.next()
+      while (inner.hasNext) last = inner.next()
+      Seq(head -> last)
+    } else Nil
+  }
 
   private def seq(ok: Boolean, t: Tree): AllRanges =
     if (ok) Seq(rng(t)) else Nil
@@ -60,19 +70,20 @@ object MissingBraces {
     if (ok) t.flatMap(_.map(rng)) else Nil
 
   private def seqseq(ok: Boolean, t: => Seq[Tree]): AllRanges =
-    if (ok) rng(t).toSeq else Nil
+    if (ok) rngs(t) else Nil
 
   private object BlockImpl extends Factory {
     def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
         ib: InsertBraces,
-    ): ResultOpt = {
+    ): Result = {
       def ok(stat: Tree): Boolean = ftoks.isJustBeforeTree(nft)(stat)
       val leftOwner = ft.meta.leftOwner
       TreeOps.findTreeWithParentSimple(nft.rightOwner)(_ eq leftOwner) match {
-        case Some(t: Term.Block) =>
-          if (t.stats.headOption.exists(ok)) Some(Result(t)) else None
-        case x => x.filter(ok).map(Result(_))
+        case t: Term.Block =>
+          if (t.stats.headOption.exists(ok)) Result(t) else null
+        case null => null
+        case t => if (ok(t)) Result(t) else null
       }
     }
   }
@@ -81,12 +92,11 @@ object MissingBraces {
     def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
         ib: InsertBraces,
-    ): ResultOpt = ft.meta.leftOwner match {
-      case t: Term.FunctionLike =>
-        val skip = t.parent.exists(TreeOps.isExprWithParentInBraces(t))
-        if (skip) None
-        else Some(Result(t.body, non = seqseq(ib.nonBlocks, t.paramClause.values)))
-      case _ => None
+    ): Result = ft.meta.leftOwner match {
+      case t: Term.FunctionLike
+          if !t.parent.exists(TreeOps.isExprWithParentInBraces(t)) =>
+        Result(t.body, non = seqseq(ib.nonBlocks, t.paramClause.values))
+      case _ => null
     }
   }
 
@@ -94,18 +104,17 @@ object MissingBraces {
     def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
         ib: InsertBraces,
-    ): ResultOpt = ft.meta.leftOwner match {
+    ): Result = ft.meta.leftOwner match {
       case x: Term.If if !nft.right.is[T.KwThen] => ThenImpl.getTermIf(x)
       case t: Term.EnumeratorsBlock
-          if !nft.right.is[T.KwDo] && ftoks.getLastOpt(t).contains(ft) =>
+          if !nft.right.is[T.KwDo] && (ftoks.getLast(t) eq ft) =>
         t.parent match {
-          case Some(p: Term.For) =>
-            Some(Result(p.body, all = seq(ib.allBlocks, t)))
-          case _ => None
+          case Some(p: Term.For) => Result(p.body, all = seq(ib.allBlocks, t))
+          case _ => null
         }
       case t: Term.While if !nft.right.is[T.KwDo] =>
-        Some(Result(t.body, non = seq(ib.nonBlocks, t.cond)))
-      case _ => None
+        Result(t.body, non = seq(ib.nonBlocks, t.cond))
+      case _ => null
     }
   }
 
@@ -113,15 +122,14 @@ object MissingBraces {
     def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
         ib: InsertBraces,
-    ): ResultOpt = ft.meta.leftOwner match {
+    ): Result = ft.meta.leftOwner match {
       case t: Term.EnumeratorsBlock
-          if !nft.right.is[T.KwDo] && ftoks.getLastOpt(t).contains(ft) =>
+          if !nft.right.is[T.KwDo] && (ftoks.getLast(t) eq ft) =>
         t.parent match {
-          case Some(p: Term.For) =>
-            Some(Result(p.body, all = seq(ib.allBlocks, t)))
-          case _ => None
+          case Some(p: Term.For) => Result(p.body, all = seq(ib.allBlocks, t))
+          case _ => null
         }
-      case _ => None
+      case _ => null
     }
   }
 
@@ -129,11 +137,10 @@ object MissingBraces {
     def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
         ib: InsertBraces,
-    ): ResultOpt = ft.meta.leftOwner match {
-      case t: Term.Do => Some(Result(t.body, non = seq(ib.nonBlocks, t.expr)))
-      case t: Term.For =>
-        Some(Result(t.body, all = seq(ib.allBlocks, t.enumsBlock)))
-      case _ => None
+    ): Result = ft.meta.leftOwner match {
+      case t: Term.Do => Result(t.body, non = seq(ib.nonBlocks, t.expr))
+      case t: Term.For => Result(t.body, all = seq(ib.allBlocks, t.enumsBlock))
+      case _ => null
     }
   }
 
@@ -141,21 +148,21 @@ object MissingBraces {
     def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
         ib: InsertBraces,
-    ): ResultOpt = ft.meta.leftOwner match {
-      case _: Defn.Type => None
+    ): Result = ft.meta.leftOwner match {
+      case _: Defn.Type => null
       case t: Ctor.Secondary =>
-        if (t.body.stats.nonEmpty) None // must have braces
-        else Some(Result(t.body.init, non = seqseq(ib.nonBlocks, t.paramClauses)))
+        if (t.body.stats.nonEmpty) null // must have braces
+        else Result(t.body.init, non = seqseq(ib.nonBlocks, t.paramClauses))
       case t: Tree.WithBody =>
         val nonBlocks = t match {
           case _ if !ib.nonBlocks => Nil
           case t: Defn.Def if !TreeOps.isJsNative(t.body) =>
-            rng(t.paramClauseGroups, t.decltpe).toSeq
-          case t: Defn.Val => rng(t.pats, t.decltpe).toSeq
-          case t: Defn.Var => rng(t.pats, t.decltpe).toSeq
+            rngs(t.paramClauseGroups, t.decltpe)
+          case t: Defn.Val => rngs(t.pats, t.decltpe)
+          case t: Defn.Var => rngs(t.pats, t.decltpe)
           case _ => Nil
         }
-        Some(Result(t.body, non = nonBlocks))
+        Result(t.body, non = nonBlocks)
       case _ => BlockImpl.getBlocks(ft, nft)
     }
   }
@@ -164,10 +171,10 @@ object MissingBraces {
     def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
         ib: InsertBraces,
-    ): ResultOpt = ft.meta.leftOwner match {
+    ): Result = ft.meta.leftOwner match {
       case t: Term.TryClause =>
-        Some(Result(t.expr, all = seqopt(ib.allBlocks, t.catchClause, t.finallyp)))
-      case _ => None
+        Result(t.expr, all = seqopt(ib.allBlocks, t.catchClause, t.finallyp))
+      case _ => null
     }
   }
 
@@ -175,10 +182,13 @@ object MissingBraces {
     def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
         ib: InsertBraces,
-    ): ResultOpt = ft.meta.leftOwner match {
-      case t: Term.TryClause => t.catchClause
-          .map(Result(_, all = seqopt(ib.allBlocks, Some(t.expr), t.finallyp)))
-      case _ => None
+    ): Result = ft.meta.leftOwner match {
+      case t: Term.TryClause => t.catchClause match {
+          case Some(c) =>
+            Result(c, all = seqopt(ib.allBlocks, Some(t.expr), t.finallyp))
+          case None => null
+        }
+      case _ => null
     }
   }
 
@@ -186,10 +196,13 @@ object MissingBraces {
     def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
         ib: InsertBraces,
-    ): ResultOpt = ft.meta.leftOwner match {
-      case t: Term.TryClause => t.finallyp
-          .map(Result(_, all = seqopt(ib.allBlocks, Some(t.expr), t.catchClause)))
-      case _ => None
+    ): Result = ft.meta.leftOwner match {
+      case t: Term.TryClause => t.finallyp match {
+          case Some(f) =>
+            Result(f, all = seqopt(ib.allBlocks, Some(t.expr), t.catchClause))
+          case None => null
+        }
+      case _ => null
     }
   }
 
@@ -197,14 +210,14 @@ object MissingBraces {
     def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
         ib: InsertBraces,
-    ): ResultOpt = ft.meta.leftOwner match {
+    ): Result = ft.meta.leftOwner match {
       case x: Term.If => getTermIf(x)
-      case _ => None
+      case _ => null
     }
 
     def getTermIf(
         owner: Term.If,
-    )(implicit ftoks: FormatTokens, ib: InsertBraces): ResultOpt = {
+    )(implicit ftoks: FormatTokens, ib: InsertBraces): Result = {
       val all = ListBuffer.empty[AllRange]
       val non = ListBuffer.empty[AllRange]
       if (ib.allBlocks) {
@@ -212,7 +225,7 @@ object MissingBraces {
         getAllElseDn(owner, all, non)
         ElseImpl.getAllThenUp(owner, all, non)
       }
-      Some(Result(owner.thenp, all = all.toList, non = non.toList))
+      Result(owner.thenp, all = all.toList, non = non.toList)
     }
 
     @tailrec
@@ -235,13 +248,13 @@ object MissingBraces {
     def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
         ib: InsertBraces,
-    ): ResultOpt = ft.meta.leftOwner match {
+    ): Result = ft.meta.leftOwner match {
       case x: Term.If if !x.elsep.is[Term.If] =>
         val all = ListBuffer.empty[AllRange]
         val non = ListBuffer.empty[AllRange]
         if (ib.allBlocks) getAllThenUp(x.elsep, all, non)
-        Some(Result(x.elsep, all = all.toList, non = non.toList))
-      case _ => None
+        Result(x.elsep, all = all.toList, non = non.toList)
+      case _ => null
     }
 
     @tailrec
@@ -264,10 +277,10 @@ object MissingBraces {
     def getBlocks(ft: FT, nft: FT)(implicit
         ftoks: FormatTokens,
         ib: InsertBraces,
-    ): ResultOpt = ft.meta.leftOwner match {
+    ): Result = ft.meta.leftOwner match {
       case t: Term.ForYield =>
-        Some(Result(t.body, all = seq(ib.allBlocks, t.enumsBlock)))
-      case _ => None
+        Result(t.body, all = seq(ib.allBlocks, t.enumsBlock))
+      case _ => null
     }
   }
 

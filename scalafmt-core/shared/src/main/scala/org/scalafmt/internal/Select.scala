@@ -1,4 +1,5 @@
-package org.scalafmt.internal
+package org.scalafmt
+package internal
 
 import org.scalafmt.config.ScalafmtConfig
 
@@ -16,27 +17,36 @@ object Select {
     new Select(tree, tree.expr, kw)
 
   def get(ro: Tree)(
-      onMatch: Term.SelectMatch => Option[FT],
-  )(implicit ftoks: FormatTokens): Option[Select] = ro match {
-    case x: Term.Select => Some(apply(x))
-    case x: Term.SelectMatch => onMatch(x).map(apply(x, _))
-    case _ => None
+      onMatch: Term.SelectMatch => FT,
+  )(implicit ftoks: FormatTokens): Select = ro match {
+    case x: Term.Select => apply(x)
+    case x: Term.SelectMatch => onMatch(x).nnMap(apply(x, _))
+    case _ => null
   }
 
-  def onRightOpt(ft: FT)(implicit ftoks: FormatTokens): Option[Select] =
-    get(ft.rightOwner) { _ =>
+  def getOrNull(ro: Tree)(
+      onMatch: Term.SelectMatch => FT,
+  )(implicit ftoks: FormatTokens): Select = ro match {
+    case x: Term.Select => apply(x)
+    case x: Term.SelectMatch => onMatch(x).nnMap(apply(x, _))
+    case _ => null
+  }
+
+  def onRightOrNull(ft: FT)(implicit ftoks: FormatTokens): Select =
+    getOrNull(ft.rightOwner) { _ =>
       val nft = ftoks.nextNonCommentAfter(ft)
-      if (nft.right.is[T.KwMatch]) Some(ftoks.next(nft)) else None
+      if (nft.right.is[T.KwMatch]) ftoks.next(nft) else null
     }
 
-  def unapply(tree: Tree)(implicit ftoks: FormatTokens): Option[Select] = Select
-    .get(tree)(x => Some(ftoks.tokenBefore(x.casesBlock)))(ftoks)
+  def unapply(tree: Tree)(implicit ftoks: FormatTokens): Option[Select] =
+    Option(Select.get(tree)(x => ftoks.tokenBefore(x.casesBlock)))
 
   @tailrec
-  final def first(tree: Tree, enclosed: Boolean, select: Option[Select] = None)(
-      implicit ftoks: FormatTokens,
-  ): Option[Select] = prevAndApply(tree, enclosed) match {
-    case (x @ Some(prevSelect), _) => first(prevSelect.qual, enclosed, x)
+  final def first(tree: Tree, enclosed: Boolean, select: Select = null)(implicit
+      ftoks: FormatTokens,
+  ): Select = prevAndApply(tree, enclosed) match {
+    case (prevSelect, _) if prevSelect ne null =>
+      first(prevSelect.qual, enclosed, prevSelect)
     case _ => select
   }
 
@@ -44,35 +54,35 @@ object Select {
   final def prevAndApply(
       tree: Tree,
       enclosed: Boolean,
-      applyTree: Option[Member.Apply] = None,
-  )(implicit ftoks: FormatTokens): (Option[Select], Option[Member.Apply]) = {
+      applyTree: Member.Apply = null,
+  )(implicit ftoks: FormatTokens): (Select, Member.Apply) = {
     @inline
     def isEnclosed: Boolean = enclosed && ftoks.isEnclosedWithinParens(tree)
     tree match {
-      case Select(t) if !isEnclosed => (Some(t), applyTree)
+      case Select(t) if !isEnclosed => (t, applyTree)
       case t: Member.Apply if !isEnclosed =>
-        prevAndApply(t.fun, enclosed, applyTree.orElse(Some(t)))
+        prevAndApply(t.fun, enclosed, if (applyTree ne null) applyTree else t)
       case t: Term.AnonymousFunction if !enclosed =>
         prevAndApply(t.body, false, applyTree)
       case Term.Block(t :: Nil) if !ftoks.isEnclosedInBraces(tree) =>
         prevAndApply(t, false, applyTree)
-      case _ => (None, applyTree)
+      case _ => (null, applyTree)
     }
   }
 
   final def prevAndApply(tree: Tree)(implicit
       ftoks: FormatTokens,
       style: ScalafmtConfig,
-  ): (Option[Select], Option[Member.Apply]) =
+  ): (Select, Member.Apply) =
     prevAndApply(tree, style.newlines.encloseSelectChains)
 
   def prev(tree: Select, enclosed: Boolean)(implicit
       ftoks: FormatTokens,
-  ): Option[Select] = prevAndApply(tree.qual, enclosed)._1
+  ): Select = prevAndApply(tree.qual, enclosed)._1
 
   def prev(
       tree: Select,
-  )(implicit ftoks: FormatTokens, style: ScalafmtConfig): Option[Select] =
+  )(implicit ftoks: FormatTokens, style: ScalafmtConfig): Select =
     prev(tree, style.newlines.encloseSelectChains)
 
 }

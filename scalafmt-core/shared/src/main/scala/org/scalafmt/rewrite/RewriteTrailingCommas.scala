@@ -48,7 +48,7 @@ private class RewriteTrailingCommas(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[Replacement] = if (shouldRemove(ft)) Some(removeToken) else None
+  ): Replacement = if (shouldRemove(ft)) removeToken else null
 
   private[rewrite] def shouldRemove(ft: FT): Boolean = ft.right.is[T.Comma] &&
     // comma and paren/bracket/brace should generally have the same owner
@@ -61,6 +61,6 @@ private class RewriteTrailingCommas(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[(Replacement, Replacement)] = None
+  ): (Replacement, Replacement) = null
 
 }

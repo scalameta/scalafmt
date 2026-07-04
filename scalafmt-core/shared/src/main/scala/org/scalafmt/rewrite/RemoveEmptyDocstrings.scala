@@ -21,16 +21,16 @@ object RemoveEmptyDocstrings
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[Replacement] = {
+  ): Replacement = {
     val skip = ft.right.is[T.Comment] &&
       FormatWriter.isEmptyDocstring(ft.meta.right.text)
-    if (skip) Some(removeToken) else None
+    if (skip) removeToken else null
   }
 
   override def onRight(lt: Replacement, hasFormatOff: Boolean)(implicit
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[(Replacement, Replacement)] = None
+  ): (Replacement, Replacement) = null
 
 }

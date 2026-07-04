@@ -1,4 +1,5 @@
-package org.scalafmt.rewrite
+package org.scalafmt
+package rewrite
 
 import org.scalafmt.config._
 import org.scalafmt.internal._
@@ -25,7 +26,7 @@ object RewriteLiterals extends Rewrite with FormatTokensRewrite.RuleFactory {
       str: String,
       suffixLower: Char,
       suffixCase: Literals.FloatingPoint => Literals.Case,
-  )(implicit style: ScalafmtConfig): Option[String] = {
+  )(implicit style: ScalafmtConfig): String = {
     val fpFilter = fpStyle.filter
 
     val lastCh = str.last
@@ -34,18 +35,18 @@ object RewriteLiterals extends Rewrite with FormatTokensRewrite.RuleFactory {
     val skip = fpFilter.needSuffix && !hasSuffix ||
       fpFilter.minTotalDigits >
       str.length - (if (hasSuffix) 1 else 0) - (if (signum < 0) 1 else 0)
-    if (skip) return None
+    if (skip) return null
 
     val jsb = new lang.StringBuilder()
     def result() =
-      if (jsb.length() == 0) None
+      if (jsb.length() == 0) null
       else {
         if (hasSuffix) jsb.append(suffixCase(fpStyle).process(lastCh))
-        Some(jsb.toString)
+        jsb.toString
       }
 
     if (signum == 0) {
-      if (fpFilter.minSignificantDigits > 1) return None
+      if (fpFilter.minSignificantDigits > 1) return null
       jsb.append('0')
       if (!hasSuffix) jsb.append(".0")
       return result()
@@ -53,7 +54,7 @@ object RewriteLiterals extends Rewrite with FormatTokensRewrite.RuleFactory {
 
     val stripped = value.underlying().stripTrailingZeros()
     val digits = stripped.unscaledValue().abs().toString
-    if (fpFilter.minSignificantDigits > digits.length) return None
+    if (fpFilter.minSignificantDigits > digits.length) return null
 
     val fpFormat = fpStyle.format
     val separators =
@@ -145,25 +146,25 @@ class RewriteLiterals(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[Replacement] = ft.right match {
+  ): Replacement = ft.right match {
     // if we replace, set end to be equal to start, that way we'll know it was rewritten
     case x @ Constant.Float(v) =>
       prettyPrintFloatingPoint(v, ft.meta.right.text, 'f', _.float)
-        .map(replaceToken(_)(
+        .nnMap(replaceToken(_)(
           new Constant.Float(x.input, x.dialect, x.start, x.start, v),
         ))
     case x @ Constant.Double(v) =>
       prettyPrintFloatingPoint(v, ft.meta.right.text, 'd', _.double)
-        .map(replaceToken(_)(
+        .nnMap(replaceToken(_)(
           new Constant.Double(x.input, x.dialect, x.start, x.start, v),
         ))
-    case _ => None
+    case _ => null
   }
 
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[(Replacement, Replacement)] = None
+  ): (Replacement, Replacement) = null
 
 }

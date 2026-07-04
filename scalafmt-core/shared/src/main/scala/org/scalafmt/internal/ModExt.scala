@@ -12,7 +12,7 @@ import scala.annotation.tailrec
 case class ModExt(
     mod: Modification,
     indents: List[Indent] = Nil,
-    altOpt: Option[ModExt] = None,
+    alt: ModExt = null,
     noAltIndent: Boolean = false,
 ) {
   @inline
@@ -26,16 +26,14 @@ case class ModExt(
       s"$prefix$mod$indentPrefix$ind$suffix"
     }
 
-    altOpt match {
-      case None => res("")
-      case Some(x) => x.toString(res("|"), if (noAltIndent) "" else "+")
-    }
+    if (alt eq null) res("")
+    else alt.toString(res("|"), if (noAltIndent) "" else "+")
   }
 
   override def toString: String = toString("", "")
 
   def withAlt(alt: => ModExt, noAltIndent: Boolean = false): ModExt =
-    copy(altOpt = Some(alt), noAltIndent = noAltIndent)
+    copy(alt = alt, noAltIndent = noAltIndent)
 
   @inline
   def withAltIf(
@@ -45,25 +43,17 @@ case class ModExt(
 
   def orMod(flag: Boolean, mod: => ModExt): ModExt = if (flag) this else mod
 
-  def withIndent(length: => Length, expire: => FT, when: ExpiresOn): ModExt =
-    length match {
+  def withIndent(length: => Length, expire: FT, when: ExpiresOn): ModExt =
+    if (expire eq null) this
+    else length match {
       case Length.Num(0, _) => this
       case x => withIndentImpl(Indent(x, expire, when))
     }
 
-  def withIndentOpt(
-      length: => Length,
-      expire: Option[FT],
-      when: ExpiresOn,
-  ): ModExt = expire.fold(this)(withIndent(length, _, when))
-
-  def withIndent(indent: => Indent): ModExt = indent match {
+  def withIndent(indent: Indent): ModExt = indent match {
     case Indent.Empty => this
     case x => withIndentImpl(x)
   }
-
-  def withIndentOpt(indent: => Option[Indent]): ModExt = indent
-    .fold(this)(withIndent(_))
 
   def withIndents(indents: Seq[Indent]): ModExt = indents
     .foldLeft(this)(_ withIndent _)
