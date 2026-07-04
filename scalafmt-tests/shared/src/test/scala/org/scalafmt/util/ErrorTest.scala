@@ -1,10 +1,9 @@
-package org.scalafmt.util
+package org.scalafmt
+package util
 
 import org.scalafmt.{Formatted, Scalafmt}
 
-import munit.FunSuite
-
-class ErrorTest extends FunSuite {
+class ErrorTest extends SharedFunSuiteBase {
   private val nonSourceFile = Seq("class A {", "val x + 1", "println 1")
   nonSourceFile.foreach(original =>
     test(s"errors are caught: $original")(

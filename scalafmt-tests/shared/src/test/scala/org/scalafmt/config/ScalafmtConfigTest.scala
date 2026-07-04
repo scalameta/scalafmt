@@ -1,9 +1,9 @@
-package org.scalafmt.config
+package org.scalafmt
+package config
 
 import metaconfig.{Conf, Configured}
-import munit.FunSuite
 
-class ScalafmtConfigTest extends FunSuite {
+class ScalafmtConfigTest extends SharedFunSuiteBase {
 
   test("project.matcher") {
     val config = ScalafmtConfig.fromHoconString(

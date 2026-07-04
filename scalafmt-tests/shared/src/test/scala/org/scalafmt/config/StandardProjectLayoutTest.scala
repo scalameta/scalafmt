@@ -1,10 +1,11 @@
-package org.scalafmt.config
+package org.scalafmt
+package config
 
 import org.scalafmt.sysops._
 
 import scala.meta.dialects
 
-class StandardProjectLayoutTest extends munit.FunSuite {
+class StandardProjectLayoutTest extends SharedFunSuiteBase {
 
   import ProjectFiles.Layout.StandardConvention._
 

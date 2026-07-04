@@ -1,6 +1,7 @@
-package org.scalafmt.config
+package org.scalafmt
+package config
 
-class AvoidInfixSettingsTest extends munit.FunSuite {
+class AvoidInfixSettingsTest extends SharedFunSuiteBase {
 
   Seq(Nil, Seq("foo"), Seq("cross"), Seq("cross", "foo")).foreach { extra =>
     test(s"AvoidInfixSettings.forSbtOpt: [${extra.mkString(",")}]") {

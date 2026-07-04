@@ -10,9 +10,9 @@ import scala.meta.testkit._
 
 import scala.collection.mutable
 
-import munit.{FailException, FunSuite}
+import munit.FailException
 
-class ScalafmtProps extends FunSuite with FormatAssertions {
+class ScalafmtProps extends SharedFunSuiteBase with FormatAssertions {
   import ScalafmtProps._
   def getBugs(
       config: ScalafmtConfig = ScalafmtConfig.default,

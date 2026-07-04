@@ -12,7 +12,7 @@ import scala.meta.{Dialect, Tree}
 
 import java.io.ByteArrayInputStream
 
-import munit.diff.Diffs
+import munit.diff.Diff
 
 trait FormatAssertions {
 
@@ -66,9 +66,9 @@ trait FormatAssertions {
 
   /** Creates diff from structures. WARNING: slow for large asts.
     */
-  def diffAsts(original: String, obtained: String): String = Diffs
-    .unifiedDiff(original.replace("(", "\n("), obtained.replace("(", "\n("))
-    .linesIterator.mkString("\n")
+  def diffAsts(original: String, obtained: String): String =
+    new Diff(original.replace("(", "\n("), obtained.replace("(", "\n("))
+      .unifiedDiff.linesIterator.mkString("\n")
 
   // TODO(olafur) move this to scala.meta?
 

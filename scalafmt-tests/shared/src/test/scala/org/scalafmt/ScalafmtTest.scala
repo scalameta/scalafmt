@@ -4,9 +4,7 @@ import org.scalafmt.config.ScalafmtConfig
 
 import org.scalameta.logger
 
-import munit.FunSuite
-
-class ScalafmtTest extends FunSuite {
+class ScalafmtTest extends SharedFunSuiteBase {
   def check(
       original: String,
       expected: String,

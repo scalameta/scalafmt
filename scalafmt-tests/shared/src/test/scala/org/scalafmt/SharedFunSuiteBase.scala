@@ -1,8 +1,10 @@
-package org
+package org.scalafmt
 
 import munit.diff.DiffOptions
 
-package object scalafmt {
+trait SharedFunSuiteBase extends munit.FunSuite {
+
   implicit val diffOptions: DiffOptions = DiffOptions.withShowLines(true)
     .withContextSize(10)
+
 }

@@ -2,9 +2,7 @@ package org.scalafmt
 
 import org.scalafmt.util.HasTests
 
-import munit.FunSuite
-
-class RangeTest extends FunSuite {
+class RangeTest extends SharedFunSuiteBase {
   test("range preserves indent") {
     val original =
       """|object a {
