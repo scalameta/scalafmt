@@ -321,6 +321,7 @@ lazy val benchmarks = project.in(file("scalafmt-benchmarks")).settings(
   publish / skip := true,
   moduleName := "scalafmt-benchmarks",
   libraryDependencies += scalametaTestkit.value,
+  libraryDependencies += munit.value % Test,
   run / javaOptions ++= Seq(
     "-Djava.net.preferIPv4Stack=true",
     "-XX:ReservedCodeCacheSize=128m",
