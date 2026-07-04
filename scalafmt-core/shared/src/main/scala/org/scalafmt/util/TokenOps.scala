@@ -7,6 +7,7 @@ import org.scalafmt.internal._
 import scala.meta._
 import scala.meta.classifiers.Classifier
 import scala.meta.tokens.{Token => T, _}
+import scala.meta.trees.Origin
 
 import scala.annotation.tailrec
 
@@ -53,12 +54,33 @@ object TokenOps {
   def findLastVisibleTokenIndex(tokens: Tokens): Int = tokens
     .rskipIf(_.isAny[T.Whitespace, T.EOF], tokens.length - 1)
 
-  def findLastVisibleTokenOrNull(tokens: Tokens): T = {
-    val idx = findLastVisibleTokenIndex(tokens)
-    if (idx < 0) null else tokens(idx)
+  // Tree overloads that avoid the `tree.tokens` slice: a parsed tree's origin
+  // indexes into the shared full-input array, so we scan that range directly
+  // with the same predicate as the `Tokens` variants above. Fall back to the
+  // slice for non-parsed origins.
+  def findLastVisibleTokenOrNull(tree: Tree): T = tree.origin match {
+    case o: Origin.ParsedPartial =>
+      val all = o.allInputTokens()
+      val lo = o.begTokenIdx
+      var i = o.endTokenIdx - 1
+      while (i >= lo && all(i).isAny[T.Whitespace, T.EOF]) i -= 1
+      if (i < lo) null else all(i)
+    case _ =>
+      val tokens = tree.tokens
+      val idx = findLastVisibleTokenIndex(tokens)
+      if (idx < 0) null else tokens(idx)
   }
-  def findLastVisibleToken(tokens: Tokens): T =
-    tokens(findLastVisibleTokenIndex(tokens).max(0))
+  def findLastVisibleToken(tree: Tree): T = tree.origin match {
+    case o: Origin.ParsedPartial =>
+      val all = o.allInputTokens()
+      val lo = o.begTokenIdx
+      var i = o.endTokenIdx - 1
+      while (i > lo && all(i).isAny[T.Whitespace, T.EOF]) i -= 1
+      all(i.max(lo)) // matches the slice variant's `.max(0)` when all trivia
+    case _ =>
+      val tokens = tree.tokens
+      tokens(findLastVisibleTokenIndex(tokens).max(0))
+  }
 
   @inline
   def withNoIndent(ft: FT): Boolean = ft.between.lastOption.is[T.AtEOL]
@@ -122,7 +144,7 @@ object TokenOps {
     }
   }
 
-  def getIndentTrigger(tree: Tree): T = tree.tokens.head
+  def getIndentTrigger(tree: Tree): T = TreeOps.headTokenOrNull(tree)
 
   def getEndOfBlock(ft: FT)(
       f: FT => MaybeBool,

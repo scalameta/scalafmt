@@ -36,7 +36,7 @@ object RedundantBraces extends Rewrite with FormatTokensRewrite.RuleFactory {
      * parens only for a single param */
     f.paramClause match {
       case pc @ Term.ParamClause(param :: Nil, _) => param.decltpe.nonEmpty &&
-        !pc.tokens.head.is[T.LeftParen]
+        !headTokenOrNull(pc).is[T.LeftParen]
       case _ => false
     }
 
@@ -363,7 +363,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       else null
 
     owner match {
-      case t: Term.FunctionLike if t.tokens.last.is[T.RightBrace] =>
+      case t: Term.FunctionLike if lastTokenOrNull(t).is[T.RightBrace] =>
         if (!okToRemoveFunctionInApplyOrInit(t)) null else removeToken
       case t: Term.PartialFunction =>
         val pft = ftoks.prevNonComment(ft)
@@ -568,7 +568,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Boolean = b.stats.nonEmpty && b.tokens.headOption.contains(ft.right) &&
+  ): Boolean = b.stats.nonEmpty && (headTokenOrNull(b) eq ft.right) &&
     okToRemoveBlock(b) && !braceSeparatesTwoXmlTokens &&
     (b.parent match {
       case Some(p: Term.ArgClause) => p.parent.exists(checkValidInfixParent)
@@ -692,7 +692,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
       // can't allow: new A with B .foo
       // can allow if: no ".foo", no "with B", or has braces
       !b.parent.is[Term.Select] || t.templ.inits.lengthCompare(1) <= 0 ||
-      t.templ.body.stats.nonEmpty || t.tokens.last.is[T.RightBrace]
+      t.templ.body.stats.nonEmpty || lastTokenOrNull(t).is[T.RightBrace]
     case _ => isTreeSingleExpr(s)
   }
 
@@ -705,7 +705,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
         !fb.is[Term.Block] ||
         // don't rewrite block if the inner block will be rewritten, too
         // sometimes a function body block doesn't have braces
-        fb.tokens.headOption.is[T.LeftBrace] &&
+        headTokenOrNull(fb).is[T.LeftBrace] &&
         !okToRemoveAroundFunctionBody(fb, true)
       }
     case _: Term.Assign => false // f({ a = b }) is not the same as f(a = b)
@@ -730,10 +730,11 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
           // same is true with "try (a, b)" and "try ()"
           // return true if rewrite is not OK
           // inside exists, return true if rewrite is OK
-          !stat.tokens.headOption.exists {
+          !(headTokenOrNull(stat) match {
+            case null => false
             case x: T.LeftParen => matching(x) match {
                 case null => true
-                case y if y.left ne stat.tokens.last =>
+                case y if y.left ne lastTokenOrNull(stat) =>
                   session.rule[RedundantParens].nnHas(
                     _.onToken(ftoks(x, -1), session, style).nnHas(_.isRemove),
                   )
@@ -742,7 +743,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
                 case _ => true
               }
             case x: T.LeftBrace => matching(x) match {
-                case y if (y ne null) && (y.left ne stat.tokens.last) =>
+                case y if (y ne null) && (y.left ne lastTokenOrNull(stat)) =>
                   findFirstTreeBetween(stat, x, y.left) match {
                     case z: Term.Block => okToRemoveBlock(z)
                     case _ => false
@@ -750,7 +751,7 @@ class RedundantBraces(implicit val ftoks: FormatTokens)
                 case _ => true
               }
             case _ => true
-          }
+          })
 
         case _: Case => !RewriteCtx.isPostfixExpr(stat)
 

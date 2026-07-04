@@ -203,7 +203,7 @@ class InfixSplits(
     case _: Term.If | _: Term.While | _: Source => true
     case Term.Block(_ :: rest) => rest.nonEmpty ||
       (p.parent match {
-        case Some(pp) => p.tokens.head match { // check brace was not rewritten
+        case Some(pp) => headTokenOrNull(p) match { // check brace was not rewritten
             case head: T.LeftBrace => (ftoks.before(head).left eq head) ||
               isOldTopLevelWithParent(p)(pp)
             case _ => true
@@ -224,7 +224,7 @@ class InfixSplits(
     case p: Term.While => p.expr eq tree
     case p: Term.Do => p.expr eq tree
     case p: Term.Block => hasSingleElement(p, tree) &&
-      (p.tokens.head match {
+      (headTokenOrNull(p) match {
         case head: T.LeftBrace => // check brace was not rewritten
           (ftoks.before(head).left eq head) || isAloneEnclosed(p)
         case _ => true
@@ -240,7 +240,7 @@ class InfixSplits(
     case _: Term.If | _: Term.While | _: Term.Do => true
     case _: Member.ArgClause => true
     case p: Term.Block => hasSingleElement(p, tree) &&
-      (p.tokens.head match {
+      (headTokenOrNull(p) match {
         case head: T.LeftBrace => // check brace was not rewritten
           (ftoks.before(head).left eq head) || isAloneArgOrBody(p)
         case _ => true

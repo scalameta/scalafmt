@@ -37,8 +37,8 @@ class TokenTraverser(tokens: Tokens, input: Input)(implicit
     (map.result(), excluded.result())
   }
 
-  final def isExcluded(token: T): Boolean = excludedTokens
-    .contains(TokenOps.hash(token))
+  final def isExcluded(token: T): Boolean =
+    (token ne null) && excludedTokens.contains(TokenOps.hash(token))
 
   @inline
   def getIndex(token: T): Int = tok2idx(token)

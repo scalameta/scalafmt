@@ -98,11 +98,10 @@ object OptionalBraces {
       ftoks: FormatTokens,
   ): Seq[Split] = {
     import ftoks._
-    val treeTokens = tree.tokens
-    val end = getOnOrAfterLast(treeTokens, tree)
+    val end = getOnOrAfterLast(tree)
     val nonTrivialEnd = prevNonComment(end)
     val slbExpire = nextNonCommentSameLine(nonTrivialEnd)
-    def head = getHead(treeTokens, tree)
+    def head = getHead(tree)
     val close = {
       val close = tree match {
         case _: Member.Tuple => null
@@ -830,13 +829,12 @@ object OptionalBraces {
     import ftoks._
     if (!style.dialect.allowSignificantIndentation) return null
 
-    val treeTokens = tree.tokens
-    val head = treeTokens.head
+    val head = headTokenOrNull(tree)
     val hft = after(head)
     if (hft.left.eq(head) && tree.is[Term.Block] && !split.isNL) return null
 
     val beg = getOnOrBeforeOwned(hft, tree)
-    val end = getLastNonTrivial(treeTokens, tree)
+    val end = getLastNonTrivial(tree)
     val kw = next {
       val close = getClosingIfWithinParens(end)(beg)
       if (close eq null) end else next(close)

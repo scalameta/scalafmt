@@ -372,7 +372,7 @@ object Imports extends RewriteFactory {
 
       stats.foreach {
         case t: ImportExportStat =>
-          if (ctx.tokenTraverser.isExcluded(t.tokens.head)) flush()
+          if (ctx.tokenTraverser.isExcluded(TreeOps.headTokenOrNull(t))) flush()
           else seqBuffer += t
         case _ => flush()
       }
@@ -488,11 +488,12 @@ object Imports extends RewriteFactory {
       case _ => None
     }).exists(x =>
       // in scala3, `as` doesn't need braces
-      ctx.tokenTraverser.nextNonTrivialToken(x.tokens.last).is[T.RightArrow],
+      ctx.tokenTraverser.nextNonTrivialToken(TreeOps.lastTokenOrNull(x))
+        .is[T.RightArrow],
     )
 
     protected final def getCommentsAround(tree: Tree): (Seq[T], T) =
-      getCommentsBefore(tree.tokens) -> getCommentAfter(tree)
+      getCommentsBefore(tree) -> getCommentAfter(tree)
 
     protected final def getCommentsBefore(tok: T): Seq[T] = {
       var hadLf = false
@@ -510,8 +511,8 @@ object Imports extends RewriteFactory {
       slc.result()
     }
 
-    protected final def getCommentsBefore(tokens: Tokens): Seq[T] =
-      getCommentsBefore(tokens.head)
+    protected final def getCommentsBefore(tree: Tree): Seq[T] =
+      getCommentsBefore(TreeOps.headTokenOrNull(tree))
 
     protected final def getCommentAfter(tok: T): T = ctx.tokenTraverser
       .findAtOrAfter(ctx.getIndex(tok) + 1) {
@@ -521,7 +522,7 @@ object Imports extends RewriteFactory {
       }
 
     protected final def getCommentAfter(tree: Tree): T =
-      getCommentAfter(tree.tokens.last)
+      getCommentAfter(TreeOps.lastTokenOrNull(tree))
 
     private val eol = LineEndings
       .eol(ctx.style.lineEndings.contains(LineEndings.windows))
@@ -563,7 +564,7 @@ object Imports extends RewriteFactory {
               case t => iter(nextOff, t)
             }
           }
-        val head = stats.head.tokens.head
+        val head = TreeOps.headTokenOrNull(stats.head)
         iter(ctx.tokenTraverser.getIndex(head), head)
       }
       val folding = settings.removeRedundantSelectors ||
@@ -572,7 +573,7 @@ object Imports extends RewriteFactory {
       def addToGroup(kw: String, ref: String, importers: Seq[Importer]): Unit =
         addClausesToGroup(groups(settings.group(ref)), kw, ref, importers)
       stats.foreach { s =>
-        val kw = s.tokens.head.toString
+        val kw = TreeOps.headTokenOrNull(s).toString
         s.importers.foreach { i =>
           val ref = getRef(i)
           if (!folding) addToGroup(kw, ref, i :: Nil)
@@ -594,17 +595,16 @@ object Imports extends RewriteFactory {
       )(tree: Importee): Unit = tree.parent match {
         case Some(p: Importer) =>
           val newSeen = seenImports.updateWith(p)(x => Some(1 + x.getOrElse(0)))
-          val pTokens = p.tokens
           val isHead = newSeen.contains(1)
           val isLast = newSeen.contains(p.importees.length)
           if (isLast) getCommentAfter(p).nnFor(appendTailComment)
           p.parent match {
             case Some(pp: ImportExportStat) =>
               if (isHead && pp.importers.headOption.contains(p))
-                getCommentsBefore(pp.tokens).foreach(appendComment)
+                getCommentsBefore(pp).foreach(appendComment)
             case _ =>
           }
-          if (isHead) getCommentsBefore(pTokens).foreach(appendComment)
+          if (isHead) getCommentsBefore(p).foreach(appendComment)
         case _ =>
       }
 
@@ -659,8 +659,8 @@ object Imports extends RewriteFactory {
       else processAllGroups(stats)
 
     private def getTokenRange(x: Seq[ImportExportStat]): (T, T) = {
-      val headTok = x.head.tokens.head
-      val lastTok = x.last.tokens.last
+      val headTok = TreeOps.headTokenOrNull(x.head)
+      val lastTok = TreeOps.lastTokenOrNull(x.last)
       (
         getCommentsBefore(headTok).headOption.getOrElse(headTok),
         getCommentAfter(lastTok) ?? lastTok,

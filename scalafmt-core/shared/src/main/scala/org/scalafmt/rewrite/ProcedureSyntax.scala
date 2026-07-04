@@ -15,11 +15,13 @@ class ProcedureSyntax private (implicit ctx: RewriteCtx)
 
   override def rewrite(tree: Tree): Unit = tree match {
     case t: Defn.Def if TreeOps.isProcedureSyntax(t) =>
-      val tok = t.paramClauseGroups.lastOption.getOrElse(t.name).tokens.last
+      val tok = TreeOps
+        .lastTokenOrNull(t.paramClauseGroups.lastOption.getOrElse(t.name))
       if (!ctx.tokenTraverser.nextNonTrivialToken(tok).is[T.Equals]) ctx
         .addPatchSet(TokenPatch.AddRight(tok, ": Unit = ", keepTok = true))
     case t: Decl.Def if TreeOps.isProcedureSyntaxDeclTpe(t.decltpe) =>
-      val tok = t.paramClauseGroups.lastOption.getOrElse(t.name).tokens.last
+      val tok = TreeOps
+        .lastTokenOrNull(t.paramClauseGroups.lastOption.getOrElse(t.name))
       ctx.addPatchSet(TokenPatch.AddRight(tok, ": Unit", keepTok = true))
     case _ =>
   }

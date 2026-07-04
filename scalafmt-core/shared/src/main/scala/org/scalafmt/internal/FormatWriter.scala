@@ -286,9 +286,8 @@ class FormatWriter(formatOps: FormatOps) {
     locations.foreach { floc =>
       val owner = getOptionalBracesOwner(floc, 2)
       if (owner ne null) {
-        val ownerTokens = owner.tokens
         val (endFt, maybeEndMarkerFt) = {
-          val last = nextNonCommentSameLine(getOnOrAfterLast(ownerTokens, owner))
+          val last = nextNonCommentSameLine(getOnOrAfterLast(owner))
           last.right match {
             case _: T.Semicolon =>
               val newLast = nextNonCommentSameLineAfter(last)
@@ -314,7 +313,7 @@ class FormatWriter(formatOps: FormatOps) {
                 (cfg.insert.blankGaps, getBlankGapsDiff),
               )(loc, eLoc)
 
-            val bLoc = locations(getHead(ownerTokens, owner).idx)
+            val bLoc = locations(getHead(owner).idx)
             val begIndent = bLoc.state.prev.indentation
             def appendOwner(): Unit = updateOwner(_ + (begIndent -> owner))
             def removeOwner(): Unit = updateOwner(_ - begIndent)
@@ -1333,10 +1332,10 @@ class FormatWriter(formatOps: FormatOps) {
     }
 
     private def onSingleLine(t: Tree): Boolean = {
-      val ttokens = t.tokens
-      val beg = after(ttokens.head)
-      val end = before(ttokens.last)
-      getLineDiff(locations, beg, end) == 0
+      val head = getRawHead(t)
+      val last = getRawLast(t)
+      (head ne null) && (last ne null) &&
+      getLineDiff(locations, head, last) == 0
     }
 
     object AlignContainer {
@@ -1374,12 +1373,10 @@ class FormatWriter(formatOps: FormatOps) {
         // containers that can be traversed further if lhs single-line
         case Some(p @ AlignContainer.WithBody(mods, b)) =>
           val keepGoing = {
-            val ptokens = p.tokens
-            val beg = mods.lastOption
-              .fold(after(ptokens.head))(m => next(tokenAfter(m)))
+            val beg = mods.lastOption.fold(getRawHead(p))(m => next(tokenAfter(m)))
             val useBody = b.eq(child) || p.eq(child)
             val beforeBody = if (useBody) tokenJustBefore(b) else null
-            val end = beforeBody ?? before(ptokens.last)
+            val end = beforeBody ?? getRawLast(p)
             getLineDiff(locations, beg, end) == 0
           }
           if (keepGoing) getAlignContainerParent(p, depth) else (p, depth)

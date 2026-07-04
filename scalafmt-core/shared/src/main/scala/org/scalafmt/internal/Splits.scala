@@ -329,7 +329,7 @@ object SplitsAfterLeftBrace extends Splits {
             if (t.parent.parent.isOpt[Term.NewAnonymous]) getLambdaInfo(t.stats)
             else getLambdaNone
           case Some(owner) =>
-            val anno = owner.tokens.last
+            val anno = lastTokenOrNull(owner)
             val indent = cfg.indent.main
             val annoFT = tokens(anno)
             val arrow = annoFT.left.is[T.RightArrow]
@@ -1120,13 +1120,23 @@ object SplitsBeforeSemicolon extends Splits {
       cfg: ScalafmtConfig,
   ): Seq[Split] = {
     import fo._, tokens._, ft._
-    val forceBreak = hasBreak && {
-      val ltoks = leftOwner.tokens
-      val maxTokens = topSourceTree.tokens.length
-      !ltoks
-        .getWideOpt(ltoks.skipWideIf(_.is[T.Whitespace], ltoks.length, maxTokens))
-        .contains(right) // something was removed
-    }
+    val forceBreak = hasBreak &&
+      (right ne {
+        // first non-whitespace token after leftOwner's last token (searching the
+        // full input) is not `right` => something was removed. Via origin to avoid
+        // slicing leftOwner.tokens (and topSourceTree.tokens just for its length).
+        val o = parsedOrigin(leftOwner)
+        if (o eq null) {
+          val ltoks = leftOwner.tokens
+          val maxTokens = topSourceTree.tokens.length
+          val idx = ltoks.skipWideIf(_.is[T.Whitespace], ltoks.length, maxTokens)
+          ltoks.getWideOrNull(idx)
+        } else {
+          val all = o.allInputTokens()
+          val idx = all.skipWideIf(_.is[T.Whitespace], o.endTokenIdx, all.length)
+          all.getWideOrNull(idx)
+        }
+      })
     val policy = Policy ? forceBreak &&
       decideNewlinesOnlyAfterToken(nextNonCommentSameLineAfter(ft))
     Seq(Split(NoSplit, 0, policy))
@@ -2352,7 +2362,7 @@ object SplitsAfterReturnLowPriority extends Splits {
     val mod =
       if (hasBlankLine) Newline2x
       else leftOwner match {
-        case Term.Return(unit: Lit.Unit) if unit.tokens.isEmpty =>
+        case Term.Return(unit: Lit.Unit) if headTokenOrNull(unit) eq null =>
           if (right.is[T.RightParen]) Space(cfg.spaces.inParentheses)
           else Newline //  force blank line for Unit "return".
         case _ => Space
@@ -2890,9 +2900,10 @@ object SplitsAfterIdent extends Splits {
             if (right.is[T.Colon]) Seq(Split(NoSplit, 0))
             else insideInfixSplit(p)
           case Some(p: Lit.WithUnary)
-              if (p.op eq t) && (t.tokens.head eq left) => Seq(Split(NoSplit, 0))
+              if (p.op eq t) && (headTokenOrNull(t) eq left) =>
+            Seq(Split(NoSplit, 0))
           case Some(p: Term.ApplyUnary)
-              if (p.op eq t) && (t.tokens.head eq left) =>
+              if (p.op eq t) && (headTokenOrNull(t) eq left) =>
             val useSpace = right match {
               case _: T.LeftBrace => true
               case r: T.Ident => isSymbolicName(r.value)
