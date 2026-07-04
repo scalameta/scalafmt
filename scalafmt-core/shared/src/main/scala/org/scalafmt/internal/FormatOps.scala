@@ -375,8 +375,18 @@ class FormatOps(
         case Some(p: Case) => p.cond.contains(fullInfix)
         case Some(p: Member.ArgClause) => isEnclosedWithinParens(p)
         case _ => false
-      }) || app.op.tokens.rfindWideNot(_.is[T.HTrivia], -1, Int.MinValue)
-        .exists(_.is[T.AtEOL]) // had a break in the original code
+      }) || {
+        // last non-HTrivia token before app.op's first token (searching the
+        // full input); had a break in the original code. Via origin to avoid a
+        // `Tokens` slice: equivalent to app.op.tokens.rfindWideNot(p,-1,MinValue).
+        val o = parsedOrigin(app.op)
+        val res =
+          if (o eq null) app.op.tokens
+            .rfindWideNotOrNull(_.is[T.HTrivia], -1, Int.MinValue)
+          else o.allInputTokens()
+            .rfindNotOrNull(_.is[T.HTrivia], o.begTokenIdx - 1, -1)
+        res.is[T.AtEOL] // null-safe: classifier is isInstanceOf
+      }
 
     def modNL = Newline2x(fullInfixEnclosedInParens && ft.hasBlankLine)
     def nl(cost: Int)(implicit fl: FileLine) = Split(modNL, cost)
@@ -979,8 +989,7 @@ class FormatOps(
         isKeep: Boolean,
         spaceIndents: Seq[Indent] = Seq.empty,
     )(implicit style: ScalafmtConfig, ft: FT): Seq[Split] = {
-      val btokens = body.tokens
-      val blast = getLastNonTrivial(btokens, body)
+      val blast = getLastNonTrivial(body)
       val expire = nextNonCommentSameLine(blast)
       def penalize(penalty: Int) = Policy ? (penalty > 0) &&
         new PolicyOps.PenalizeAllNewlines(penalty) <= blast

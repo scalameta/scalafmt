@@ -132,10 +132,10 @@ object OptimizationEntities {
     ): Unit = {
       addAllStmts(mods.view.filter(_.is[Mod.Annot])) // Each @annotation gets a separate line
       mods.findOrNull(!_.is[Mod.Annot]).nnFold(
-        tree.tokens.find(isMatch) // No non-annotation modifier, fallback to keyword like `object`
-          .fold(throw Error.CantFindDefnToken(what, tree))(addStmtTok(tree)),
+        // No non-annotation modifier exists, fallback to keyword like `object`
+        TreeOps.findTokenOrNull(tree)(isMatch)
+          .nnMapOr(addStmtTok(tree))(throw Error.CantFindDefnToken(what, tree)),
       )(x => addStmtTree(x, tree)) // Non-annotation modifier, for example `sealed`/`abstract`
-
     }
 
     private def addDefn[T](mods: Seq[Mod], tree: Tree)(implicit
@@ -173,10 +173,11 @@ object OptimizationEntities {
         addAllStmts(t.body.stats)
       // special handling for rewritten blocks
       case t @ Term.Block(_ :: Nil)
-          if t.tokens.headOption.exists(x =>
-            // ignore single-stat block if opening brace was removed
-            x.is[T.LeftBrace] && ftoks(x).left.ne(x),
-          ) =>
+          // ignore single-stat block if opening brace was removed
+          if {
+            val h = TreeOps.headTokenOrNull(t)
+            (h ne null) && h.is[T.LeftBrace] && ftoks(h).left.ne(h)
+          } =>
       case t: Term.EnumeratorsBlock =>
         var wasGuard = false
         def iter(prev: FT, curr: Enumerator): FT = {
@@ -207,10 +208,10 @@ object OptimizationEntities {
       case t @ Term.ArgClause(s :: Nil, _)
           if !s.isAny[Term.Block, Term.PartialFunction] &&
             !skipBlockSingleStat(s, isInArgClause = true) =>
-        t.tokens.headOption.foreach(x =>
-          // check for single-stat arg if opening paren was replaced with brace
-          if (x.is[T.LeftParen] && ftoks(x).left.is[T.LeftBrace]) addOneStmt(s),
-        )
+        // check for single-stat arg if opening paren was replaced with brace
+        val h = TreeOps.headTokenOrNull(t)
+        if ((h ne null) && h.is[T.LeftParen] && ftoks(h).left.is[T.LeftBrace])
+          addOneStmt(s)
       case Tree.Block(s) => addAllStmts(s)
       case _ => // Nothing
     }

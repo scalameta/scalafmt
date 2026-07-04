@@ -2,7 +2,7 @@ package org.scalafmt
 package rewrite
 
 import org.scalafmt.config.RewriteSettings
-import org.scalafmt.util.InfixApp
+import org.scalafmt.util.{InfixApp, TreeOps}
 
 import scala.meta._
 import scala.meta.internal.trees.PlaceholderChecks.hasPlaceholder
@@ -43,7 +43,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
 
   private def noDotMatch(t: Term.Match): T =
     if (allowMatchAsOperator && t.mods.isEmpty && !cfg.excludeMatch) ctx
-      .tokenTraverser.prevNonTrivialToken(t.casesBlock.tokens.head)
+      .tokenTraverser.prevNonTrivialToken(TreeOps.headTokenOrNull(t.casesBlock))
     else null
 
   private def rewriteImpl(
@@ -100,7 +100,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
         case _: Lit.Unit => ctx.dialect.allowEmptyInfixArgs
         case ac: Term.ArgClause => ac.values match {
             case Nil => ctx.dialect.allowEmptyInfixArgs
-            case arg :: Nil => (arg.tokens.head ne argsHead) ||
+            case arg :: Nil => (TreeOps.headTokenOrNull(arg) ne argsHead) ||
               !arg.is[Lit.Unit] && rhsWrapped
             case _ => true
           }
@@ -168,10 +168,8 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
   private def isWrapped(head: T, last: T): Boolean =
     isWrapped(head, last, ctx.tokenTraverser.prevNonTrivialToken(head))
 
-  private def ends(t: Tree): (T, T) = {
-    val tokens = t.tokens
-    (tokens.head, tokens.last)
-  }
+  private def ends(t: Tree): (T, T) =
+    (TreeOps.headTokenOrNull(t), TreeOps.lastTokenOrNull(t))
 
   private def isWrapped(t: Tree): Boolean = {
     val (head, last) = ends(t)

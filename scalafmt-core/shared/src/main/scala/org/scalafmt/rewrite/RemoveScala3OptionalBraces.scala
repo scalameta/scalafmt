@@ -64,7 +64,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
           else replaceToken(":")(new T.Colon(x.input, x.dialect, x.start))
         case t: Term.ArgClause => onLeftForArgClause(t)
         case t: Term.PartialFunction => t.parent match {
-            case Some(p: Term.ArgClause) if (p.tokens.head match {
+            case Some(p: Term.ArgClause) if (headTokenOrNull(p) match {
                   case px: T.LeftBrace => px eq x
                   case px: T.LeftParen =>
                     shouldRewriteArgClauseWithLeftParen[RedundantBraces](px)
@@ -174,8 +174,10 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
         case t: Term.Name => t.parent.exists {
             case p: Term.SelectPostfix => p.name eq t // select without `.`
             case p: Term.ApplyInfix if p.op eq t =>
-              !style.dialect.allowInfixOperatorAfterNL ||
-              !t.tokens.head.isSymbolicInfixOperator
+              !style.dialect.allowInfixOperatorAfterNL || {
+                val head = headTokenOrNull(t)
+                (head ne null) && !head.isSymbolicInfixOperator
+              }
             case _ => false
           }
         case _: Term.Select => nextFt.noBreak &&
@@ -311,7 +313,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       else if (pft.left.is[T.Equals]) removeToken
       else null
     case p: Tree.WithBody => if (p.body eq tree) removeToken else null
-    case p: Term.ArgClause => p.tokens.head match {
+    case p: Term.ArgClause => headTokenOrNull(p) match {
         case _: T.LeftBrace => onLeftForArgClause(p)
         case px: T.LeftParen
             if shouldRewriteArgClauseWithLeftParen[RedundantParens](px) =>

@@ -77,7 +77,7 @@ class StyleMap(tokens: FormatTokens, initStyle: ScalafmtConfig) {
       val strName = tree match {
         case t: Lit.Int
             if 0 <= t.value && t.value < Byte.MaxValue &&
-              lit.tokens.head.toString.startsWith("0x") => "Byte"
+              TreeOps.headTokenOrNull(lit).toString.startsWith("0x") => "Byte"
         case _: Lit.Null => "Null"
         case _ => lit.value.getClass.getName
       }

@@ -9,7 +9,8 @@ import org.scalafmt.util.LoggerOps._
 
 import scala.meta._
 import scala.meta.classifiers.Classifier
-import scala.meta.tokens.{Token => T, Tokens}
+import scala.meta.tokens.{Token => T}
+import scala.meta.trees.Origin
 
 import scala.annotation.tailrec
 import scala.collection.mutable
@@ -23,6 +24,43 @@ object TreeOps {
   // ordering by the child's first-token start offset without boxing.
   private val byChildBegStart: java.util.Comparator[(Tree, T, T)] =
     (a, b) => Integer.compare(a._2.start, b._2.start)
+
+  // A parsed tree's `origin` indexes into the shared full-input token array, so
+  // its head/last token (and searches over its token range, or `Wide` searches
+  // into the surrounding input) reduce to array reads with no `Tokens` slice.
+  // null = not a parsed tree (rewrite-synthesized); callers fall back to a slice.
+  def parsedOrigin(tree: Tree): Origin.ParsedPartial = tree.origin match {
+    case o: Origin.ParsedPartial => o
+    case _ => null
+  }
+
+  // Head/last token of a tree WITHOUT allocating a `Tokens` slice. null = none.
+  def headTokenOrNull(tree: Tree): T = {
+    val o = parsedOrigin(tree)
+    if (o eq null) tree.tokens.headOrNull
+    else if (o.begTokenIdx < o.endTokenIdx) o.allInputTokens()(o.begTokenIdx)
+    else null
+  }
+
+  def lastTokenOrNull(tree: Tree): T = {
+    val o = parsedOrigin(tree)
+    if (o eq null) tree.tokens.lastOrNull
+    else if (o.begTokenIdx < o.endTokenIdx) o.allInputTokens()(o.endTokenIdx - 1)
+    else null
+  }
+
+  // First token of a tree matching `p`, without a slice. null = none.
+  def findTokenOrNull(tree: Tree)(p: T => Boolean): T = {
+    val o = parsedOrigin(tree)
+    if (o eq null) tree.tokens.find(p).orNull
+    else {
+      val all = o.allInputTokens()
+      val end = o.endTokenIdx
+      var i = o.begTokenIdx
+      while (i < end && !p(all(i))) i += 1
+      if (i < end) all(i) else null
+    }
+  }
 
   @tailrec
   def topTypeWith(typeWith: Type.With): Type.With = typeWith.parent match {
@@ -474,7 +512,8 @@ object TreeOps {
   }
 
   // procedure syntax has decltpe: Some("")
-  def isProcedureSyntaxDeclTpe(tpe: Type): Boolean = tpe.tokens.isEmpty
+  def isProcedureSyntaxDeclTpe(tpe: Type): Boolean = headTokenOrNull(tpe) eq
+    null
 
   def isProcedureSyntax(defn: Defn.Def): Boolean = defn.decltpe
     .exists(isProcedureSyntaxDeclTpe)
@@ -691,14 +730,19 @@ object TreeOps {
 
   @tailrec
   def findFirstTreeBetween(tree: Tree, beg: T, end: T): Tree = {
-    def isWithinRange(x: Tokens): Boolean = x.nonEmpty &&
-      x.head.start >= beg.start && x.last.end <= end.end
-    def matches(tree: Tree): Boolean = {
-      val x = tree.tokens
-      isWithinRange(x) ||
-      x.nonEmpty && x.head.start <= beg.start && x.last.end >= end.end
+    def isWithinRange(t: Tree): Boolean = {
+      val h = headTokenOrNull(t)
+      (h ne null) && h.start >= beg.start && lastTokenOrNull(t).end <= end.end
     }
-    if (isWithinRange(tree.tokens)) tree
+    def matches(t: Tree): Boolean = {
+      val h = headTokenOrNull(t)
+      (h ne null) && {
+        val le = lastTokenOrNull(t).end
+        h.start >= beg.start && le <= end.end ||
+        h.start <= beg.start && le >= end.end
+      }
+    }
+    if (isWithinRange(tree)) tree
     else tree.children.find(matches) match {
       case Some(c) => findFirstTreeBetween(c, beg, end)
       case _ => null
@@ -850,15 +894,12 @@ object TreeOps {
         if (childCap == 0) null else new Array[(Tree, T, T)](childCap)
       var childCount = 0
       if (allChildren ne null) elem.foreachChild { x =>
-        val tokens = x.tokens
-        if (tokens.nonEmpty) {
-          val beg = tokens.head
-          if (beg.start >= treeBeg) { // sometimes with implicit
-            val end = tokens.last
-            if (end.end <= treeEnd) {
-              allChildren(childCount) = (x, beg, end)
-              childCount += 1
-            }
+        val beg = headTokenOrNull(x)
+        if ((beg ne null) && beg.start >= treeBeg) { // sometimes with implicit
+          val end = lastTokenOrNull(x)
+          if (end.end <= treeEnd) {
+            allChildren(childCount) = (x, beg, end)
+            childCount += 1
           }
         }
       }
@@ -1029,7 +1070,7 @@ object TreeOps {
 
   def isEmptyTree(tree: Tree): Boolean = tree match {
     case t: Term.Block => t.stats.isEmpty
-    case t => t.tokens.isEmpty
+    case t => headTokenOrNull(t) eq null
   }
 
   def isEmptyFunctionBody(tree: Tree): Boolean = tree match {
@@ -1121,7 +1162,7 @@ object TreeOps {
 
   def isBlockWithoutBraces(
       t: Term.Block,
-  )(implicit ftoks: FormatTokens): Boolean = t.tokens.head match {
+  )(implicit ftoks: FormatTokens): Boolean = headTokenOrNull(t) match {
     case lb: T.LeftBrace => lb ne ftoks.before(lb).left
     case _ => true
   }
