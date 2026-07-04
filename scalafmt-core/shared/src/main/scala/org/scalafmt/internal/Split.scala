@@ -1,4 +1,5 @@
-package org.scalafmt.internal
+package org.scalafmt
+package internal
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal.Policy.NoPolicy
@@ -54,7 +55,7 @@ case class Split(
     policy: Policy = NoPolicy,
     neededTags: Set[SplitTag] = Set.empty,
     activeTags: Set[SplitTag] = Set.empty,
-    optimalAt: Option[OptimalToken] = None,
+    optimalAt: OptimalToken = null,
     penalty: Int = 0,
     rank: Int = 0,
 )(implicit val fileLineStack: FileLineStack) {
@@ -146,13 +147,13 @@ case class Split(
     else copy()(fileLineStack.forThisLine(fileLine.file, fileLine.line))
 
   def withOptimalTokenOpt(
-      token: => Option[FT],
+      token: => FT,
       killOnFail: Boolean,
       extend: Boolean = false,
       recurseOnly: Boolean = false,
       ignorePenalty: Boolean = false,
   ): Split = withOptimalAt(
-    token.map(OptimalToken(
+    token.nnMap(OptimalToken(
       _,
       killOnFail = killOnFail,
       recurseOnly = recurseOnly,
@@ -169,31 +170,30 @@ case class Split(
       recurseOnly: Boolean = false,
       ignorePenalty: Boolean = false,
   ): Split = withOptimalAt(
-    Some(OptimalToken(
+    OptimalToken(
       token,
       killOnFail = killOnFail,
       recurseOnly = recurseOnly,
       ignorePenalty = ignorePenalty,
-    )),
+    ),
     ignore,
     extend = extend,
   )
 
   def withOptimalAt(
-      fOptimalAt: => Option[OptimalToken],
+      fOptimalAt: => OptimalToken,
       ignore: Boolean = false,
       extend: Boolean = false,
   ): Split =
     if (ignore || isIgnored) this
     else fOptimalAt match {
-      case None => this
-      case optAt @ Some(opt) =>
+      case null => this
+      case opt =>
         require(cost == 0, s"can't set optimal, cost=$cost")
-        def amend() = copy(optimalAt = optAt)
+        def amend() = copy(optimalAt = opt)
         this.optimalAt match {
-          case None => amend()
-          case Some(x) if extend =>
-            if (x.token.idx < opt.token.idx) amend() else this
+          case null => amend()
+          case x if extend => if (x.token.idx < opt.token.idx) amend() else this
           case _ =>
             throw new UnsupportedOperationException("Can't reset optimal token")
         }
@@ -216,7 +216,7 @@ case class Split(
       expire: => FT,
       exclude: => TokenRanges = TokenRanges.empty,
       noSyntaxNL: Boolean = false,
-      killOnFail: => Option[Boolean] = None,
+      killOnFail: => MaybeBool = MaybeBool.Maybe,
       rank: Int = 0,
       extend: Boolean = false,
       ignore: Boolean = false,
@@ -230,7 +230,7 @@ case class Split(
       val excludeEval = exclude
       withOptimalToken(
         expireEval,
-        killOnFail = killOnFail.getOrElse(excludeEval.isEmpty),
+        killOnFail = killOnFail.getBoolean(excludeEval.isEmpty),
         extend = extend,
         ignore = noOptimal,
         recurseOnly = recurseOnly,
@@ -258,15 +258,12 @@ case class Split(
   )
 
   def orPolicy(newPolicy: Policy): Split =
-    if (isIgnored || newPolicy.isEmpty) this
+    if (isIgnored || (newPolicy eq null) || newPolicy.isEmpty) this
     else copy(policy = policy | newPolicy)
 
   def andPolicy(newPolicy: Policy): Split =
-    if (isIgnored || newPolicy.isEmpty) this
+    if (isIgnored || (newPolicy eq null) || newPolicy.isEmpty) this
     else copy(policy = policy & newPolicy)
-
-  def andPolicy(newPolicy: => Policy, ignore: Boolean): Split =
-    if (ignore) this else andPolicy(newPolicy)
 
   def andFirstPolicy(newPolicy: Policy): Split =
     if (isIgnored || newPolicy.isEmpty) this
@@ -285,17 +282,8 @@ case class Split(
       ignore: Boolean,
   ): Split = withMod(modExt.withIndent(length, expire, when), ignore)
 
-  def withIndentOpt(
-      length: => Length,
-      expire: Option[FT],
-      when: ExpiresOn,
-  ): Split = withMod(modExt.withIndentOpt(length, expire, when))
-
   def withIndent(indent: => Indent, ignore: Boolean = false): Split =
     withMod(modExt.withIndent(indent), ignore)
-
-  def withIndentOpt(indent: => Option[Indent]): Split =
-    withMod(modExt.withIndentOpt(indent))
 
   def withIndents(indents: Indent*): Split = withMod(modExt.withIndents(indents))
 
@@ -331,7 +319,7 @@ case class Split(
         else if (wantedTags.nonEmpty) s"[$wantedTags]"
         else ""
       }
-    val opt = optimalAt.fold("")(", opt=" + _)
+    val opt = if (optimalAt eq null) "" else s", opt=$optimalAt"
     s"""${prefix}c=$cost[$penalty] $modExt:[$fileLineStack]($policy$opt)"""
   }
 }

@@ -27,7 +27,7 @@ class RemoveSemicolons(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[Replacement] = {
+  ): Replacement = {
     val skip = ft.right.is[T.Semicolon] &&
       (ft.rightOwner match {
         case t: Term.EnumeratorsBlock => t.enums.lengthCompare(1) == 0 ||
@@ -36,13 +36,13 @@ class RemoveSemicolons(implicit val ftoks: FormatTokens)
         case _: Tree.Block | _: Case => true
         case _ => false
       })
-    if (skip) Some(removeToken) else None
+    if (skip) removeToken else null
   }
 
   override def onRight(lt: Replacement, hasFormatOff: Boolean)(implicit
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[(Replacement, Replacement)] = None
+  ): (Replacement, Replacement) = null
 
 }

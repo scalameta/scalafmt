@@ -1,4 +1,5 @@
-package org.scalafmt.internal
+package org.scalafmt
+package internal
 
 import org.scalafmt.config.{IndentOperator, Newlines, ScalafmtConfig}
 import org.scalafmt.util.InfixApp._
@@ -33,9 +34,9 @@ object InfixSplits {
   @tailrec
   private def findMaybeEnclosingInfix(child: Member.Infix, childTree: Tree)(
       implicit ftoks: FormatTokens,
-  ): (Member.Infix, Option[Either[FT, FT]]) = {
+  ): (Member.Infix, Either[FT, FT]) = {
     val inParensOrBraces = ftoks.getClosingIfWithinParensOrBraces(childTree)
-    if (inParensOrBraces.isDefined) (child, inParensOrBraces)
+    if (inParensOrBraces ne null) (child, inParensOrBraces)
     else childTree.parent match {
       case Some(p: Member.Infix) if !p.isAssignment =>
         findMaybeEnclosingInfix(p, p)
@@ -43,13 +44,13 @@ object InfixSplits {
         findMaybeEnclosingInfix(child, p)
       case Some(p @ Tree.Block(`childTree` :: Nil)) =>
         findMaybeEnclosingInfix(child, p)
-      case _ => (child, None)
+      case _ => (child, null)
     }
   }
 
   def findMaybeEnclosingInfix(app: Member.Infix)(implicit
       ftoks: FormatTokens,
-  ): (Member.Infix, Option[Either[FT, FT]]) = findMaybeEnclosingInfix(app, app)
+  ): (Member.Infix, Either[FT, FT]) = findMaybeEnclosingInfix(app, app)
 
   def withNLIndent(split: Split)(
       app: Member.Infix,
@@ -70,20 +71,19 @@ object InfixSplits {
 
   private def getInfixRhsPossiblyEnclosed(app: Member.Infix)(implicit
       ftoks: FormatTokens,
-  ): Option[Either[Member.Infix, Member.Infix]] = app.singleArg
-    .map(TreeOps.getBlockStat).flatMap {
-      case t: Member.Infix =>
-        Some(Either.cond(ftoks.isEnclosedWithinParens(t), t, t))
-      case _ => None
-    }
+  ): Either[Member.Infix, Member.Infix] = app.singleArg
+    .nnMap(TreeOps.getBlockStat(_) match {
+      case t: Member.Infix => Either.cond(ftoks.isEnclosedWithinParens(t), t, t)
+      case _ => null
+    })
 
   @tailrec
   private def findRightmostArgIfEnclosedInfix(app: Member.Infix)(implicit
       ftoks: FormatTokens,
-  ): Option[Member.Infix] = getInfixRhsPossiblyEnclosed(app) match {
-    case Some(Left(ia)) => findRightmostArgIfEnclosedInfix(ia)
-    case Some(Right(ia)) => Some(ia)
-    case _ => None
+  ): Member.Infix = getInfixRhsPossiblyEnclosed(app) match {
+    case null => null
+    case Left(ia) => findRightmostArgIfEnclosedInfix(ia)
+    case Right(ia) => ia
   }
 
   def getSingleLineInfixPolicy(end: FT) = Policy
@@ -132,10 +132,7 @@ object InfixSplits {
       case ia: Member.Infix if !ftoks.isEnclosedWithinParens(tree) =>
         findNestedInfixes(ia.lhs)
         res += ia
-        ia.singleArg match {
-          case Some(arg) => findNestedInfixes(arg)
-          case _ =>
-        }
+        ia.singleArg.nnMap(findNestedInfixes)
       case _ =>
     }
 
@@ -151,19 +148,19 @@ object InfixSplits {
   private def getInfixSplitsBeforeLhs(
       lhsApp: Member.Infix,
       afterInfix: Newlines.Infix.Site,
-      newStmtMod: Option[Modification],
+      newStmtMod: Modification,
   )(implicit style: ScalafmtConfig, ft: FT, ftoks: FormatTokens): Seq[Split] = {
     val fullInfix = findTreeWithParentSimple(lhsApp, false)(isInfixApp)
-      .flatMap(asInfixApp).getOrElse(lhsApp)
+      .nnFold(lhsApp)(asInfixApp(_) ?? lhsApp)
     val app = findLeftInfix(fullInfix)
     new InfixSplits(app, ft, fullInfix, app)
       .getBeforeLhsOrRhs(afterInfix, newStmtMod)
   }
 
-  final def maybeGetInfixSplitsBeforeLhs(mod: => Option[Modification] = None)(
+  final def maybeGetInfixSplitsBeforeLhs(mod: => Modification = null)(
       nonInfixSplits: => Seq[Split],
   )(implicit style: ScalafmtConfig, ft: FT, ftoks: FormatTokens): Seq[Split] =
-    asInfixApp(ft.meta.rightOwner).fold(nonInfixSplits) { ia =>
+    asInfixApp(ft.meta.rightOwner).nnFold(nonInfixSplits) { ia =>
       val infixSite = style.newlines.infix.get(ia)
       if (infixSite.isNone) nonInfixSplits
       else getInfixSplitsBeforeLhs(ia, infixSite, mod)
@@ -215,7 +212,7 @@ class InfixSplits(
       })
     case p: Member.Function => isBlockFunction(p)
     case p: Case => p.pat.eq(tree) || p.body.eq(tree)
-    case SingleArgInBraces(_, arg, _) => tree eq arg
+    case SingleArgInBraces(arg, _) => tree eq arg
     case _ => false
   }
   private def isOldTopLevel(tree: Tree) = tree.parent
@@ -329,18 +326,18 @@ class InfixSplits(
 
   def getBeforeLhsOrRhs(
       afterInfix: Newlines.Infix.Site,
-      newStmtMod: Option[Modification] = None,
+      newStmtMod: Modification = null,
       spaceMod: Modification = Space,
   ): Seq[Split] = {
-    def getOpenClose(xft: FT): Option[(FT, FT)] = // exclude Xml.Start and similar pairs
-      if (xft.right.is[T.OpenDelim]) ftoks.matchingOptRight(xft).map(xft -> _)
-      else None
+    def getOpenClose(xft: FT): (FT, FT) = // exclude Xml.Start and similar pairs
+      if (!xft.right.is[T.OpenDelim]) null
+      else ftoks.matchingRightOrNull(xft).nnMap(xft -> _)
     val openCloseOpt = // don't need to worry about comments, they force NL
       if (!ft.right.is[T.Ident]) getOpenClose(ft)
-      else if (!ft.rightOwner.parent.is[Term.ApplyUnary]) None
+      else if (!ft.rightOwner.parent.is[Term.ApplyUnary]) null
       else getOpenClose(ftoks.next(ft))
     val nextInfixes =
-      if (openCloseOpt.isEmpty) {
+      if (openCloseOpt eq null) {
         implicit val infixes = new mutable.ListBuffer[Member.Infix]
         if (isAfterOp) {
           InfixSplits.findNestedInfixes(app.arg)
@@ -403,8 +400,7 @@ class InfixSplits(
         else PolicyOps.decideNewlinesOnlyAfterClose(end)
       }
     }
-    val nlMod = newStmtMod
-      .getOrElse(Space.orNL(ft.noBreak && ft.right.is[T.Comment]))
+    val nlMod = newStmtMod ?? Space.orNL(ft.noBreak && ft.right.is[T.Comment])
     val delayedBreak = Policy ? nlMod.isNL || breakAfterComment(ft)
 
     val isFirstOrAssignOp = isFirstOp || isAssignmentOp
@@ -421,7 +417,7 @@ class InfixSplits(
         singleLineExpire,
         ignorePenalty = isAssignmentOp && nextInfixes.nonEmpty,
       ).andPolicy(singleLinePolicy).andPolicy(delayedBreak)
-    val spaceSingleLine = Split(spaceMod, 0).onlyIf(newStmtMod.isEmpty)
+    val spaceSingleLine = Split(spaceMod, 0).onlyIf(newStmtMod eq null)
       .withSingleLine(singleLineExpire).andPolicy(singleLinePolicy)
     val singleLineSplits = Seq(
       spaceSingleLine.onlyFor(SplitTag.InfixChainNoNL),
@@ -429,26 +425,27 @@ class InfixSplits(
       nlSinglelineSplit,
     )
 
-    val rhsPossiblyEnclosedInfix = openCloseOpt.flatMap(delims =>
-      if (beforeLhs) Some(Either.cond(delims._2.idx >= fullExpire.idx, app, app))
-      else InfixSplits.getInfixRhsPossiblyEnclosed(app),
-    )
+    val rhsPossiblyEnclosedInfix =
+      if (openCloseOpt eq null) null
+      else if (beforeLhs) Either
+        .cond(openCloseOpt._2.idx >= fullExpire.idx, app, app)
+      else InfixSplits.getInfixRhsPossiblyEnclosed(app)
 
     // returns end of next LHS, really
-    def getNextOp: Option[FT] = (rhsPossiblyEnclosedInfix match {
-      case Some(Left(ia)) => Some(InfixSplits.findLeftInfix(ia))
-      case _ if app eq fullInfix => None
+    def getNextOp: FT = (rhsPossiblyEnclosedInfix match {
+      case Left(ia) => InfixSplits.findLeftInfix(ia)
+      case _ if app eq fullInfix => null
       case _ => findNextInfixInParent(app, fullInfix)
-    }).map(ia => ftoks.tokenBefore(ia.op))
+    }).nnMap(x => ftoks.tokenBefore(x.op))
 
     val isAfterOpBreakOnNested = isAfterOp && afterInfix.breakOnNested
     def mustBreakAfterNested = isAfterOpBreakOnNested &&
       (app.lhs match {
         case ia: Member.Infix =>
           val iaOpt =
-            if (isLeftInfix) Some(ia)
+            if (isLeftInfix) ia
             else InfixSplits.findRightmostArgIfEnclosedInfix(ia)
-          iaOpt.exists(_.precedence >= appPrecedence)
+          (iaOpt ne null) && iaOpt.precedence >= appPrecedence
         case _ => false
       })
 
@@ -460,7 +457,7 @@ class InfixSplits(
       val spaceSplits: Seq[Split] =
         if (ft.right.is[T.Comment] || mustBreakAfterNested) Seq.empty
         else {
-          val nextFT = if (rightAsInfix.isDefined) ftoks.next(ft) else ft
+          val nextFT = if (rightAsInfix ne null) ftoks.next(ft) else ft
           expires.map { case (expire, precedence) =>
             val cost = precedence - minPrecedence
             val exclude =
@@ -468,7 +465,7 @@ class InfixSplits(
               else TokenOps.insideBracesBlock(nextFT, expire, parens = true)
             val ignore = exclude.isEmpty && singleLinePolicy.nonEmpty &&
               (expire eq fullExpire)
-            Split(ignore, cost)(ModExt(newStmtMod.getOrElse(spaceMod)))
+            Split(ignore, cost)(ModExt(newStmtMod ?? spaceMod))
               .withSingleLine(expire, exclude, noOptimal = cost != 0)
           }
         }
@@ -477,34 +474,35 @@ class InfixSplits(
 
     def otherSplitsWithParens(openFt: FT, closeFt: FT) = {
       val nextFt = ftoks.nextNonCommentSameLineAfter(openFt)
-      val bracesLike = newStmtMod.isEmpty &&
+      val bracesLike = (newStmtMod eq null) &&
         (style.newlines.source match {
           case Newlines.fold => false
           case Newlines.unfold => !ft.hasBlankLine
           case _ => ft.noBreak && nextFt.hasBreak
         })
 
-      val noSingleLine = newStmtMod.isDefined || breakMany ||
-        isAfterOpBreakOnNested && rhsPossiblyEnclosedInfix.exists {
+      val noSingleLine = (newStmtMod ne null) || breakMany ||
+        isAfterOpBreakOnNested &&
+        (rhsPossiblyEnclosedInfix match {
           case Right(ia) => ia.precedence >= appPrecedence
           case _ => false
-        } || mustBreakAfterNested ||
-        rightAsInfix.exists(10 < infixSequenceLength(_))
-      val endOfNextOp = if (afterInfix.breakOnNested) getNextOp else None
+        }) || mustBreakAfterNested || (rightAsInfix ne null) &&
+        10 < infixSequenceLength(rightAsInfix)
+      val endOfNextOp = if (afterInfix.breakOnNested) getNextOp else null
 
       val slbPolicy = InfixSplits.getSingleLineInfixPolicy(closeFt)
-      val nlSplit = Split(nlMod, 0, nlPolicy).withIndent(nlIndent)
-        .andPolicy(slbPolicy | PolicyOps.SingleLineBlock(closeFt), !bracesLike)
-        .withOptimalToken(closeFt, killOnFail = false, ignore = !bracesLike)
+      val nlSplit = Split(nlMod, 0, nlPolicy).withIndent(nlIndent).andPolicy(
+        if (bracesLike) slbPolicy | PolicyOps.SingleLineBlock(closeFt) else null,
+      ).withOptimalToken(closeFt, killOnFail = false, ignore = !bracesLike)
       val singleLineSplit = Split(noSingleLine, 0)(spaceMod)
-        .withSingleLine(endOfNextOp.getOrElse(closeFt)).andPolicy(slbPolicy)
+        .withSingleLine(endOfNextOp ?? closeFt).andPolicy(slbPolicy)
       val noSplit = Split(!bracesLike, 1)(spaceMod)
         .withPolicy(PolicyOps.decideNewlinesOnlyAfterClose(nextFt))
       Seq(singleLineSplit, nlSplit, noSplit)
     }
 
     def otherSplitsWithBraces(closeFt: FT) = {
-      val slbEnd = getNextOp.getOrElse(fullExpire)
+      val slbEnd = getNextOp ?? fullExpire
       val slbPolicy = InfixSplits.getSingleLineInfixPolicy(closeFt)
       // check if enclosed
       if (slbEnd eq closeFt) Seq(
@@ -518,10 +516,11 @@ class InfixSplits(
       )
     }
 
-    val otherSplits = openCloseOpt.fold(otherSplitsNoDelims) { case (lt, rt) =>
-      if (rt.left.is[T.RightBrace]) otherSplitsWithBraces(rt)
-      else otherSplitsWithParens(lt, rt)
-    }
+    val otherSplits = openCloseOpt
+      .nnFold(otherSplitsNoDelims) { case (lt, rt) =>
+        if (rt.left.is[T.RightBrace]) otherSplitsWithBraces(rt)
+        else otherSplitsWithParens(lt, rt)
+      }
 
     singleLineSplits ++ otherSplits
   }

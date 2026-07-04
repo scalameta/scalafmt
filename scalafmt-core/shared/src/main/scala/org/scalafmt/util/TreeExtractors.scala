@@ -9,9 +9,9 @@ object InfixApp {
     @inline
     def precedence: Int = InfixApp.getPrecedence(tree.op.value)
 
-    def singleArg: Option[Tree] = tree.arg match {
+    def singleArg: Tree = tree.arg match {
       case x: Member.ArgClause => TreeOps.getSingleElement(x.values)
-      case x => Some(x)
+      case x => x
     }
 
     def args: Seq[Tree] = tree.arg match {
@@ -19,15 +19,17 @@ object InfixApp {
       case arg => arg :: Nil
     }
 
-    def nestedInfixApps: Seq[Member.Infix] = (tree.lhs :: singleArg.toList)
+    def nestedInfixApps: Iterable[Member.Infix] = (tree.lhs :: singleArg :: Nil)
       .collect { case x: Member.Infix => x }
 
   }
 
-  def unapply(tree: Tree): Option[Member.Infix] = tree match {
-    case t: Member.Infix => Some(t)
-    case _ => None
+  def get(tree: Tree): Member.Infix = tree match {
+    case t: Member.Infix => t
+    case _ => null
   }
+
+  def unapply(tree: Tree): Option[Member.Infix] = Option(get(tree))
 
   // https://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations
   // Operators ending in a colon `:' are right-associative. All other operators are left-associative.

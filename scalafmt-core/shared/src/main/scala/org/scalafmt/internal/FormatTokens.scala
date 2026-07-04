@@ -1,4 +1,5 @@
-package org.scalafmt.internal
+package org.scalafmt
+package internal
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.rewrite.FormatTokensRewrite
@@ -22,7 +23,7 @@ class FormatTokens(leftTok2tok: FormatTokens.TokenToIndexMap)(val arr: Array[FT]
     result.result()
   }(arr)
 
-  private lazy val matchingDelims: Map[Int, FT] = TreeOps
+  private lazy val matchingDelims: java.util.HashMap[Int, FT] = TreeOps
     .getMatchingDelims(arr)(_.idx)(_.left)
 
   override def length: Int = arr.length
@@ -78,119 +79,118 @@ class FormatTokens(leftTok2tok: FormatTokens.TokenToIndexMap)(val arr: Array[FT]
   def next(ft: FT): FT = apply(ft, 1)
 
   @inline
-  private def matching(idx: Int, tok: => T): FT = matchingDelims.getOrElse(
-    idx,
-    FormatTokens.throwNoToken(tok, "Missing matching token index"),
-  )
+  private def matching(idx: Int, tok: => T): FT = matchingDelims.get(idx) ??
+    FormatTokens.throwNoToken(tok, "Missing matching token index")
   @inline
   def matchingLeft(ft: FT): FT = matching(ft.idx, ft.left)
   @inline
   def matchingRight(ft: FT): FT = matching(ft.idx + 1, ft.right)
   @inline
-  def matchingOpt(idx: Int): Option[FT] = matchingDelims.get(idx)
+  def matchingOrNull(idx: Int): FT = matchingDelims.get(idx)
   @inline
-  def matchingOptLeft(ft: FT): Option[FT] = matchingOpt(ft.idx)
+  def matchingLeftOrNull(ft: FT): FT = matchingOrNull(ft.idx)
   @inline
-  def matchingOptRight(ft: FT): Option[FT] = matchingOpt(ft.idx + 1)
+  def matchingRightOrNull(ft: FT): FT = matchingOrNull(ft.idx + 1)
 
-  def getHeadAndLastIfEnclosed(
-      tokens: Tokens,
-      tree: Tree,
-  ): Option[(FT, Option[FT])] = getHeadOpt(tokens, tree).map(head =>
-    head -> matchingOptLeft(head).flatMap { other =>
-      val last = getLastNonTrivial(tokens, tree)
-      if (last eq other) Some(last) else None
-    },
-  )
-  def getHeadAndLastIfEnclosed(tree: Tree): Option[(FT, Option[FT])] =
+  def getHeadAndLastIfEnclosed(tokens: Tokens, tree: Tree): (FT, FT) =
+    getHead(tokens, tree).nnMap(h =>
+      h -> matchingLeftOrNull(h).nnMap { other =>
+        val last = getLastNonTrivial(tokens, tree)
+        if (last eq other) last else null
+      },
+    )
+  def getHeadAndLastIfEnclosed(tree: Tree): (FT, FT) =
     getHeadAndLastIfEnclosed(tree.tokens, tree)
 
-  def getDelimsIfEnclosed(tokens: Tokens, tree: Tree): Option[(FT, FT)] =
-    getHeadAndLastIfEnclosed(tokens, tree).flatMap { case (head, lastOpt) =>
-      lastOpt.map(last => (head, last))
-    }
-  def getDelimsIfEnclosed(tree: Tree): Option[(FT, FT)] =
+  def getDelimsIfEnclosed(tokens: Tokens, tree: Tree): (FT, FT) =
+    getHeadAndLastIfEnclosed(tokens, tree).nnIf(_.nnHas(_._2 ne null))
+
+  def getDelimsIfEnclosed(tree: Tree): (FT, FT) =
     getDelimsIfEnclosed(tree.tokens, tree)
 
-  def getHeadIfEnclosed(tokens: Tokens, tree: Tree): Option[FT] =
-    getDelimsIfEnclosed(tokens, tree).map(_._1)
-  def getHeadIfEnclosed(tree: Tree): Option[FT] = getDelimsIfEnclosed(tree)
-    .map(_._1)
+  def getHeadIfEnclosed(tokens: Tokens, tree: Tree): FT =
+    getDelimsIfEnclosed(tokens, tree).nnMap(_._1)
 
-  def getLastIfEnclosed(tokens: Tokens, tree: Tree): Option[FT] =
-    getDelimsIfEnclosed(tokens, tree).map(_._2)
-  def getLastIfEnclosed(tree: Tree): Option[FT] = getDelimsIfEnclosed(tree)
-    .map(_._2)
+  def getHeadIfEnclosed(tree: Tree): FT = getDelimsIfEnclosed(tree).nnMap(_._1)
+
+  def getLastIfEnclosed(tokens: Tokens, tree: Tree): FT =
+    getDelimsIfEnclosed(tokens, tree).nnMap(_._2)
+
+  def getLastIfEnclosed(tree: Tree): FT = getDelimsIfEnclosed(tree).nnMap(_._2)
 
   def isEnclosedInMatching(tokens: Tokens, tree: Tree): Boolean =
-    getDelimsIfEnclosed(tokens, tree).isDefined
+    getDelimsIfEnclosed(tokens, tree) ne null
   def isEnclosedInMatching(tree: Tree): Boolean =
     isEnclosedInMatching(tree.tokens, tree)
 
   @inline
-  def getBracesIfEnclosed(tree: Tree): Option[(FT, FT)] =
-    getDelimsIfEnclosed(tree).filter(_._1.left.is[T.LeftBrace])
+  def getBracesIfEnclosed(tree: Tree): (FT, FT) = getDelimsIfEnclosed(tree)
+    .nnIf(_.nnHas(_._1.left.is[T.LeftBrace]))
 
   @inline
   def isEnclosedInBraces(tree: Tree): Boolean = getDelimsIfEnclosed(tree)
-    .exists(_._1.left.is[T.LeftBrace])
+    .nnHas(_._1.left.is[T.LeftBrace])
 
   def isEnclosedWithinParens(tree: Tree): Boolean =
-    getClosingIfWithinParens(tree).isDefined
+    getClosingIfWithinParens(tree) ne null
 
-  def getClosingIfWithinParens(tree: Tree): Option[FT] =
-    getClosingIfWithinParensOrBraces(tree).flatMap(_.toOption)
+  def getClosingIfWithinParens(tree: Tree): FT =
+    getClosingIfWithinParensOrBraces(tree) match {
+      case Right(x) => x
+      case _ => null
+    }
 
-  def getClosingIfWithinParens(last: FT)(head: FT): Option[FT] =
-    getClosingIfWithinParensOrBraces(last)(head).flatMap(_.toOption)
+  def getClosingIfWithinParens(last: FT)(head: FT): FT =
+    getClosingIfWithinParensOrBraces(last)(head) match {
+      case Right(x) => x
+      case _ => null
+    }
 
   def isEnclosedWithinParensOrBraces(tree: Tree): Boolean =
-    getClosingIfWithinParensOrBraces(tree).isDefined
+    getClosingIfWithinParensOrBraces(tree) ne null
 
-  def getClosingIfWithinParensOrBraces(
-      last: FT,
-  )(head: FT): Option[Either[FT, FT]] = {
-    val innerMatched = matchingOptLeft(last).contains(head)
-    if (innerMatched && last.left.is[T.RightParen]) Some(Right(prev(last)))
+  def getClosingIfWithinParensOrBraces(last: FT)(head: FT): Either[FT, FT] = {
+    val innerMatched = matchingLeftOrNull(last) eq head
+    if (innerMatched && last.left.is[T.RightParen]) Right(prev(last))
     else {
       val afterLast = nextNonComment(last)
-      if (!matchingOptRight(afterLast).exists(_ eq prevNonCommentBefore(head)))
-        if (innerMatched) Some(Left(prev(last))) else None
-      else
-        Some(Either.cond(afterLast.right.is[T.RightParen], afterLast, afterLast))
+      if (matchingRightOrNull(afterLast) =!= prevNonCommentBefore(head))
+        if (innerMatched) Left(prev(last)) else null
+      else Either.cond(afterLast.right.is[T.RightParen], afterLast, afterLast)
     }
   }
 
-  def getClosingIfWithinParensOrBraces(tree: Tree): Option[Either[FT, FT]] = {
-    val tokens = tree.tokens
-    getHeadOpt(tokens, tree) match {
-      case Some(head) =>
-        getClosingIfWithinParensOrBraces(getLastNonTrivial(tokens, tree))(head)
-      case None => None
-    }
-  }
+  def getClosingIfWithinParensOrBraces(tree: Tree): Either[FT, FT] =
+    getHead(tree).nnMap(getClosingIfWithinParensOrBraces(getLastNonTrivial(tree)))
 
   def getLastExceptParen(tree: Tree): FT = {
-    val tokens = tree.tokens
-    val last = getLast(tokens, tree)
-    getClosingIfWithinParens(prevNonComment(last))(getHead(tokens, tree))
-      .getOrElse(last)
+    val last = getLast(tree)
+    getClosingIfWithinParens(prevNonComment(last))(getHead(tree)) ?? last
   }
 
-  final def findTokenWith[A](ft: FT, iter: FT => FT)(
-      f: FT => Option[A],
-  ): Either[FT, A] = findTokenEx(ft)(xft => f(xft).toRight(iter(xft)))
-
+  // `f` drives the scan: `Right(a)` stops with the found `a`, `Left(nextFt)`
+  // advances to `nextFt` (may jump), `null` stops empty. Returns the found `a`,
+  // or `null` if the scan stops empty or can no longer advance.
   @tailrec
-  final def findTokenEx[A](ft: FT)(f: FT => Either[FT, A]): Either[FT, A] =
+  final def findTokenEx[A >: Null](f: FT => Either[FT, A])(ft: FT): A =
     f(ft) match {
-      case null => Left(ft)
-      case Left(nextFt) if nextFt ne ft => findTokenEx(nextFt)(f)
-      case x => x
+      case Right(a) => a
+      case Left(nextFt) if nextFt ne ft => findTokenEx(f)(nextFt)
+      case _ => null
     }
 
-  final def findToken(ft: FT, iter: FT => FT)(f: FT => Boolean): FT =
-    findTokenWith(ft, iter)(Some(_).filter(f)).merge
+  // Direct, allocation-free scan: advance via `iter` until `f` holds, or until
+  // `iter` can no longer advance (returns that last token). Hot path
+  // (`nextNonComment`/`prevNonComment`/...).
+  final def findToken(ft: FT, iter: FT => FT)(f: FT => Boolean): FT = {
+    var curr = ft
+    while (!f(curr)) {
+      val nextFt = iter(curr)
+      if (nextFt eq curr) return curr
+      curr = nextFt
+    }
+    curr
+  }
 
   final def nextNonCommentSameLine(curr: FT): FT =
     findToken(curr, next)(ft => ft.hasBreak || !ft.right.is[T.Comment])
@@ -252,22 +252,13 @@ class FormatTokens(leftTok2tok: FormatTokens.TokenToIndexMap)(val arr: Array[FT]
   @inline
   private def getHeadImpl(tokens: Tokens): FT = after(tokens.head)
   def getHead(tokens: Tokens, tree: Tree): FT =
-    getOnOrBeforeOwned(getHeadImpl(tokens), tree)
+    if (tokens.isEmpty) null else getOnOrBeforeOwned(after(tokens.head), tree)
   @inline
   def getHead(tree: Tree): FT = getHead(tree.tokens, tree)
-
-  def getHeadOpt(tokens: Tokens, tree: Tree): Option[FT] = tokens.headOption
-    .map(x => getOnOrBeforeOwned(after(x), tree))
-  @inline
-  def getHeadOpt(tree: Tree): Option[FT] = getHeadOpt(tree.tokens, tree)
 
   @inline
   private def getLastImpl(tokens: Tokens): FT =
     apply(findLastVisibleToken(tokens))
-  def getLast(tokens: Tokens, tree: Tree): FT =
-    getOnOrAfterOwned(getLastImpl(tokens), tree)
-  @inline
-  def getLast(tree: Tree): FT = getLast(tree.tokens, tree)
 
   def getOnOrAfterLast(tokens: Tokens, tree: Tree): FT = {
     val last = findLastVisibleToken(tokens)
@@ -281,24 +272,18 @@ class FormatTokens(leftTok2tok: FormatTokens.TokenToIndexMap)(val arr: Array[FT]
   @inline
   def getOnOrAfterLast(tree: Tree): FT = getOnOrAfterLast(tree.tokens, tree)
 
-  def getLastOpt(tokens: Tokens, tree: Tree): Option[FT] =
-    findLastVisibleTokenOpt(tokens).map(x => getOnOrAfterOwned(apply(x), tree))
+  def getLast(tokens: Tokens, tree: Tree): FT =
+    findLastVisibleTokenOrNull(tokens)
+      .nnMap(last => getOnOrAfterOwned(apply(last), tree))
   @inline
-  def getLastOpt(tree: Tree): Option[FT] = getLastOpt(tree.tokens, tree)
+  def getLast(tree: Tree): FT = getLast(tree.tokens, tree)
 
-  def getLastNonTrivial(tokens: Tokens, tree: Tree): FT =
-    prevNonComment(getLast(tokens, tree))
+  def getLastNonTrivial(tokens: Tokens, tree: Tree): FT = getLast(tokens, tree)
+    .nnMap(prevNonComment)
   def getLastNonTrivial(tree: Tree): FT = getLastNonTrivial(tree.tokens, tree)
 
-  def getLastNonTrivialOpt(tokens: Tokens, tree: Tree): Option[FT] =
-    getLastOpt(tokens, tree).map(prevNonComment)
-  def getLastNonTrivialOpt(tree: Tree): Option[FT] =
-    getLastNonTrivialOpt(tree.tokens, tree)
-
-  def getLastNotTrailingComment(tree: Tree): Either[FT, FT] =
-    prevNotTrailingComment(getLast(tree))
-  def getLastNotTrailingCommentOpt(tree: Tree): Option[Either[FT, FT]] =
-    getLastOpt(tree).map(prevNotTrailingComment)
+  def getLastNotTrailingComment(tree: Tree): Either[FT, FT] = getLast(tree)
+    .nnMap(prevNotTrailingComment)
 
   /* the following methods return the first format token such that
    * its `right` is after the parameter and is not a comment */
@@ -306,15 +291,9 @@ class FormatTokens(leftTok2tok: FormatTokens.TokenToIndexMap)(val arr: Array[FT]
   def tokenAfter(ft: FT): FT = nextNonComment(ft)
   @inline
   def tokenAfter(token: T): FT = tokenAfter(before(token))
-  @inline
-  def tokenAfter(tree: Tree): FT = tokenAfter(getLast(tree))
-  @inline
-  def tokenAfter(trees: Seq[Tree]): FT = tokenAfter(trees.last)
-
-  def tokenAfterOpt(tree: Tree): Option[FT] = getLastOpt(tree)
-    .map(nextNonComment)
-  def tokenAfterOpt(trees: Seq[Tree]): Option[FT] = trees.lastOption
-    .flatMap(tokenAfterOpt)
+  def tokenAfter(tree: Tree): FT = getLast(tree).nnMap(nextNonComment)
+  def tokenAfter(trees: Seq[Tree]): FT =
+    if (trees.isEmpty) null else tokenAfter(trees.last)
 
   /* the following methods return the last format token such that
    * its `left` is before the parameter */
@@ -322,17 +301,12 @@ class FormatTokens(leftTok2tok: FormatTokens.TokenToIndexMap)(val arr: Array[FT]
   def justBefore(token: T): FT = apply(token, -1)
   @inline
   def tokenJustBefore(ft: FT): FT = prev(ft)
-  @inline
-  def tokenJustBefore(tree: Tree): FT = prev(getHead(tree))
+  def tokenJustBefore(tree: Tree): FT = getHead(tree).nnMap(prev)
+  def tokenJustBefore(trees: Seq[Tree]): FT =
+    if (trees.isEmpty) null else tokenJustBefore(trees.head)
 
-  def tokenJustBeforeOpt(tree: Tree): Option[FT] = getHeadOpt(tree).map(prev)
-  def tokenJustBeforeOpt(trees: Seq[Tree]): Option[FT] = trees.headOption
-    .flatMap(tokenJustBeforeOpt)
-
-  def isTokenHeadOf(tok: => T, tree: Tree): Boolean = getHeadOpt(tree) match {
-    case None => false
-    case Some(x) => x.left eq tok
-  }
+  def isTokenHeadOf(tok: => T, tree: Tree): Boolean = getHead(tree)
+    .nnHas(_.left eq tok)
 
   def isJustBeforeTree(ft: FT)(tree: Tree): Boolean =
     isTokenHeadOf(ft.right, tree)
@@ -345,15 +319,9 @@ class FormatTokens(leftTok2tok: FormatTokens.TokenToIndexMap)(val arr: Array[FT]
   def tokenBefore(ft: FT): FT = prevNonCommentBefore(ft)
   @inline
   def tokenBefore(token: T): FT = prevNonComment(justBefore(token))
-  @inline
-  def tokenBefore(tree: Tree): FT = prevNonComment(tokenJustBefore(tree))
-  @inline
-  def tokenBefore(trees: Seq[Tree]): FT = tokenBefore(trees.head)
-
-  def tokenBeforeOpt(tree: Tree): Option[FT] = tokenJustBeforeOpt(tree)
-    .map(prevNonComment)
-  def tokenBeforeOpt(trees: Seq[Tree]): Option[FT] = trees.headOption
-    .flatMap(tokenBeforeOpt)
+  def tokenBefore(tree: Tree): FT = tokenJustBefore(tree).nnMap(prevNonComment)
+  def tokenBefore(trees: Seq[Tree]): FT =
+    if (trees.isEmpty) null else tokenBefore(trees.head)
 
   @inline
   def isBreakAfterRight(ft: FT): Boolean = next(ft).hasBreakOrEOF
@@ -417,25 +385,24 @@ class FormatTokens(leftTok2tok: FormatTokens.TokenToIndexMap)(val arr: Array[FT]
   def span(tree: Tree): Int = span(tree.tokens)
 
   @tailrec
-  final def getNonMultilineEnd(ft: FT, inInterp: Int = 0): Option[FT] = {
+  final def getNonMultilineEnd(ft: FT, inInterp: Int = 0): FT = {
     def nft = next(ft)
     ft.right match {
       case _: T.Comment =>
-        if (ft.hasBreak) Some(ft)
-        else if (ft.rightHasNewline) None
+        if (ft.hasBreak) ft
+        else if (ft.rightHasNewline) null
         else {
           val xft = nft
-          if (xft.hasBreak) Some(xft)
-          else getNonMultilineEnd(xft, inInterp = inInterp)
+          if (xft.hasBreak) xft else getNonMultilineEnd(xft, inInterp = inInterp)
         }
       case _: T.Interpolation.Id =>
         getNonMultilineEnd(nft, inInterp = inInterp + 1)
-      case _: T.Constant.String if ft.rightHasNewline => None
-      case _ if inInterp == 0 => Some(nft)
+      case _: T.Constant.String if ft.rightHasNewline => null
+      case _ if inInterp == 0 => nft
       case _: T.Interpolation.End =>
-        if (inInterp == 1) Some(nft)
+        if (inInterp == 1) nft
         else getNonMultilineEnd(nft, inInterp = inInterp - 1)
-      case _: T.Interpolation.Part if ft.rightHasNewline => None
+      case _: T.Interpolation.Part if ft.rightHasNewline => null
       case _ => getNonMultilineEnd(nft, inInterp = inInterp)
     }
   }

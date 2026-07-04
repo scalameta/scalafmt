@@ -1,4 +1,5 @@
-package org.scalafmt.rewrite
+package org.scalafmt
+package rewrite
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal._
@@ -31,7 +32,7 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[Replacement] = Option {
+  ): Replacement = {
     val flag = style.rewrite.scala3.newSyntax
     def pft = ftoks.prevNonComment(ft)
     def left = pft.left
@@ -120,12 +121,12 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[(Replacement, Replacement)] = {
+  ): (Replacement, Replacement) = {
     def nextRight = ftoks.nextNonComment(ftoks.next(ft)).right
     ft.right match {
 
       case x: T.RightParen if left.isRemove =>
-        val rtRepl = ft.meta.rightOwner match {
+        (ft.meta.rightOwner match {
           case _: Term.If =>
             if (!nextRight.is[T.KwThen])
               replaceToken("then")(new T.KwThen(x.input, x.dialect, x.start))
@@ -136,17 +137,14 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
             else removeToken
           case t: Term.EnumeratorsBlock =>
             val needDo = t.parent.is[Term.For] && !nextRight.is[T.KwDo]
-            if (needDo) replaceToken("do", t.parent)(
+            if (needDo) replaceToken("do", t.parentOrNull)(
               new T.KwDo(x.input, x.dialect, x.start),
             )
             else removeToken
           case _ => null
-        }
-        if (rtRepl eq null) None
-        else Some {
-          val keep = session.rule[RemoveScala3OptionalBraces]
-            .forall(_.skipRightToBraces(left))
-          if (keep) (left, rtRepl)
+        }).nnMap { rtRepl =>
+          val r = session.rule[RemoveScala3OptionalBraces]
+          if (r.orHas(_.skipRightToBraces(left))) (left, rtRepl)
           else {
             val robLt = {
               implicit val ft: FT = ftoks(left.idx)
@@ -165,9 +163,9 @@ private class ConvertToNewScala3Syntax(implicit val ftoks: FormatTokens)
           }
         }
 
-      case _: T.RightBrace if left.isRemove => Some((left, removeToken))
+      case _: T.RightBrace if left.isRemove => (left, removeToken)
 
-      case _ => None
+      case _ => null
     }
   }
 

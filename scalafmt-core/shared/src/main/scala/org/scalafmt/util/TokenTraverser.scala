@@ -1,4 +1,5 @@
-package org.scalafmt.util
+package org.scalafmt
+package util
 
 import org.scalafmt.config.ScalafmtConfig
 
@@ -41,8 +42,6 @@ class TokenTraverser(tokens: Tokens, input: Input)(implicit
 
   @inline
   def getIndex(token: T): Int = tok2idx(token)
-  @inline
-  def getIndexOpt(token: T): Option[Int] = tok2idx.get(token)
 
   def nextToken(token: T): T = tok2idx.get(token) match {
     case Some(i) if i < tokens.length - 1 => tokens(i + 1)
@@ -54,10 +53,10 @@ class TokenTraverser(tokens: Tokens, input: Input)(implicit
     case _ => token
   }
 
-  def nextNonTrivialToken(token: T): Option[T] =
+  def nextNonTrivialToken(token: T): T =
     findAfter(token)(TokenTraverser.isTrivialPred)
 
-  def prevNonTrivialToken(token: T): Option[T] =
+  def prevNonTrivialToken(token: T): T =
     findBefore(token)(TokenTraverser.isTrivialPred)
 
   /** Find a token after the given one. The search stops when the predicate
@@ -65,37 +64,43 @@ class TokenTraverser(tokens: Tokens, input: Input)(implicit
     * @return
     *   Some(token) if the predicate returned Some(true), else None.
     */
-  def findAfter(token: T)(predicate: T => Option[Boolean]): Option[T] = tok2idx
-    .get(token).flatMap(x => findAtOrAfter(x + 1)(predicate))
+  def findAfter(token: T)(predicate: T => MaybeBool): T =
+    tok2idx.get(token) match {
+      case Some(x) => findAtOrAfter(x + 1)(predicate)
+      case None => null
+    }
 
   /** Find a token before the given one. The search stops when the predicate
     * returns Some value (or the end is reached).
     * @return
     *   Some(token) if the predicate returned Some(true), else None.
     */
-  def findBefore(token: T)(predicate: T => Option[Boolean]): Option[T] = tok2idx
-    .get(token).flatMap(x => findAtOrBefore(x - 1)(predicate))
+  def findBefore(token: T)(predicate: T => MaybeBool): T =
+    tok2idx.get(token) match {
+      case Some(x) => findAtOrBefore(x - 1)(predicate)
+      case None => null
+    }
 
   @tailrec
-  final def findAtOrAfter(off: Int)(pred: T => Option[Boolean]): Option[T] =
-    if (off >= tokens.length) None
+  final def findAtOrAfter(off: Int)(pred: T => MaybeBool): T =
+    if (off >= tokens.length) null
     else {
       val token = tokens(off)
       pred(token) match {
-        case Some(true) => Some(token)
-        case Some(false) => None
+        case MaybeBool.True => token
+        case MaybeBool.False => null
         case _ => findAtOrAfter(off + 1)(pred)
       }
     }
 
   @tailrec
-  final def findAtOrBefore(off: Int)(pred: T => Option[Boolean]): Option[T] =
-    if (off < 0) None
+  final def findAtOrBefore(off: Int)(pred: T => MaybeBool): T =
+    if (off < 0) null
     else {
       val token = tokens(off)
       pred(token) match {
-        case Some(true) => Some(token)
-        case Some(false) => None
+        case MaybeBool.True => token
+        case MaybeBool.False => null
         case _ => findAtOrBefore(off - 1)(pred)
       }
     }
@@ -111,7 +116,7 @@ class TokenTraverser(tokens: Tokens, input: Input)(implicit
 
 object TokenTraverser {
 
-  private def isTrivialPred(token: T): Option[Boolean] =
-    if (token.is[T.Trivia]) None else Some(true)
+  private def isTrivialPred(token: T): MaybeBool =
+    if (token.is[T.Trivia]) MaybeBool.Maybe else MaybeBool.True
 
 }

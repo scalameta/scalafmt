@@ -104,7 +104,7 @@ object PolicyOps {
 
   final class DecideNewlinesOnlyBeforeToken private (
       val token: FT,
-      split: Option[Split],
+      split: Split,
       val rank: Int,
       ifAny: Boolean,
   )(implicit fileLine: FileLine)
@@ -112,35 +112,31 @@ object PolicyOps {
     override val noDequeue: Boolean = false
     override def terminal: Boolean = false
     override val prefix: String = "NB"
-    override val f: Policy.Pf = split match {
-      case Some(s) => {
+    override val f: Policy.Pf =
+      if (split ne null) {
         case d: Decision if d.formatToken.right eq token.left =>
-          d.onlyNewlinesWithFallback(s)
+          d.onlyNewlinesWithFallback(split)
       }
-      case _ if ifAny => {
+      else if (ifAny) {
         case d: Decision if d.formatToken.right eq token.left =>
           d.onlyNewlinesIfAvailable
       }
-      case _ => {
+      else {
         case d: Decision if d.formatToken.right eq token.left =>
           d.onlyNewlinesWithoutFallback
       }
-    }
   }
 
   object DecideNewlinesOnlyBeforeToken {
-    def apply(
-        token: FT,
-        split: Option[Split],
-        rank: Int = 0,
-        ifAny: Boolean = false,
-    )(implicit fileLine: FileLine): Policy = Policy.End < token ==>
+    def apply(token: FT, split: Split, rank: Int = 0, ifAny: Boolean = false)(
+        implicit fileLine: FileLine,
+    ): Policy = Policy.End < token ==>
       new DecideNewlinesOnlyBeforeToken(token, split, rank, ifAny) <= token
   }
 
   final class DecideNewlinesOnlyAfterToken private (
       val token: FT,
-      split: Option[Split],
+      split: Split,
       val rank: Int,
       ifAny: Boolean,
   )(implicit fileLine: FileLine)
@@ -148,28 +144,24 @@ object PolicyOps {
     override val noDequeue: Boolean = false
     override def terminal: Boolean = false
     override val prefix: String = "NA"
-    override val f: Policy.Pf = split match {
-      case Some(s) => {
+    override val f: Policy.Pf =
+      if (split ne null) {
         case d: Decision if d.formatToken eq token =>
-          d.onlyNewlinesWithFallback(s)
+          d.onlyNewlinesWithFallback(split)
       }
-      case _ if ifAny => {
+      else if (ifAny) {
         case d: Decision if d.formatToken eq token => d.onlyNewlinesIfAvailable
       }
-      case _ => {
+      else {
         case d: Decision if d.formatToken eq token =>
           d.onlyNewlinesWithoutFallback
       }
-    }
   }
 
   object DecideNewlinesOnlyAfterToken {
-    def apply(
-        token: FT,
-        split: Option[Split],
-        rank: Int = 0,
-        ifAny: Boolean = false,
-    )(implicit fileLine: FileLine): Policy = Policy.End <= token ==>
+    def apply(token: FT, split: Split, rank: Int = 0, ifAny: Boolean = false)(
+        implicit fileLine: FileLine,
+    ): Policy = Policy.End <= token ==>
       new DecideNewlinesOnlyAfterToken(token, split, rank, ifAny) >= token
   }
 
@@ -209,7 +201,7 @@ object PolicyOps {
 
   def decideNewlinesOnlyBeforeClose(split: Split, rank: Int = 0)(close: FT)(
       implicit fileLine: FileLine,
-  ): Policy = DecideNewlinesOnlyBeforeToken(close, Option(split), rank)
+  ): Policy = DecideNewlinesOnlyBeforeToken(close, split, rank)
 
   def decideNewlinesOnlyBeforeCloseOnBreak(close: FT)(implicit
       fileLine: FileLine,
@@ -226,7 +218,7 @@ object PolicyOps {
   def decideNewlinesOnlyBeforeToken(rank: Int, ifAny: Boolean = false)(
       token: FT,
   )(implicit fileLine: FileLine): Policy =
-    DecideNewlinesOnlyBeforeToken(token, None, rank = rank, ifAny = ifAny)
+    DecideNewlinesOnlyBeforeToken(token, null, rank = rank, ifAny = ifAny)
 
   def decideNewlinesOnlyAfterClose(close: FT)(implicit
       fileLine: FileLine,
@@ -239,7 +231,7 @@ object PolicyOps {
 
   def decideNewlinesOnlyAfterClose(split: Split, rank: Int = 0)(close: FT)(
       implicit fileLine: FileLine,
-  ): Policy = DecideNewlinesOnlyAfterToken(close, Option(split), rank)
+  ): Policy = DecideNewlinesOnlyAfterToken(close, split, rank)
 
   def decideNewlinesOnlyAfterToken(token: FT)(implicit
       fileLine: FileLine,
@@ -248,7 +240,7 @@ object PolicyOps {
   def decideNewlinesOnlyAfterToken(rank: Int, ifAny: Boolean = false)(
       token: FT,
   )(implicit fileLine: FileLine): Policy =
-    DecideNewlinesOnlyAfterToken(token, None, rank = rank, ifAny = ifAny)
+    DecideNewlinesOnlyAfterToken(token, null, rank = rank, ifAny = ifAny)
 
   def unindentAtExclude(indent: Int)(exclude: TokenRanges): Policy = exclude
     .ranges.foldLeft(Policy.noPolicy) { case (policy, range) =>

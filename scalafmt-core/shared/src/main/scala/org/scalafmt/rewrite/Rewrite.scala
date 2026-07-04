@@ -1,7 +1,8 @@
-package org.scalafmt.rewrite
+package org.scalafmt
+package rewrite
 
 import org.scalafmt.config.{RewriteSettings, ScalafmtConfig}
-import org.scalafmt.internal.FormatWriter
+import org.scalafmt.internal._
 import org.scalafmt.util.{TokenOps, TokenTraverser, TreeOps}
 
 import scala.meta.tokens.{Token => T}
@@ -25,10 +26,10 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
     .getMatchingDelims(tokens)(TokenOps.hash)(identity)
 
   @inline
-  def getMatchingOpt(a: T): Option[T] = matchingParens.get(TokenOps.hash(a))
+  def getMatchingOrNull(a: T): T = matchingParens.get(TokenOps.hash(a))
 
   @inline
-  def isMatching(a: T, b: => T): Boolean = getMatchingOpt(a).exists(_ eq b)
+  def isMatching(a: T, b: => T): Boolean = getMatchingOrNull(a).nnHas(_ eq b)
 
   @inline
   def getIndex(token: T): Int = tokenTraverser.getIndex(token)
@@ -52,22 +53,20 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
 
   def onlyWhitespaceBefore(index: Int): Boolean = tokenTraverser
     .findAtOrBefore(index - 1) {
-      case _: T.AtEOL | _: T.BOF => Some(true)
-      case _: T.Whitespace => None
-      case _ => Some(false)
-    }.isDefined
+      case _: T.AtEOL | _: T.BOF => MaybeBool.True
+      case _: T.Whitespace => MaybeBool.Maybe
+      case _ => MaybeBool.False
+    } ne null
 
-  def findNonWhitespaceWith(
-      f: (T => Option[Boolean]) => Option[T],
-  ): Option[(T, Option[T.AtEOL])] = {
-    var lf: Option[T.AtEOL] = None
+  def findNonWhitespaceWith(f: (T => MaybeBool) => T): (T, T.AtEOL) = {
+    var lf: T.AtEOL = null
     val nonWs = f {
       case t: T.AtEOL =>
-        if (lf.nonEmpty) Some(false) else { lf = Some(t); None }
-      case _: T.Whitespace => None
-      case _ => Some(true)
+        if (lf ne null) MaybeBool.False else { lf = t; MaybeBool.Maybe }
+      case _: T.Whitespace => MaybeBool.Maybe
+      case _ => MaybeBool.True
     }
-    nonWs.map((_, lf))
+    if (nonWs eq null) null else (nonWs, lf)
   }
 
   // end is inclusive
@@ -77,9 +76,9 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
     case t: T.AtEOL =>
       if (t.newlines > 1) builder += TokenPatch.Replace(t, t.text.stripLineEnd)
       else builder += TokenPatch.Remove(t)
-      Some(false)
-    case _: T.HSpace => None
-    case _ => Some(false)
+      MaybeBool.False
+    case _: T.HSpace => MaybeBool.Maybe
+    case _ => MaybeBool.False
   }
 
 }
@@ -87,7 +86,7 @@ case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
 trait Rewrite
 
 abstract class RewriteFactory extends Rewrite {
-  def create(implicit ctx: RewriteCtx): Option[RewriteSession]
+  def create(implicit ctx: RewriteCtx): RewriteSession
   def hasChanged(v1: RewriteSettings, v2: RewriteSettings): Boolean = false
 }
 
@@ -123,13 +122,20 @@ object Rewrite {
 
   val default: Seq[Rewrite] = name2rewrite.values.toSeq
 
-  def apply(input: Input, style: ScalafmtConfig): Option[String] = {
+  def apply(input: Input, style: ScalafmtConfig): String = {
     val rewrites = style.rewrite.rewriteFactoryRules
-    if (rewrites.isEmpty) None
+    if (rewrites.isEmpty) null
     else style.runner.parse(input) match {
       case Parsed.Success(ast) =>
         val ctx = RewriteCtx(style, input, ast)
-        val rewriteSessions = rewrites.flatMap(_.create(ctx)).toArray
+        val rewriteSessions = {
+          val arr = Array.newBuilder[RewriteSession]
+          rewrites.foreach { x =>
+            val session = x.create(ctx)
+            if (session ne null) arr += session
+          }
+          arr.result()
+        }
         val traverser = new SimpleTraverser {
           override def apply(tree: Tree): Unit = {
             rewriteSessions.foreach(_.rewrite(tree))
@@ -137,8 +143,8 @@ object Rewrite {
           }
         }
         traverser(ast)
-        Some(ctx.applyPatches)
-      case _ => None
+        ctx.applyPatches
+      case _ => null
     }
   }
 

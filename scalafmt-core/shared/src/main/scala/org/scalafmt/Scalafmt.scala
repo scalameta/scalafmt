@@ -110,14 +110,15 @@ object Scalafmt {
     val codeToInput: String => Input = toInput(_, file)
     val original = codeToInput(code)
     val rewritten = Rewrite(original, style)
-    runner.parse(rewritten.fold(original)(codeToInput)).fold(
+    val input = if (rewritten eq null) original else codeToInput(rewritten)
+    runner.parse(input).fold(
       x => {
         val err = x.details match {
           case ParseException(pos, msg) =>
             ParseException(pos, s"[dialect ${runner.dialectName}] $msg")
           case ed => ed
         }
-        Failure(Error.WithCode(err, rewritten.getOrElse(code)))
+        Failure(Error.WithCode(err, rewritten ?? code))
       },
       tree => {
         implicit val formatOps = new FormatOps(tree, style, file)

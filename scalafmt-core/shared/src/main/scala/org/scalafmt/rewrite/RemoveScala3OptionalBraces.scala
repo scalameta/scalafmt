@@ -1,4 +1,5 @@
-package org.scalafmt.rewrite
+package org.scalafmt
+package rewrite
 
 import org.scalafmt.config._
 import org.scalafmt.internal._
@@ -41,92 +42,97 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[Replacement] = ft.right match {
-    case x: T.LeftBrace => Option {
-        ft.meta.rightOwner match {
-          case _ if ftoks.nextNonCommentAfter(ft).right.is[T.RightBrace] => null
-          case t: Term.Block if t.stats.nonEmpty =>
-            val pft = ftoks.prevNonComment(ft)
-            val removeRepl =
-              if (settings.isRemoveEnabled) onLeftForBlock(t, pft) else null
-            if (removeRepl ne null) removeRepl
-            else if (
-              isSingleStatBlock(t) && settings.isInsertEnabled &&
-              session.rule[RedundantBraces].nonEmpty &&
-              getOptionalBraces(pft).exists(_._3)
-            ) Replacement(this, ft, ReplacementType.Replace, style)
-            else null
-          case _ if !settings.isRemoveEnabled => null
-          case t: Template.Body if !t.isEmpty =>
-            if (t.parent.parent.is[Defn.Given]) removeToken
-            else replaceToken(":")(new T.Colon(x.input, x.dialect, x.start))
-          case t: Term.ArgClause => onLeftForArgClause(t)
-          case t: Term.PartialFunction => t.parent match {
-              case Some(p: Term.ArgClause) if (p.tokens.head match {
-                    case px: T.LeftBrace => px eq x
-                    case px: T.LeftParen =>
-                      shouldRewriteArgClauseWithLeftParen[RedundantBraces](px)
-                    case _ => false
-                  }) => onLeftForArgClause(p)
-              case _ => null
+  ): Replacement = ft.right match {
+    case x: T.LeftBrace => ft.meta.rightOwner match {
+        case _ if ftoks.nextNonCommentAfter(ft).right.is[T.RightBrace] => null
+        case t: Term.Block if t.stats.nonEmpty =>
+          val pft = ftoks.prevNonComment(ft)
+          val removeRepl =
+            if (settings.isRemoveEnabled) onLeftForBlock(t, pft) else null
+          if (removeRepl ne null) removeRepl
+          else if (
+            isSingleStatBlock(t) && settings.isInsertEnabled &&
+            (session.rule[RedundantBraces] ne null) && {
+              val triple = getOptionalBraces(pft)
+              (triple ne null) && triple._3
             }
-          case t: Term.EnumeratorsBlock
-              if allowOldSyntax || !t.parent.is[Term.For] || {
-                val rbFt = ftoks.matchingRight(ft)
-                ftoks.nextNonComment(rbFt).right.is[T.KwDo]
-              } => removeToken
-          case _: Tree.CasesBlock => removeToken
-          case _: Ctor.Block if ftoks.prevNonComment(ft).left.is[T.Equals] =>
-            removeToken
-          case _ => null
-        }
+          ) Replacement(this, ft, ReplacementType.Replace, style)
+          else null
+        case _ if !settings.isRemoveEnabled => null
+        case t: Template.Body if !t.isEmpty =>
+          if (t.parent.parent.is[Defn.Given]) removeToken
+          else replaceToken(":")(new T.Colon(x.input, x.dialect, x.start))
+        case t: Term.ArgClause => onLeftForArgClause(t)
+        case t: Term.PartialFunction => t.parent match {
+            case Some(p: Term.ArgClause) if (p.tokens.head match {
+                  case px: T.LeftBrace => px eq x
+                  case px: T.LeftParen =>
+                    shouldRewriteArgClauseWithLeftParen[RedundantBraces](px)
+                  case _ => false
+                }) => onLeftForArgClause(p)
+            case _ => null
+          }
+        case t: Term.EnumeratorsBlock
+            if allowOldSyntax || !t.parent.is[Term.For] || {
+              val rbFt = ftoks.matchingRight(ft)
+              ftoks.nextNonComment(rbFt).right.is[T.KwDo]
+            } => removeToken
+        case _: Tree.CasesBlock => removeToken
+        case _: Ctor.Block if ftoks.prevNonComment(ft).left.is[T.Equals] =>
+          removeToken
+        case _ => null
       }
-    case _ if !settings.isRemoveEnabled => None
+    case _ if !settings.isRemoveEnabled => null
     case _: T.LeftParen
         if !ftoks.nextNonCommentAfter(ft).right.is[T.RightParen] =>
       ft.meta.rightOwner match {
-        case t: Term.ArgClause => Option(onLeftForArgClause(t))
-        case _ => None
+        case t: Term.ArgClause => onLeftForArgClause(t)
+        case _ => null
       }
     case _: T.Colon if settings.isInsertEnabled => insertOnToken(isColon = true)
-    case _ => None
+    case _ => null
   }
 
   override def appendOnToken(implicit
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[Replacement] =
-    if (!settings.isInsertEnabled || ft.right.is[T.Colon]) None
+  ): Replacement =
+    if (!settings.isInsertEnabled || ft.right.is[T.Colon]) null
     else insertOnToken(isColon = false)
 
   private[rewrite] def getOptionalBraces(ft: FT)(implicit
       session: Session,
       style: ScalafmtConfig,
-  ): Option[(OptionalBraces, FT, Boolean)] = OptionalBraces.getWithBrace(
-    session.claimedRule(ft.idx - 1).flatMap(r =>
-      if (r.how eq ReplacementType.Replace) Some(r.ft.right) else None,
-    ).fold(ft)(x => ft.copy(left = x)),
-  )
+  ): (OptionalBraces, FT, Boolean) = OptionalBraces.getWithBrace {
+    val r = session.claimedRule(ft.idx - 1)
+    val left =
+      if ((r ne null) && (r.how eq ReplacementType.Replace)) r.ft.left else null
+    if (left eq null) ft else ft.copy(left = left)
+  }
 
   private def insertOnToken(isColon: Boolean)(implicit
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[Replacement] = getOptionalBraces(ftoks.next(ft))
-    .flatMap { case (ob, _, skip) =>
+  ): Replacement = getOptionalBraces(ftoks.next(ft))
+    .nnMap { case (ob, _, skip) =>
       val block = ob.block
-      if (skip) None
-      else if (block.parent.is[Case]) if (isColon) Some(removeToken) else None
-      else ftoks.getLastOpt(block).map { rb =>
-        val rt = ft.right
-        val lb = new T.LeftBrace(rt.input, rt.dialect, rt.start)
-        if (isColon) replaceToken("{", afterRight = Some(rb.idx))(lb)
+      if (skip) null
+      else if (block.parent.is[Case]) if (isColon) removeToken else null
+      else {
+        val rb = ftoks.getLast(block)
+        if (rb eq null) null
         else {
-          val meta = ft.meta
-            .copy(right = ft.meta.right.copy(text = "{", owner = block))
-          val how = appendTokensType(ft.copy(right = lb, meta = meta))
-          Replacement(this, ft, how, style, afterRight = Some(rb.idx))
+          val rt = ft.right
+          val lb = new T.LeftBrace(rt.input, rt.dialect, rt.start)
+          if (isColon) replaceToken("{", afterRight = rb.idx)(lb)
+          else {
+            val meta = ft.meta
+              .copy(right = ft.meta.right.copy(text = "{", owner = block))
+            val how = appendTokensType(ft.copy(right = lb, meta = meta))
+            Replacement(this, ft, how, style, afterRight = rb.idx)
+          }
         }
       }
     }
@@ -135,7 +141,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[(Replacement, Replacement)] = {
+  ): (Replacement, Replacement) = {
     val toBraces = left.how match {
       case ReplacementType.Replace => left.ft.right.is[T.LeftBrace]
       case rt: ReplacementType.AppendAfter => rt.ft.right.is[T.LeftBrace]
@@ -150,7 +156,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[(Replacement, Replacement)] = {
+  ): (Replacement, Replacement) = {
     val nextFt = ftoks.nextNonCommentAfter(ft)
     val notOkToRewrite = hasFormatOff || { // can't force significant indentation
       val cfg = settings
@@ -181,19 +187,21 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
         case _ => false
       })
     ft.right match {
-      case _ if notOkToRewrite => None
+      case _ if notOkToRewrite => null
       case _: T.RightParen if RewriteTrailingCommas.checkIfPrevious =>
-        Some((left, removeToken))
+        (left, removeToken)
       case x: T.RightBrace =>
         val replacement = ft.meta.rightOwner match {
           case t: Term.EnumeratorsBlock
               if allowOldSyntax && t.parent.is[Term.For] &&
                 !nextFt.right.is[T.KwDo] =>
-            replaceToken("do", t.parent)(new T.KwDo(x.input, x.dialect, x.start))
+            replaceToken("do", t.parentOrNull)(
+              new T.KwDo(x.input, x.dialect, x.start),
+            )
           case _ => removeToken
         }
-        Some((left, replacement))
-      case _ => None
+        (left, replacement)
+      case _ => null
     }
   }
 
@@ -230,22 +238,21 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[(Replacement, Replacement)] = {
+  ): (Replacement, Replacement) = {
     val notOkToRewrite = skipRightToBraces(left)
     // had the braces already but RedundantBraces is on
     val maybeKeep =
       (left.how eq ReplacementType.Replace) && (ftoks(left.idx) eq left.ft)
     if (maybeKeep)
-      if (notOkToRewrite) session.rule[RedundantBraces].flatMap { r =>
-        val rbRepl = {
+      if (notOkToRewrite) session.rule[RedundantBraces].nnMap(r =>
+        {
           implicit val ft: FT = left.ft
           implicit val style: ScalafmtConfig = left.style
           r.onLeftBrace(ft.rightOwner)
-        }
-        if (rbRepl eq null) None else r.onRight(rbRepl, hasFormatOff)
-      }
-      else None
-    else if (notOkToRewrite) None
+        }.nnMap(r.onRight(_, hasFormatOff)),
+      )
+      else null
+    else if (notOkToRewrite) null
     else {
       val rt = ft.right
       val rbt = new T.RightBrace(rt.input, rt.dialect, rt.end)
@@ -255,7 +262,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       }
       val rbmeta = lb.meta.copy(right = lb.meta.right.copy(text = "}"))
       val replType = appendTokensType(FT(rt, rbt, rbmeta))
-      Some((left, Replacement(this, ft, replType, style)))
+      (left, Replacement(this, ft, replType, style))
     }
   }
 
@@ -264,7 +271,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Replacement = tree.parent.orNull match {
+  ): Replacement = tree.parentOrNull match {
     case null => null
     case t: Term.Block
         if (pft.meta.leftOwner eq t) && pft.left.is[T.LeftBrace] &&
@@ -316,10 +323,10 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
 
   private def shouldRewriteArgClauseWithLeftParen[A <: Rule](
       lp: T,
-  )(implicit ft: FT, session: Session, tag: ClassTag[A]) = {
+  )(implicit ft: FT, session: Session, tag: ClassTag[A]): Boolean = {
     val prevFt = ftoks.prevNonComment(ft)
     prevFt.left.eq(lp) && session.claimedRule(prevFt.meta.idx - 1)
-      .exists(x => tag.runtimeClass.isInstance(x.rule))
+      .nnHas(x => tag.runtimeClass.isInstance(x.rule))
   }
 
   private[rewrite] def onLeftForArgClause(

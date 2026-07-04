@@ -6,8 +6,8 @@ import scala.meta._
 import scala.meta.tokens.{Token => T}
 
 object ProcedureSyntax extends RewriteFactory {
-  override def create(implicit ctx: RewriteCtx): Option[RewriteSession] =
-    if (ctx.dialect.allowProcedureSyntax) Some(new ProcedureSyntax) else None
+  override def create(implicit ctx: RewriteCtx): RewriteSession =
+    if (ctx.dialect.allowProcedureSyntax) new ProcedureSyntax else null
 }
 
 class ProcedureSyntax private (implicit ctx: RewriteCtx)

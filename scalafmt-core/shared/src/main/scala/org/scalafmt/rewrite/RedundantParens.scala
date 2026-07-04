@@ -1,4 +1,5 @@
-package org.scalafmt.rewrite
+package org.scalafmt
+package rewrite
 
 import org.scalafmt.config.{RedundantParensSettings, ScalafmtConfig}
 import org.scalafmt.internal._
@@ -93,21 +94,21 @@ class RedundantParens(implicit val ftoks: FormatTokens)
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[Replacement] = ft.right match {
-    case _: T.LeftParen if okToReplace => Some(removeToken)
-    case _ => None
+  ): Replacement = ft.right match {
+    case _: T.LeftParen if okToReplace => removeToken
+    case _ => null
   }
 
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
       ft: FT,
       session: Session,
       style: ScalafmtConfig,
-  ): Option[(Replacement, Replacement)] =
+  ): (Replacement, Replacement) =
     if (
       left.isRemove && RewriteTrailingCommas.checkIfPrevious &&
       RedundantBraces.okCommentBeforeClose(ft)
-    ) Some((left, removeToken))
-    else None
+    ) (left, removeToken)
+    else null
 
   private def okToReplaceWithCount(numParens: Int, tree: Tree, lpOuter: FT)(
       implicit style: ScalafmtConfig,
@@ -231,11 +232,11 @@ class RedundantParens(implicit val ftoks: FormatTokens)
               next @ FT(_, _: T.RightParen, _),
             ) => iter(ftoks.prev(prev), ftoks.next(next), cnt + 1)
         case _ => TreeOps
-            .findEnclosedBetweenParens(lt.right, rt.left, ft.meta.rightOwner)
-            .exists(okToReplaceWithCount(cnt, _, lt))
+            .findEnclosedBetweenParens(lt.right, rt.left, ft.rightOwner)
+            .nnHas(okToReplaceWithCount(cnt, _, lt))
       }
 
-    ftoks.matchingOptRight(ft).exists(rt => iter(ft, rt, 1))
+    ftoks.matchingRightOrNull(ft).nnHas(iter(ft, _, 1))
   }
 
 }

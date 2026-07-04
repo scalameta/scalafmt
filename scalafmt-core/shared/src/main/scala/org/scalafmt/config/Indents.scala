@@ -55,7 +55,7 @@ case class Indents(
     yieldKeyword: Boolean = true,
     infix: Seq[IndentOperator] = Seq(IndentOperator.default),
 ) {
-  lazy val getSignificant = significant.getOrElse(main)
+  val getSignificant = significant.getOrElse(main)
 
   def getDefnSite(tree: meta.Tree): Int = (tree match {
     case _: meta.Member.ParamClause | _: meta.Member.ParamClauseGroup => tree

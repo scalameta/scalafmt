@@ -42,45 +42,54 @@ private class BestFirstSearch private (range: Set[Range])(implicit
 
   private def getBlockCloseToRecurse(ft: FT, indent: Int)(implicit
       style: ScalafmtConfig,
-  ): Option[Int] = TokenOps.getEndOfBlock(ft, parens = true).collect {
+  ): Int = TokenOps.getEndOfBlock(ft, parens = true) match {
     case (close, _) if (ft.leftOwner match {
           case Term.Block(_ :: tail) if tail.nonEmpty =>
             indent + tokens.width(ft, close) > style.maxColumn
           // Block must span at least 3 lines to be worth recursing.
           case _ => indent + tokens.width(ft, close) > style.maxColumn * 3
         }) => close.idx
+    case _ => -1
   }
 
   // LongMap: primitive Long key, no boxing on get/update in the search recursion
-  private val memo = mutable.LongMap.empty[Option[State]]
-  private val slbMemo = mutable.LongMap.empty[Option[State]]
+  private val memo = mutable.LongMap.empty[State]
+  private val slbMemo = mutable.LongMap.empty[State]
 
   // out-param for getActiveSplits: number of valid splits in the returned array
   // (avoids a per-state `(Array[Split], Int)` tuple). Single-threaded search, so
   // a field is safe; every caller reads it into a local right after the call.
   private[this] var activeSplitsCount: Int = 0
 
+  // Left(null) is a payload-less dead end; intern one instance to reuse
+  private[this] val deadEnd: Either[State, State] = Left(null)
+  private def leftState(s: State): Either[State, State] =
+    if (s eq null) deadEnd else Left(s)
+
   def shortestPathMemo(
       start: State,
       stop: Int,
       depth: Int,
       isOpt: Boolean,
-  ): Option[Option[State]] = {
+  ): State = {
     val key = start.indentation & 0xffL | (start.column & 0xffffffL) << 8 |
       (start.depth & 0xffffffffL) << 32
     def orElse(hadSlb: Boolean) = {
-      val nextState = shortestPath(start, stop, depth, isOpt).toOption
-      nextState match {
-        case None if hadSlb => slbMemo.update(key, nextState)
-        case Some(ns) if ns.terminal() => slbMemo.update(key, nextState)
-        case _ => memo.update(key, nextState)
+      val res = shortestPath(start, stop, depth, isOpt) match {
+        case Right(x) => x
+        case _ => State.start
       }
-      Some(nextState)
+      val useSlb = if (res eq State.start) hadSlb else res.terminal()
+      val map = if (useSlb) slbMemo else memo
+      map.update(key, res)
+      res
     }
-    memo.get(key).orElse(
-      if (isOpt) Some(None) // we wouldn't recurse unless the span was large
+
+    memo.getOrElse(
+      key,
+      if (isOpt) State.start // we wouldn't recurse unless the span was large
       else if (!start.terminal()) orElse(hadSlb = false)
-      else slbMemo.get(key).orElse(orElse(hadSlb = true)),
+      else slbMemo.getOrElse(key, orElse(hadSlb = true)),
     )
   }
 
@@ -143,12 +152,15 @@ private class BestFirstSearch private (range: Set[Range])(implicit
         val noBlockClose = start == curr && !isOpt || noOptZoneCode == 0 ||
           !optimizer.recurseOnBlocks
         val blockCloseState =
-          if (noBlockClose) None
-          else getBlockCloseToRecurse(splitToken, curr.indentation)
-            .flatMap(shortestPathMemo(curr, _, depth + 1, isOpt))
-        if (blockCloseState.nonEmpty) blockCloseState
-          .foreach(_.foreach(Q.enqueue))
-        else {
+          if (noBlockClose) null
+          else {
+            val close = getBlockCloseToRecurse(splitToken, curr.indentation)
+            if (close < 0) null
+            else shortestPathMemo(curr, close, depth + 1, isOpt)
+          }
+        if (blockCloseState ne null) {
+          if (blockCloseState ne State.start) Q.enqueue(blockCloseState)
+        } else {
           if (optimizer.escapeInPathologicalCases && isSeqMulti(routes(idx)))
             stats.explode(splitToken, optimizer.maxVisitsPerToken)(
               stats.visits(idx) > _,
@@ -162,26 +174,30 @@ private class BestFirstSearch private (range: Set[Range])(implicit
           val handleOptimalTokens = optimizer.acceptOptimalAtHints &&
             depth < optimizer.maxDepth && numSplits > 1
 
-          def processNextState(implicit nextState: State): Unit = {
+          // returns whether an optimal state was found (stops sibling splits);
+          // a local `var` return avoids lifting a captured var to a per-state Ref
+          def processNextState(implicit nextState: State): Boolean = {
             val split = nextState.split
             val cost = split.costWithPenalty
+            var found = false
             if (cost <= maxCost) {
-              val stateToQueue = split.optimalAt match {
-                case Some(opt) if handleOptimalTokens =>
+              val opt = split.optimalAt
+              val stateToQueue =
+                if ((opt ne null) && handleOptimalTokens) {
                   val costToCheck =
                     if (opt.ignorePenalty) split.costWithoutPenalty else cost
                   if (costToCheck > 0) killOnFail(opt)
                   else processOptimalToken(opt) match {
                     case Left(x) => x
-                    case Right(x) => optimalFound = true; x
+                    case Right(x) => found = true; x
                   }
-                case _ => nextState
-              }
+                } else nextState
               if (null ne stateToQueue) {
                 stats.updateBest(nextState, stateToQueue)
                 Q.enqueue(stateToQueue)
               }
             } else preFork = false
+            found
           }
 
           var sidx = 0
@@ -189,7 +205,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
             val split = actualSplits(sidx)
             sidx += 1
             if (optimalFound) stats.sendEvent(split)
-            else processNextState(getNext(curr, split))
+            else optimalFound = processNextState(getNext(curr, split))
           }
         }
       }
@@ -199,7 +215,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       val okDeepest = deepestState.appliedPenalty > start.prev.appliedPenalty
       tokens(if (okDeepest) deepestState.depth else stop)
     }
-    if (preFork || willKillOnFail(isKillOnFail, endToken)(start)) Left(null)
+    if (preFork || willKillOnFail(isKillOnFail, endToken)(start)) deadEnd
     else Left(preForkState)
   }
 
@@ -230,7 +246,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     val nextNextState =
       if (optIdx <= nextState.depth) nextState
       else if (tokens.width(nextState.depth, optIdx) > 3 * style.maxColumn)
-        return Left(killOnFail(opt))
+        return leftState(killOnFail(opt))
       else {
         val res = shortestPath(
           nextState,
@@ -253,7 +269,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       if (useNextNext) tokens(nextNextState.depth) else opt.token
     }(opt)
     traverseSameLine(nextNextState) match {
-      case x @ Left(s) => if (s eq null) Left(kof) else checkPenalty(s, x)
+      case x @ Left(s) => if (s eq null) leftState(kof) else checkPenalty(s, x)
       case x @ Right(s) => checkPenalty(s, if (opt.recurseOnly) Left(s) else x)
     }
   }
@@ -321,7 +337,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     else {
       val ss = getActiveSplits(state)(_ => true)
       val numSplits = activeSplitsCount
-      if (numSplits == 0) Left(null) // dead end if empty
+      if (numSplits == 0) deadEnd // dead end if empty
       else if (numSplits == 1) {
         val split = ss(0)
         if (split.isNL) Right(state)
@@ -336,13 +352,10 @@ private class BestFirstSearch private (range: Set[Range])(implicit
   def getBestPath: SearchResult = {
     if (stats.eventCallback ne null) stats
       .eventCallback(FormatEvent.Routes(routes))
-    val state = {
-      def run = shortestPath(State.start, Int.MaxValue)
-      run.getOrElse(stats.retry.flatMap { x =>
-        stats = x
-        run.toOption
-      }.orNull)
-    }
+    def run = shortestPath(State.start, Int.MaxValue)
+    val state = run.getOrElse(stats.retry.fold(null: State) { x =>
+      stats = x; run.getOrElse(null)
+    })
     if (null != state) {
       stats.complete(state)
       SearchResult(state, reachedEOF = true)
@@ -454,6 +467,7 @@ object BestFirstSearch {
     // Int-key box + Some that mutable.Map.get allocated in shouldEnterState
     val best = new Array[State](tokens.length)
     val visits = new Array[Int](tokens.length)
+    private val maxVisits = runner.getMaxStateVisits
 
     def this(tokens: FormatTokens, runner: RunnerSettings) =
       this(tokens, runner, runner.optimizer.pruneSlowStates)
@@ -494,7 +508,7 @@ object BestFirstSearch {
       updateBestImpl(state)
 
     def checkExplored(ft: FT)(implicit formatWriter: FormatWriter): Unit =
-      explode(ft, runner.getMaxStateVisits)(
+      explode(ft, maxVisits)(
         explored > _,
         x => s"exceeded `runner.maxStateVisits`=$x",
       )

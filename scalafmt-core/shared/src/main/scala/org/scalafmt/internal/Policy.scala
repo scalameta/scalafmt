@@ -1,4 +1,5 @@
-package org.scalafmt.internal
+package org.scalafmt
+package internal
 
 import org.scalafmt.util.LoggerOps
 
@@ -27,28 +28,17 @@ abstract class Policy {
   def filter(pred: Clause => Boolean): Policy
   def exists(pred: Clause => Boolean): Boolean
   def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean
-  def appliesOn(nextft: FT)(pred: Clause => Boolean): Option[Boolean]
+  def appliesOn(nextft: FT)(pred: Clause => Boolean): MaybeBool
   def unexpired(split: Split, nextft: FT): Policy
   def switch(trigger: T, on: Boolean): Policy
 
   def &(other: Policy): Policy =
-    if (other.isEmpty) this else new AndThen(this, other)
+    if ((other eq null) || other.isEmpty) this else new AndThen(this, other)
   def |(other: Policy): Policy =
-    if (other.isEmpty) this else new OrElse(this, other)
+    if ((other eq null) || other.isEmpty) this else new OrElse(this, other)
   def ==>(other: Policy): Policy = Relay(this, other)
   def <==(pos: End.WithPos): Policy = Expire(this, pos)
   def ?(flag: Boolean): Policy = if (flag) this else NoPolicy
-
-  @inline
-  final def unexpiredOpt(split: Split, nextft: FT): Option[Policy] =
-    Some(unexpired(split, nextft)).filter(_.nonEmpty)
-
-  @inline
-  final def &(other: Option[Policy]): Policy = other.fold(this)(&)
-  @inline
-  final def |(other: Option[Policy]): Policy = other.fold(this)(|)
-  @inline
-  final def ==>(other: Option[Policy]): Policy = other.fold(this)(==>)
 
   @inline
   final def <(exp: FT): Policy = <==(End < exp)
@@ -95,9 +85,8 @@ object Policy {
     override def unexpired(split: Split, nextft: FT): Policy = this
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       false
-    override def appliesOn(nextft: FT)(
-        pred: Clause => Boolean,
-    ): Option[Boolean] = None
+    override def appliesOn(nextft: FT)(pred: Clause => Boolean): MaybeBool =
+      MaybeBool.Maybe
     override def filter(pred: Clause => Boolean): Policy = this
     override def exists(pred: Clause => Boolean): Boolean = false
     override def switch(trigger: T, on: Boolean): Policy = this
@@ -198,9 +187,8 @@ object Policy {
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       pred(this)
 
-    override def appliesOn(nextft: FT)(
-        pred: Clause => Boolean,
-    ): Option[Boolean] = Some(pred(this))
+    override def appliesOn(nextft: FT)(pred: Clause => Boolean): MaybeBool =
+      MaybeBool(pred(this))
   }
 
   private class ClauseImpl(
@@ -231,22 +219,32 @@ object Policy {
 
   private def appliesOnAll(nextft: FT, p1: Policy, p2: Policy)(
       pred: Clause => Boolean,
-  ): Option[Boolean] = {
+  ): MaybeBool = {
     def r2 = p2.appliesOn(nextft)(pred)
-    p1.appliesOn(nextft)(pred).fold(r2)(r1 => Some(r1 && !r2.contains(false)))
+    p1.appliesOn(nextft)(pred) match {
+      case MaybeBool.Maybe => r2
+      case MaybeBool.False => MaybeBool.False
+      case _ => MaybeBool(r2 ne MaybeBool.False)
+    }
   }
 
   private def appliesOnAny(nextft: FT, p1: Policy, p2: Policy)(
       pred: Clause => Boolean,
-  ): Option[Boolean] = {
+  ): MaybeBool = {
     def r2 = p2.appliesOn(nextft)(pred)
-    p1.appliesOn(nextft)(pred).fold(r2)(r1 => Some(r1 || r2.contains(true)))
+    p1.appliesOn(nextft)(pred) match {
+      case MaybeBool.Maybe => r2
+      case MaybeBool.True => MaybeBool.True
+      case _ => MaybeBool(r2 eq MaybeBool.True)
+    }
   }
 
   private def appliesOn1st(nextft: FT, p1: Policy, p2: Policy)(
       pred: Clause => Boolean,
-  ): Option[Boolean] = p1.appliesOn(nextft)(pred)
-    .orElse(p2.appliesOn(nextft)(pred))
+  ): MaybeBool = {
+    val r1 = p1.appliesOn(nextft)(pred)
+    if (r1 ne MaybeBool.Maybe) r1 else p2.appliesOn(nextft)(pred)
+  }
 
   private class OrElse(p1: Policy, p2: Policy) extends WithConv {
     override def toString: String =
@@ -266,9 +264,8 @@ object Policy {
 
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean = p1
       .appliesUntil(nextft)(pred) && p2.appliesUntil(nextft)(pred)
-    override def appliesOn(nextft: FT)(
-        pred: Clause => Boolean,
-    ): Option[Boolean] = appliesOnAll(nextft, p1, p2)(pred)
+    override def appliesOn(nextft: FT)(pred: Clause => Boolean): MaybeBool =
+      appliesOnAll(nextft, p1, p2)(pred)
 
     override def exists(pred: Clause => Boolean): Boolean = p1.exists(pred) ||
       p2.exists(pred)
@@ -298,9 +295,8 @@ object Policy {
 
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean = p1
       .appliesUntil(nextft)(pred) || p2.appliesUntil(nextft)(pred)
-    override def appliesOn(nextft: FT)(
-        pred: Clause => Boolean,
-    ): Option[Boolean] = appliesOnAny(nextft, p1, p2)(pred)
+    override def appliesOn(nextft: FT)(pred: Clause => Boolean): MaybeBool =
+      appliesOnAny(nextft, p1, p2)(pred)
 
     override def exists(pred: Clause => Boolean): Boolean = p1.exists(pred) ||
       p2.exists(pred)
@@ -345,10 +341,8 @@ object Policy {
 
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       endPolicy.notExpiredBy(nextft) && policy.appliesUntil(nextft)(pred)
-    override def appliesOn(
-        nextft: FT,
-    )(pred: Clause => Boolean): Option[Boolean] =
-      if (!endPolicy.notExpiredBy(nextft)) None
+    override def appliesOn(nextft: FT)(pred: Clause => Boolean): MaybeBool =
+      if (!endPolicy.notExpiredBy(nextft)) MaybeBool.Maybe
       else policy.appliesOn(nextft)(pred)
 
     override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
@@ -396,10 +390,8 @@ object Policy {
 
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       false
-    override def appliesOn(
-        nextft: FT,
-    )(pred: Clause => Boolean): Option[Boolean] =
-      if (begPolicy.notExpiredBy(nextft)) None
+    override def appliesOn(nextft: FT)(pred: Clause => Boolean): MaybeBool =
+      if (begPolicy.notExpiredBy(nextft)) MaybeBool.Maybe
       else policy.appliesOn(nextft)(pred)
   }
 
@@ -423,9 +415,8 @@ object Policy {
     override def appliesUntil(nextft: FT)(pred: Clause => Boolean): Boolean =
       before.appliesUntil(nextft)(pred) && after.appliesUntil(nextft)(pred)
 
-    override def appliesOn(nextft: FT)(
-        pred: Clause => Boolean,
-    ): Option[Boolean] = appliesOnAll(nextft, before, after)(pred)
+    override def appliesOn(nextft: FT)(pred: Clause => Boolean): MaybeBool =
+      appliesOnAll(nextft, before, after)(pred)
 
     override def exists(pred: Clause => Boolean): Boolean = before
       .exists(pred) || after.exists(pred)
@@ -443,9 +434,8 @@ object Policy {
     override protected def withBefore(before: Policy)(
         func: Policy => Policy,
     ): Policy = if (before.isEmpty) func(after) else new Relay(before, after)
-    override def appliesOn(nextft: FT)(
-        pred: Clause => Boolean,
-    ): Option[Boolean] = appliesOn1st(nextft, before, after)(pred)
+    override def appliesOn(nextft: FT)(pred: Clause => Boolean): MaybeBool =
+      appliesOn1st(nextft, before, after)(pred)
   }
 
   class RelayOnSplit(
@@ -503,14 +493,18 @@ object Policy {
     private object PredicateDecision {
       def unapply(d: Decision): Option[Seq[Split]] = {
         var replaced = false
-        def applyMap(s: Split): Option[Split] = Option(pred(s)).filter(ss =>
-          (s eq ss) || {
+        val splits = Seq.newBuilder[Split]
+        val iter = d.splits.iterator
+        while (iter.hasNext) {
+          val s = iter.next()
+          val ss = pred(s)
+          val ok = (s eq ss) || (ss ne null) && {
             replaced = true
             !ss.isIgnored
-          },
-        )
-        val splits = d.splits.flatMap(applyMap)
-        if (replaced) Some(splits) else None
+          }
+          if (ok) splits += ss
+        }
+        if (replaced) Some(splits.result()) else None
       }
     }
     override val f: Pf = { case PredicateDecision(ss) => ss }

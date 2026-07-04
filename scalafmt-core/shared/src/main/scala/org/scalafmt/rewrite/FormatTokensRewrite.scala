@@ -1,4 +1,5 @@
-package org.scalafmt.rewrite
+package org.scalafmt
+package rewrite
 
 import org.scalafmt.config.ScalafmtConfig
 import org.scalafmt.internal._
@@ -85,9 +86,9 @@ class FormatTokensRewrite(
         val nextIdx = idx + 1
         val nextFt = ftoks.at(nextIdx)
         val rtMeta = nextFt.meta
-        mergeWhitespaceLeftToRight(ftOld.meta, rtMeta).foreach { bw =>
+        val bw = mergeWhitespaceLeftToRight(ftOld.meta, rtMeta)
+        if (bw ne null)
           arr(nextIdx) = nextFt.copy(meta = rtMeta.copy(between = bw))
-        }
       }
       repl.how match {
         case ReplacementType.Remove => remove(appended)
@@ -168,20 +169,21 @@ class FormatTokensRewrite(
       val formatOff = ft.meta.formatOff
       implicit val style = if (formatOff) null else styleMap.at(ft.right)
 
-      def applyRules: Option[Int] = session.applyRules(rules)
-      def afterRight(repl: Replacement, claimedIdx: => Int): Unit = repl
-        .afterRight.foreach(fx => afterRightIdxStack.prepend((claimedIdx, fx)))
+      def applyRules: Int = session.applyRules(rules)
+      def afterRight(repl: Replacement, claimedIdx: => Int): Unit = {
+        val fx = repl.afterRight
+        if (fx >= 0) afterRightIdxStack.prepend((claimedIdx, fx))
+      }
 
       ft.right match {
         case _: T.OpenDelim =>
           formatOffStack.prepend(formatOff)
           val ldelimIdxOpt =
-            if (formatOff) None
-            else session.claimedRule match {
-              case Some(c) => session.applyRule(c.rule)
-              case _ => applyRules
-            }
-          val ldelimIdx = ldelimIdxOpt.getOrElse(session.claim(null))
+            if (formatOff) -1
+            else session.claimedRule
+              .nnFold(applyRules)(c => session.applyRule(c.rule))
+          val ldelimIdx =
+            if (ldelimIdxOpt >= 0) ldelimIdxOpt else session.claim(null)
           leftDelimIndex.prepend(ldelimIdx)
 
         case _: T.CloseDelim =>
@@ -190,7 +192,7 @@ class FormatTokensRewrite(
           if (lfmtOff && formatOffStack.nonEmpty) formatOffStack.update(0, true)
           val left = tokens(ldelimIdx)
           if (left ne null) {
-            val ko = formatOff || session.claimedRule.exists(_.rule ne left.rule)
+            val ko = formatOff || session.claimedRule.nnHas(_.rule ne left.rule)
             if (ko) session(ldelimIdx) = null
             else left.onRightAndClaim(lfmtOff, ldelimIdx)
           }
@@ -199,7 +201,8 @@ class FormatTokensRewrite(
         // below, only non-paired tokens
 
         case _ if !formatOff =>
-          applyRules.foreach(tx => afterRight(tokens(tx), tx))
+          val tx = applyRules
+          if (tx >= 0) afterRight(tokens(tx), tx)
 
         case _: T.Comment => // formatOff gets set only by comment
           if (formatOffStack.nonEmpty) formatOffStack.update(0, true)
@@ -230,7 +233,7 @@ class FormatTokensRewrite(
         }
       ) {}
 
-      if (!formatOff) session.applyAppendRules(rules).foreach { repl =>
+      if (!formatOff) session.applyAppendRules(rules).nnFor { repl =>
         session.append(repl)
         afterRight(repl, tokens.length - 1)
       }
@@ -256,13 +259,13 @@ object FormatTokensRewrite {
         ft: FT,
         session: Session,
         style: ScalafmtConfig,
-    ): Option[Replacement]
+    ): Replacement
     // act on or modify only ft.right; process close (right) delim
     def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
         ft: FT,
         session: Session,
         style: ScalafmtConfig,
-    ): Option[(Replacement, Replacement)]
+    ): (Replacement, Replacement)
 
     protected final def removeToken(implicit
         ft: FT,
@@ -279,20 +282,20 @@ object FormatTokensRewrite {
 
     protected final def replaceToken(
         text: String,
-        owner: Option[Tree] = None,
+        owner: Tree = null,
         claim: Iterable[Int] = Nil,
         rtype: ReplacementType = ReplacementType.Replace,
-        afterRight: Option[Int] = None,
+        afterRight: Int = -1,
     )(tok: T)(implicit ft: FT, style: ScalafmtConfig): Replacement = {
       val mOld = ft.meta.right
-      val mNew = mOld.copy(text = text, owner = owner.getOrElse(mOld.owner))
+      val mNew = mOld.copy(text = text, owner = owner ?? mOld.owner)
       val ftNew = ft.copy(right = tok, meta = ft.meta.copy(right = mNew))
       Replacement(this, ftNew, rtype, style, claim, afterRight)
     }
 
     protected final def replaceTokenBy(
         text: String,
-        owner: Option[Tree] = None,
+        owner: Tree = null,
         claim: Iterable[Int] = Nil,
         rtype: ReplacementType = ReplacementType.Replace,
     )(f: T => T)(implicit ft: FT, style: ScalafmtConfig): Replacement =
@@ -312,7 +315,7 @@ object FormatTokensRewrite {
         ft: FT,
         session: Session,
         style: ScalafmtConfig,
-    ): Option[Replacement]
+    ): Replacement
   }
 
   private[rewrite] trait RuleFactory {
@@ -400,33 +403,32 @@ object FormatTokensRewrite {
       }
     }
 
-    def getClaimed(ftIdx: Int): Option[(Int, Replacement)] =
-      claimed.get(ftIdx) match {
-        case Some(x) =>
-          val repl = tokens(x)
-          val ok = (repl eq null) || repl.idx == ftIdx
-          if (ok) Some((x, repl)) else None
-        case _ => None
-      }
+    def getClaimed(ftIdx: Int): (Int, Replacement) = claimed.get(ftIdx) match {
+      case Some(x) =>
+        val repl = tokens(x)
+        val ok = (repl eq null) || repl.idx == ftIdx
+        if (ok) (x, repl) else null
+      case _ => null
+    }
 
     @inline
-    def claimedRule(implicit ft: FT): Option[Replacement] =
-      claimedRule(ft.meta.idx)
+    def claimedRule(implicit ft: FT): Replacement = claimedRule(ft.meta.idx)
 
     @inline
-    def claimedRuleOnLeft(ft: FT): Option[Replacement] =
-      claimedRule(ft.meta.idx - 1)
+    def claimedRuleOnLeft(ft: FT): Replacement = claimedRule(ft.meta.idx - 1)
 
     @inline
-    def claimedRule(ftIdx: Int): Option[Replacement] = claimed.get(ftIdx)
-      .map(tokens.apply).filter(_ ne null)
+    def claimedRule(ftIdx: Int): Replacement = claimed.get(ftIdx) match {
+      case Some(idx) => tokens(idx)
+      case _ => null
+    }
 
     @inline
     def claim(repl: Replacement)(implicit ft: FT): Int = {
       if (repl ne null) repl.how match {
         case rt: ReplacementType.RemoveAndResurrect =>
           getClaimed(rt.idx) match {
-            case Some((oidx, x)) if x != null && x.isRemove =>
+            case (oidx, x) if x != null && x.isRemove =>
               this(oidx) = repl.copy(ft = repl.ft.withIdx(rt.idx))
             case _ =>
           }
@@ -459,24 +461,26 @@ object FormatTokensRewrite {
 
     private[FormatTokensRewrite] def applyRule(
         attemptedRule: Rule,
-    )(implicit ft: FT, style: ScalafmtConfig): Option[Int] =
-      if (attemptedRule.enabled) attemptedRule.onToken.map { repl =>
-        val idx = claim(repl)
-        repl.claim.foreach(claimed.getOrElseUpdate(_, idx))
-        idx
-      }
-      else None
+    )(implicit ft: FT, style: ScalafmtConfig): Int =
+      if (attemptedRule.enabled) {
+        val repl = attemptedRule.onToken
+        if (repl eq null) -1
+        else {
+          val idx = claim(repl)
+          repl.claim.foreach(claimed.getOrElseUpdate(_, idx))
+          idx
+        }
+      } else -1
 
     private[FormatTokensRewrite] def applyRules(
         rules: Seq[Rule],
-    )(implicit ft: FT, style: ScalafmtConfig): Option[Int] = {
+    )(implicit ft: FT, style: ScalafmtConfig): Int = {
       @tailrec
-      def iter(remainingRules: Seq[Rule]): Option[Int] = remainingRules match {
-        case r +: rs => applyRule(r) match {
-            case None => iter(rs)
-            case x => x
-          }
-        case _ => None
+      def iter(remainingRules: Seq[Rule]): Int = remainingRules match {
+        case r +: rs =>
+          val res = applyRule(r)
+          if (res >= 0) res else iter(rs)
+        case _ => -1
       }
       iter(rules)
     }
@@ -484,31 +488,35 @@ object FormatTokensRewrite {
     @tailrec
     private[FormatTokensRewrite] final def applyAppendRules(
         rules: Seq[Rule],
-    )(implicit ft: FT, style: ScalafmtConfig): Option[Replacement] = rules match {
+    )(implicit ft: FT, style: ScalafmtConfig): Replacement = rules match {
       case r +: rs => r match {
           case r: RuleWithAppend if r.enabled =>
             val res = r.appendOnToken
-            if (res.isEmpty) applyAppendRules(rs) else res
+            if (res eq null) applyAppendRules(rs) else res
           case _ => applyAppendRules(rs)
         }
-      case _ => None
+      case _ => null
     }
 
-    def rule[A <: Rule](implicit
+    def rule[A >: Null <: Rule](implicit
         tag: ClassTag[A],
         sc: ScalafmtConfig,
-    ): Option[A] = {
-      val ruleOpt = rules.find(tag.runtimeClass.isInstance)
-      ruleOpt.map(_.asInstanceOf[A]).filter(_.enabled)
+    ): A = rules.find(tag.runtimeClass.isInstance) match {
+      case Some(x) =>
+        val rule = x.asInstanceOf[A]
+        if (rule.enabled) rule else null
+      case _ => null
     }
 
-    def isRemovedOnLeftOpt(x: FT): Option[Boolean] = {
+    def isRemovedOnLeftOpt(x: FT): MaybeBool = {
       val ftIdx = x.meta.idx - 1
-      claimedRule(ftIdx).filter(_.idx == ftIdx).map(_.isRemove)
+      val repl = claimedRule(ftIdx)
+      if ((repl eq null) || repl.idx != ftIdx) MaybeBool.Maybe
+      else MaybeBool(repl.isRemove)
     }
 
     def isRemovedOnLeft(x: FT, ok: Boolean): Boolean = isRemovedOnLeftOpt(x)
-      .contains(ok)
+      .getBoolean(!ok) == ok
 
   }
 
@@ -519,7 +527,7 @@ object FormatTokensRewrite {
       style: ScalafmtConfig,
       // list of FT indices, with the claimed token on the **right**
       claim: Iterable[Int] = Nil,
-      afterRight: Option[Int] = None,
+      afterRight: Int = -1,
   ) extends WithSpan {
     def getSpanDelta(implicit session: Session): Int = how.getSpanDelta(ft)
     def copySpanFrom(other: WithSpan, span: Int = 0, gap: Int = 0): Unit = {
@@ -536,8 +544,8 @@ object FormatTokensRewrite {
         ft: FT,
         session: Session,
         style: ScalafmtConfig,
-    ): Option[(Replacement, Replacement)] =
-      if (rule.enabled) rule.onRight(this, hasFormatOff) else None
+    ): (Replacement, Replacement) =
+      if (rule.enabled) rule.onRight(this, hasFormatOff) else null
 
     private[FormatTokensRewrite] def onRightOrNull(
         hasFormatOff: Boolean,
@@ -545,7 +553,7 @@ object FormatTokensRewrite {
         ft: FT,
         session: Session,
         style: ScalafmtConfig,
-    ): (Replacement, Replacement) = onRight(hasFormatOff).getOrElse((null, null))
+    ): (Replacement, Replacement) = onRight(hasFormatOff) ?? (null, null)
 
     def onRightAndClaim(hasFormatOff: Boolean, leftIdx: Int)(implicit
         ft: FT,
@@ -589,23 +597,20 @@ object FormatTokensRewrite {
     }
   }
 
-  private def mergeWhitespaceLeftToRight(
-      lt: FT.Meta,
-      rt: FT.Meta,
-  ): Option[Array[T]] = {
+  private def mergeWhitespaceLeftToRight(lt: FT.Meta, rt: FT.Meta): Array[T] = {
     import FT.isNL
     val rtBW = rt.between
     val rtNumNL = rt.newlinesBetween
-    if (rtNumNL >= 2) None // right has a blank line, nothing to get from left
+    if (rtNumNL >= 2) null // right has a blank line, nothing to get from left
     else {
       val ltBW = lt.between
-      if (rtNumNL >= lt.newlinesBetween) None // right has at least as many newlines
+      if (rtNumNL >= lt.newlinesBetween) null // right has at least as many newlines
       else {
         // left has more newlines than right (so it's non-empty)
         /* for special comment handling: if right ends in a newline, we must
          * end in a newline as well; otherwise, append at least one space */
         val rtEndsInNL = rtNumNL != 0 && isNL(rtBW.last)
-        if (rtEndsInNL == isNL(ltBW.last)) Some(ltBW)
+        if (rtEndsInNL == isNL(ltBW.last)) ltBW
         else {
           val numNL = math.min(2, ltBW.count(isNL))
           val arr = new Array[T](numNL + (if (rtEndsInNL) 0 else 1))
@@ -616,7 +621,7 @@ object FormatTokensRewrite {
             val lastNL = arr(numNL - 1)
             new T.Space(lastNL.input, lastNL.dialect, lastNL.start + 1)
           }
-          Some(arr)
+          arr
         }
       }
     }

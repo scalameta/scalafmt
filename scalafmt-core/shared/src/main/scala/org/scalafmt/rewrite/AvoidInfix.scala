@@ -1,4 +1,5 @@
-package org.scalafmt.rewrite
+package org.scalafmt
+package rewrite
 
 import org.scalafmt.config.RewriteSettings
 import org.scalafmt.util.InfixApp
@@ -14,8 +15,7 @@ object AvoidInfix extends RewriteFactory {
   override def hasChanged(v1: RewriteSettings, v2: RewriteSettings): Boolean =
     v2.avoidInfix ne v1.avoidInfix
 
-  override def create(implicit ctx: RewriteCtx): Option[RewriteSession] =
-    Some(new AvoidInfix)
+  override def create(implicit ctx: RewriteCtx): RewriteSession = new AvoidInfix
 
 }
 
@@ -37,14 +37,14 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
     case x: Term.SelectPostfix if !cfg.excludePostfix =>
       rewriteImpl(x.qual, Right(x.name))
     case x: Term.Match => noDotMatch(x)
-        .foreach(op => rewriteImpl(x.expr, Left(op), null))
+        .nnFor(op => rewriteImpl(x.expr, Left(op), null))
     case _ =>
   }
 
-  private def noDotMatch(t: Term.Match): Option[T] =
+  private def noDotMatch(t: Term.Match): T =
     if (allowMatchAsOperator && t.mods.isEmpty && !cfg.excludeMatch) ctx
       .tokenTraverser.prevNonTrivialToken(t.casesBlock.tokens.head)
-    else None
+    else null
 
   private def rewriteImpl(
       lhs: Term,
@@ -60,16 +60,17 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
       (lhs match {
         case t: Term.ApplyInfix => checkMatchingInfix(t.lhs, t.op.value, t.arg)
         case t: Term.Match => noDotMatch(t) match {
-            case None => false
-            case Some(kw) => checkMatchingInfix(t.expr, kw.text, t.casesBlock)
+            case null => false
+            case kw => checkMatchingInfix(t.expr, kw.text, t.casesBlock)
           }
         case _ => false
       })
 
-    if (!checkMatchingInfix(lhs, op.fold(_.text, _.value), rhs, Some(lhsIsOK)))
-      return
+    if (
+      !checkMatchingInfix(lhs, op.fold(_.text, _.value), rhs, MaybeBool(lhsIsOK))
+    ) return
     if (!ctx.dialect.allowTryWithAnyExpr)
-      if (beforeLhsHead.exists(_.is[T.KwTry])) return
+      if (beforeLhsHead.nnHas(_.is[T.KwTry])) return
 
     val builder = Seq.newBuilder[TokenPatch]
 
@@ -93,7 +94,8 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
         }
       // move the left paren if enclosed, else enclose
       val (argsHead, argsLast) = ends(rhs)
-      def rhsWrapped = ctx.getMatchingOpt(argsHead).exists(_.end >= argsLast.end)
+      def rhsWrapped = ctx.getMatchingOrNull(argsHead)
+        .nnHas(_.end >= argsLast.end)
       val shouldMoveOpenDelim = rhs match {
         case _: Lit.Unit => ctx.dialect.allowEmptyInfixArgs
         case ac: Term.ArgClause => ac.values match {
@@ -133,7 +135,7 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
       lhs: Term,
       op: String,
       rhs: Tree,
-      lhsIsOK: => Option[Boolean] = None,
+      lhsIsOK: => MaybeBool = MaybeBool.Maybe,
   ): Boolean = InfixApp.isLeftAssoc(op) && cfg.matches(lhs.text, op) &&
     (rhs match {
       case ac @ Term.ArgClause(arg :: Nil, _) if !isWrapped(ac) =>
@@ -142,19 +144,15 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
     }) &&
     (lhs match {
       case lhs: Term.ApplyInfix if hasPlaceholder(lhs, includeArg = true) =>
-        lhsIsOK match {
-          case Some(x) => x
-          case None => isWrapped(lhs) ||
-            checkMatchingInfix(lhs.lhs, lhs.op.value, lhs.arg)
-        }
+        val ok = lhsIsOK
+        if (ok ne MaybeBool.Maybe) ok.asBoolean
+        else isWrapped(lhs) || checkMatchingInfix(lhs.lhs, lhs.op.value, lhs.arg)
       case lhs: Term.Match if hasPlaceholder(lhs, includeArg = true) =>
-        lhsIsOK match {
-          case Some(x) => x
-          case None if isWrapped(lhs) => true
-          case None => noDotMatch(lhs) match {
-              case None => false
-              case Some(op) => checkMatchingInfix(lhs.expr, op.text, null)
-            }
+        val ok = lhsIsOK
+        if (ok ne MaybeBool.Maybe) ok.asBoolean
+        else isWrapped(lhs) || {
+          val op = noDotMatch(lhs)
+          (op ne null) && checkMatchingInfix(lhs.expr, op.text, null)
         }
       case _ => true
     })
@@ -163,10 +161,9 @@ class AvoidInfix(implicit ctx: RewriteCtx) extends RewriteSession {
   private def isMatching(head: T, last: => T): Boolean = head.is[T.LeftParen] &&
     ctx.isMatching(head, last)
 
-  private def isWrapped(head: T, last: T, beforeHead: => Option[T]): Boolean =
-    isMatching(head, last) || beforeHead.exists(
-      isMatching(_, ctx.tokenTraverser.nextNonTrivialToken(last).orNull),
-    )
+  private def isWrapped(head: T, last: T, beforeHead: => T): Boolean =
+    isMatching(head, last) ||
+      beforeHead.nnHas(isMatching(_, ctx.tokenTraverser.nextNonTrivialToken(last)))
 
   private def isWrapped(head: T, last: T): Boolean =
     isWrapped(head, last, ctx.tokenTraverser.prevNonTrivialToken(head))
