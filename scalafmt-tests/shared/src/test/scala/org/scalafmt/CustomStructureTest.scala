@@ -4,9 +4,7 @@ import scala.meta._
 import scala.meta.internal.parsers.ScalametaParser
 import scala.meta.parsers.ParserOptions
 
-import munit.FunSuite
-
-class CustomStructureTest extends FunSuite {
+class CustomStructureTest extends SharedFunSuiteBase {
 
   private implicit val parserOptions: ParserOptions = ParserOptions.default
     .withCaptureComments(false)

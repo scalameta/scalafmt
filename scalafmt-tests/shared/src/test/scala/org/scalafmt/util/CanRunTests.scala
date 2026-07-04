@@ -1,12 +1,13 @@
-package org.scalafmt.util
+package org.scalafmt
+package util
 
 import org.scalafmt.Error
 
 import scala.meta.parsers.ParseException
 
-import munit.{FunSuite, Location}
+import munit.Location
 
-trait CanRunTests extends FunSuite with HasTests {
+trait CanRunTests extends SharedFunSuiteBase with HasTests {
   def runTest(run: DiffTest => Unit)(t: DiffTest): Unit = {
     implicit val loc: Location = t.loc
     val paddedName = f"${t.fullName}%-70s|"

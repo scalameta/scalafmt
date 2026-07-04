@@ -1,12 +1,12 @@
-package org.scalafmt.config
+package org.scalafmt
+package config
 
 import scala.meta.Dialect
 import scala.meta.dialects.Scala213
 
 import metaconfig.{ConfError, Configured}
-import munit.FunSuite
 
-class ConfigDialectOverrideTest extends FunSuite {
+class ConfigDialectOverrideTest extends SharedFunSuiteBase {
   private val generatedMap = DialectMacro.dialectMap
 
   test("throws on an non-existent setting") {

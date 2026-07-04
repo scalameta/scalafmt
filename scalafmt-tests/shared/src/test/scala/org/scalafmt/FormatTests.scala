@@ -8,12 +8,12 @@ import org.scalafmt.util._
 
 import scala.meta.parsers.ParseException
 
-import munit.FunSuite
 import munit.diff.Diff
 
 // TODO(olafur) property test: same solution without optimization or timeout.
 
-class FormatTests extends FunSuite with CanRunTests with FormatAssertions {
+class FormatTests
+    extends SharedFunSuiteBase with CanRunTests with FormatAssertions {
   import LoggerOps._
   lazy val onlyUnit = UnitTests.tests.exists(_.only.isDefined)
   lazy val onlyManual = !onlyUnit && ManualTests.tests.exists(_.only.isDefined)

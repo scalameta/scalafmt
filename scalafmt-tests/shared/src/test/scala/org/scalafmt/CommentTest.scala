@@ -2,9 +2,7 @@ package org.scalafmt
 
 import org.scalafmt.config.{Docstrings, ScalafmtConfig}
 
-import munit.FunSuite
-
-class CommentTest extends FunSuite {
+class CommentTest extends SharedFunSuiteBase {
 
   private val javadocStyle: ScalafmtConfig = ScalafmtConfig.default
     .copy(docstrings =

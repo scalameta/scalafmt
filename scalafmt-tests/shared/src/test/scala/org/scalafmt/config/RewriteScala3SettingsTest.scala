@@ -1,6 +1,7 @@
-package org.scalafmt.config
+package org.scalafmt
+package config
 
-class RewriteScala3SettingsTest extends munit.FunSuite {
+class RewriteScala3SettingsTest extends SharedFunSuiteBase {
 
   import RewriteScala3Settings.Between
 

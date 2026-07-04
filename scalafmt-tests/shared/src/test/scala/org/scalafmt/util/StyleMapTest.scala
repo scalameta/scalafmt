@@ -1,13 +1,12 @@
-package org.scalafmt.util
+package org.scalafmt
+package util
 
 import org.scalafmt.config.{BinPack, Newlines, ScalafmtConfig}
 import org.scalafmt.internal.FormatOps
 
 import scala.meta._
 
-import munit.FunSuite
-
-class StyleMapTest extends FunSuite {
+class StyleMapTest extends SharedFunSuiteBase {
   test("basic") {
     val code =
       """|object a {

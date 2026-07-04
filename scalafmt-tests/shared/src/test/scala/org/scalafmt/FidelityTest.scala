@@ -8,13 +8,11 @@ import org.scalafmt.util.FormatAssertions
 import java.io.File
 import java.nio.file.Path
 
-import munit.FunSuite
-
 /** Asserts formatter does not alter original source file's AST.
   *
   * Will maybe use scalacheck someday.
   */
-class FidelityTest extends FunSuite with FormatAssertions {
+class FidelityTest extends SharedFunSuiteBase with FormatAssertions {
 
   private val numFiles = 279
 

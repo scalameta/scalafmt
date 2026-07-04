@@ -3,9 +3,7 @@ package org.scalafmt
 import org.scalafmt.config.LineEndings._
 import org.scalafmt.config.ScalafmtConfig
 
-import munit.FunSuite
-
-class LineEndingsTest extends FunSuite {
+class LineEndingsTest extends SharedFunSuiteBase {
 
   test("code with windows line endings after formatting with line endings preserve setting should have the same endings") {
     val original = "@ Singleton\r\nobject a {\r\nval y = 2\r\n}"

@@ -6,9 +6,7 @@ import scala.meta.internal.prettyprinters.DoubleQuotes
 
 import java.lang.System.lineSeparator
 
-import munit.FunSuite
-
-class EmptyFileTest extends FunSuite {
+class EmptyFileTest extends SharedFunSuiteBase {
 
   private val cfgWithLineEndingsCRLF = ScalafmtConfig.default
     .withLineEndings(LineEndings.windows)
