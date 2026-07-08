@@ -10,8 +10,7 @@ import org.scalafmt.{Error, Formatted, Scalafmt}
 
 import scala.meta.internal.Scaladoc
 import scala.meta.internal.parsers.ScaladocParser
-import scala.meta.tokens.{Token => T}
-import scala.meta.{Token => _, _}
+import scala.meta.{Token => T, _}
 
 import java.nio.CharBuffer
 import java.util.regex.Pattern

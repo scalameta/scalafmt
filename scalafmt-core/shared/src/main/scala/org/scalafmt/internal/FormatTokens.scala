@@ -415,7 +415,7 @@ object FormatTokens {
     }
     tokens.foreachWithIndex(process)
 
-    val ftoks = new FormatTokens(result.result)
+    val ftoks = new FormatTokens(result.result())
     val styleMap = new StyleMap(ftoks, style)
 
     FormatTokensRewrite(ftoks, styleMap) -> styleMap
