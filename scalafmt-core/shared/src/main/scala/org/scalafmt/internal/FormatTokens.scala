@@ -350,6 +350,10 @@ class FormatTokens(leftTok2tok: FormatTokens.TokenToIndexMap)(val arr: Array[FT]
     offsetDiff(getHead(tree), getLast(tree))(f)
   def width(left: Int, right: Int): Int = offsetDiff(left, right)(_.width)
   def width(left: FT, right: FT): Int = width(left.idx, right.idx)
+  def width(tree: Tree): Int = {
+    val head = getRawHead(tree)
+    if (head eq null) 0 else width(head, apply(findLastVisibleToken(tree)))
+  }
   def span(left: Int, right: Int): Int = offsetDiff(left, right)(_.nonWs)
   def span(left: FT, right: FT): Int = span(left.idx, right.idx)
   def span(tree: Tree): Int = {

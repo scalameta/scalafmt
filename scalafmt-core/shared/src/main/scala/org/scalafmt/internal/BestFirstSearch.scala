@@ -44,12 +44,31 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       style: ScalafmtConfig,
   ): Int = TokenOps.getEndOfBlock(ft, parens = true) match {
     case (close, _) if (ft.leftOwner match {
-          case Term.Block(_ :: tail) if tail.nonEmpty =>
-            indent + tokens.width(ft, close) > style.maxColumn
-          // Block must span at least 3 lines to be worth recursing.
+          // A block is worth recursing on once it is wide enough to be its own
+          // subproblem: 3*maxColumn normally, but only maxColumn for a
+          // multi-stat block whose enclosing arg clause is itself very wide
+          // (> 3*maxColumn) -- the shape that combinatorially explodes BFS
+          // (`Seq({ s1; s2 }, { s1; s2 }, ...)` × N). Requiring own width >
+          // maxColumn keeps `shortestPathMemo` sound: it only does a lookup
+          // when isOpt, so the path must already have been computed.
+          case b @ Term.Block(_ :: tail) if tail.nonEmpty =>
+            val w = indent + tokens.width(ft, close)
+            w > style.maxColumn * 3 ||
+            w > style.maxColumn && isInWideMultiBlockArgClause(b)
           case _ => indent + tokens.width(ft, close) > style.maxColumn * 3
         }) => close.idx
     case _ => -1
+  }
+
+  private def isInWideMultiBlockArgClause(
+      b: Term.Block,
+  )(implicit style: ScalafmtConfig): Boolean = b.parent.exists {
+    case ac: Term.ArgClause => ac.values.lengthCompare(1) > 0 &&
+      tokens.width(ac) > style.maxColumn * 3 && ac.values.count {
+        case bb: Term.Block => bb.stats.lengthCompare(1) > 0
+        case _ => false
+      } > 1
+    case _ => false
   }
 
   // LongMap: primitive Long key, no boxing on get/update in the search recursion
