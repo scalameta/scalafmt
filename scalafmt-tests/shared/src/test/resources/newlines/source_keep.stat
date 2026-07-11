@@ -13982,3 +13982,18 @@ object X {
     },
   )
 }
+<<< block-recurse: narrow multi-stat block siblings stay un-recursed
+object X {
+  val xs = Seq({ val a = f(1); g(a) }, { val a = f(2); g(a) }, { val a = f(3); g(a) }, { val a = f(4); g(a) }, { val a = f(5); g(a) }, { val a = f(6); g(a) })
+}
+>>>
+object X {
+  val xs = Seq(
+    { val a = f(1); g(a) },
+    { val a = f(2); g(a) },
+    { val a = f(3); g(a) },
+    { val a = f(4); g(a) },
+    { val a = f(5); g(a) },
+    { val a = f(6); g(a) }
+  )
+}
