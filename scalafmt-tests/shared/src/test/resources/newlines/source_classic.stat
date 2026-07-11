@@ -14077,13 +14077,11 @@ object X {
 object X {
   def f = peekToken match {
     case _: LeftBrace =>
-      Some(
-        autoPos {
-          next()
-          if (PatternContext.isInside()) Term.SplicedMacroPat(autoPos(inBracesOnOpen(pattern())))
-          else Term.SplicedMacroExpr(autoPos(inBracesOnOpen(blockRaw())))
-        },
-      )
+      Some(autoPos {
+        next()
+        if (PatternContext.isInside()) Term.SplicedMacroPat(autoPos(inBracesOnOpen(pattern())))
+        else Term.SplicedMacroExpr(autoPos(inBracesOnOpen(blockRaw())))
+      })
   }
 }
 <<< block-recurse: Success(autoPos { .. }) with nested match
@@ -14110,17 +14108,15 @@ object X {
   def f = parseNew match {
     case _: KwNew =>
       canApply = false
-      Success(
-        autoPos {
-          next()
-          val tpl = TemplateOwnerContext.within(OwnedByTrait)(template())
-          tpl.inits match {
-            case init :: Nil if !prev[RightBrace] && tpl.earlyClause.isEmpty && tpl.body.isEmpty =>
-              Term.New(init)
-            case _ => Term.NewAnonymous(tpl)
-          }
-        },
-      )
+      Success(autoPos {
+        next()
+        val tpl = TemplateOwnerContext.within(OwnedByTrait)(template())
+        tpl.inits match {
+          case init :: Nil if !prev[RightBrace] && tpl.earlyClause.isEmpty && tpl.body.isEmpty =>
+            Term.New(init)
+          case _ => Term.NewAnonymous(tpl)
+        }
+      })
   }
 }
 <<< block-recurse: allCases += autoPos { .. }, block rhs of infix
