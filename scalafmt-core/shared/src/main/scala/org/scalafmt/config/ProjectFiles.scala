@@ -53,6 +53,13 @@ object ProjectFiles {
       new FileMatcher(
         nio(includePaths) ++ regex(pf.includeFilters),
         nio(pf.excludePaths) ++ regex(pf.excludeFilters ++ regexExclude),
+        // a `glob:.../X/**` exclude means every descendant of an `X` dir is
+        // excluded, so the whole subtree can be pruned during a recursive walk;
+        // key on the `glob:.../X` dir. (regex/non-`/**` excludes can't be safely
+        // reduced to a dir, so they stay per-file.)
+        nio(pf.excludePaths.collect {
+          case s if s.startsWith("glob:") && s.endsWith("/**") => s.dropRight(3)
+        }),
       )
     }
 
@@ -63,12 +70,20 @@ object ProjectFiles {
 
   }
 
-  class FileMatcher(include: Seq[PathMatcher], exclude: Seq[PathMatcher]) {
+  class FileMatcher(
+      include: Seq[PathMatcher],
+      exclude: Seq[PathMatcher],
+      excludeDirs: Seq[PathMatcher] = Nil,
+  ) {
     def matchesPath(path: file.Path): Boolean = include
       .exists(_.matches(path)) && !exclude.exists(_.matches(path))
     def matches(filename: String): Boolean =
       matchesPath(FileOps.getPath(filename))
     def matchesFile(file: AbsoluteFile): Boolean = matchesPath(file.path)
+
+    /** a directory whose every descendant is excluded (safe to prune) */
+    def excludesDir(path: file.Path): Boolean = excludeDirs
+      .exists(_.matches(path))
   }
 
   case class FileInfo(lang: String, isTest: Boolean)

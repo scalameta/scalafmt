@@ -35,12 +35,13 @@ trait ScalafmtRunner {
   protected def getInputMethods(
       options: CliOptions,
       filter: Path => Boolean,
+      skipDir: Path => Boolean = _ => false,
   ): Seq[InputMethod] =
     if (options.stdIn)
       Seq(InputMethod.StdinCode(options.assumeFilename, options.common.in))
     else {
       val projectFiles: Seq[AbsoluteFile] =
-        getFilesFromCliOptions(options, filter)
+        getFilesFromCliOptions(options, filter, skipDir)
       if (projectFiles.isEmpty && options.mode.isEmpty)
         throw Error.NoMatchingFiles
       options.common.debug
@@ -52,12 +53,13 @@ trait ScalafmtRunner {
   private[this] def getFilesFromCliOptions(
       options: CliOptions,
       canFormat: Path => Boolean,
+      skipDir: Path => Boolean,
   ): Seq[AbsoluteFile] = {
     val gitOps = options.gitOps
     val finder = options.fileFetchMode match {
       case GitFiles => new BatchPathFinder.GitFiles(gitOps)(canFormat)
       case RecursiveSearch =>
-        new BatchPathFinder.DirFiles(options.cwd)(canFormat)
+        new BatchPathFinder.DirFiles(options.cwd)(canFormat, skipDir)
       case DiffFiles(branch) =>
         new BatchPathFinder.GitBranchFiles(gitOps, branch)(canFormat)
       case ChangedFiles => new BatchPathFinder.GitDirtyFiles(gitOps)(canFormat)

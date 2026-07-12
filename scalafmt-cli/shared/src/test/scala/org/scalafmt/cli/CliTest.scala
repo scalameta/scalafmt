@@ -957,6 +957,43 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     noArgTest(input, expected, Seq(Array.empty[String], Array("--mode", "diff")))
   }
 
+  test(s"scalafmt excludePaths glob prunes the excluded subtree") {
+    // a `.../X/**` glob lets recursive discovery skip the whole `X` subtree;
+    // the resulting file set must match the per-file exclude (target untouched)
+    val input = string2dir {
+      s"""|/foo.scala
+          |object    FormatMe {
+          |  val x = 1
+          |}
+          |
+          |/target/foo.scala
+          |object A   { }
+          |
+          |/.scalafmt.conf
+          |version = $stableVersion
+          |maxColumn = 2
+          |project { excludePaths = ["glob:**/target/**"] }
+          |""".stripMargin
+    }
+
+    val expected =
+      s"""|/.scalafmt.conf
+          |version = $stableVersion
+          |maxColumn = 2
+          |project { excludePaths = ["glob:**/target/**"] }
+          |
+          |/foo.scala
+          |object FormatMe {
+          |  val x =
+          |    1
+          |}
+          |
+          |/target/foo.scala
+          |object A   { }
+          |""".stripMargin
+    noArgTest(input, expected, Seq(Array.empty[String], Array("--mode", "diff")))
+  }
+
   test(s"scalafmt: includeFilters overrides default includePaths") {
     val input = string2dir {
       s"""|/bar.scala
