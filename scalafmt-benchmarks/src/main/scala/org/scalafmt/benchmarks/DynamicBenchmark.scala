@@ -1,9 +1,10 @@
 package org.scalafmt.benchmarks
 
-import org.scalafmt.{Scalafmt => CoreScalafmt}
 import org.scalafmt.config.ScalafmtConfig
-import org.scalafmt.interfaces.{Scalafmt => IScalafmt}
-import org.scalafmt.interfaces.{ScalafmtSession, ScalafmtSessionFactory}
+import org.scalafmt.interfaces.{
+  Scalafmt => IScalafmt, ScalafmtSession, ScalafmtSessionFactory,
+}
+import org.scalafmt.{Scalafmt => CoreScalafmt}
 
 import java.nio.file.{Files, Path, Paths}
 import java.util.concurrent.TimeUnit
@@ -15,14 +16,14 @@ import org.openjdk.jmh.annotations._
   * CLI resolves+classloads that version instead of formatting in-process.
   *
   * The CLI creates ONE dynamic instance + ONE session per run and reuses it, so
-  * the interesting cost is the fixed per-invocation startup:
-  * coursier class-load + (disk-cached) resolution + `URLClassLoader` +
-  * reflection setup. That's measured cold, in fresh forks (each fork = a fresh
-  * process, like a real `scalafmt` invocation), against cold in-process core as
-  * the baseline; the delta is the dynamic tax.
+  * the interesting cost is the fixed per-invocation startup: coursier
+  * class-load + (disk-cached) resolution + `URLClassLoader` + reflection setup.
+  * That's measured cold, in fresh forks (each fork = a fresh process, like a
+  * real `scalafmt` invocation), against cold in-process core as the baseline;
+  * the delta is the dynamic tax.
   *
-  * Pins 3.10.6 (must be in the coursier cache; it is if you've formatted scala-js
-  * — otherwise the first fork pays a one-time network download).
+  * Pins 3.10.6 (must be in the coursier cache; it is if you've formatted
+  * scala-js — otherwise the first fork pays a one-time network download).
   */
 object DynamicBenchmark {
   // small but structured, so formatting does real work yet stays fast
@@ -57,18 +58,17 @@ class DynamicBenchmark {
     * + reflect + one format. This is what a fresh `scalafmt` process pays.
     */
   @Benchmark
-  def coldDynamic(): String =
-    IScalafmt.create(getClass.getClassLoader).format(config, file, code)
+  def coldDynamic(): String = IScalafmt.create(getClass.getClassLoader)
+    .format(config, file, code)
 
   /** Baseline: cold in-process core format of the same snippet (no dynamic). */
   @Benchmark
-  def coldCore(): String =
-    CoreScalafmt.format(code, ScalafmtConfig.default).get
+  def coldCore(): String = CoreScalafmt.format(code, ScalafmtConfig.default).get
 }
 
-/** Warm per-format overhead: with the session reused (as the CLI does), how much
-  * does a dynamic (reflection + cross-classloader) format add over a direct core
-  * format of the same input. Expected: tiny.
+/** Warm per-format overhead: with the session reused (as the CLI does), how
+  * much does a dynamic (reflection + cross-classloader) format add over a
+  * direct core format of the same input. Expected: tiny.
   */
 @org.openjdk.jmh.annotations.State(Scope.Benchmark)
 @Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)

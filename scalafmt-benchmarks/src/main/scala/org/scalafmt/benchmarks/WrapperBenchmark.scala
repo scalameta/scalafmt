@@ -2,22 +2,23 @@
 // private[cli]) and reuse the real getInputMethods/runInputs.
 package org.scalafmt.cli
 
-import org.scalafmt.{Formatted, Scalafmt => CoreScalafmt, Versions}
 import org.scalafmt.config.{ProjectFiles, ScalafmtConfig}
 import org.scalafmt.sysops.{AbsoluteFile, PlatformFileOps, PlatformRunOps}
+import org.scalafmt.{Formatted, Scalafmt => CoreScalafmt, Versions}
 
-import scala.meta.{Dialect, Source, dialects, XtensionParseInputLike}
+import scala.meta.{Dialect, Source, XtensionParseInputLike, dialects}
 
-import java.nio.file.{Files, Path, Paths}
 import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.{Files, Path, Paths}
 import java.util.concurrent.{Callable, ExecutorService, Executors, TimeUnit}
 
 import scala.collection.mutable
-import scala.concurrent.{Await, ExecutionContextExecutorService, Future}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContextExecutorService, Future}
+
+import org.openjdk.jmh.annotations._
 
 import metaconfig.Configured
-import org.openjdk.jmh.annotations._
 
 /** Benchmarks the CLI work AROUND formatting: file discovery, reading, writing,
   * and the `runInputs` orchestration (futures + thread pools). The formatter
@@ -30,8 +31,8 @@ import org.openjdk.jmh.annotations._
   *   - `write` — write every file's cached content to a temp dir (write I/O)
   *   - `pipeline` — the real `runInputs` with an identity formatter: read +
   *     orchestration + change-compare (write is skipped since nothing changes,
-  *     i.e. the common "already-formatted" steady state). `pipeline - read`
-  *     is the orchestration overhead.
+  *     i.e. the common "already-formatted" steady state). `pipeline - read` is
+  *     the orchestration overhead.
   *
   * Read-only w.r.t. the corpus (writes target a temp dir). Corpus defaults to
   * this repo's `scalafmt-core` sources; point at a real repo with
@@ -72,7 +73,7 @@ class WrapperBenchmark extends ScalafmtRunner {
   private var options: CliOptions = _
   private var cfg: ScalafmtConfig = _
   private implicit var dialect: Dialect = _
-  private var matcher: Path => Boolean = _
+  private var matcher: ProjectFiles.FileMatcher = _
   private var inputs: Seq[InputMethod] = _
   private var contents: Seq[(Path, String)] = _ // for the write bench
   private var writeDir: Path = _
@@ -86,7 +87,8 @@ class WrapperBenchmark extends ScalafmtRunner {
     // recursive mode: walk the tree; exclude generated/vcs via filters.
     val projectLine =
       if (isGit) "project.git = true"
-      else """project.excludeFilters = ["/target/", "/\\.git/"]"""
+      // glob `/**` excludes so recursive discovery can prune the subtrees
+      else """project.excludePaths = ["glob:**/target/**", "glob:**/.git/**"]"""
     val sourceLine =
       if (style == "classic") "" else s"newlines.source = $style\n"
     val conf = Files.createTempFile("scalafmt-wrapper", ".scalafmt.conf")
@@ -121,7 +123,6 @@ class WrapperBenchmark extends ScalafmtRunner {
     }
     dialect = dialects.Scala213
     matcher = ProjectFiles.FileMatcher(cfg.project, options.customExcludes)
-      .matchesPath
     // Cap count and per-file size: real trees have a few 100+KB files whose
     // cold best-first search dwarfs everything and prevents jmh from warming
     // up. maxBytes keeps the set to typical files; discover/read/write are
@@ -130,7 +131,7 @@ class WrapperBenchmark extends ScalafmtRunner {
       .getOrElse(Int.MaxValue)
     val maxBytes = sys.props.get("scalafmt.bench.maxBytes").map(_.toLong)
       .getOrElse(Long.MaxValue)
-    inputs = getInputMethods(options, matcher)
+    inputs = getInputMethods(options, matcher.matchesPath, matcher.excludesDir)
       .filter(im => Files.size(im.path) <= maxBytes).take(maxFiles)
     require(inputs.nonEmpty, s"no files under $corpus")
 
@@ -157,7 +158,12 @@ class WrapperBenchmark extends ScalafmtRunner {
   }
 
   @Benchmark
-  def discover(): Int = getInputMethods(options, matcher).size
+  def discover(): Int = // unpruned: walk whole tree, filter per file (old path)
+    getInputMethods(options, matcher.matchesPath).size
+
+  @Benchmark
+  def discoverPruned(): Int = // prune fully-excluded subtrees during the walk
+    getInputMethods(options, matcher.matchesPath, matcher.excludesDir).size
 
   @Benchmark
   def read(): Int = Await.result(
@@ -182,7 +188,8 @@ class WrapperBenchmark extends ScalafmtRunner {
     Duration.Inf,
   )
 
-  /** wrapper + scalameta parse (no format). `pipelineParse - pipeline` = parse */
+  /** wrapper + scalameta parse (no format). `pipelineParse - pipeline` = parse
+    */
   @Benchmark
   def pipelineParse(): ExitCode = Await.result(
     runInputs(options, inputs, "bench") { case (code, _) =>
@@ -194,7 +201,8 @@ class WrapperBenchmark extends ScalafmtRunner {
   /** wrapper + parse + real format. Returns Right(code) (original) so write &
     * the O(n·m) --test unified diff are skipped — matching the raw-pool
     * baselines, which discard the formatted result. `pipelineFormatDiff` adds
-    * the diff back. */
+    * the diff back.
+    */
   @Benchmark
   def pipelineFormat(): ExitCode = Await.result(
     runInputs(options, inputs, "bench") { case (code, path) =>
@@ -205,7 +213,8 @@ class WrapperBenchmark extends ScalafmtRunner {
   )
 
   /** as pipelineFormat but returns the formatted code, so --test computes a
-    * unified diff per changed file. pipelineFormatDiff - pipelineFormat = diff */
+    * unified diff per changed file. pipelineFormatDiff - pipelineFormat = diff
+    */
   @Benchmark
   def pipelineFormatDiff(): ExitCode = Await.result(
     runInputs(options, inputs, "bench") { case (code, path) =>
@@ -224,7 +233,8 @@ class WrapperBenchmark extends ScalafmtRunner {
   }
 
   /** format pre-read contents on ONE thread — baseline for formatContentsPar,
-    * with no read I/O or runInputs in the way. */
+    * with no read I/O or runInputs in the way.
+    */
   @Benchmark
   def formatContentsSeq(): Int = {
     contents.foreach { case (p, c) => fmt(p, c) }
@@ -233,12 +243,15 @@ class WrapperBenchmark extends ScalafmtRunner {
 
   /** format the same pre-read contents on a raw 10-thread pool. If this hits
     * ~Ncores while runInputs' pipeline doesn't, the CLI orchestration is the
-    * bottleneck; if this is ALSO ~1×, Scalafmt.formatCode serializes internally.
+    * bottleneck; if this is ALSO ~1×, Scalafmt.formatCode serializes
+    * internally.
     */
   @Benchmark
   def formatContentsPar(): Int = {
     val futs = contents.map { case (p, c) =>
-      parPool.submit(new Callable[Unit] { def call(): Unit = fmt(p, c) })
+      parPool.submit(new Callable[Unit] {
+        def call(): Unit = fmt(p, c)
+      })
     }
     futs.foreach(_.get())
     contents.size
@@ -251,12 +264,12 @@ class WrapperBenchmark extends ScalafmtRunner {
     */
   @Benchmark
   def readFormatContentsPar(): Int = {
-    val futs = inputs.map { im =>
+    val futs = inputs.map(im =>
       parPool.submit(new Callable[Unit] {
         def call(): Unit =
           fmt(im.path, Await.result(im.readInput(options), Duration.Inf))
-      })
-    }
+      }),
+    )
     futs.foreach(_.get())
     inputs.size
   }
@@ -301,11 +314,10 @@ object WrapperBenchmark {
   private def resolveCorpus(): Path = {
     val prop = sys.props.get("scalafmt.bench.corpus").filter(_.nonEmpty)
     val rel = Seq("scalafmt-core", "shared", "src", "main", "scala")
-    val candidates = prop.map(Paths.get(_)).toSeq ++ Seq(
-      Paths.get(rel.head, rel.tail: _*),
-      Paths.get("..", rel: _*),
-    )
+    val candidates = prop.map(Paths.get(_)).toSeq ++
+      Seq(Paths.get(rel.head, rel.tail: _*), Paths.get("..", rel: _*))
     candidates.find(Files.isDirectory(_))
-      .getOrElse(sys.error(s"corpus not found; tried ${candidates.mkString(", ")}"))
+      .getOrElse(sys.error(s"corpus not found; tried ${candidates
+          .mkString(", ")}"))
   }
 }
