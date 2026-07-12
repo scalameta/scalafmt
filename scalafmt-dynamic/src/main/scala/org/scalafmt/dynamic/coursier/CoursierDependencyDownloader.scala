@@ -16,15 +16,19 @@ class CoursierDependencyDownloader(customRepositories: Seq[MavenRepository])
       scalafmtVersion: String,
       reporter: ScalafmtReporter,
       dependencies: jl.Iterable[RepositoryPackage],
-  ): jl.Iterable[File] = {
-    val downloadProgressWriter = reporter.downloadOutputStreamWriter()
-    val fileCache = cache.FileCache() // this ctor preserves COURSIER_CREDENTIALS
-      .withLogger(cache.loggers.RefreshLogger.create(downloadProgressWriter))
-    Fetch(fileCache).addDependencies(dependencies.asScala.map { dep =>
-      val mod = Module(Organization(dep.group), ModuleName(dep.artifact))
-      Dependency(mod, dep.version)
-    }.toSeq: _*).addRepositories(repositories: _*).run().asJava
-  }
+  ): jl.Iterable[File] = ClasspathCache
+    .get(scalafmtVersion, scalaVersion, repositories).getOrElse {
+      val downloadProgressWriter = reporter.downloadOutputStreamWriter()
+      val files = Fetch(
+        cache.FileCache() // this ctor preserves COURSIER_CREDENTIALS
+          .withLogger(cache.loggers.RefreshLogger.create(downloadProgressWriter)),
+      ).addDependencies(dependencies.asScala.map { dep =>
+        val mod = Module(Organization(dep.group), ModuleName(dep.artifact))
+        Dependency(mod, dep.version)
+      }.toSeq: _*).addRepositories(repositories: _*).run()
+      ClasspathCache.put(scalafmtVersion, scalaVersion, repositories, files)
+      files
+    }.asJava
 
   private def repositories = customRepositories ++
     CoursierDependencyDownloader.extraRepositories
