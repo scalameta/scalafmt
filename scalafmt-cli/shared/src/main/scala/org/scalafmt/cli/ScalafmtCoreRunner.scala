@@ -32,7 +32,11 @@ object ScalafmtCoreRunner extends ScalafmtRunner {
   private def runWithFilterMatcher(options: CliOptions, displayMsg: String)(
       filterMatcher: ProjectFiles.FileMatcher,
   )(implicit scalafmtConf: ScalafmtConfig): Future[ExitCode] = {
-    val inputMethods = getInputMethods(options, filterMatcher.matchesPath)
+    val inputMethods = getInputMethods(
+      options,
+      filterMatcher.matchesPath,
+      filterMatcher.excludesDir,
+    )
     if (inputMethods.isEmpty) ExitCode.Ok.future
     else {
       val adjustedScalafmtConf = {

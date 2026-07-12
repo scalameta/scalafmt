@@ -31,13 +31,22 @@ trait BatchPathFinder {
 
 object BatchPathFinder {
 
-  final class DirFiles(val cwd: AbsoluteFile)(val matches: Path => Boolean)
-      extends BatchPathFinder {
-    private def filter(path: Path, attrs: FileStat): Boolean =
-      attrs.isRegularFile && matches(path)
+  final class DirFiles(val cwd: AbsoluteFile)(
+      val matches: Path => Boolean,
+      skipDir: Path => Boolean = _ => false,
+  ) extends BatchPathFinder {
+    // prune fully-excluded subtrees during the walk instead of visiting and
+    // filtering every file under them
+    private val visitor = new FileOps.WalkVisitor {
+      override def onTree(dir: Path, attrs: FileStat): FileOps.WalkVisit =
+        if (skipDir(dir)) FileOps.WalkVisit.Skip else FileOps.WalkVisit.Good
+      override def onFile(file: Path, attrs: FileStat): FileOps.WalkVisit =
+        if (attrs.isRegularFile && matches(file)) FileOps.WalkVisit.Good
+        else FileOps.WalkVisit.Skip
+    }
     override def findFiles(dir: AbsoluteFile*): Seq[AbsoluteFile] = {
       val dirs = if (dir.isEmpty) Seq(cwd.path) else dir.map(_.path)
-      dirs.flatMap(FileOps.listFiles(filter)).map(new AbsoluteFile(_))
+      dirs.flatMap(FileOps.walkFiles(visitor)).map(new AbsoluteFile(_))
     }
   }
 
