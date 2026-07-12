@@ -14,7 +14,7 @@ import java.nio.file.Path
   */
 class FidelityTest extends SharedFunSuiteBase with FormatAssertions {
 
-  private val numFiles = 281
+  private val numFiles = 282
 
   private val denyList = Set(
     "ConfigReader.scala",
