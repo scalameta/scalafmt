@@ -330,7 +330,7 @@ lazy val benchmarks = project.in(file("scalafmt-benchmarks")).settings(
     "-Xms512M",
     "-Xmx2G",
   ),
-).dependsOn(coreJVM).enablePlugins(JmhPlugin)
+).dependsOn(coreJVM, cli.jvm).enablePlugins(JmhPlugin)
 
 lazy val docs = project.in(file("scalafmt-docs")).settings(
   crossScalaVersions := List(scala212),
