@@ -43,6 +43,17 @@ trait GitOps {
   def lsTree(dir: AbsoluteFile*): Seq[AbsoluteFile]
   def rootDir: Option[AbsoluteFile]
   def getAutoCRLF: Option[String]
+
+  /** the current branch's configured upstream (e.g. `origin/main`), if set;
+    * git's only reliable record of a base — no remote/branch-name guessing
+    */
+  def upstreamBranch: Option[String]
+
+  /** the fork point: the commit HEAD and `ref` diverged from */
+  def mergeBase(ref: String): Option[String]
+
+  /** whether `file` differs between `ref` and the work tree */
+  def changedSince(ref: String, file: AbsoluteFile): Boolean
 }
 
 private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
@@ -90,6 +101,19 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
   override def getAutoCRLF: Option[String] =
     tryExec("config", "--get", "core.autocrlf").toOption.flatMap(_.headOption)
+
+  private def firstLine(t: Try[Seq[String]]): Option[String] = t.toOption
+    .flatMap(_.headOption).map(_.trim).filter(_.nonEmpty)
+
+  override def upstreamBranch: Option[String] =
+    // git's own tracking record; fails (-> None) if no upstream is configured
+    firstLine(tryExec("rev-parse", "--abbrev-ref", "@{upstream}"))
+
+  override def mergeBase(ref: String): Option[String] =
+    firstLine(tryExec("merge-base", "HEAD", ref))
+
+  override def changedSince(ref: String, file: AbsoluteFile): Boolean =
+    firstLine(tryExec("diff", "--name-only", ref, "--", file)).isDefined
 
   private final val renameStatusCode = "R"
   private final val renameStatusArrowDelimiter = "-> "

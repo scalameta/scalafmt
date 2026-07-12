@@ -62,6 +62,12 @@ trait ScalafmtRunner {
         new BatchPathFinder.DirFiles(options.cwd)(canFormat, skipDir)
       case DiffFiles(branch) =>
         new BatchPathFinder.GitBranchFiles(gitOps, branch)(canFormat)
+      case DiffBase(refOpt) => diffBaseRef(options, gitOps, refOpt) match {
+          case Some(base) =>
+            new BatchPathFinder.GitBranchFiles(gitOps, base)(canFormat)
+          case None => // unresolvable base or config changed: format all tracked
+            new BatchPathFinder.GitFiles(gitOps)(canFormat)
+        }
       case ChangedFiles => new BatchPathFinder.GitDirtyFiles(gitOps)(canFormat)
     }
     val files = finder.findMatchingFiles(
@@ -71,6 +77,24 @@ trait ScalafmtRunner {
     val excludeRegexp = options.excludeFilterRegexp.pattern
     files.filter(f => !excludeRegexp.matcher(f.toString()).find())
   }
+
+  /** The fork-point to diff against for [[DiffBase]], or None to signal "format
+    * all tracked files" — when the base can't be resolved, or the scalafmt
+    * config changed since the fork (a config change can reformat anything).
+    */
+  private[this] def diffBaseRef(
+      options: CliOptions,
+      gitOps: GitOps,
+      refOpt: Option[String],
+  ): Option[String] = refOpt.orElse(gitOps.upstreamBranch)
+    .flatMap(gitOps.mergeBase).filter { base =>
+      val configFile = options.canonicalConfigFile.flatMap(_.toOption)
+      val configChanged = configFile
+        .exists(p => gitOps.changedSince(base, AbsoluteFile(p)))
+      if (configChanged) options.common.debug
+        .println("scalafmt config changed since fork; formatting all files")
+      !configChanged
+    }
 
   protected def runInputs(
       options: CliOptions,

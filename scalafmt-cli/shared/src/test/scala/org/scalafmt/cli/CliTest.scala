@@ -994,6 +994,63 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     noArgTest(input, expected, Seq(Array.empty[String], Array("--mode", "diff")))
   }
 
+  // git double: HEAD forked from "origin/main" at "BASE"; `changed` are the
+  // files git reports changed since BASE; `configChanged` toggles the guard.
+  private def diffBaseOptions(
+      root: AbsoluteFile,
+      changed: Seq[String],
+      configChanged: Boolean,
+  ): CliOptions = baseCliOptions.copy(
+    gitOpsConstructor = _ =>
+      new FakeGitOps(root) {
+        override def upstreamBranch: Option[String] = Some("origin/main")
+        override def mergeBase(ref: String): Option[String] = Some("BASE")
+        override def diff(b: String, dir: AbsoluteFile*): Seq[AbsoluteFile] =
+          changed.map(root / _)
+        override def changedSince(ref: String, f: AbsoluteFile): Boolean =
+          configChanged
+        // git ls-files with no dir args lists all tracked files (the fallback
+        // when the config changed); the base fake returns empty for empty args
+        override def lsTree(dir: AbsoluteFile*): Seq[AbsoluteFile] =
+          root.listFiles
+      },
+    common = baseCliOptions.common.copy(cwd = Some(root)),
+  )
+
+  private val diffBaseInput =
+    s"""|/a.scala
+        |object A{val x=1}
+        |/b.scala
+        |object B{val y=2}
+        |/.scalafmt.conf
+        |version = $stableVersion
+        |""".stripMargin
+
+  test("--mode diff-base formats only files changed since the fork") {
+    val input = string2dir(diffBaseInput)
+    val options = diffBaseOptions(input, Seq("a.scala"), configChanged = false)
+    Cli.run(Cli.getConfig(options, "--mode", "diff-base").get).map { _ =>
+      val res = dir2string(input)
+      assertContains(res, "object A { val x = 1 }") // changed -> formatted
+      assertContains(res, "object B{val y=2}") // not changed -> untouched
+    }
+  }
+
+  test("--mode diff-base formats all files when the config changed") {
+    val input = string2dir(diffBaseInput)
+    val options = diffBaseOptions(input, Seq("a.scala"), configChanged = true)
+    Cli.run(Cli.getConfig(options, "--mode", "diff-base").get).map { _ =>
+      val res = dir2string(input)
+      assertContains(res, "object A { val x = 1 }")
+      assertContains(res, "object B { val y = 2 }") // guard -> all formatted
+    }
+  }
+
+  test("--mode diff-base=<ref> parses")(assertEquals(
+    getConfig("--mode", "diff-base=origin/dev").mode,
+    Option(DiffBase(Some("origin/dev"))),
+  ))
+
   test(s"scalafmt: includeFilters overrides default includePaths") {
     val input = string2dir {
       s"""|/bar.scala
