@@ -20,13 +20,14 @@ trait ScalafmtRunner {
       msg: String,
   ): Option[TermDisplay] = {
     val numInputs = inputMethods.length
-    if (options.writeMode != WriteMode.Stdout && numInputs > 5) {
-      val termDisplay = new TermDisplay(
-        options.common.info.printWriter,
-        msg,
-        numInputs,
-        fallbackMode = options.nonInteractive || TermDisplay.defaultFallbackMode,
-      )
+    val useProgressBar = (options.progressBarMode ne ProgressBarMode.Silent) &&
+      options.writeMode != WriteMode.Stdout && numInputs > 5
+    if (useProgressBar) {
+      val pw = options.common.info.printWriter
+      val fallback = (options.progressBarMode eq ProgressBarMode.Append) ||
+        TermDisplay.defaultFallbackMode
+      val termDisplay =
+        new TermDisplay(pw, msg, numInputs, fallbackMode = fallback)
       termDisplay.start()
       Some(termDisplay)
     } else None
