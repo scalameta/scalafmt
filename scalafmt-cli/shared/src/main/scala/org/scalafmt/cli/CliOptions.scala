@@ -28,10 +28,10 @@ object CliOptions extends CliOptionsUtils {
     * directly from main.
     */
   def auto(parsed: CliOptions): CliOptions = {
+    val usesOut = parsed.stdIn || parsed.writeMode.usesOut
     val info: Output.StreamOrWriter =
       if (parsed.quiet) Output.NoopStream
       else {
-        val usesOut = parsed.stdIn || parsed.writeMode.usesOut
         val consWriterOpt = if (usesOut) getConsoleWriter() else None
         consWriterOpt match {
           case Some(writer) => new Output.FromWriter(writer)
@@ -42,7 +42,9 @@ object CliOptions extends CliOptionsUtils {
         }
       }
     val common = parsed.common.copy(
-      out = guardPrintStream(parsed.quiet && !parsed.stdIn)(parsed.common.out),
+      // --quiet silences progress/diagnostics, not the requested result:
+      // modes whose stdout IS the answer (--list, --stdout, stdin) keep it
+      out = guardPrintStream(parsed.quiet && !usesOut)(parsed.common.out),
       info = info,
       debug = (if (parsed.debug) info else Output.NoopStream).printWriter,
       err = guardPrintStream(parsed.quiet)(parsed.common.err),
