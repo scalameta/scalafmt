@@ -122,7 +122,7 @@ object CliArgParser {
         println(buildInfo); PlatformRunOps.exit(0)
       }.text("prints build information")
       opt[Unit]("quiet").action((_, c) => c.copy(quiet = true))
-        .text("don't print out stuff to console.")
+        .text("suppress progress and diagnostics (but not requested output).")
       opt[Unit]("debug").action((_, c) => c.copy(debug = true))
         .text("print out diagnostics to console.")
       opt[Unit]("no-progress-bar")

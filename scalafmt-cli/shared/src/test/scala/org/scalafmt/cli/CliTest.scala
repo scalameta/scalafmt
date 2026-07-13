@@ -1390,6 +1390,30 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     )
   }
 
+  test("--quiet keeps the --list output on stdout") {
+    val input =
+      s"""|/.scalafmt.conf
+          |version = "$stableVersion"
+          |
+          |/bar.scala
+          |object    A { }
+          |""".stripMargin
+    val dir = string2dir(input)
+    def listOut(extra: String*): Future[String] = {
+      val out = new ByteArrayOutputStream()
+      val init = getMockOptions(dir, dir, new PrintStream(out))
+      val config = Cli.getConfig(init, ("--list" +: extra): _*).get
+      run(config, ExitCode.TestError).map(_ => CliTest.stripCR(out.toString))
+    }
+    for {
+      plain <- listOut()
+      quiet <- listOut("--quiet")
+    } yield {
+      assertContains(plain, "bar.scala")
+      assertContains(quiet, "bar.scala") // was silenced before the relaxation
+    }
+  }
+
 }
 
 object CliTest {
