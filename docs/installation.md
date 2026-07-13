@@ -147,6 +147,14 @@ version = @STABLE_VERSION@
 - `scalafmtOnly <file>...`: Format specified files listed.
 - `scalafmtAll` or `scalafmtCheckAll`: Execute the `scalafmt` or `scalafmtCheck`
   task for all configurations in which it is enabled (since v2.0.0-RC5)
+- [since v2.6.2] `myproject/scalafmtRepo` or `myproject/scalafmtCheckRepo`:
+  Format (or check) every file under the project's base directory the way the
+  scalafmt CLI would — git-tracked files when `project.git = true`, otherwise a
+  filesystem walk (skipping `target` and hidden directories) — rather than only
+  sbt's configured source directories. Use this when files live outside the
+  standard source layout (e.g. `scripts/`) and the per-configuration tasks miss
+  them. Run at the build root to cover the whole build; uses that project's
+  `scalafmtConfig`.
 
 ### Settings
 
@@ -157,6 +165,16 @@ version = @STABLE_VERSION@
   - ⚠️ This option is **discouraged** since it messes up undo buffers in the
     editor and it slows down compilation. It is recommended to use "format on
     save" in the editor instead.
+- [since v2.6.2] `scalafmtSbtOnLoad: String` (default `"off"`): process `*.sbt`
+  and `project/*.scala` files on every sbt `(re)load` — the point at which
+  build files are recompiled — so they stay formatted without a separate
+  `scalafmtSbt` step:
+  - `"off"`: do nothing (default)
+  - `"run"`: format them (runs `scalafmtSbt`); if a reformat occurs, sbt
+    reloads once more, converging
+  - `"warn"`: check them (runs `scalafmtSbtCheck`) and log a warning if any
+    need formatting, without failing the load
+  - set it build-wide, e.g. `ThisBuild / scalafmtSbtOnLoad := "run"`
 - [since v2.4.5] `scalafmtFilter: String` (default `""`): optionally limits the
   set of files considered for formatting:
   - `diff-dirty`: only the files modified in the git working tree (`git status`)
@@ -172,6 +190,11 @@ version = @STABLE_VERSION@
   - depending on `scalafmtLogOnEachError`, fail on the first error or only at the end
 - [since v2.4.6] `scalafmtPrintDiff: Boolean`: if set, `check` will display the
   differences for incorrectly formatted files
+- [since v2.6.2] `scalafmtParallelism: Int` (default `1`): maximum number of
+  threads used to format files within a single task (i.e. for one
+  project/configuration). The default `1` formats sequentially, as before;
+  higher values format that task's files concurrently. See
+  [Parallelism](#parallelism) below.
 
 ### Enable IntegrationTest
 
@@ -213,15 +236,45 @@ object MyScalafmtPlugin extends AutoPlugin {
 include ".scalafmt-common.conf"
 ```
 
-### Limit parallelism
+### Parallelism
 
-You can limit formatting parallelism for projects with multiple subprojects in your `build.sbt`:
+Scalafmt formatting happens at two levels, controlled independently.
+
+#### Across tasks (subprojects/configurations)
+
+sbt runs the `scalafmt`/`scalafmtCheck` tasks of different projects and
+configurations in parallel. Each such task is tagged with `Tags.CPU` (so sbt
+won't run more of them at once than there are CPUs) and with a dedicated
+`scalafmt` tag. You can further cap how many run simultaneously in your
+`build.sbt`:
 
 ```scala
 import org.scalafmt.sbt.ConcurrentRestrictionTags
 
 Global / concurrentRestrictions += Tags.limit(org.scalafmt.sbt.ConcurrentRestrictionTags.Scalafmt, 4)
 ```
+
+#### Within a task (across files)
+
+[since v2.6.2] By default a single task formats its files one at a time on one
+thread. Set `scalafmtParallelism` above `1` to format that task's files
+concurrently on a bounded thread pool:
+
+```scala
+Global / scalafmtParallelism := 4     // or scope it per project/configuration
+```
+
+This helps most when one task has many files — a large single-module project,
+or `scalafmtCheck` in CI on a clean checkout (where the incremental cache is
+empty and every file is processed).
+
+Note that a task still counts as a single `Tags.CPU` to sbt's scheduler while
+using up to `scalafmtParallelism` threads, so on a build that already saturates
+all cores across many subprojects a high value can oversubscribe; that is why
+the default is `1`. Also, with `scalafmtParallelism > 1` and the default
+`scalafmtFailOnErrors = true`, a task that hits an unparseable file writes none
+of its files (the error is raised before any are written), rather than writing
+the files preceding the failure.
 
 ## CLI
 
