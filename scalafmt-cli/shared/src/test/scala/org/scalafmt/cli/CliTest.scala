@@ -1378,6 +1378,18 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
     }
   }
 
+  test("progress bar mode flags") {
+    assertEquals(getConfig().progressBarMode, ProgressBarMode.Overlay)
+    assertEquals(
+      getConfig("--no-progress-bar").progressBarMode,
+      ProgressBarMode.Silent,
+    )
+    assertEquals(
+      getConfig("--non-interactive").progressBarMode,
+      ProgressBarMode.Append,
+    )
+  }
+
 }
 
 object CliTest {

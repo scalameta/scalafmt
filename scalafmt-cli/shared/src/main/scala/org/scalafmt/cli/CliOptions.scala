@@ -69,6 +69,13 @@ case class CommonOptions(
     .getOrElse(AbsoluteFile.userDir)
 }
 
+sealed trait ProgressBarMode
+object ProgressBarMode {
+  case object Silent extends ProgressBarMode
+  case object Overlay extends ProgressBarMode
+  case object Append extends ProgressBarMode
+}
+
 case class CliOptions(
     private[cli] val config: Option[Path] = None,
     private[cli] val baseConfig: ScalafmtConfig =
@@ -78,7 +85,7 @@ case class CliOptions(
     private[cli] val customFiles: Seq[Path] = Nil,
     customExcludes: Seq[String] = Nil,
     respectProjectFilters: Boolean = false,
-    nonInteractive: Boolean = false,
+    progressBarMode: ProgressBarMode = ProgressBarMode.Overlay,
     mode: Option[FileFetchMode] = None,
     assumeFilename: String = "stdin.scala", // used when read from stdin
     common: CommonOptions = CommonOptions(),
