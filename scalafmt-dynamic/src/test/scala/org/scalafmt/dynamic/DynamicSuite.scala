@@ -278,6 +278,25 @@ class DynamicSuite extends FunSuite {
     assertNoDiff(err, "Invalid config: Invalid path matcher pattern: foo.scala")
   }
 
+  check("listFiles") { f =>
+    f.setVersion(
+      latest,
+      "scala213",
+      """project.excludePaths = ["glob:**/Ignore.scala"]""",
+    )
+    val base = Files.createTempDirectory("scalafmt-listFiles")
+    Files.createDirectories(base.resolve("a").resolve("b"))
+    def write(rel: String): Unit = Files
+      .write(base.resolve(rel), "object A".getBytes(StandardCharsets.UTF_8))
+    write("Top.scala")
+    write("a/b/Deep.scala")
+    write("a/Ignore.scala") // matched by project.excludePaths
+    write("notes.txt") // not a scala source
+    def load() = f.dynamic.createSession(f.config).listFiles(base)
+    // no discovery implementation yet: the default throws
+    intercept[UnsupportedOperationException](load())
+  }
+
   check("config-cache") { f =>
     f.setVersion(latest, "scala211")
     f.assertFormat()
