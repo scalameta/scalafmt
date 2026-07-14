@@ -2,7 +2,7 @@ package org.scalafmt.dynamic
 
 import org.scalafmt.dynamic.exceptions._
 import org.scalafmt.interfaces._
-import org.scalafmt.sysops.{AbsoluteFile, GitOps}
+import org.scalafmt.sysops.{AbsoluteFile, BatchPathFinder, GitOps}
 
 import java.nio.file.Path
 
@@ -25,6 +25,20 @@ final case class ScalafmtDynamicSession(
     .isIncludedInProject(file)
 
   override def isGitOnly: Boolean = cfg.projectIsGit
+
+  override def listFiles(root: Path, paths: Path*): java.util.List[Path] = {
+    val rootAbs = AbsoluteFile(root)
+    val matches: Path => Boolean = cfg.isIncludedInProject
+    val finder: BatchPathFinder =
+      if (cfg.projectIsGit)
+        new BatchPathFinder.GitFiles(GitOps.FactoryImpl(rootAbs))(matches)
+      else new BatchPathFinder.DirFiles(rootAbs)(matches)
+    // no explicit paths: search under root itself
+    val searchPaths = paths.map(AbsoluteFile.apply)
+    val out = new java.util.ArrayList[Path]
+    finder.findMatchingFiles(true, searchPaths: _*).foreach(f => out.add(f.path))
+    out
+  }
 
   private def tryFormat(file: Path, code: String): FormatResult =
     if (properties.respectExcludeFilters && !matchesProjectFilters(file)) {

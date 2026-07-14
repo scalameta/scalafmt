@@ -293,8 +293,13 @@ class DynamicSuite extends FunSuite {
     write("a/Ignore.scala") // matched by project.excludePaths
     write("notes.txt") // not a scala source
     def load() = f.dynamic.createSession(f.config).listFiles(base)
-    // no discovery implementation yet: the default throws
-    intercept[UnsupportedOperationException](load())
+    // discovers sources in any subdirectory, honoring project filters
+    val files = load()
+    val found = (0 until files.size()).iterator
+      .map(files.get(_).toString.replace('\\', '/')).toList
+    assertEquals(found.size, 2, found)
+    assert(found.exists(_.endsWith("/Top.scala")), found)
+    assert(found.exists(_.endsWith("/a/b/Deep.scala")), found)
   }
 
   check("config-cache") { f =>
