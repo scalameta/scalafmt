@@ -1289,15 +1289,13 @@ class FormatWriter(formatOps: FormatOps) {
             else {
               val isSlc = ft.right.is[T.Comment] && locations(idx)
                 .hasBreakAfter && !ft.rightHasNewline
-              if (shouldAlign(ft, isSlc)) {
+              val alignKind = shouldAlign(ft, isSlc)
+              if (alignKind != AlignKind.No) {
                 val (container, depth) = getAlignContainer(isSlc)
-                def appendCandidate() = columnCandidates += new AlignStop(
-                  getAlignColumn(floc) + columnShift,
-                  depth,
-                  floc,
-                  getAlignHashKey(floc),
-                  isSlc,
-                )
+                def appendCandidate() = columnCandidates += {
+                  val col = getAlignColumn(floc, alignKind) + columnShift
+                  new AlignStop(col, depth, floc, getAlignHashKey(floc), isSlc)
+                }
                 if (alignContainer eq null) alignContainer = container
                 else if (alignContainer ne container)
                   if (isSlc) {
@@ -1718,6 +1716,13 @@ object FormatWriter {
 
   private val NoLine = Int.MaxValue
 
+  sealed trait AlignKind
+  private object AlignKind {
+    case object No extends AlignKind
+    case object RT extends AlignKind
+    case object LT extends AlignKind
+  }
+
   /** A StringBuilder pre-sized to `source.length` plus an overflow margin (the
     * formatted output is normally within a few % of the source), with its coder
     * matched to the source. scalafmt only inserts ASCII, so the output is
@@ -1990,30 +1995,34 @@ object FormatWriter {
     * )
     * ```
     */
-  def getAlignColumn(floc: FormatLocation): Int = {
+  def getAlignColumn(floc: FormatLocation, alignKind: AlignKind): Int = {
     // if we didn't care about align token lengths, we'd always "useLeft"
-    val useLeft = floc.formatToken.right.is[T.Comment]
-    if (useLeft) floc.state.prev.column else floc.state.column
+    val left = alignKind == AlignKind.LT || floc.formatToken.right.is[T.Comment]
+    if (left) floc.state.prev.column else floc.state.column
   }
 
   private def shouldAlign(ft: FT, slc: Boolean)(implicit
       floc: FormatLocation,
-  ): Boolean = {
+  ): AlignKind = {
     val code = if (slc) "//" else ft.meta.right.text
-    floc.style.alignMap.get(code).exists(matchers =>
-      matchers.isEmpty || {
-        val owner =
-          if (slc) ft.leftOwner // Corner case when line ends with comment
-          else ft.rightOwner match {
-            case x: Term.Name =>
-              /* historically, we match infix operator as infix expression,
-               * since initially we didn't have a way to match parent trees */
-              x.parent match { case Some(p: Term.ApplyInfix) => p; case _ => x }
-            case x => x
-          }
-        matchers.exists(_.matches(owner))
-      },
-    )
+    def getOwner =
+      if (slc) ft.leftOwner // Corner case when line ends with comment
+      else ft.rightOwner match {
+        case x: Term.Name =>
+          /* historically, we match infix operator as infix expression,
+           * since initially we didn't have a way to match parent trees */
+          x.parent match { case Some(p: Term.ApplyInfix) => p; case _ => x }
+        case x => x
+      }
+    def matches(matchers: Seq[TreePattern.Matcher], owner: Tree): Boolean =
+      matchers.exists(_.matches(owner))
+    floc.style.alignMap.get(code) match {
+      case Some(x) if x.isEmpty || matches(x, getOwner) => AlignKind.RT
+      // owner-anchored (empty-code) tokens ignore the token text; never on comments
+      case None if !slc && matches(floc.style.alignByOwner, getOwner) =>
+        AlignKind.LT
+      case _ => AlignKind.No
+    }
   }
 
   // cache indentations to some level

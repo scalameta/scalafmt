@@ -50,10 +50,10 @@ case class UserCreateCommand(
 >>>
 case class UserCreateCommand(
     @MinLength(3) @MaxLength(30) username: String,
-    @Pattern("^[a-z0-9-]+$") slug: String,
-    @Email email: String,
-    @Min(0) @Max(150) age: Int,
-    @MinSize(1) @MaxSize(10) zoneIds: Vector[ZoneId]
+    @Pattern("^[a-z0-9-]+$")     slug: String,
+    @Email                       email: String,
+    @Min(0) @Max(150)            age: Int,
+    @MinSize(1) @MaxSize(10)     zoneIds: Vector[ZoneId]
 )
 <<< empty code also aligns def param names
 align.tokens."+" = [{ code = "", owners = [{ regex = "Term\\.Name", parents = ["Term.Param"] }] }]
@@ -64,7 +64,7 @@ def f(
 ): Unit = ()
 >>>
 def f(
-    @unused a: Int,
+    @unused               a: Int,
     @deprecated("x", "y") bbb: String
 ): Unit = ()
 <<< empty code: a blank line splits into independent align blocks
@@ -79,9 +79,9 @@ def f(
 ): Unit = ()
 >>>
 def f(
-    @unused a: Int,
+    @unused               a: Int,
     @deprecated("x", "y") bbb: String,
 
-    @unused cc: Int,
+    @unused          cc: Int,
     @deprecated("w") d: String
 ): Unit = ()
