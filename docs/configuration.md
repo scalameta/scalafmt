@@ -1237,6 +1237,9 @@ An align token contains a `code` (the string literal of an operator of token) an
 node that owns that token), and a list of `parents` (to match the tree containing the owner of
 the token).
 
+The `code` may be empty, in which case the `owners` are required, and each must
+specify non-optional `regex` and a non-empty list of `parents`.
+
 > To find the `owner` part for a custom tree, look for its type prefix using
 > [Scastie Playground](https://scalameta.org/docs/trees/scastie.html) or
 > [AST Explorer](https://scalameta.org/docs/trees/astexplorer.html).
@@ -1321,6 +1324,24 @@ case class Foo(
     thirdParam: Boolean
   ) = ???
 }
+```
+
+An empty `code` matches a token by its `owners` alone, regardless of the token's text.
+This aligns the _start_ of a variable-width token, such as a definition or parameter name.
+
+```scala mdoc:scalafmt
+align.tokens."+" = [{
+  code = ""
+  owners = [{
+    regex = "Term\\.Name"
+    parents = [ "Term\\.Param" ]
+  }]
+}]
+---
+case class Foo(
+  @Min(0) @Max(9) count: Int,
+  @Email email: String
+)
 ```
 
 ### `align.arrowEnumeratorGenerator`
