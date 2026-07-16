@@ -1643,6 +1643,8 @@ align.preset = more
 <code>owners</code>; each owner entry in turn contains an optional <code>regex</code> (the kind of the closest tree
 node that owns that token), and a list of <code>parents</code> (to match the tree containing the owner of
 the token).</p>
+<p>The <code>code</code> may be empty, in which case the <code>owners</code> are required, and each must
+specify non-optional <code>regex</code> and a non-empty list of <code>parents</code>.</p>
 <blockquote>
 <p>To find the <code>owner</code> part for a custom tree, look for its type prefix using
 <a href="https://scalameta.org/docs/trees/scastie.html">Scastie Playground</a> or
@@ -1761,6 +1763,28 @@ but are followed by one (i.e., can trivially be changed to a <code>//</code> com
   code = <span class="hljs-string">":"</span>
   owners = [{
     parents = [ <span class="hljs-string">"Defn\\."</span> ]
+  }]
+}]
+</code></pre>
+</p></details>
+<p>An empty <code>code</code> matches a token by its <code>owners</code> alone, regardless of the token's text.
+This aligns the <em>start</em> of a variable-width token, such as a definition or parameter name.</p>
+<pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">
+    @<span class="hljs-type">Min</span>(0</span>) <span class="hljs-title">@Max</span>(<span class="hljs-params">9</span>) <span class="hljs-title">count</span></span>: <span class="hljs-type">Int</span>,
+    <span class="hljs-meta">@Email</span>          email: <span class="hljs-type">String</span>
+)
+</code></pre>
+<pre><code class="hljs css language-scala original"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">
+  @<span class="hljs-type">Min</span>(0</span>) <span class="hljs-title">@Max</span>(<span class="hljs-params">9</span>) <span class="hljs-title">count</span></span>: <span class="hljs-type">Int</span>,
+  <span class="hljs-meta">@Email</span> email: <span class="hljs-type">String</span>
+)
+</code></pre>
+<p><details class='config' open><summary>Config for this example:</summary><p></p>
+<pre><code class="hljs css language-scala config">align.tokens.<span class="hljs-string">"+"</span> = [{
+  code = <span class="hljs-string">""</span>
+  owners = [{
+    regex = <span class="hljs-string">"Term\\.Name"</span>
+    parents = [ <span class="hljs-string">"Term\\.Param"</span> ]
   }]
 }]
 </code></pre>
