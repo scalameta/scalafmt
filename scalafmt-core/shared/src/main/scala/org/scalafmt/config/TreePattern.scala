@@ -15,6 +15,7 @@ case class TreePattern(
     regex: Option[String] = None,
     parents: Seq[String] = Seq.empty,
 ) {
+  def hasBoth: Boolean = regex.isDefined && parents.nonEmpty
   def getMatcher: TreePattern.Matcher = new TreePattern.Matcher(this)
 }
 
