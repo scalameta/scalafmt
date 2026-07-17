@@ -15,39 +15,28 @@ class ScalafmtModifier extends StringModifier {
   private final val separator = "---\n"
 
   override val name: String = "scalafmt"
-  override def process(
-      info: String,
-      code: Input,
-      reporter: Reporter,
-  ): String = {
-    val base =
-      if (code.text.contains("package")) defaultConfig else defaultSbtConfig
-    val i = code.text.indexOf(separator)
-    val pos = Position.Range(code, 0, 0)
+  override def process(info: String, input: Input, reporter: Reporter): String = {
+    val code = input.text
+    val base = if (code.contains("package")) defaultConfig else defaultSbtConfig
+    val i = code.indexOf(separator)
+    def pos = Position.Range(input, 0, 0)
     if (i == -1) {
       reporter.error(pos, "Missing ---")
       "fail"
     } else {
-      val config = Input.Slice(code, 0, i)
-      val program = Input.Slice(code, i + separator.length, code.chars.length)
-      val configured = ScalafmtConfig.fromHoconString(config.text, base)
-      configured.fold { e =>
+      val config = code.substring(0, i)
+      ScalafmtConfig.fromHoconString(config, base).fold { e =>
         reporter.error(pos, e.toString())
         "fail"
       } { c =>
-        Scalafmt.format(program.text, c).toEither match {
+        val program = code.substring(i + separator.length)
+        Scalafmt.format(program, c).toEither match {
           case Right(formatted) =>
-            val configText = config.text.trim
-            val configBlock =
-              if (configText == "") ""
-              else mdConfigSection("Config for this example:", configText)
-
-            val formattedCodeBlock =
-              mdScalaCodeBlock("formatted", formatted.trim)
-            val originalCodeBlock =
-              mdScalaCodeBlock("original", program.text.trim)
-            List(formattedCodeBlock, originalCodeBlock, configBlock)
-              .mkString("\n")
+            implicit val sb = new StringBuilder
+            mdBlock("scala formatted", formatted.trim)
+            mdBlock("scala original", program.trim)
+            mdConfig("Config for this example:", config.trim)
+            sb.toString()
           case Left(e: ParseException) =>
             reporter.error(pos, e.toString())
             "parse error"
@@ -61,25 +50,29 @@ class ScalafmtModifier extends StringModifier {
 
 }
 
-object ScalafmtModifier {
+private object ScalafmtModifier {
 
   private val defaultConfig = ScalafmtConfig.default.copy(maxColumn = 40)
     .withDialect(scala.meta.dialects.Scala213, "scala213")
 
   private val defaultSbtConfig = defaultConfig.forSbt
 
-  def mdCodeBlock(language: String, content: String): String =
-    s"```$language\n$content\n```"
+  def mdBlock(lang: String, code: String)(implicit sb: StringBuilder): Unit = sb
+    .append("```").append(lang).append("\n").append(code).append("\n```\n")
 
-  def mdScalaCodeBlock(style: String, content: String): String =
-    mdCodeBlock(s"scala $style", content)
+  def mdConfig(title: String, code: String)(implicit sb: StringBuilder): Unit =
+    if (code.nonEmpty) html("details", "config", " open") {
+      sb.append(s"<summary>$title</summary>\n\n")
+      mdBlock("scala config", code)
+    }
 
-  def mdConfigCodeBlock(content: String): String =
-    mdScalaCodeBlock("config", content)
-
-  def mdConfigSection(title: String, code: String): String = {
-    val content = mdConfigCodeBlock(code)
-    s"<details class='config' open><summary>$title</summary><p>\n$content\n</p></details>\n"
+  def html(tag: String, cls: String, attrs: String = "")(
+      body: => Unit,
+  )(implicit sb: StringBuilder): Unit = {
+    sb.append("<").append(tag).append(" class='").append(cls).append("'")
+      .append(attrs).append(">\n\n")
+    body
+    sb.append("\n</").append(tag).append(">\n")
   }
 
 }
