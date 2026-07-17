@@ -13,12 +13,11 @@ export default {
   trailingSlash: false,
   favicon: "img/favicon.ico",
   customFields: { repoUrl },
-  // Loosened during the v1->v3 migration; tighten to "throw" once clean.
-  onBrokenLinks: "log",
+  onBrokenLinks: "throw",
   // .md files (all our docs) parse as CommonMark, so the raw HTML the docs
   // and mdoc modifiers emit passes through untouched instead of hitting MDX's
   // stricter JSX rules. Reserve .mdx for anything that needs real MDX.
-  markdown: { format: "detect", hooks: { onBrokenMarkdownLinks: "log" } },
+  markdown: { format: "detect", hooks: { onBrokenMarkdownLinks: "throw" } },
   presets: [
     [
       "@docusaurus/preset-classic",
