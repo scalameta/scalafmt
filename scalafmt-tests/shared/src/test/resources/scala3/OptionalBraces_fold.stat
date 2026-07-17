@@ -9820,3 +9820,18 @@ if tpe.classSymbol.isEmpty || tpeSymbol.flags.is(Flags.Abstract) ||
 then
    report.errorAndAbort(s"Failed to derive a ZLayer: type `${tpeSymbol
        .fullName}` is not a concrete class.")
+<<< preset=common, nested object with blank line is non-idempotent
+rewrite.scala3.preset = "common"
+===
+object Outer:
+  val a = 1
+
+  object Inner:
+    val b = 2
+>>>
+object Outer {
+  val a = 1
+
+  object Inner:
+     val b = 2
+}

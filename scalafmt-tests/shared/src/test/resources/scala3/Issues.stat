@@ -117,3 +117,18 @@ lazy val versions = new {
 lazy val versions = new {
   val cats = "2.10.0"
 }
+<<< preset=common, nested object with blank line is non-idempotent
+rewrite.scala3.preset = "common"
+===
+object Outer:
+  val a = 1
+
+  object Inner:
+    val b = 2
+>>>
+object Outer {
+  val a = 1
+
+  object Inner:
+    val b = 2
+}
