@@ -76,7 +76,9 @@ maxColumn = <span class="hljs-number">1234</span>
 </blockquote>
 <h2><a class="anchor" aria-hidden="true" id="most-popular"></a><a href="#most-popular" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Most popular</h2>
 <h3><a class="anchor" aria-hidden="true" id="maxcolumn"></a><a href="#maxcolumn" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>maxColumn</code></h3>
-<p>Default: <code>maxColumn = 80</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-attr">maxColumn</span> = <span class="hljs-string">80</span>
+</code></pre>
 <ul>
 <li>Keep in mind that 80 characters fit perfectly on a split laptop screen with
 regular resolution.</li>
@@ -88,9 +90,9 @@ code on your phone.</li>
 <p>This parameter simply says the <code>.stripMargin</code> method was not redefined by the
 user to assign special meaning to indentation preceding the <code>|</code> character.
 Hence, that indentation can be modified.</p>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-assumeStandardLibraryStripMargin = <span class="hljs-literal">false</span>
-align.stripMargin = <span class="hljs-literal">true</span>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-attr">assumeStandardLibraryStripMargin</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">align.stripMargin</span> = <span class="hljs-string">true</span>
 </code></pre>
 <p>If <code>true</code>, lines starting with the margin character <code>|</code> (or another if specified
 in the <code>.stripMargin(...)</code> call) will be indented differently.</p>
@@ -382,7 +384,9 @@ you'd like to append to it, use the following syntax:</p>
 </blockquote>
 <p>This parameter controls the primary code indentation. Various context-specific
 overrides are defined below, within this section.</p>
-<p>Default: <code>indent.main = 2</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">indent.main</span> = <span class="hljs-string">2</span>
+</code></pre>
 <h3><a class="anchor" aria-hidden="true" id="indentsignificant"></a><a href="#indentsignificant" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indent.significant</code></h3>
 <blockquote>
 <p>Since v3.0.0.</p>
@@ -427,7 +431,9 @@ indent.significant = <span class="hljs-number">3</span>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="indentcallsite"></a><a href="#indentcallsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indent.callSite</code></h3>
 <p>This parameter controls indentation of method call arguments.</p>
-<p>Default: <code>indent.callSite = 2</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">indent.callSite</span> = <span class="hljs-string">2</span>
+</code></pre>
 <p>Example:</p>
 <pre><code class="hljs css language-scala formatted">function(
   argument1, <span class="hljs-comment">// indented by 2</span>
@@ -514,7 +520,9 @@ indent.ctrlSite = <span class="hljs-number">4</span>
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="indentdefnsite"></a><a href="#indentdefnsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indent.defnSite</code></h3>
-<p>Default: <code>indent.defnSite = 4</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">indent.defnSite</span> = <span class="hljs-string">4</span>
+</code></pre>
 <p>Same as <code>indent.callSite</code> except for definition site. Example:</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">function</span></span>(
     parameter1: <span class="hljs-type">Type1</span> <span class="hljs-comment">// indented by 4</span>
@@ -586,7 +594,9 @@ indent.defnSite = <span class="hljs-number">2</span>
 <p>Since v3.4.4.</p>
 </blockquote>
 <p>If set, applies custom indentation to <code>case</code> clauses in <code>match</code> expressions.</p>
-<p>Default: <code>indent.matchSite = null</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">indent.matchSite</span> = <span class="hljs-string">null</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span></span>:
   x <span class="hljs-keyword">match</span>
   <span class="hljs-keyword">case</span> _: <span class="hljs-type">Aaaaaa</span> |
@@ -612,7 +622,9 @@ runner.dialect = scala3
 <p>Since v3.0.0.</p>
 </blockquote>
 <p>Applies indentation to patterns in <code>case</code> clauses.</p>
-<p>Default: <code>indent.caseSite = 4</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">indent.caseSite</span> = <span class="hljs-string">4</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted">x <span class="hljs-keyword">match</span> {
   <span class="hljs-keyword">case</span> _: <span class="hljs-type">Aaaaaa</span> |
        _: <span class="hljs-type">Bbbbbb</span> |
@@ -631,7 +643,9 @@ indent.caseSite = <span class="hljs-number">5</span>
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="indentextendsite"></a><a href="#indentextendsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indent.extendSite</code></h3>
-<p>Default: <code>indent.extendSite = 4</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">indent.extendSite</span> = <span class="hljs-string">4</span>
+</code></pre>
 <p>This parameter defines indentation used for the <code>extends A with B</code> or <code>derives A, B</code> sequences
 in a template (class, trait, object, enum, etc.).</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Foo</span></span>
@@ -655,7 +669,9 @@ maxColumn = <span class="hljs-number">20</span>
 </blockquote>
 <p>This parameter defines <em>additional</em> indentation used for the <code>with</code> elements of an
 <code>extends A with B</code> sequence in a template.</p>
-<p>Default: <code>indent.withSiteRelativeToExtends = 0</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">indent.withSiteRelativeToExtends</span> = <span class="hljs-string">0</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Foo</span></span>
     <span class="hljs-keyword">extends</span> <span class="hljs-type">A</span>
       <span class="hljs-keyword">with</span> <span class="hljs-type">B</span>
@@ -682,7 +698,9 @@ maxColumn = <span class="hljs-number">30</span>
 <p>This parameter defines <em>additional</em> indentation used for the post-comma elements
 of an <code>extends A, B</code> or <code>derives A, B</code> sequences of a template.</p>
 <p>Added to support Scala 3, which allows to specify multiple parents with a comma.</p>
-<p>Default: <code>indent.commaSiteRelativeToExtends = 2</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">indent.commaSiteRelativeToExtends</span> = <span class="hljs-string">2</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">trait</span> <span class="hljs-title">Foo</span></span>
     <span class="hljs-keyword">extends</span> <span class="hljs-type">A</span>,
         <span class="hljs-type">B</span>,
@@ -714,7 +732,9 @@ the indentation of the body) used for parameter groups when</p>
 <li>the definition has a body (that needs differentiating from)</li>
 <li><a href="#newlinesbeforeopenparenxxxsite">newlines.beforeOpenParenDefnSite</a> is set</li>
 </ul>
-<p>Default: <code>indent.extraBeforeOpenParenDefnSite = 0</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">indent.extraBeforeOpenParenDefnSite</span> = <span class="hljs-string">0</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">fooClass</span></span>
   (foo1: <span class="hljs-type">String</span>)
   (
@@ -882,7 +902,9 @@ determines whether the indent is relative to the first or the last line.</p>
 <li><code>match</code>: applies to match expressions</li>
 <li><code>infix</code>: applies to infix expressions</li>
 </ul>
-<p>Default: <code>indent.relativeToLhsLastLine = []</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">indent.relativeToLhsLastLine</span> = <span class="hljs-string">[]</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted">foo <span class="hljs-comment">// c1</span>
   .bar <span class="hljs-keyword">match</span> {
   <span class="hljs-keyword">case</span> baz =&gt; qux
@@ -937,7 +959,9 @@ syntax. The following values are supported:</p>
 <li><code>beforeSelect</code>: applies extra indent only to fewer-braces
 expressions followed by a <code>.select</code></li>
 </ul>
-<p>Default: <code>indent.fewerBraces = &quot;never&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">indent.fewerBraces</span> = <span class="hljs-string">"never"</span>
+</code></pre>
 <blockquote>
 <p>In Scala 3.3.0, only <code>never</code> provides compiler-compatible code.
 Other options will work in 3.3.1-RC1 and later
@@ -1055,7 +1079,9 @@ separate one); the parameters below modify this behaviour.</p>
 <h4><a class="anchor" aria-hidden="true" id="binpackindentcallsiteonce"></a><a href="#binpackindentcallsiteonce" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>binPack.indentCallSiteOnce</code></h4>
 <p>When this parameter is enabled, only one level is added to the outermost call,
 regardless of the number of nested parentheses.</p>
-<p>Default: <code>binPack.indentCallSiteOnce = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">binPack.indentCallSiteOnce</span> = <span class="hljs-string">false</span>
+</code></pre>
 <p>With the parameter enabled:</p>
 <pre><code class="hljs css language-scala formatted">foo(bar1(baz1(qux1,
   qux2), baz2),
@@ -1088,7 +1114,9 @@ maxColumn = <span class="hljs-number">20</span>
 <p>When this parameter is disabled, no indentation is added for same-line single-arg
 cases; the assumption is that if the argument expression spans multiple lines,
 it will introduce its own indentation.</p>
-<p>Default: <code>binPack.indentCallSiteSingleArg = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">binPack.indentCallSiteSingleArg</span> = <span class="hljs-string">true</span>
+</code></pre>
 <p>With the parameter enabled:</p>
 <pre><code class="hljs css language-scala formatted">foo(bar(baz.qux(
       xyz + zyx
@@ -1184,7 +1212,9 @@ of its constraints satisfied for an infix operator to be exempted</li>
 <li>if you have only one entry, you can specify <code>indent.infix { ... }</code> instead of
 <code>indent.infix = [ { ... } ]</code></li>
 </ul>
-<p>Default: <code>indent.infix = [{&quot;exemptScope&quot;: [&quot;oldTopLevel&quot;], &quot;includeRegex&quot;: &quot;.*&quot;, &quot;excludeRegex&quot;: &quot;^(&amp;&amp;|\\|\\|)$&quot;}]</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">indent.infix</span> = <span class="hljs-string">[{"exemptScope": ["oldTopLevel"], "includeRegex": ".*", "excludeRegex": "^(&amp;&amp;|\\|\\|)$"}]</span>
+</code></pre>
 <h4><a class="anchor" aria-hidden="true" id="indentinfix-exemptscope"></a><a href="#indentinfix-exemptscope" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>indent.infix</code>: <code>exemptScope</code></h4>
 <p>Added in 3.4.0, this parameter determines when an infix operator can be exempted from applying
 continuation indentation. Since 3.10.4, it takes multiple values, and expects each to apply.
@@ -1790,7 +1820,9 @@ This aligns the <em>start</em> of a variable-width token, such as a definition o
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="alignarrowenumeratorgenerator"></a><a href="#alignarrowenumeratorgenerator" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>align.arrowEnumeratorGenerator</code></h3>
-<p>Default: <code>align.arrowEnumeratorGenerator = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">align.arrowEnumeratorGenerator</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">for</span> {
   x &lt;- <span class="hljs-keyword">new</span> <span class="hljs-type">Integer</span> {
     <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">value</span> </span>= <span class="hljs-number">2</span>
@@ -1830,7 +1862,9 @@ respective <code>danglingParentheses.xxxSite</code> is set.</p>
 <blockquote>
 <p>Since v3.0.0.</p>
 </blockquote>
-<p>Default: <code>align.closeParenSite = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">align.closeParenSite</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted">function(arg1, <span class="hljs-comment">// align by (</span>
          arg2,
          arg3
@@ -1862,7 +1896,9 @@ danglingParentheses.callSite = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="alignopenparencallsite"></a><a href="#alignopenparencallsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>align.openParenCallSite</code></h3>
-<p>Default: <code>align.openParenCallSite = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">align.openParenCallSite</span> = <span class="hljs-string">false</span>
+</code></pre>
 <blockquote>
 <p>Default changed from <code>true</code> to <code>false</code> in v1.6.</p>
 </blockquote>
@@ -1921,9 +1957,13 @@ function(
 instead of <a href="#alignopenparencallsite"><code>align.openParenCallSite</code></a>.</p>
 <h3><a class="anchor" aria-hidden="true" id="alignopenparenctrlsite"></a><a href="#alignopenparenctrlsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>align.openParenCtrlSite</code></h3>
 <p>This parameter controls alignment after <code>(</code> in <code>if/while/for</code>.</p>
-<p>Default: <code>align.openParenCtrlSite = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">align.openParenCtrlSite</span> = <span class="hljs-string">false</span>
+</code></pre>
 <h3><a class="anchor" aria-hidden="true" id="alignopenparendefnsite"></a><a href="#alignopenparendefnsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>align.openParenDefnSite</code></h3>
-<p>Default: <code>align.openParenDefnSite = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">align.openParenDefnSite</span> = <span class="hljs-string">false</span>
+</code></pre>
 <blockquote>
 <p>Default changed from <code>true</code> to <code>false</code> in v1.6.</p>
 </blockquote>
@@ -2028,13 +2068,15 @@ Requires <a href="#aligncloseparensite"><code>align.closeParenSite</code></a>.</
 <blockquote>
 <p>Since v3.3.2.</p>
 </blockquote>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-align.beforeOpenParenCallSite = <span class="hljs-literal">false</span>
-align.beforeOpenParenDefnSite = <span class="hljs-literal">false</span>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">align.beforeOpenParenCallSite</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">align.beforeOpenParenDefnSite</span> = <span class="hljs-string">false</span>
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="alignstripmargin"></a><a href="#alignstripmargin" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>align.stripMargin</code></h3>
 <p>See <a href="#assumestandardlibrarystripmargin">assumeStandardLibraryStripMargin</a>.</p>
-<p>Default: <code>align.stripMargin = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">align.stripMargin</span> = <span class="hljs-string">true</span>
+</code></pre>
 <p>This functionality is enabled in all presets except <code>align.preset=none</code> where it
 was disabled since the parameter's introduction in v2.5.0.</p>
 <h3><a class="anchor" aria-hidden="true" id="alignmultiline"></a><a href="#alignmultiline" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>align.multiline</code></h3>
@@ -2047,7 +2089,9 @@ tokens to align, with the following values:</p>
 <blockquote>
 <p>Since v2.5.0.</p>
 </blockquote>
-<p>Default: <code>align.multiline = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">align.multiline</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">for</span> {
   a      &lt;- aaa
   bbb    &lt;- bb
@@ -2100,7 +2144,9 @@ whether alignment causes any lines to overflow the <a href="#maxcolumn"><code>ma
 <blockquote>
 <p>Since v3.0.0.</p>
 </blockquote>
-<p>Default: <code>align.allowOverflow = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">align.allowOverflow</span> = <span class="hljs-string">false</span>
+</code></pre>
 <p>It's also enabled by default in <code>align.preset = most</code>.</p>
 <h3><a class="anchor" aria-hidden="true" id="alignininterpolation"></a><a href="#alignininterpolation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>align.inInterpolation</code></h3>
 <p>If this flag is set, and breaks within interpolated code are allowed
@@ -2109,7 +2155,9 @@ interpolated code and the closing <code>}</code> will be indented relative to th
 <blockquote>
 <p>Since v3.4.0.</p>
 </blockquote>
-<p>Default: <code>align.inInterpolation = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">align.inInterpolation</span> = <span class="hljs-string">false</span>
+</code></pre>
 <p>Keep in mind that this option might lead to line overflow via &quot;stacking&quot;:</p>
 <pre><code class="hljs css language-scala formatted">object a {
   s"""
@@ -2177,7 +2225,9 @@ them.</p>
 <blockquote>
 <p>Since v3.7.13. Prior to that, this behaviour was always enabled.</p>
 </blockquote>
-<p>Default: <code>align.delayUntilSpace = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">align.delayUntilSpace</span> = <span class="hljs-string">true</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">meeethod1</span></span>(pram1: <span class="hljs-type">AnyRef</span>): <span class="hljs-type">Any</span> =
     ???
@@ -2372,7 +2422,9 @@ will be selected. Since we'll be adding lines, this will increase the span
 of the statement and might potentially lead to another entry, with a higher
 <code>minBreaks</code>, to match as well, which is undesirable.</p>
 </blockquote>
-<p>Default: <code>newlines.topLevelStatementBlankLines = []</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.topLevelStatementBlankLines</span> = <span class="hljs-string">[]</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">import</span> org.scalafmt
 <span class="hljs-keyword">package</span> core { <span class="hljs-comment">// no newline added here</span>
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">C1</span> </span>{}
@@ -2596,9 +2648,9 @@ trait, enum).</p>
 <h4><a class="anchor" aria-hidden="true" id="newlinestoplevelbodyifminstatements"></a><a href="#newlinestoplevelbodyifminstatements" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.topLevelBodyIfMinStatements</code></h4>
 <p><code>topLevelBodyIfMinStatements</code> can be <code>before</code> and/or <code>after</code>, while
 <code>topLevelBodyMinStatements</code> limits when the rule is applied.</p>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-newlines.topLevelBodyIfMinStatements = []
-newlines.topLevelBodyMinStatements = <span class="hljs-number">2</span>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.topLevelBodyIfMinStatements</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">newlines.topLevelBodyMinStatements</span> = <span class="hljs-string">2</span>
 </code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">import</span> org.scalafmt
 <span class="hljs-keyword">package</span> core {
@@ -2721,7 +2773,9 @@ newlines.topLevelBodyMinStatements = <span class="hljs-number">2</span>
 <h4><a class="anchor" aria-hidden="true" id="newlinesbeforetemplatebodyifbreakinparentctors"></a><a href="#newlinesbeforetemplatebodyifbreakinparentctors" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.beforeTemplateBodyIfBreakInParentCtors</code></h4>
 <p>This parameter will force a blank line before the first statement of a template body if the
 token <em>before</em> <code>extends</code> and the <code>{</code> (or, in scala3, <code>:</code>) token are not on the same line.</p>
-<p>Default: <code>newlines.beforeTemplateBodyIfBreakInParentCtors = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.beforeTemplateBodyIfBreakInParentCtors</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">package</span> core {
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">C1</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">S</span> </span>{ <span class="hljs-comment">// no breaks between "C1" and "{"</span>
     <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">one</span> </span>= <span class="hljs-number">1</span>
@@ -3089,7 +3143,9 @@ newlines.forceBeforeMultilineAssign = never
 <blockquote>
 <p>Since v3.5.9</p>
 </blockquote>
-<p>Default: <code>newlines.forceBeforeAssign = &quot;never&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.forceBeforeAssign</span> = <span class="hljs-string">"never"</span>
+</code></pre>
 <p>This parameter takes precedence over
 <a href="#newlinesforcebeforemultilineassign"><code>newlines.forceBeforeMultilineAssign</code></a>
 and uses the same values. The difference is, the rule forces a newline before a
@@ -3108,7 +3164,9 @@ same values as <a href="#newlinessource"><code>newlines.source</code></a>.</p>
 <li><code>unfold</code>: puts all bounds on the same line, or breaks before each</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="newlinesalwaysbeforeelseaftercurlyif"></a><a href="#newlinesalwaysbeforeelseaftercurlyif" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.alwaysBeforeElseAfterCurlyIf</code></h3>
-<p>Default: <code>newlines.alwaysBeforeElseAfterCurlyIf = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.alwaysBeforeElseAfterCurlyIf</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">if</span> (someCond) {
   foo()
 }
@@ -3149,7 +3207,9 @@ brace and the parameters of a lambda or partial function. Added in 2.7.0,
 replacing boolean <code>alwaysBeforeCurlyBraceLambdaParams</code> (removed in 3.4.0).</p>
 <p>In 3.4.10, <code>beforeParenLambdaParams</code> was added to allow overriding this parameter
 specifically for lambdas in parentheses.</p>
-<p>Default: <code>newlines.beforeCurlyLambdaParams = &quot;never&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.beforeCurlyLambdaParams</span> = <span class="hljs-string">"never"</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// should keep one-line</span>
 x.map { x =&gt; <span class="hljs-string">s"<span class="hljs-subst">${x._1}</span> -&gt; <span class="hljs-subst">${x._2}</span>"</span> }
 x.map { <span class="hljs-keyword">case</span> (c, i) =&gt; <span class="hljs-string">s"<span class="hljs-subst">$c</span> -&gt; <span class="hljs-subst">$i</span>"</span> }
@@ -3276,7 +3336,9 @@ be used for one-line formatting of the entire function body (if allowed but the
 body doesn't fit, a break is always forced).</p>
 <p>This parameter was renamed in 2.7.0 from <code>afterCurlyLambda</code>, for clarity and
 consistency with <code>beforeCurlyLambdaParams</code> defined above.</p>
-<p>Default: <code>newlines.afterCurlyLambdaParams = &quot;never&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.afterCurlyLambdaParams</span> = <span class="hljs-string">"never"</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// remove all blank lines if any</span>
 <span class="hljs-comment">// one-line formatting is allowed</span>
 something.map { x =&gt; f(x) }
@@ -3538,7 +3600,9 @@ after
 and both will <em>always</em> break before an expression enclosed in matching
 parentheses.</p>
 <h4><a class="anchor" aria-hidden="true" id="newlinesinfix-maxcountperfile"></a><a href="#newlinesinfix-maxcountperfile" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.infix: maxCountPerFile</code></h4>
-<p>Default: <code>newlines.infix.termSite.maxCountPerFile = 500</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.infix.termSite.maxCountPerFile</span> = <span class="hljs-string">500</span>
+</code></pre>
 <p>If the total number of matching infix operations in the <em>entire file</em> exceeds
 <code>newlines.infix.xxxSite.maxCountPerFile</code>, the formatter automatically switches to
 <code>newlines.infix.xxxSite.style=none</code> for this file.</p>
@@ -3546,13 +3610,17 @@ parentheses.</p>
 the formatter automatically switches to <code>newlines.infix.xxxSite.style=keep</code>.
 This optional parameter was added in v3.10.4.</p>
 <h4><a class="anchor" aria-hidden="true" id="newlinesinfix-maxcountperexprforsome"></a><a href="#newlinesinfix-maxcountperexprforsome" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.infix: maxCountPerExprForSome</code></h4>
-<p>Default: <code>newlines.infix.termSite.maxCountPerExprForSome = 10</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.infix.termSite.maxCountPerExprForSome</span> = <span class="hljs-string">10</span>
+</code></pre>
 <p>If <code>newlines.infix.xxxSite.style</code> is set to <code>some</code> and the number of infix operations in
 a <em>given expression sequence</em> (top-level or enclosed in parens/braces) exceeds
 <code>newlines.infix.xxxSite.maxCountPerExprForSome</code>, the formatter switches to <code>many</code>
 for that sequence only.</p>
 <h4><a class="anchor" aria-hidden="true" id="newlinesinfix-breakonnested"></a><a href="#newlinesinfix-breakonnested" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.infix: breakOnNested</code></h4>
-<p>Default: <code>newlines.infix.termSite.breakOnNested = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.infix.termSite.breakOnNested</span> = <span class="hljs-string">false</span>
+</code></pre>
 <p>If enabled, will force line breaks around a nested parenthesized sub-expression
 in a multi-line infix expression.</p>
 <p>This logic, however, will not apply if the precedence of the inner expression
@@ -3573,7 +3641,9 @@ c <span class="hljs-comment">// not ok by default</span>
 below. These flags relax formatting rules to allow occasional line overflow
 (i.e., when line exceeds <code>maxColumn</code>) in simple cases instead of introducing a
 newline.</p>
-<p>Default: <code>newlines.avoidForSimpleOverflow = []</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.avoidForSimpleOverflow</span> = <span class="hljs-string">[]</span>
+</code></pre>
 <h4><a class="anchor" aria-hidden="true" id="newlinesavoidforsimpleoverflowtoolong"></a><a href="#newlinesavoidforsimpleoverflowtoolong" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.avoidForSimpleOverflow=[tooLong]</code></h4>
 <blockquote>
 <p>Since v2.6.0.</p>
@@ -3664,7 +3734,9 @@ newlines.avoidForSimpleOverflow = []
 <p>If true, newlines in definition result type will only be used if formatting
 without them is impossible. This parameter was added in 2.7.0, replacing
 <code>neverInResultType</code>.</p>
-<p>Default: <code>newlines.avoidInResultType = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.avoidInResultType</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// no newlines in result type</span>
 <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">permissionState</span></span>(
     a: <span class="hljs-type">A</span> = js.native
@@ -3697,7 +3769,9 @@ delimits the return type in a method signature.</p>
 <p>Normally, this will only happen if formatting otherwise will lead to line
 overflow or the return type spanning too many lines.</p>
 <p>Also, see <a href="#newlinesbeforeopenparenxxxsite">newlines.beforeOpenParenXxxSite</a> below.</p>
-<p>Default: <code>newlines.sometimesBeforeColonInMethodReturnType = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.sometimesBeforeColonInMethodReturnType</span> = <span class="hljs-string">true</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">someVeryLongMethodName</span></span>
     : <span class="hljs-type">Map</span>[<span class="hljs-type">String</span>, <span class="hljs-type">String</span>] = ???
 </code></pre>
@@ -3738,9 +3812,9 @@ formatting will use a newline and an appropriate continuation indent.</li>
 is true, when the first parameter group starts without a line break, subsequent
 parameter groups will be aligned to it.</li>
 </ul>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-newlines.beforeOpenParenDefnSite = <span class="hljs-literal">null</span>
-newlines.beforeOpenParenCallSite = <span class="hljs-literal">null</span>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.beforeOpenParenDefnSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.beforeOpenParenCallSite</span> = <span class="hljs-string">null</span>
 </code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">fooFunc</span></span>
   (foo1: <span class="hljs-type">String</span>)
@@ -3793,7 +3867,9 @@ newlines {
 <h3><a class="anchor" aria-hidden="true" id="newlinesininterpolation"></a><a href="#newlinesininterpolation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.inInterpolation</code></h3>
 <p>This parameter controls how to format spliced scala code within string constants
 (e.g., <code>s&quot;...&quot;</code>, etc). Also see <a href="#alignininterpolation"><code>align.inInterpolation</code></a>.</p>
-<p>Default: <code>newlines.inInterpolation = &quot;allow&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.inInterpolation</span> = <span class="hljs-string">"allow"</span>
+</code></pre>
 <blockquote>
 <p>Since v3.4.0.</p>
 </blockquote>
@@ -3816,7 +3892,9 @@ which actually span multiple lines.</p>
 <p>This boolean parameter now allows controlling whether to ignore newlines found
 in syntax of strings or other possibly multi-line tokens when newlines are
 otherwise prohibited or undesirable (such as for single-line formatting).</p>
-<p>Default: <code>newlines.ignoreInSyntax = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.ignoreInSyntax</span> = <span class="hljs-string">true</span>
+</code></pre>
 <blockquote>
 <p>Since v3.7.13. Prior to that, this behaviour was always enabled.</p>
 </blockquote>
@@ -3851,7 +3929,9 @@ println(s"""${1}
 <h3><a class="anchor" aria-hidden="true" id="newlinesannotation"></a><a href="#newlinesannotation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>newlines.annotation</code></h3>
 <p>This boolean parameter controls newlines after annotations. Prior to v3.8.4,
 was called <code>optIn.annotationNewlines</code>.</p>
-<p>Default: <code>newlines.annotation = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.annotation</span> = <span class="hljs-string">true</span>
+</code></pre>
 <p>Its behaviour depends on <a href="#newlinessource">newlines.source</a>:</p>
 <ul>
 <li><code>newlines.annotation = true</code>:
@@ -3871,14 +3951,18 @@ was called <code>optIn.annotationNewlines</code>.</p>
 <p>If enabled, this parameter forces a break after a self annotation in a template if
 <code>newlines.source=fold/unfold</code>, and preserves it otherwise.
 Prior to v3.8.4, was called <code>optIn.selfAnnotationNewline</code>.</p>
-<p>Default: <code>newlines.selfAnnotation = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.selfAnnotation</span> = <span class="hljs-string">true</span>
+</code></pre>
 <h2><a class="anchor" aria-hidden="true" id="newlines-danglingparentheses"></a><a href="#newlines-danglingparentheses" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Newlines: <code>danglingParentheses</code></h2>
 <p>When enabled, these parameters will force a break before the closing parenthesis
 when there's a break after the opening parenthesis (unless otherwise specified).
 While this parameter is not technically under the <code>newlines</code> section, it
 logically belongs there.</p>
 <h3><a class="anchor" aria-hidden="true" id="danglingparenthesesdefnsite"></a><a href="#danglingparenthesesdefnsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>danglingParentheses.defnSite</code></h3>
-<p>Default: <code>danglingParentheses.defnSite = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">danglingParentheses.defnSite</span> = <span class="hljs-string">true</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
   <span class="hljs-comment">// defnSite</span>
   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(
@@ -3907,7 +3991,9 @@ maxColumn=<span class="hljs-number">25</span>
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="danglingparenthesescallsite"></a><a href="#danglingparenthesescallsite" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>danglingParentheses.callSite</code></h3>
-<p>Default: <code>danglingParentheses.callSite = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">danglingParentheses.callSite</span> = <span class="hljs-string">true</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">a</span> </span>{
   <span class="hljs-comment">// defnSite</span>
   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>(
@@ -4001,7 +4087,9 @@ maxColumn=<span class="hljs-number">25</span>
 <code>for</code>) when line breaks must occur.</p>
 <p>For optional braces in scala3, this parameter also controls whether to break
 before <code>then</code> or <code>do</code> in a multi-line condition.</p>
-<p>Default: <code>danglingParentheses.ctrlSite = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">danglingParentheses.ctrlSite</span> = <span class="hljs-string">true</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">if</span> (something) {
   <span class="hljs-comment">// nothing</span>
 }
@@ -4027,7 +4115,9 @@ maxColumn=<span class="hljs-number">20</span>
 <blockquote>
 <p>Since v3.10.1.</p>
 </blockquote>
-<p>Default: <code>danglingParentheses.importSite = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">danglingParentheses.importSite</span> = <span class="hljs-string">true</span>
+</code></pre>
 <p>Normally, multiple import selectors
 (see <a href="#binpackimportselectors"><code>binPack.importSelectors</code></a>)
 are either formatted one a single line if they fit,
@@ -4508,7 +4598,9 @@ newlines.afterCurlyLambdaParams=squash
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="redundantbraces-generalexpressions"></a><a href="#redundantbraces-generalexpressions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>RedundantBraces</code>: <code>generalExpressions</code></h4>
-<p>Default: <code>rewrite.redundantBraces.generalExpressions = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">rewrite.redundantBraces.generalExpressions</span> = <span class="hljs-string">true</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">while</span> (x &lt; <span class="hljs-number">10</span>)
   x += <span class="hljs-number">1</span>
 
@@ -4538,7 +4630,9 @@ rewrite.redundantBraces.generalExpressions = <span class="hljs-literal">true</sp
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="redundantbraces-ifelseexpressions"></a><a href="#redundantbraces-ifelseexpressions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>RedundantBraces</code>: <code>ifElseExpressions</code></h4>
-<p>Default: <code>rewrite.redundantBraces.ifElseExpressions = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">rewrite.redundantBraces.ifElseExpressions</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">if</span> (a &gt; b)
   doSomething()
 <span class="hljs-keyword">else</span>
@@ -4564,7 +4658,9 @@ rewrite.redundantBraces.ifElseExpressions = <span class="hljs-literal">true</spa
 (e.g.: <code>val</code>; <code>var</code>; parameterless <code>def</code>, without brackets or parentheses)</li>
 </ul>
 <p>In v3.3.2, this parameter superseded a boolean <code>methodBodies</code>.</p>
-<p>Default: <code>rewrite.redundantBraces.defnBodies = &quot;all&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">rewrite.redundantBraces.defnBodies</span> = <span class="hljs-string">"all"</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">f</span></span>() =
   <span class="hljs-number">1</span> + <span class="hljs-number">1</span>
 </code></pre>
@@ -4578,7 +4674,9 @@ rewrite.redundantBraces.defnBodies = <span class="hljs-literal">true</span>
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="redundantbraces-includeunitmethods"></a><a href="#redundantbraces-includeunitmethods" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>RedundantBraces</code>: <code>includeUnitMethods</code></h4>
-<p>Default: <code>rewrite.redundantBraces.includeUnitMethods = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">rewrite.redundantBraces.includeUnitMethods</span> = <span class="hljs-string">true</span>
+</code></pre>
 <p>Affects only functions with <strong>explicitly</strong> specified <code>Unit</code> type</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">f</span></span>() =
   <span class="hljs-number">1</span> + <span class="hljs-number">1</span>
@@ -4602,7 +4700,9 @@ rewrite.redundantBraces.includeUnitMethods = <span class="hljs-literal">false</s
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="redundantbraces-stringinterpolation"></a><a href="#redundantbraces-stringinterpolation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>RedundantBraces</code>: <code>stringInterpolation</code></h4>
-<p>Default: <code>rewrite.redundantBraces.stringInterpolation = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">rewrite.redundantBraces.stringInterpolation</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-string">s"user id is <span class="hljs-subst">$id</span>"</span>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-string">s"user id is <span class="hljs-subst">${id}</span>"</span>
@@ -4651,9 +4751,9 @@ comments.</p>
 <p>Thus, to avoid non-idempotent formatting, we ignore them.</p>
 </blockquote>
 <p>In all cases, redundant delimiters will be rewritten, as before.</p>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-rewrite.redundantBraces.oneStatApply.parensMaxSpan = <span class="hljs-number">0</span>
-rewrite.redundantBraces.oneStatApply.bracesMinSpan = <span class="hljs-number">-1</span>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">rewrite.redundantBraces.oneStatApply.parensMaxSpan</span> = <span class="hljs-string">0</span>
+<span class="hljs-meta">rewrite.redundantBraces.oneStatApply.bracesMinSpan</span> = <span class="hljs-string">-1</span>
 </code></pre>
 <pre><code class="hljs css language-scala formatted">xs.map(x =&gt; x + <span class="hljs-number">1</span>)
 </code></pre>
@@ -4743,7 +4843,9 @@ rewrite.redundantBraces.oneStatApply.bracesMinSpan = <span class="hljs-number">2
 <h4><a class="anchor" aria-hidden="true" id="redundantbraces-maxbreaks"></a><a href="#redundantbraces-maxbreaks" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>RedundantBraces</code>: <code>maxBreaks</code></h4>
 <p>This parameter limits the number of line breaks inside the input body. Prior to
 v3.3.2, was incorrectly called <code>maxLines</code>.</p>
-<p>Default: <code>rewrite.redundantBraces.maxBreaks = 100</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">rewrite.redundantBraces.maxBreaks</span> = <span class="hljs-string">100</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">f</span></span>() =
   collection
     .map(x =&gt; x + <span class="hljs-number">1</span>)
@@ -5120,7 +5222,9 @@ multiple enumerator generators.</p>
 <li><code>rewrite.preferCurlyFors.includeGuards</code>: controls whether if-guards are
 also counted, in addition to generators, when detecting &quot;multiple enumerators&quot;</li>
 </ul>
-<p>Default: <code>rewrite.preferCurlyFors = {&quot;removeTrailingSemicolonsOnly&quot;: false, &quot;includeGuards&quot;: false}</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">rewrite.preferCurlyFors</span> = <span class="hljs-string">{"removeTrailingSemicolonsOnly": false, "includeGuards": false}</span>
+</code></pre>
 <h3><a class="anchor" aria-hidden="true" id="imports"></a><a href="#imports" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>Imports</code></h3>
 <p>This rule applies to <code>import</code> or, in Scala 3, also <code>export</code> statements found
 at the top level (source, package or class/object/trait level).</p>
@@ -5416,7 +5520,9 @@ the same way fully qualified ones are.</p>
 <p>If we assume that explicitly defined groups would not catch relative
 imports, then we only need to forgo or modify sorting of the implicit,
 catch-all group where everything else (including relatives) would end up.</p>
-<p>Default: <code>rewrite.imports.sortCatchallGroup = &quot;tail&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">rewrite.imports.sortCatchallGroup</span> = <span class="hljs-string">"tail"</span>
+</code></pre>
 <p>This parameter takes the following values:</p>
 <ul>
 <li><code>full</code>: the catch-all group is sorted the same way as other groups</li>
@@ -5513,7 +5619,9 @@ break).</p>
 parameters within the <code>rewrite.trailingCommas</code> section (since v3.0.5; prior to that
 there was a single top-level <code>trailingCommas</code> parameter).</p>
 </blockquote>
-<p>Default: <code>rewrite.trailingCommas.style = &quot;never&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">rewrite.trailingCommas.style</span> = <span class="hljs-string">"never"</span>
+</code></pre>
 <h4><a class="anchor" aria-hidden="true" id="trailing-commas-never"></a><a href="#trailing-commas-never" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Trailing commas: <code>never</code></h4>
 <p>Makes sure there are no trailing commas:</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">import</span> a.{b, c}
@@ -5753,7 +5861,9 @@ which is required by Scala after a trailing comma.</p>
 <blockquote>
 <p>Since v3.0.5</p>
 </blockquote>
-<p>Default: <code>rewrite.trailingCommas.allowFolding = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">rewrite.trailingCommas.allowFolding</span> = <span class="hljs-string">true</span>
+</code></pre>
 <p>If set to false, the trailing comma will always be forced.</p>
 <h3><a class="anchor" aria-hidden="true" id="rewritetokens"></a><a href="#rewritetokens" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>rewrite.tokens</code></h3>
 <blockquote>
@@ -5761,7 +5871,9 @@ which is required by Scala after a trailing comma.</p>
 </blockquote>
 <p>Map of tokens to rewrite. For example, Map(&quot;⇒&quot; -&gt; &quot;=&gt;&quot;) will rewrite unicode
 arrows to regular ascii arrows.</p>
-<p>Default: <code>rewrite.tokens = {}</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">rewrite.tokens</span> = <span class="hljs-string">{}</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">val</span> tuple = <span class="hljs-string">"a"</span> -&gt; <span class="hljs-number">1</span>
 <span class="hljs-keyword">val</span> lambda = (x: <span class="hljs-type">Int</span>) =&gt; x + <span class="hljs-number">1</span>
 <span class="hljs-keyword">for</span> {
@@ -5798,7 +5910,9 @@ See also <a href="#prefercurlyfors">PreferCurlyFors</a>.</p>
 <p>This rule rewrites numeric literals potentially modifying representation style.
 It's an extension of single-character replacement rules grouped under <a href="#literals"><code>literals</code></a>.</p>
 <h4><a class="anchor" aria-hidden="true" id="literalsfloatingpointfilter"></a><a href="#literalsfloatingpointfilter" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>literals.floatingPoint.filter</code></h4>
-<p>Default: <code>literals.floatingPoint.filter = {&quot;needSuffix&quot;: false, &quot;minTotalDigits&quot;: 2147483647, &quot;minSignificantDigits&quot;: 0}</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">literals.floatingPoint.filter</span> = <span class="hljs-string">{"needSuffix": false, "minTotalDigits": 2147483647, "minSignificantDigits": 0}</span>
+</code></pre>
 <p>These settings determine whether the rule is applicable to a given
 floating-point token.</p>
 <h5><a class="anchor" aria-hidden="true" id="literalsfloatingpointfiltermintotaldigits"></a><a href="#literalsfloatingpointfiltermintotaldigits" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>literals.floatingPoint.filter.minTotalDigits</code></h5>
@@ -5942,7 +6056,9 @@ literals.floatingPoint {
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="literalsfloatingpointformat"></a><a href="#literalsfloatingpointformat" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>literals.floatingPoint.format</code></h4>
-<p>Default: <code>literals.floatingPoint.format = {&quot;maxPaddingZeros&quot;: 0, &quot;separators&quot;: 0, &quot;forceDot&quot;: false, &quot;forceExpPlus&quot;: false}</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">literals.floatingPoint.format</span> = <span class="hljs-string">{"maxPaddingZeros": 0, "separators": 0, "forceDot": false, "forceExpPlus": false}</span>
+</code></pre>
 <p>These settings control how the resulting literal is formatted.
 The output is in either a
 <a href="https://en.wikipedia.org/wiki/Scientific_notation#Normalized_notation">normalized scientific notation</a>
@@ -6177,7 +6293,9 @@ set to <code>false</code>, see below):</p>
 <a href="https://dotty.epfl.ch/docs/reference/other-new-features/indentation.html">optional braces</a>
 will be removed and significant indentation applied, or a braceless region possibly
 enclosed in braces instead.</p>
-<p>Default: <code>rewrite.scala3.optionalBraces = {&quot;enabled&quot;: false, &quot;preferInsert&quot;: true, &quot;insert&quot;: null, &quot;remove&quot;: null, &quot;fewerBraces&quot;: {&quot;span&quot;: {&quot;min&quot;: 2, &quot;max&quot;: -1}, &quot;parensToo&quot;: false}, &quot;oldSyntaxToo&quot;: false}</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">rewrite.scala3.optionalBraces</span> = <span class="hljs-string">{"enabled": false, "preferInsert": true, "insert": null, "remove": null, "fewerBraces": {"span": {"min": 2, "max": -1}, "parensToo": false}, "oldSyntaxToo": false}</span>
+</code></pre>
 <p>The section contains the following settings (available since v3.8.1):</p>
 <ul>
 <li><code>enabled</code>:
@@ -6369,7 +6487,9 @@ maxColumn value in width or if the number of arguments to the method exceeds
 the <a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThreshold</code></a>.</p>
 </blockquote>
 <h3><a class="anchor" aria-hidden="true" id="verticalmultilinearitythreshold"></a><a href="#verticalmultilinearitythreshold" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>verticalMultiline.arityThreshold</code></h3>
-<p>Default: <code>verticalMultiline.arityThreshold = 100</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">verticalMultiline.arityThreshold</span> = <span class="hljs-string">100</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Foo</span>(<span class="hljs-params">x: <span class="hljs-type">String</span></span>)</span>
 <span class="hljs-keyword">case</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Bar</span>(<span class="hljs-params">
     x: <span class="hljs-type">String</span>,
@@ -6399,7 +6519,9 @@ verticalMultiline.arityThreshold = <span class="hljs-number">2</span>
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="verticalmultilinenewlineafteropenparen"></a><a href="#verticalmultilinenewlineafteropenparen" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>verticalMultiline.newlineAfterOpenParen</code></h3>
-<p>Default: <code>verticalMultiline.newlineAfterOpenParen = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">verticalMultiline.newlineAfterOpenParen</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">other</span></span>(
   a: <span class="hljs-type">String</span>,
   b: <span class="hljs-type">String</span>
@@ -6502,7 +6624,9 @@ newlines.implicitParamListModifierForce = [before,after]
 <p>Since v2.6.0.</p>
 </blockquote>
 <p>Allows wrapping comments exceeding <code>maxColumn</code>.</p>
-<p>Default: <code>comments.wrap = &quot;no&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">comments.wrap</span> = <span class="hljs-string">"no"</span>
+</code></pre>
 <h4><a class="anchor" aria-hidden="true" id="commentswrap--standalone"></a><a href="#commentswrap--standalone" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>comments.wrap = standalone</code></h4>
 <p>A standalone comment is one which is surrounded by line breaks.</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/* long multiline
@@ -6549,7 +6673,9 @@ comments.wrap = trailing
 </blockquote>
 <p>This parameter allows formatting a standalone single-line comment (i.e., <code>//</code>)
 to be wrapped using the same type, not a multi-line comment (<code>/* ... */</code>).</p>
-<p>Default: <code>comments.wrapStandaloneSlcAsSlc = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">comments.wrapStandaloneSlcAsSlc</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// long singleline comment</span>
 <span class="hljs-keyword">val</span> b =
   <span class="hljs-number">2</span> <span class="hljs-comment">/* long
@@ -6572,7 +6698,9 @@ comments.wrapStandaloneSlcAsSlc = <span class="hljs-literal">true</span>
 <p>If comment wrapping is enabled (<a href="#commentswrap"><code>comments.wrap != no</code></a>), this parameter
 allows formatting a trailing or standalone multi-line comment (i.e., <code>/* ... */</code>) as a
 single-line comment (<code>//</code>) if it occupies a single line.</p>
-<p>Default: <code>comments.wrapSingleLineMlcAsSlc = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">comments.wrapSingleLineMlcAsSlc</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// standalone multi-line comment</span>
 <span class="hljs-keyword">val</span> b = <span class="hljs-number">2</span> <span class="hljs-comment">/* mlc */</span> <span class="hljs-comment">// trailing mlc</span>
 </code></pre>
@@ -6609,7 +6737,9 @@ to the next case clause instead; this was the only behaviour prior to v3.10.4</l
 <blockquote>
 <p>Since v2.6.0.</p>
 </blockquote>
-<p>Default: <code>docstrings.style = &quot;SpaceAsterisk&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">docstrings.style</span> = <span class="hljs-string">"SpaceAsterisk"</span>
+</code></pre>
 <h4><a class="anchor" aria-hidden="true" id="docstringsstyle--keep"></a><a href="#docstringsstyle--keep" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.style = keep</code></h4>
 <p>Prohibits formatting of docstrings. All other <code>docstrings</code> parameters are
 ignored.</p>
@@ -6684,7 +6814,9 @@ ignored.</p>
 <blockquote>
 <p>Since v3.0.4.</p>
 </blockquote>
-<p>Default: <code>docstrings.removeEmpty = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">docstrings.removeEmpty</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">val</span> a = <span class="hljs-number">1</span>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-comment">/** */</span>
@@ -6702,7 +6834,9 @@ ignored.</p>
 <blockquote>
 <p>Since v2.6.0. Ignored for <code>docstrings.style = keep</code>.</p>
 </blockquote>
-<p>Default: <code>docstrings.oneline = &quot;keep&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">docstrings.oneline</span> = <span class="hljs-string">"keep"</span>
+</code></pre>
 <h4><a class="anchor" aria-hidden="true" id="docstringsoneline--fold"></a><a href="#docstringsoneline--fold" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>docstrings.oneline = fold</code></h4>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/** Scaladoc oneline */</span>
 <span class="hljs-comment">/** Scaladoc multiline */</span>
@@ -6777,7 +6911,9 @@ scaladoc parser doesn't have proper support of embedded HTML.</p>
 <blockquote>
 <p>Since v2.6.0. Ignored for <code>docstrings.style = keep</code>.</p>
 </blockquote>
-<p>Default: <code>docstrings.wrap = &quot;unfold&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">docstrings.wrap</span> = <span class="hljs-string">"unfold"</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">/** @param d
   *   the Double to square,
   *   meaning multiply by
@@ -7023,9 +7159,9 @@ libraryDependencies ++= <span class="hljs-type">Seq</span>(
 <li><code>formatOff</code>: tags to turn formatting off</li>
 <li><code>formatOn</code>: tags to turn formatting back on</li>
 </ul>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-formatOff = [<span class="hljs-string">"@formatter:off"</span>, <span class="hljs-string">"format: off"</span>]
-formatOn = [<span class="hljs-string">"@formatter:on"</span>, <span class="hljs-string">"format: on"</span>]
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-attr">formatOff</span> = <span class="hljs-string">["@formatter:off", "format: off"]</span>
+<span class="hljs-attr">formatOn</span> = <span class="hljs-string">["@formatter:on", "format: on"]</span>
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="project"></a><a href="#project" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Project</h3>
 <p>Configure which source files should be formatted in this project.</p>
@@ -7035,9 +7171,9 @@ formatOn = [<span class="hljs-string">"@formatter:on"</span>, <span class="hljs-
 <blockquote>
 <p>Since v3.0.0.</p>
 </blockquote>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-project.includePaths = [<span class="hljs-string">"glob:**.scala"</span>, <span class="hljs-string">"glob:**.sbt"</span>, <span class="hljs-string">"glob:**.sc"</span>, <span class="hljs-string">"glob:**.mill"</span>]
-project.excludePaths = []
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">project.includePaths</span> = <span class="hljs-string">["glob:**.scala", "glob:**.sbt", "glob:**.sc", "glob:**.mill"]</span>
+<span class="hljs-meta">project.excludePaths</span> = <span class="hljs-string">[]</span>
 </code></pre>
 <p>Allows specifying
 <a href="https://docs.oracle.com/javase/8/docs/api/java/nio/file/FileSystem.html#getPathMatcher-java.lang.String-">PathMatcher</a>
@@ -7129,7 +7265,9 @@ type context bounds and takes values <code>never</code>, <code>always</code>, <c
 (added in v3.8.6) <code>ifMultipleContextBounds</code>. The difference between the latter
 two is: the first considers all bounds (including subtype and supertype),
 whereas the second only the context bounds.</p>
-<p>Default: <code>spaces.beforeContextBoundColon = &quot;Never&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">spaces.beforeContextBoundColon</span> = <span class="hljs-string">"Never"</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: <span class="hljs-type">Bound</span>]: <span class="hljs-type">B</span>
 <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: <span class="hljs-type">Bound</span>]: <span class="hljs-type">B</span>
 <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: <span class="hljs-type">Bound</span>: <span class="hljs-type">Bound2</span>]: <span class="hljs-type">B</span>
@@ -7186,7 +7324,9 @@ whereas the second only the context bounds.</p>
 <p>This parameter controls if a space should be used within braces which surround
 type context bounds and takes the same values as
 <a href="#spacesbeforecontextboundcolon"><code>beforeContextBoundColon</code></a> above. Added in v3.8.6.</p>
-<p>Default: <code>spaces.withinContextBoundBraces = &quot;Never&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">spaces.withinContextBoundBraces</span> = <span class="hljs-string">"Never"</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: {<span class="hljs-type">Bound</span>}]: <span class="hljs-type">B</span>
 <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">method</span></span>[<span class="hljs-type">A</span>: {<span class="hljs-type">Bound</span>, <span class="hljs-type">Bound2</span>}]: <span class="hljs-type">B</span>
 </code></pre>
@@ -7236,7 +7376,9 @@ spaces.withinContextBoundBraces=<span class="hljs-type">IfMultipleContextBounds<
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="spacesinimportcurlybraces"></a><a href="#spacesinimportcurlybraces" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>spaces.inImportCurlyBraces</code></h3>
-<p>Default: <code>spaces.inImportCurlyBraces = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">spaces.inImportCurlyBraces</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">import</span> a.b.{ c, d }
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-keyword">import</span> a.b.{c, d}
@@ -7249,7 +7391,9 @@ spaces.withinContextBoundBraces=<span class="hljs-type">IfMultipleContextBounds<
 <blockquote>
 <p>Since v3.0.0.</p>
 </blockquote>
-<p>Default: <code>spaces.inInterpolatedStringCurlyBraces = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">spaces.inInterpolatedStringCurlyBraces</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-string">s"Hello <span class="hljs-subst">${ the }</span> world!"</span>
 <span class="hljs-string">s"Hello <span class="hljs-subst">${ th.e }</span> world!"</span>
 <span class="hljs-string">s"Hello <span class="hljs-subst">${ the() }</span> world!"</span>
@@ -7275,7 +7419,9 @@ spaces.withinContextBoundBraces=<span class="hljs-type">IfMultipleContextBounds<
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="spacesinparentheses"></a><a href="#spacesinparentheses" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>spaces.inParentheses</code></h3>
-<p>Default: <code>spaces.inParentheses = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">spaces.inParentheses</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted">foo( a, b )
 </code></pre>
 <pre><code class="hljs css language-scala original">foo(a, b)
@@ -7285,7 +7431,9 @@ spaces.withinContextBoundBraces=<span class="hljs-type">IfMultipleContextBounds<
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="spacesneveraroundinfixtypes"></a><a href="#spacesneveraroundinfixtypes" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>spaces.neverAroundInfixTypes</code></h3>
-<p>Default: <code>spaces.neverAroundInfixTypes = []</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">spaces.neverAroundInfixTypes</span> = <span class="hljs-string">[]</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">f</span></span>: <span class="hljs-type">Foo</span>##<span class="hljs-type">Repr</span>
 <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">g</span></span>: <span class="hljs-type">Foo</span> \/ <span class="hljs-type">Repr</span>
 <span class="hljs-comment">// usage same operator not as type</span>
@@ -7335,7 +7483,9 @@ spaces.aroundSymbolicInfixOperators.exclude = [ <span class="hljs-string">"^##$"
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="spacesafterkeywordbeforeparen"></a><a href="#spacesafterkeywordbeforeparen" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>spaces.afterKeywordBeforeParen</code></h3>
-<p>Default: <code>spaces.afterKeywordBeforeParen = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">spaces.afterKeywordBeforeParen</span> = <span class="hljs-string">true</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">if</span>(a) println(<span class="hljs-string">"HELLO!"</span>)
 <span class="hljs-keyword">while</span>(a) println(<span class="hljs-string">"HELLO!"</span>)
 </code></pre>
@@ -7347,7 +7497,9 @@ spaces.aroundSymbolicInfixOperators.exclude = [ <span class="hljs-string">"^##$"
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="spacesinbynametypes"></a><a href="#spacesinbynametypes" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>spaces.inByNameTypes</code></h3>
-<p>Default: <code>spaces.inByNameTypes = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">spaces.inByNameTypes</span> = <span class="hljs-string">true</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">foo</span></span>(a: =&gt;<span class="hljs-type">A</span>): <span class="hljs-type">A</span>
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">foo</span></span>(a: =&gt; <span class="hljs-type">A</span>): <span class="hljs-type">A</span>
@@ -7357,7 +7509,9 @@ spaces.aroundSymbolicInfixOperators.exclude = [ <span class="hljs-string">"^##$"
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="spacesaftersymbolicdefs"></a><a href="#spacesaftersymbolicdefs" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>spaces.afterSymbolicDefs</code></h3>
-<p>Default: <code>spaces.afterSymbolicDefs = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">spaces.afterSymbolicDefs</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">+++</span> </span>(a: <span class="hljs-type">A</span>): <span class="hljs-type">F</span>[<span class="hljs-type">A</span>]
 </code></pre>
 <pre><code class="hljs css language-scala original"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">+++</span></span>(a: <span class="hljs-type">A</span>): <span class="hljs-type">F</span>[<span class="hljs-type">A</span>]
@@ -7384,9 +7538,9 @@ symbolic (doesn't start with a letter or underscore)</li>
 (i.e., one of <code>+</code>, <code>-</code>, <code>!</code>, <code>~</code>), as it's neither a function call nor an infix.</p>
 <p>Also, <code>spaces.beforeApplyArgInParens</code> generalizes the special-case parameter
 <code>spaces.afterTripleEquals</code> which only applies to a <code>===</code> function call.</p>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-spaces.beforeApplyArgInParens = <span class="hljs-string">"Never"</span>
-spaces.beforeInfixArgInParens = <span class="hljs-string">"Always"</span>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">spaces.beforeApplyArgInParens</span> = <span class="hljs-string">"Never"</span>
+<span class="hljs-meta">spaces.beforeInfixArgInParens</span> = <span class="hljs-string">"Always"</span>
 </code></pre>
 <pre><code class="hljs css language-scala formatted">+(baz)
 === (baz)
@@ -7455,7 +7609,9 @@ spaces.beforeInfixArgInParens = <span class="hljs-type">AfterSymbolic</span>
 <blockquote>
 <p>Since v3.8.3.</p>
 </blockquote>
-<p>Default: <code>spaces.afterColonInMatchPattern = &quot;Always&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">spaces.afterColonInMatchPattern</span> = <span class="hljs-string">"Always"</span>
+</code></pre>
 <p>This parameter controls whether to output a space between a colon and a type in
 typed match patterns. It takes the following values:</p>
 <ul>
@@ -7538,7 +7694,9 @@ literals formatting.</p>
 <p>Each <code>literals.*</code> setting has three available options: <code>Upper</code>, <code>Lower</code>,
 <code>Unchanged</code>.</p>
 <h3><a class="anchor" aria-hidden="true" id="literalslong"></a><a href="#literalslong" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>literals.long</code></h3>
-<p>Default: <code>literals.long = &quot;Upper&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">literals.long</span> = <span class="hljs-string">"Upper"</span>
+</code></pre>
 <p>Responsible for the case of <code>Long</code> literals suffix <code>L</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-number">123</span>L
 </code></pre>
@@ -7549,7 +7707,9 @@ literals formatting.</p>
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="literalshexprefix"></a><a href="#literalshexprefix" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>literals.hexPrefix</code></h3>
-<p>Default: <code>literals.hexPrefix = &quot;Lower&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">literals.hexPrefix</span> = <span class="hljs-string">"Lower"</span>
+</code></pre>
 <p>Responsible for the case of hex integer literals prefix <code>0x</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-number">0x123</span>
 </code></pre>
@@ -7560,7 +7720,9 @@ literals formatting.</p>
 </code></pre>
 </p></details>
 <h3><a class="anchor" aria-hidden="true" id="literalshexdigits"></a><a href="#literalshexdigits" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>literals.hexDigits</code></h3>
-<p>Default: <code>literals.hexDigits = &quot;Lower&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">literals.hexDigits</span> = <span class="hljs-string">"Lower"</span>
+</code></pre>
 <p>Responsible for the case of hex integer literals digits</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-number">0xaaaa</span>
 <span class="hljs-number">0xaaaa</span>L
@@ -7577,7 +7739,9 @@ literals.long=<span class="hljs-type">Upper</span>
 <blockquote>
 <p>Since v3.8.4.</p>
 </blockquote>
-<p>Default: <code>literals.binPrefix = &quot;Lower&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">literals.binPrefix</span> = <span class="hljs-string">"Lower"</span>
+</code></pre>
 <p>Responsible for the case of binary integer literals prefix <code>0b</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-number">0</span>b111
 <span class="hljs-number">0</span>b111L
@@ -7596,7 +7760,9 @@ literals.long=<span class="hljs-type">Upper</span>
 <p>Also see the <a href="#rewriteliterals"><code>RewriteLiterals</code> rule</a>
 which defines additional settings in this section.</p>
 <h4><a class="anchor" aria-hidden="true" id="literalsfloatingpointfloat"></a><a href="#literalsfloatingpointfloat" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>literals.floatingPoint.float</code></h4>
-<p>Default: <code>literals.floatingPoint.float = &quot;Lower&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">literals.floatingPoint.float</span> = <span class="hljs-string">"Lower"</span>
+</code></pre>
 <p>Responsible for the case of <code>Float</code> literals suffix <code>F</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-number">42.0</span>f
 </code></pre>
@@ -7607,7 +7773,9 @@ which defines additional settings in this section.</p>
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="literalsfloatingpointdouble"></a><a href="#literalsfloatingpointdouble" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>literals.floatingPoint.double</code></h4>
-<p>Default: <code>literals.floatingPoint.double = &quot;Lower&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">literals.floatingPoint.double</span> = <span class="hljs-string">"Lower"</span>
+</code></pre>
 <p>Responsible for the case of <code>Double</code> literals suffix <code>D</code></p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-number">42.0</span>d
 </code></pre>
@@ -7618,7 +7786,9 @@ which defines additional settings in this section.</p>
 </code></pre>
 </p></details>
 <h4><a class="anchor" aria-hidden="true" id="literalsfloatingpointscientific"></a><a href="#literalsfloatingpointscientific" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>literals.floatingPoint.scientific</code></h4>
-<p>Default: <code>literals.floatingPoint.scientific = &quot;Lower&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">literals.floatingPoint.scientific</span> = <span class="hljs-string">"Lower"</span>
+</code></pre>
 <p>Responsible for the case of <code>Double</code> literals exponent part</p>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-number">10E-1</span>
 <span class="hljs-number">10E-1</span>f
@@ -7642,7 +7812,9 @@ which defines additional settings in this section.</p>
 <p>If set, formats embedded Scala relative to containing XML, making the assumption
 that XML itself is properly formatted. Otherwise, formatting is relative to the
 outer Scala code which contains the XML literals.</p>
-<p>Default: <code>xmlLiterals.assumeFormatted = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">xmlLiterals.assumeFormatted</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-class"><span class="hljs-keyword">object</span> <span class="hljs-title">Example2</span> </span>{
   <span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">apply</span></span>() = {
       &lt;foo&gt;
@@ -7741,13 +7913,13 @@ followed by a few nested single-argument apply calls, with literals as arguments
 <li>(since v2.5.0) <code>binPack.literalsSingleLine</code>: the entire argument list will be formatted on
 one line, regardless of <code>maxColumn</code></li>
 </ul>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-binPack.literalArgumentLists = <span class="hljs-literal">true</span>
-binPack.literalsMinArgCount = <span class="hljs-number">5</span>
-binPack.literalsInclude = [<span class="hljs-string">".*"</span>]
-binPack.literalsExclude = [<span class="hljs-string">"String"</span>, <span class="hljs-string">"Term.Name"</span>]
-binPack.literalsIncludeSimpleExpr = <span class="hljs-literal">false</span>
-binPack.literalsSingleLine = <span class="hljs-literal">false</span>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">binPack.literalArgumentLists</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">binPack.literalsMinArgCount</span> = <span class="hljs-string">5</span>
+<span class="hljs-meta">binPack.literalsInclude</span> = <span class="hljs-string">[".*"]</span>
+<span class="hljs-meta">binPack.literalsExclude</span> = <span class="hljs-string">["String", "Term.Name"]</span>
+<span class="hljs-meta">binPack.literalsIncludeSimpleExpr</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">binPack.literalsSingleLine</span> = <span class="hljs-string">false</span>
 </code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-keyword">val</span> secret: <span class="hljs-type">List</span>[<span class="hljs-type">Bit</span>] = <span class="hljs-type">List</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>,
   <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>,
@@ -7797,7 +7969,9 @@ binPack.literalsSingleLine = <span class="hljs-literal">true</span>
 <h3><a class="anchor" aria-hidden="true" id="binpackparentconstructors"></a><a href="#binpackparentconstructors" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>binPack.parentConstructors</code></h3>
 <p>Parent constructors are <code>B</code> (since 3.4.1), <code>C</code> and <code>D</code> in <code>class A extends B with C and D</code>. Changed
 from a boolean to a wider set of options in v2.6.0.</p>
-<p>Default: <code>binPack.parentConstructors = &quot;source&quot;</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">binPack.parentConstructors</span> = <span class="hljs-string">"source"</span>
+</code></pre>
 <p>The behaviour of <code>binPack.parentConstructors = source</code> depends on the value of
 <a href="#newlinessource"><code>newlines.source</code></a>; <code>keep</code> maps to <code>keep</code> and attempts to preserve the
 space if there's no line break in the source, <code>fold</code> maps to <code>Oneline</code>, rest to <code>Never</code>.</p>
@@ -8151,7 +8325,9 @@ are formatted.</p>
 <p>Controls what happens if a chain enclosed in parentheses is followed by
 additional selects. Those additional selects will be considered part of the
 enclosed chain if and only if this flag is false.</p>
-<p>Default: <code>newlines.selectChains.enclose = null</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.selectChains.enclose</span> = <span class="hljs-string">null</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted">(foo.map(_ + <span class="hljs-number">1</span>).map(_ + <span class="hljs-number">1</span>))
   .filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
@@ -8184,7 +8360,9 @@ maxColumn = <span class="hljs-number">30</span>
 </ul>
 </blockquote>
 <p>Controls if select followed by curly braces can <em>start</em> a chain.</p>
-<p>Default: <code>newlines.selectChains.classicCanStartWithBraceApply = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.selectChains.classicCanStartWithBraceApply</span> = <span class="hljs-string">true</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-type">List</span>(<span class="hljs-number">1</span>)
   .map { x =&gt;
     x + <span class="hljs-number">2</span>
@@ -8223,7 +8401,9 @@ maxColumn = <span class="hljs-number">30</span>
 </ul>
 </blockquote>
 <p>Controls if select <em>not</em> followed by an apply can <em>start</em> a chain.</p>
-<p>Default: <code>newlines.selectChains.classicCanStartWithoutApply = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.selectChains.classicCanStartWithoutApply</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-type">List</span>(<span class="hljs-number">1</span>)
   .toIterator
   .buffered
@@ -8257,7 +8437,9 @@ maxColumn = <span class="hljs-number">30</span>
 </blockquote>
 <p>Keeps the break on the first select of the chain if the source contained one.
 Has no effect if there was no newline in the source.</p>
-<p>Default: <code>newlines.selectChains.classicKeepFirst = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.selectChains.classicKeepFirst</span> = <span class="hljs-string">true</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted"><span class="hljs-comment">// collapse into a single line</span>
 foo.map(_ + <span class="hljs-number">1</span>).filter(_ &gt; <span class="hljs-number">2</span>)
 </code></pre>
@@ -8298,7 +8480,9 @@ first, that is, either the entire chain will be formatted on one line, or will
 contain a break on every select.</p>
 <p>If true, preserves existence or lack of breaks on subsequent selects if the
 first select was formatted with a newline.</p>
-<p>Default: <code>newlines.selectChains.classicKeepAfterFirstBreak = false</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">newlines.selectChains.classicKeepAfterFirstBreak</span> = <span class="hljs-string">false</span>
+</code></pre>
 <pre><code class="hljs css language-scala formatted">foo
   .bar(_ + <span class="hljs-number">1</span>)
   .baz(_ &gt; <span class="hljs-number">2</span>).qux
@@ -8498,10 +8682,10 @@ when the number of state visits for a given token exceeds this value (also see b
 <li><code>runner.optimizer.escapeInPathologicalCases</code>:
 if this flag is disabled, ignore <code>maxVisitsPerToken</code> above</li>
 </ul>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-runner.maxStateVisits = <span class="hljs-literal">null</span>
-runner.optimizer.maxVisitsPerToken = <span class="hljs-number">10000</span>
-runner.optimizer.escapeInPathologicalCases = <span class="hljs-literal">true</span>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">runner.maxStateVisits</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">runner.optimizer.maxVisitsPerToken</span> = <span class="hljs-string">10000</span>
+<span class="hljs-meta">runner.optimizer.escapeInPathologicalCases</span> = <span class="hljs-string">true</span>
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="route-search-optimizations-discarding-some-states"></a><a href="#route-search-optimizations-discarding-some-states" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Route search optimizations: discarding some states</h3>
 <p>Normally, the search algorithm considers any state as a possible intermediate
@@ -8536,9 +8720,9 @@ those enclosing the method arguments, or the entire call itself)</li>
 <li>between matching braces of a type refinement</li>
 </ul></li>
 </ul>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-runner.optimizer.disableOptimizationsInsideSensitiveAreas = <span class="hljs-literal">true</span>
-runner.optimizer.pruneSlowStates = <span class="hljs-string">"Yes"</span>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">runner.optimizer.disableOptimizationsInsideSensitiveAreas</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">runner.optimizer.pruneSlowStates</span> = <span class="hljs-string">"Yes"</span>
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="route-search-optimizations-preferential-treatment"></a><a href="#route-search-optimizations-preferential-treatment" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Route search optimizations: preferential treatment</h3>
 <p>In some cases, we modify the search logic to boost priority of some states.
@@ -8563,9 +8747,9 @@ must not exceed <code>runner.optimizer.maxDepth</code></li>
 <li>there are multiple possible next states; we don't do this if there's only one</li>
 <li>the split has <strong>zero</strong> penalty, including from any unexpired policies</li>
 </ul>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-runner.optimizer.acceptOptimalAtHints = <span class="hljs-literal">true</span>
-runner.optimizer.maxDepth = <span class="hljs-number">100</span>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">runner.optimizer.acceptOptimalAtHints</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">runner.optimizer.maxDepth</span> = <span class="hljs-string">100</span>
 </code></pre>
 <h4><a class="anchor" aria-hidden="true" id="route-search-optimizations-longer-blocks"></a><a href="#route-search-optimizations-longer-blocks" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Route search optimizations: longer blocks</h4>
 <p>Another form of getting ahead faster is by recursing on a long-enough block
@@ -8579,7 +8763,9 @@ penalty added by the splits within the block.</p>
 <li><code>runner.optimizer.recurseOnBlocks</code> is enabled, and</li>
 <li>the token is within a no-optimization zone.</li>
 </ul>
-<p>Default: <code>runner.optimizer.recurseOnBlocks = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">runner.optimizer.recurseOnBlocks</span> = <span class="hljs-string">true</span>
+</code></pre>
 <h4><a class="anchor" aria-hidden="true" id="route-search-optimizations-statements"></a><a href="#route-search-optimizations-statements" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Route search optimizations: statements</h4>
 <p>Another way to boost priority is simply by adding a new priority queue,
 so that any earlier states, from the existing priority queue, wouldn't
@@ -8591,13 +8777,15 @@ and this optimization is enabled when:</p>
 <li>we are in a recursive call on a subsequence or the token is <em>not</em> within
 a no-optimization zone.</li>
 </ul>
-<p>Default: <code>runner.optimizer.dequeueOnNewStatements = true</code></p>
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">runner.optimizer.dequeueOnNewStatements</span> = <span class="hljs-string">true</span>
+</code></pre>
 <h4><a class="anchor" aria-hidden="true" id="route-search-optimizations-arg-or-param-clause"></a><a href="#route-search-optimizations-arg-or-param-clause" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Route search optimizations: arg or param clause</h4>
 <p>Similar to statements above, we might create a new priority queue when we
 encounter a long-enough call-site argument or defn-site parameter clause.</p>
-<pre><code class="hljs css language-scala config"># <span class="hljs-type">Defaults</span>
-runner.optimizer.callSite = {<span class="hljs-string">"minSpan"</span>: <span class="hljs-number">150</span>, <span class="hljs-string">"minCount"</span>: <span class="hljs-number">2</span>}
-runner.optimizer.defnSite = {<span class="hljs-string">"minSpan"</span>: <span class="hljs-number">-1</span>, <span class="hljs-string">"minCount"</span>: <span class="hljs-number">0</span>}
+<pre><code class="hljs css language-properties"><span class="hljs-comment"># Defaults</span>
+<span class="hljs-meta">runner.optimizer.callSite</span> = <span class="hljs-string">{"minSpan": 150, "minCount": 2}</span>
+<span class="hljs-meta">runner.optimizer.defnSite</span> = <span class="hljs-string">{"minSpan": -1, "minCount": 0}</span>
 </code></pre>
 <p>This optimization is enabled when all these criteria are satisfied:</p>
 <ul>
@@ -8634,314 +8822,314 @@ visited nested fields like <code>spaces</code> and <code>newlines</code>.</p>
 pseudo-formatting similar to but incompatible with <code>scalafmt.conf</code>.
 Some of them show values which can't be explicitly specified.</p>
 </blockquote>
-<pre><code class="hljs">align<span class="hljs-selector-class">.allowOverflow</span> = false
-align<span class="hljs-selector-class">.arrowEnumeratorGenerator</span> = false
-align<span class="hljs-selector-class">.beforeOpenParenCallSite</span> = false
-align<span class="hljs-selector-class">.beforeOpenParenDefnSite</span> = false
-align<span class="hljs-selector-class">.closeParenSite</span> = false
-align<span class="hljs-selector-class">.delayUntilSpace</span> = true
-align<span class="hljs-selector-class">.inInterpolation</span> = false
-align<span class="hljs-selector-class">.multiline</span> = false
-align<span class="hljs-selector-class">.openBracketCallSite</span> = null
-align<span class="hljs-selector-class">.openBracketDefnSite</span> = null
-align<span class="hljs-selector-class">.openParenCallSite</span> = false
-align<span class="hljs-selector-class">.openParenCtrlSite</span> = false
-align<span class="hljs-selector-class">.openParenDefnSite</span> = false
-align<span class="hljs-selector-class">.openParenTupleSite</span> = null
-align<span class="hljs-selector-class">.stripMargin</span> = true
-align<span class="hljs-selector-class">.tokens</span> = [
-  {
-    <span class="hljs-selector-tag">code</span> = <span class="hljs-string">"=&gt;"</span>
-    owners = [
-      {
-        parents = []
-        regex = Case
-      }
-    ]
-  }
-]
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Decl.Def"</span> = <span class="hljs-string">"given/val/var/def"</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Defn.Class"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Defn.Def"</span> = <span class="hljs-string">"given/val/var/def"</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Defn.Enum"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Defn.GivenAlias"</span> = <span class="hljs-string">"given/val/var/def"</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Defn.Macro"</span> = <span class="hljs-string">"given/val/var/def"</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Defn.Object"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Defn.Trait"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Defn.Val"</span> = <span class="hljs-string">"given/val/var/def"</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Defn.Var"</span> = <span class="hljs-string">"given/val/var/def"</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Enumerator.Generator"</span> = <span class="hljs-keyword">for</span>
-align<span class="hljs-selector-class">.treeCategory</span>.<span class="hljs-string">"Enumerator.Val"</span> = <span class="hljs-keyword">for</span>
-assumeStandardLibraryStripMargin = false
-binPack<span class="hljs-selector-class">.bracketCallSite</span> = null
-binPack<span class="hljs-selector-class">.bracketDefnSite</span> = null
-binPack<span class="hljs-selector-class">.callSite</span> = Never
-binPack<span class="hljs-selector-class">.defnSite</span> = Never
-binPack<span class="hljs-selector-class">.importSelectors</span> = null
-binPack<span class="hljs-selector-class">.indentCallSiteOnce</span> = false
-binPack<span class="hljs-selector-class">.indentCallSiteSingleArg</span> = true
-binPack<span class="hljs-selector-class">.literalArgumentLists</span> = true
-binPack<span class="hljs-selector-class">.literalsExclude</span> = [
-  String
-  <span class="hljs-string">"Term.Name"</span>
-]
-binPack<span class="hljs-selector-class">.literalsInclude</span> = [
-  <span class="hljs-string">".*"</span>
-]
-binPack<span class="hljs-selector-class">.literalsIncludeSimpleExpr</span> = false
-binPack<span class="hljs-selector-class">.literalsMinArgCount</span> = <span class="hljs-number">5</span>
-binPack<span class="hljs-selector-class">.literalsSingleLine</span> = false
-binPack<span class="hljs-selector-class">.parentConstructors</span> = source
-comments<span class="hljs-selector-class">.indentTrailingInCaseBody</span> = <span class="hljs-attribute">none</span>
-comments<span class="hljs-selector-class">.wrap</span> = no
-comments<span class="hljs-selector-class">.wrapSingleLineMlcAsSlc</span> = false
-comments<span class="hljs-selector-class">.wrapStandaloneSlcAsSlc</span> = false
-danglingParentheses<span class="hljs-selector-class">.bracketCallSite</span> = null
-danglingParentheses<span class="hljs-selector-class">.bracketDefnSite</span> = null
-danglingParentheses<span class="hljs-selector-class">.callSite</span> = true
-danglingParentheses<span class="hljs-selector-class">.ctrlSite</span> = true
-danglingParentheses<span class="hljs-selector-class">.defnSite</span> = true
-danglingParentheses<span class="hljs-selector-class">.exclude</span> = null
-danglingParentheses<span class="hljs-selector-class">.importSite</span> = true
-danglingParentheses<span class="hljs-selector-class">.tupleSite</span> = null
-docstrings<span class="hljs-selector-class">.blankFirstLine</span> = null
-docstrings<span class="hljs-selector-class">.forceBlankLineBefore</span> = true
-docstrings<span class="hljs-selector-class">.oneline</span> = keep
-docstrings<span class="hljs-selector-class">.removeEmpty</span> = false
-docstrings<span class="hljs-selector-class">.style</span> = SpaceAsterisk
-docstrings<span class="hljs-selector-class">.wrap</span> = unfold
-docstrings<span class="hljs-selector-class">.wrapMaxColumn</span> = null
-encoding = <span class="hljs-string">"UTF-8"</span>
-formatOff = [
-  <span class="hljs-string">"@formatter:off"</span>
-  <span class="hljs-string">"format: off"</span>
-]
-formatOn = [
-  <span class="hljs-string">"@formatter:on"</span>
-  <span class="hljs-string">"format: on"</span>
-]
-indent<span class="hljs-selector-class">.afterInfixSite</span> = null
-indent<span class="hljs-selector-class">.binPackCallSite</span> = null
-indent<span class="hljs-selector-class">.binPackDefnSite</span> = null
-indent<span class="hljs-selector-class">.callSite</span> = <span class="hljs-number">2</span>
-indent<span class="hljs-selector-class">.caseSite</span> = <span class="hljs-number">4</span>
-indent<span class="hljs-selector-class">.commaSiteRelativeToExtends</span> = <span class="hljs-number">2</span>
-indent<span class="hljs-selector-class">.ctorSite</span> = null
-indent<span class="hljs-selector-class">.ctrlSite</span> = null
-indent<span class="hljs-selector-class">.defnSite</span> = <span class="hljs-number">4</span>
-indent<span class="hljs-selector-class">.extendSite</span> = <span class="hljs-number">4</span>
-indent<span class="hljs-selector-class">.extraBeforeOpenParenDefnSite</span> = <span class="hljs-number">0</span>
-indent<span class="hljs-selector-class">.fewerBraces</span> = never
-indent<span class="hljs-selector-class">.infix</span> = [
-  {
-    excludeRegex = <span class="hljs-string">"^(&amp;&amp;|\|\|)$"</span>
-    exemptScope = [
-      oldTopLevel
-    ]
-    includeRegex = <span class="hljs-string">".*"</span>
-  }
-]
-indent<span class="hljs-selector-class">.main</span> = <span class="hljs-number">2</span>
-indent<span class="hljs-selector-class">.matchSite</span> = null
-indent<span class="hljs-selector-class">.relativeToLhsLastLine</span> = []
-indent<span class="hljs-selector-class">.significant</span> = null
-indent<span class="hljs-selector-class">.withSiteRelativeToExtends</span> = <span class="hljs-number">0</span>
-indent<span class="hljs-selector-class">.yieldKeyword</span> = true
-lineEndings = null
-literals<span class="hljs-selector-class">.binPrefix</span> = Lower
-literals<span class="hljs-selector-class">.floatingPoint</span><span class="hljs-selector-class">.double</span> = Lower
-literals<span class="hljs-selector-class">.floatingPoint</span><span class="hljs-selector-class">.filter</span><span class="hljs-selector-class">.minSignificantDigits</span> = <span class="hljs-number">0</span>
-literals<span class="hljs-selector-class">.floatingPoint</span><span class="hljs-selector-class">.filter</span><span class="hljs-selector-class">.minTotalDigits</span> = <span class="hljs-number">2147483647</span>
-literals<span class="hljs-selector-class">.floatingPoint</span><span class="hljs-selector-class">.filter</span><span class="hljs-selector-class">.needSuffix</span> = false
-literals<span class="hljs-selector-class">.floatingPoint</span><span class="hljs-selector-class">.float</span> = Lower
-literals<span class="hljs-selector-class">.floatingPoint</span><span class="hljs-selector-class">.format</span><span class="hljs-selector-class">.forceDot</span> = false
-literals<span class="hljs-selector-class">.floatingPoint</span><span class="hljs-selector-class">.format</span><span class="hljs-selector-class">.forceExpPlus</span> = false
-literals<span class="hljs-selector-class">.floatingPoint</span><span class="hljs-selector-class">.format</span><span class="hljs-selector-class">.maxPaddingZeros</span> = <span class="hljs-number">0</span>
-literals<span class="hljs-selector-class">.floatingPoint</span><span class="hljs-selector-class">.format</span><span class="hljs-selector-class">.separators</span> = <span class="hljs-number">0</span>
-literals<span class="hljs-selector-class">.floatingPoint</span><span class="hljs-selector-class">.scientific</span> = Lower
-literals<span class="hljs-selector-class">.hexDigits</span> = Lower
-literals<span class="hljs-selector-class">.hexPrefix</span> = Lower
-literals<span class="hljs-selector-class">.long</span> = Upper
-maxColumn = <span class="hljs-number">80</span>
-newlines<span class="hljs-selector-class">.afterCurlyLambdaParams</span> = never
-newlines<span class="hljs-selector-class">.alwaysBeforeElseAfterCurlyIf</span> = false
-newlines<span class="hljs-selector-class">.annotation</span> = true
-newlines<span class="hljs-selector-class">.avoidAfterYield</span> = true
-newlines<span class="hljs-selector-class">.avoidForSimpleOverflow</span> = []
-newlines<span class="hljs-selector-class">.avoidInResultType</span> = false
-newlines<span class="hljs-selector-class">.beforeCurlyLambdaParams</span> = never
-newlines<span class="hljs-selector-class">.beforeMultiline</span> = null
-newlines<span class="hljs-selector-class">.beforeMultilineDef</span> = null
-newlines<span class="hljs-selector-class">.beforeOpenParenCallSite</span> = null
-newlines<span class="hljs-selector-class">.beforeOpenParenDefnSite</span> = null
-newlines<span class="hljs-selector-class">.beforeParenLambdaParams</span> = null
-newlines<span class="hljs-selector-class">.beforeTemplateBodyIfBreakInParentCtors</span> = false
-newlines<span class="hljs-selector-class">.beforeTypeBounds</span> = null
-newlines<span class="hljs-selector-class">.configStyle</span><span class="hljs-selector-class">.beforeComma</span> = false
-newlines<span class="hljs-selector-class">.configStyle</span><span class="hljs-selector-class">.bracketCallSite</span> = null
-newlines<span class="hljs-selector-class">.configStyle</span><span class="hljs-selector-class">.bracketDefnSite</span> = null
-newlines<span class="hljs-selector-class">.configStyle</span><span class="hljs-selector-class">.callSite</span> = null
-newlines<span class="hljs-selector-class">.configStyle</span><span class="hljs-selector-class">.defnSite</span> = null
-newlines<span class="hljs-selector-class">.configStyle</span><span class="hljs-selector-class">.fallBack</span><span class="hljs-selector-class">.forceIfOptimized</span> = null
-newlines<span class="hljs-selector-class">.configStyle</span><span class="hljs-selector-class">.fallBack</span><span class="hljs-selector-class">.prefer</span> = true
-newlines<span class="hljs-selector-class">.forceBeforeAssign</span> = never
-newlines<span class="hljs-selector-class">.forceBeforeMultilineAssign</span> = null
-newlines<span class="hljs-selector-class">.ignoreInSyntax</span> = true
-newlines<span class="hljs-selector-class">.implicitParamListModifierForce</span> = []
-newlines<span class="hljs-selector-class">.implicitParamListModifierPrefer</span> = null
-newlines<span class="hljs-selector-class">.inInterpolation</span> = allow
-newlines<span class="hljs-selector-class">.infix</span><span class="hljs-selector-class">.patSite</span> = null
-newlines<span class="hljs-selector-class">.infix</span><span class="hljs-selector-class">.termSite</span><span class="hljs-selector-class">.breakOnNested</span> = false
-newlines<span class="hljs-selector-class">.infix</span><span class="hljs-selector-class">.termSite</span><span class="hljs-selector-class">.maxCountPerExprForSome</span> = <span class="hljs-number">10</span>
-newlines<span class="hljs-selector-class">.infix</span><span class="hljs-selector-class">.termSite</span><span class="hljs-selector-class">.maxCountPerFile</span> = <span class="hljs-number">500</span>
-newlines<span class="hljs-selector-class">.infix</span><span class="hljs-selector-class">.termSite</span><span class="hljs-selector-class">.maxCountPerFileForKeep</span> = null
-newlines<span class="hljs-selector-class">.infix</span><span class="hljs-selector-class">.termSite</span><span class="hljs-selector-class">.style</span> = null
-newlines<span class="hljs-selector-class">.infix</span><span class="hljs-selector-class">.typeSite</span> = null
-newlines<span class="hljs-selector-class">.neverBeforeJsNative</span> = false
-newlines<span class="hljs-selector-class">.penalizeSingleSelectMultiArgList</span> = true
-newlines<span class="hljs-selector-class">.selectChains</span><span class="hljs-selector-class">.classicCanStartWithBraceApply</span> = true
-newlines<span class="hljs-selector-class">.selectChains</span><span class="hljs-selector-class">.classicCanStartWithoutApply</span> = false
-newlines<span class="hljs-selector-class">.selectChains</span><span class="hljs-selector-class">.classicKeepAfterFirstBreak</span> = false
-newlines<span class="hljs-selector-class">.selectChains</span><span class="hljs-selector-class">.classicKeepFirst</span> = true
-newlines<span class="hljs-selector-class">.selectChains</span><span class="hljs-selector-class">.enclose</span> = null
-newlines<span class="hljs-selector-class">.selectChains</span><span class="hljs-selector-class">.style</span> = null
-newlines<span class="hljs-selector-class">.selfAnnotation</span> = true
-newlines<span class="hljs-selector-class">.sometimesBeforeColonInMethodReturnType</span> = true
-newlines<span class="hljs-selector-class">.source</span> = null
-newlines<span class="hljs-selector-class">.topLevelBodyIfMinStatements</span> = []
-newlines<span class="hljs-selector-class">.topLevelBodyMinStatements</span> = <span class="hljs-number">2</span>
-newlines<span class="hljs-selector-class">.topLevelStatementBlankLines</span> = []
-newlines<span class="hljs-selector-class">.topLevelStatements</span> = []
-newlines<span class="hljs-selector-class">.topLevelStatementsMinBreaks</span> = <span class="hljs-number">1</span>
-onTestFailure = <span class="hljs-string">""</span>
-project<span class="hljs-selector-class">.excludeFilters</span> = []
-project<span class="hljs-selector-class">.excludePaths</span> = []
-project<span class="hljs-selector-class">.git</span> = false
-project<span class="hljs-selector-class">.includeFilters</span> = []
-project<span class="hljs-selector-class">.includePaths</span> = [
-  <span class="hljs-string">"glob:**.scala"</span>
-  <span class="hljs-string">"glob:**.sbt"</span>
-  <span class="hljs-string">"glob:**.sc"</span>
-  <span class="hljs-string">"glob:**.mill"</span>
-]
-project<span class="hljs-selector-class">.layout</span> = null
-rewrite<span class="hljs-selector-class">.avoidInfix</span><span class="hljs-selector-class">.excludeFilters</span> = [
-  until
-  to
-  by
-  eq
-  ne
-]
-rewrite<span class="hljs-selector-class">.avoidInfix</span><span class="hljs-selector-class">.excludeMatch</span> = true
-rewrite<span class="hljs-selector-class">.avoidInfix</span><span class="hljs-selector-class">.excludePlaceholderArg</span> = true
-rewrite<span class="hljs-selector-class">.avoidInfix</span><span class="hljs-selector-class">.excludePostfix</span> = false
-rewrite<span class="hljs-selector-class">.avoidInfix</span><span class="hljs-selector-class">.excludeScalaTest</span> = null
-rewrite<span class="hljs-selector-class">.avoidInfix</span><span class="hljs-selector-class">.includeFilters</span> = [
-  <span class="hljs-string">"[\w\d_]+"</span>
-]
-rewrite<span class="hljs-selector-class">.imports</span><span class="hljs-selector-class">.contiguousGroups</span> = only
-rewrite<span class="hljs-selector-class">.imports</span><span class="hljs-selector-class">.groups</span> = []
-rewrite<span class="hljs-selector-class">.imports</span><span class="hljs-selector-class">.removeRedundantSelectors</span> = false
-rewrite<span class="hljs-selector-class">.imports</span><span class="hljs-selector-class">.selectors</span> = null
-rewrite<span class="hljs-selector-class">.imports</span><span class="hljs-selector-class">.sort</span> = <span class="hljs-attribute">none</span>
-rewrite<span class="hljs-selector-class">.imports</span><span class="hljs-selector-class">.sortCatchallGroup</span> = tail
-rewrite<span class="hljs-selector-class">.insertBraces</span><span class="hljs-selector-class">.allBlocks</span> = false
-rewrite<span class="hljs-selector-class">.insertBraces</span><span class="hljs-selector-class">.overrideFor</span> = []
-rewrite<span class="hljs-selector-class">.insertBraces</span><span class="hljs-selector-class">.settings</span><span class="hljs-selector-class">.countBreakBefore</span> = false
-rewrite<span class="hljs-selector-class">.insertBraces</span><span class="hljs-selector-class">.settings</span><span class="hljs-selector-class">.minBreaks</span> = <span class="hljs-number">0</span>
-rewrite<span class="hljs-selector-class">.insertBraces</span><span class="hljs-selector-class">.settings</span><span class="hljs-selector-class">.nonBlocksMinBreaks</span> = -<span class="hljs-number">1</span>
-rewrite<span class="hljs-selector-class">.insertBraces</span><span class="hljs-selector-class">.settings</span><span class="hljs-selector-class">.owner</span> = []
-rewrite<span class="hljs-selector-class">.preferCurlyFors</span><span class="hljs-selector-class">.includeGuards</span> = false
-rewrite<span class="hljs-selector-class">.preferCurlyFors</span><span class="hljs-selector-class">.removeTrailingSemicolonsOnly</span> = false
-rewrite<span class="hljs-selector-class">.redundantBraces</span><span class="hljs-selector-class">.defnBodies</span> = all
-rewrite<span class="hljs-selector-class">.redundantBraces</span><span class="hljs-selector-class">.generalExpressions</span> = true
-rewrite<span class="hljs-selector-class">.redundantBraces</span><span class="hljs-selector-class">.ifElseExpressions</span> = false
-rewrite<span class="hljs-selector-class">.redundantBraces</span><span class="hljs-selector-class">.includeUnitMethods</span> = true
-rewrite<span class="hljs-selector-class">.redundantBraces</span><span class="hljs-selector-class">.maxBreaks</span> = <span class="hljs-number">100</span>
-rewrite<span class="hljs-selector-class">.redundantBraces</span><span class="hljs-selector-class">.oneStatApply</span><span class="hljs-selector-class">.bracesMinSpan</span> = -<span class="hljs-number">1</span>
-rewrite<span class="hljs-selector-class">.redundantBraces</span><span class="hljs-selector-class">.oneStatApply</span><span class="hljs-selector-class">.parensMaxSpan</span> = <span class="hljs-number">0</span>
-rewrite<span class="hljs-selector-class">.redundantBraces</span><span class="hljs-selector-class">.stringInterpolation</span> = false
-rewrite<span class="hljs-selector-class">.redundantParens</span><span class="hljs-selector-class">.infixSide</span> = null
-rewrite<span class="hljs-selector-class">.rules</span> = []
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.convertToNewSyntax</span> = false
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.endMarker</span><span class="hljs-selector-class">.insert</span><span class="hljs-selector-class">.blankGaps</span><span class="hljs-selector-class">.max</span> = -<span class="hljs-number">1</span>
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.endMarker</span><span class="hljs-selector-class">.insert</span><span class="hljs-selector-class">.blankGaps</span><span class="hljs-selector-class">.min</span> = -<span class="hljs-number">1</span>
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.endMarker</span><span class="hljs-selector-class">.insert</span><span class="hljs-selector-class">.breaks</span><span class="hljs-selector-class">.max</span> = -<span class="hljs-number">1</span>
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.endMarker</span><span class="hljs-selector-class">.insert</span><span class="hljs-selector-class">.breaks</span><span class="hljs-selector-class">.min</span> = -<span class="hljs-number">1</span>
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.endMarker</span><span class="hljs-selector-class">.preferInsert</span> = true
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.endMarker</span><span class="hljs-selector-class">.remove</span><span class="hljs-selector-class">.blankGaps</span><span class="hljs-selector-class">.max</span> = -<span class="hljs-number">1</span>
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.endMarker</span><span class="hljs-selector-class">.remove</span><span class="hljs-selector-class">.blankGaps</span><span class="hljs-selector-class">.min</span> = -<span class="hljs-number">1</span>
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.endMarker</span><span class="hljs-selector-class">.remove</span><span class="hljs-selector-class">.breaks</span><span class="hljs-selector-class">.max</span> = -<span class="hljs-number">1</span>
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.endMarker</span><span class="hljs-selector-class">.remove</span><span class="hljs-selector-class">.breaks</span><span class="hljs-selector-class">.min</span> = -<span class="hljs-number">1</span>
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.endMarker</span><span class="hljs-selector-class">.spanHas</span> = all
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.newSyntax</span><span class="hljs-selector-class">.control</span> = true
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.newSyntax</span><span class="hljs-selector-class">.deprecated</span> = true
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.enabled</span> = false
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.fewerBraces</span><span class="hljs-selector-class">.parensToo</span> = false
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.fewerBraces</span><span class="hljs-selector-class">.span</span><span class="hljs-selector-class">.max</span> = -<span class="hljs-number">1</span>
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.fewerBraces</span><span class="hljs-selector-class">.span</span><span class="hljs-selector-class">.min</span> = <span class="hljs-number">2</span>
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.insert</span> = null
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.oldSyntaxToo</span> = false
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.preferInsert</span> = true
-rewrite<span class="hljs-selector-class">.scala3</span><span class="hljs-selector-class">.optionalBraces</span><span class="hljs-selector-class">.remove</span> = null
-rewrite<span class="hljs-selector-class">.sortModifiers</span><span class="hljs-selector-class">.order</span> = [
-  implicit
-  final
-  sealed
-  abstract
-  override
-  private
-  protected
-  erased
-  lazy
-  open
-  transparent
-  inline
-  infix
-  opaque
-]
-rewrite<span class="hljs-selector-class">.trailingCommas</span><span class="hljs-selector-class">.allowFolding</span> = true
-rewrite<span class="hljs-selector-class">.trailingCommas</span><span class="hljs-selector-class">.style</span> = never
-runner<span class="hljs-selector-class">.completeCallback</span> = <span class="hljs-string">"&lt;FormatEvent =&gt; Unit&gt;"</span>
-runner<span class="hljs-selector-class">.debug</span> = false
-runner<span class="hljs-selector-class">.dialect</span> = null
-runner<span class="hljs-selector-class">.dialectFeatures</span> = []
-runner<span class="hljs-selector-class">.eventCallback</span> = <span class="hljs-string">"&lt;FormatEvent =&gt; Unit&gt;"</span>
-runner<span class="hljs-selector-class">.fatalWarnings</span> = false
-runner<span class="hljs-selector-class">.ignoreWarnings</span> = false
-runner<span class="hljs-selector-class">.maxStateVisits</span> = null
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.acceptOptimalAtHints</span> = true
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.callSite</span><span class="hljs-selector-class">.minCount</span> = <span class="hljs-number">2</span>
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.callSite</span><span class="hljs-selector-class">.minSpan</span> = <span class="hljs-number">150</span>
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.defnSite</span><span class="hljs-selector-class">.minCount</span> = <span class="hljs-number">0</span>
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.defnSite</span><span class="hljs-selector-class">.minSpan</span> = -<span class="hljs-number">1</span>
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.dequeueOnNewStatements</span> = true
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.disableOptimizationsInsideSensitiveAreas</span> = true
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.escapeInPathologicalCases</span> = true
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.maxDepth</span> = <span class="hljs-number">100</span>
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.maxVisitsPerToken</span> = <span class="hljs-number">10000</span>
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.pruneSlowStates</span> = Yes
-runner<span class="hljs-selector-class">.optimizer</span><span class="hljs-selector-class">.recurseOnBlocks</span> = true
-runner<span class="hljs-selector-class">.parser</span> = Source
-spaces<span class="hljs-selector-class">.afterColonInMatchPattern</span> = Always
-spaces<span class="hljs-selector-class">.afterKeywordBeforeParen</span> = true
-spaces<span class="hljs-selector-class">.afterSymbolicDefs</span> = false
-spaces<span class="hljs-selector-class">.afterTripleEquals</span> = false
-spaces<span class="hljs-selector-class">.aroundSymbolicInfixOperators</span> = null
-spaces<span class="hljs-selector-class">.beforeApplyArgInParens</span> = Never
-spaces<span class="hljs-selector-class">.beforeContextBoundColon</span> = Never
-spaces<span class="hljs-selector-class">.beforeInfixArgInParens</span> = Always
-spaces<span class="hljs-selector-class">.inByNameTypes</span> = true
-spaces<span class="hljs-selector-class">.inImportCurlyBraces</span> = false
-spaces<span class="hljs-selector-class">.inInterpolatedStringCurlyBraces</span> = false
-spaces<span class="hljs-selector-class">.inParentheses</span> = false
-spaces<span class="hljs-selector-class">.neverAroundInfixTypes</span> = []
-spaces<span class="hljs-selector-class">.withinContextBoundBraces</span> = Never
-version = <span class="hljs-string">"3.11.3"</span>
-verticalMultiline<span class="hljs-selector-class">.arityThreshold</span> = <span class="hljs-number">100</span>
-verticalMultiline<span class="hljs-selector-class">.atDefnSite</span> = false
-verticalMultiline<span class="hljs-selector-class">.newlineAfterOpenParen</span> = false
-xmlLiterals<span class="hljs-selector-class">.assumeFormatted</span> = false
+<pre><code class="hljs css language-properties"><span class="hljs-meta">align.allowOverflow</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">align.arrowEnumeratorGenerator</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">align.beforeOpenParenCallSite</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">align.beforeOpenParenDefnSite</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">align.closeParenSite</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">align.delayUntilSpace</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">align.inInterpolation</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">align.multiline</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">align.openBracketCallSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">align.openBracketDefnSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">align.openParenCallSite</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">align.openParenCtrlSite</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">align.openParenDefnSite</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">align.openParenTupleSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">align.stripMargin</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">align.tokens</span> = <span class="hljs-string">[</span>
+  <span class="hljs-attr">{</span>
+    <span class="hljs-attr">code</span> = <span class="hljs-string">"=&gt;"</span>
+    <span class="hljs-attr">owners</span> = <span class="hljs-string">[</span>
+      <span class="hljs-attr">{</span>
+        <span class="hljs-attr">parents</span> = <span class="hljs-string">[]</span>
+        <span class="hljs-attr">regex</span> = <span class="hljs-string">Case</span>
+      <span class="hljs-attr">}</span>
+    <span class="hljs-attr">]</span>
+  <span class="hljs-attr">}</span>
+<span class="hljs-attr">]</span>
+<span class="hljs-meta">align.treeCategory."Decl.Def"</span> = <span class="hljs-string">"given/val/var/def"</span>
+<span class="hljs-meta">align.treeCategory."Defn.Class"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
+<span class="hljs-meta">align.treeCategory."Defn.Def"</span> = <span class="hljs-string">"given/val/var/def"</span>
+<span class="hljs-meta">align.treeCategory."Defn.Enum"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
+<span class="hljs-meta">align.treeCategory."Defn.GivenAlias"</span> = <span class="hljs-string">"given/val/var/def"</span>
+<span class="hljs-meta">align.treeCategory."Defn.Macro"</span> = <span class="hljs-string">"given/val/var/def"</span>
+<span class="hljs-meta">align.treeCategory."Defn.Object"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
+<span class="hljs-meta">align.treeCategory."Defn.Trait"</span> = <span class="hljs-string">"class/object/trait/enum"</span>
+<span class="hljs-meta">align.treeCategory."Defn.Val"</span> = <span class="hljs-string">"given/val/var/def"</span>
+<span class="hljs-meta">align.treeCategory."Defn.Var"</span> = <span class="hljs-string">"given/val/var/def"</span>
+<span class="hljs-meta">align.treeCategory."Enumerator.Generator"</span> = <span class="hljs-string">for</span>
+<span class="hljs-meta">align.treeCategory."Enumerator.Val"</span> = <span class="hljs-string">for</span>
+<span class="hljs-attr">assumeStandardLibraryStripMargin</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">binPack.bracketCallSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">binPack.bracketDefnSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">binPack.callSite</span> = <span class="hljs-string">Never</span>
+<span class="hljs-meta">binPack.defnSite</span> = <span class="hljs-string">Never</span>
+<span class="hljs-meta">binPack.importSelectors</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">binPack.indentCallSiteOnce</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">binPack.indentCallSiteSingleArg</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">binPack.literalArgumentLists</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">binPack.literalsExclude</span> = <span class="hljs-string">[</span>
+  <span class="hljs-attr">String</span>
+  <span class="hljs-attr">"Term.Name"</span>
+<span class="hljs-attr">]</span>
+<span class="hljs-meta">binPack.literalsInclude</span> = <span class="hljs-string">[</span>
+  <span class="hljs-attr">".*"</span>
+<span class="hljs-attr">]</span>
+<span class="hljs-meta">binPack.literalsIncludeSimpleExpr</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">binPack.literalsMinArgCount</span> = <span class="hljs-string">5</span>
+<span class="hljs-meta">binPack.literalsSingleLine</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">binPack.parentConstructors</span> = <span class="hljs-string">source</span>
+<span class="hljs-meta">comments.indentTrailingInCaseBody</span> = <span class="hljs-string">none</span>
+<span class="hljs-meta">comments.wrap</span> = <span class="hljs-string">no</span>
+<span class="hljs-meta">comments.wrapSingleLineMlcAsSlc</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">comments.wrapStandaloneSlcAsSlc</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">danglingParentheses.bracketCallSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">danglingParentheses.bracketDefnSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">danglingParentheses.callSite</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">danglingParentheses.ctrlSite</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">danglingParentheses.defnSite</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">danglingParentheses.exclude</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">danglingParentheses.importSite</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">danglingParentheses.tupleSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">docstrings.blankFirstLine</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">docstrings.forceBlankLineBefore</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">docstrings.oneline</span> = <span class="hljs-string">keep</span>
+<span class="hljs-meta">docstrings.removeEmpty</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">docstrings.style</span> = <span class="hljs-string">SpaceAsterisk</span>
+<span class="hljs-meta">docstrings.wrap</span> = <span class="hljs-string">unfold</span>
+<span class="hljs-meta">docstrings.wrapMaxColumn</span> = <span class="hljs-string">null</span>
+<span class="hljs-attr">encoding</span> = <span class="hljs-string">"UTF-8"</span>
+<span class="hljs-attr">formatOff</span> = <span class="hljs-string">[</span>
+  <span class="hljs-meta">"@formatter</span>:<span class="hljs-string">off"</span>
+  <span class="hljs-meta">"format</span>: <span class="hljs-string">off"</span>
+<span class="hljs-attr">]</span>
+<span class="hljs-attr">formatOn</span> = <span class="hljs-string">[</span>
+  <span class="hljs-meta">"@formatter</span>:<span class="hljs-string">on"</span>
+  <span class="hljs-meta">"format</span>: <span class="hljs-string">on"</span>
+<span class="hljs-attr">]</span>
+<span class="hljs-meta">indent.afterInfixSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">indent.binPackCallSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">indent.binPackDefnSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">indent.callSite</span> = <span class="hljs-string">2</span>
+<span class="hljs-meta">indent.caseSite</span> = <span class="hljs-string">4</span>
+<span class="hljs-meta">indent.commaSiteRelativeToExtends</span> = <span class="hljs-string">2</span>
+<span class="hljs-meta">indent.ctorSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">indent.ctrlSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">indent.defnSite</span> = <span class="hljs-string">4</span>
+<span class="hljs-meta">indent.extendSite</span> = <span class="hljs-string">4</span>
+<span class="hljs-meta">indent.extraBeforeOpenParenDefnSite</span> = <span class="hljs-string">0</span>
+<span class="hljs-meta">indent.fewerBraces</span> = <span class="hljs-string">never</span>
+<span class="hljs-meta">indent.infix</span> = <span class="hljs-string">[</span>
+  <span class="hljs-attr">{</span>
+    <span class="hljs-attr">excludeRegex</span> = <span class="hljs-string">"^(&amp;&amp;|\|\|)$"</span>
+    <span class="hljs-attr">exemptScope</span> = <span class="hljs-string">[</span>
+      <span class="hljs-attr">oldTopLevel</span>
+    <span class="hljs-attr">]</span>
+    <span class="hljs-attr">includeRegex</span> = <span class="hljs-string">".*"</span>
+  <span class="hljs-attr">}</span>
+<span class="hljs-attr">]</span>
+<span class="hljs-meta">indent.main</span> = <span class="hljs-string">2</span>
+<span class="hljs-meta">indent.matchSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">indent.relativeToLhsLastLine</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">indent.significant</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">indent.withSiteRelativeToExtends</span> = <span class="hljs-string">0</span>
+<span class="hljs-meta">indent.yieldKeyword</span> = <span class="hljs-string">true</span>
+<span class="hljs-attr">lineEndings</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">literals.binPrefix</span> = <span class="hljs-string">Lower</span>
+<span class="hljs-meta">literals.floatingPoint.double</span> = <span class="hljs-string">Lower</span>
+<span class="hljs-meta">literals.floatingPoint.filter.minSignificantDigits</span> = <span class="hljs-string">0</span>
+<span class="hljs-meta">literals.floatingPoint.filter.minTotalDigits</span> = <span class="hljs-string">2147483647</span>
+<span class="hljs-meta">literals.floatingPoint.filter.needSuffix</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">literals.floatingPoint.float</span> = <span class="hljs-string">Lower</span>
+<span class="hljs-meta">literals.floatingPoint.format.forceDot</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">literals.floatingPoint.format.forceExpPlus</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">literals.floatingPoint.format.maxPaddingZeros</span> = <span class="hljs-string">0</span>
+<span class="hljs-meta">literals.floatingPoint.format.separators</span> = <span class="hljs-string">0</span>
+<span class="hljs-meta">literals.floatingPoint.scientific</span> = <span class="hljs-string">Lower</span>
+<span class="hljs-meta">literals.hexDigits</span> = <span class="hljs-string">Lower</span>
+<span class="hljs-meta">literals.hexPrefix</span> = <span class="hljs-string">Lower</span>
+<span class="hljs-meta">literals.long</span> = <span class="hljs-string">Upper</span>
+<span class="hljs-attr">maxColumn</span> = <span class="hljs-string">80</span>
+<span class="hljs-meta">newlines.afterCurlyLambdaParams</span> = <span class="hljs-string">never</span>
+<span class="hljs-meta">newlines.alwaysBeforeElseAfterCurlyIf</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">newlines.annotation</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">newlines.avoidAfterYield</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">newlines.avoidForSimpleOverflow</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">newlines.avoidInResultType</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">newlines.beforeCurlyLambdaParams</span> = <span class="hljs-string">never</span>
+<span class="hljs-meta">newlines.beforeMultiline</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.beforeMultilineDef</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.beforeOpenParenCallSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.beforeOpenParenDefnSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.beforeParenLambdaParams</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.beforeTemplateBodyIfBreakInParentCtors</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">newlines.beforeTypeBounds</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.configStyle.beforeComma</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">newlines.configStyle.bracketCallSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.configStyle.bracketDefnSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.configStyle.callSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.configStyle.defnSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.configStyle.fallBack.forceIfOptimized</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.configStyle.fallBack.prefer</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">newlines.forceBeforeAssign</span> = <span class="hljs-string">never</span>
+<span class="hljs-meta">newlines.forceBeforeMultilineAssign</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.ignoreInSyntax</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">newlines.implicitParamListModifierForce</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">newlines.implicitParamListModifierPrefer</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.inInterpolation</span> = <span class="hljs-string">allow</span>
+<span class="hljs-meta">newlines.infix.patSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.infix.termSite.breakOnNested</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">newlines.infix.termSite.maxCountPerExprForSome</span> = <span class="hljs-string">10</span>
+<span class="hljs-meta">newlines.infix.termSite.maxCountPerFile</span> = <span class="hljs-string">500</span>
+<span class="hljs-meta">newlines.infix.termSite.maxCountPerFileForKeep</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.infix.termSite.style</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.infix.typeSite</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.neverBeforeJsNative</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">newlines.penalizeSingleSelectMultiArgList</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">newlines.selectChains.classicCanStartWithBraceApply</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">newlines.selectChains.classicCanStartWithoutApply</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">newlines.selectChains.classicKeepAfterFirstBreak</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">newlines.selectChains.classicKeepFirst</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">newlines.selectChains.enclose</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.selectChains.style</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.selfAnnotation</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">newlines.sometimesBeforeColonInMethodReturnType</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">newlines.source</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">newlines.topLevelBodyIfMinStatements</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">newlines.topLevelBodyMinStatements</span> = <span class="hljs-string">2</span>
+<span class="hljs-meta">newlines.topLevelStatementBlankLines</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">newlines.topLevelStatements</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">newlines.topLevelStatementsMinBreaks</span> = <span class="hljs-string">1</span>
+<span class="hljs-attr">onTestFailure</span> = <span class="hljs-string">""</span>
+<span class="hljs-meta">project.excludeFilters</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">project.excludePaths</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">project.git</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">project.includeFilters</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">project.includePaths</span> = <span class="hljs-string">[</span>
+  <span class="hljs-meta">"glob</span>:<span class="hljs-string">**.scala"</span>
+  <span class="hljs-meta">"glob</span>:<span class="hljs-string">**.sbt"</span>
+  <span class="hljs-meta">"glob</span>:<span class="hljs-string">**.sc"</span>
+  <span class="hljs-meta">"glob</span>:<span class="hljs-string">**.mill"</span>
+<span class="hljs-attr">]</span>
+<span class="hljs-meta">project.layout</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">rewrite.avoidInfix.excludeFilters</span> = <span class="hljs-string">[</span>
+  <span class="hljs-attr">until</span>
+  <span class="hljs-attr">to</span>
+  <span class="hljs-attr">by</span>
+  <span class="hljs-attr">eq</span>
+  <span class="hljs-attr">ne</span>
+<span class="hljs-attr">]</span>
+<span class="hljs-meta">rewrite.avoidInfix.excludeMatch</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">rewrite.avoidInfix.excludePlaceholderArg</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">rewrite.avoidInfix.excludePostfix</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">rewrite.avoidInfix.excludeScalaTest</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">rewrite.avoidInfix.includeFilters</span> = <span class="hljs-string">[</span>
+  <span class="hljs-attr">"[\w\d_]+"</span>
+<span class="hljs-attr">]</span>
+<span class="hljs-meta">rewrite.imports.contiguousGroups</span> = <span class="hljs-string">only</span>
+<span class="hljs-meta">rewrite.imports.groups</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">rewrite.imports.removeRedundantSelectors</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">rewrite.imports.selectors</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">rewrite.imports.sort</span> = <span class="hljs-string">none</span>
+<span class="hljs-meta">rewrite.imports.sortCatchallGroup</span> = <span class="hljs-string">tail</span>
+<span class="hljs-meta">rewrite.insertBraces.allBlocks</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">rewrite.insertBraces.overrideFor</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">rewrite.insertBraces.settings.countBreakBefore</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">rewrite.insertBraces.settings.minBreaks</span> = <span class="hljs-string">0</span>
+<span class="hljs-meta">rewrite.insertBraces.settings.nonBlocksMinBreaks</span> = <span class="hljs-string">-1</span>
+<span class="hljs-meta">rewrite.insertBraces.settings.owner</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">rewrite.preferCurlyFors.includeGuards</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">rewrite.preferCurlyFors.removeTrailingSemicolonsOnly</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">rewrite.redundantBraces.defnBodies</span> = <span class="hljs-string">all</span>
+<span class="hljs-meta">rewrite.redundantBraces.generalExpressions</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">rewrite.redundantBraces.ifElseExpressions</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">rewrite.redundantBraces.includeUnitMethods</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">rewrite.redundantBraces.maxBreaks</span> = <span class="hljs-string">100</span>
+<span class="hljs-meta">rewrite.redundantBraces.oneStatApply.bracesMinSpan</span> = <span class="hljs-string">-1</span>
+<span class="hljs-meta">rewrite.redundantBraces.oneStatApply.parensMaxSpan</span> = <span class="hljs-string">0</span>
+<span class="hljs-meta">rewrite.redundantBraces.stringInterpolation</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">rewrite.redundantParens.infixSide</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">rewrite.rules</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">rewrite.scala3.convertToNewSyntax</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">rewrite.scala3.endMarker.insert.blankGaps.max</span> = <span class="hljs-string">-1</span>
+<span class="hljs-meta">rewrite.scala3.endMarker.insert.blankGaps.min</span> = <span class="hljs-string">-1</span>
+<span class="hljs-meta">rewrite.scala3.endMarker.insert.breaks.max</span> = <span class="hljs-string">-1</span>
+<span class="hljs-meta">rewrite.scala3.endMarker.insert.breaks.min</span> = <span class="hljs-string">-1</span>
+<span class="hljs-meta">rewrite.scala3.endMarker.preferInsert</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">rewrite.scala3.endMarker.remove.blankGaps.max</span> = <span class="hljs-string">-1</span>
+<span class="hljs-meta">rewrite.scala3.endMarker.remove.blankGaps.min</span> = <span class="hljs-string">-1</span>
+<span class="hljs-meta">rewrite.scala3.endMarker.remove.breaks.max</span> = <span class="hljs-string">-1</span>
+<span class="hljs-meta">rewrite.scala3.endMarker.remove.breaks.min</span> = <span class="hljs-string">-1</span>
+<span class="hljs-meta">rewrite.scala3.endMarker.spanHas</span> = <span class="hljs-string">all</span>
+<span class="hljs-meta">rewrite.scala3.newSyntax.control</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">rewrite.scala3.newSyntax.deprecated</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">rewrite.scala3.optionalBraces.enabled</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">rewrite.scala3.optionalBraces.fewerBraces.parensToo</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">rewrite.scala3.optionalBraces.fewerBraces.span.max</span> = <span class="hljs-string">-1</span>
+<span class="hljs-meta">rewrite.scala3.optionalBraces.fewerBraces.span.min</span> = <span class="hljs-string">2</span>
+<span class="hljs-meta">rewrite.scala3.optionalBraces.insert</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">rewrite.scala3.optionalBraces.oldSyntaxToo</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">rewrite.scala3.optionalBraces.preferInsert</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">rewrite.scala3.optionalBraces.remove</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">rewrite.sortModifiers.order</span> = <span class="hljs-string">[</span>
+  <span class="hljs-attr">implicit</span>
+  <span class="hljs-attr">final</span>
+  <span class="hljs-attr">sealed</span>
+  <span class="hljs-attr">abstract</span>
+  <span class="hljs-attr">override</span>
+  <span class="hljs-attr">private</span>
+  <span class="hljs-attr">protected</span>
+  <span class="hljs-attr">erased</span>
+  <span class="hljs-attr">lazy</span>
+  <span class="hljs-attr">open</span>
+  <span class="hljs-attr">transparent</span>
+  <span class="hljs-attr">inline</span>
+  <span class="hljs-attr">infix</span>
+  <span class="hljs-attr">opaque</span>
+<span class="hljs-attr">]</span>
+<span class="hljs-meta">rewrite.trailingCommas.allowFolding</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">rewrite.trailingCommas.style</span> = <span class="hljs-string">never</span>
+<span class="hljs-meta">runner.completeCallback</span> = <span class="hljs-string">"&lt;FormatEvent =&gt; Unit&gt;"</span>
+<span class="hljs-meta">runner.debug</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">runner.dialect</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">runner.dialectFeatures</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">runner.eventCallback</span> = <span class="hljs-string">"&lt;FormatEvent =&gt; Unit&gt;"</span>
+<span class="hljs-meta">runner.fatalWarnings</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">runner.ignoreWarnings</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">runner.maxStateVisits</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">runner.optimizer.acceptOptimalAtHints</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">runner.optimizer.callSite.minCount</span> = <span class="hljs-string">2</span>
+<span class="hljs-meta">runner.optimizer.callSite.minSpan</span> = <span class="hljs-string">150</span>
+<span class="hljs-meta">runner.optimizer.defnSite.minCount</span> = <span class="hljs-string">0</span>
+<span class="hljs-meta">runner.optimizer.defnSite.minSpan</span> = <span class="hljs-string">-1</span>
+<span class="hljs-meta">runner.optimizer.dequeueOnNewStatements</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">runner.optimizer.disableOptimizationsInsideSensitiveAreas</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">runner.optimizer.escapeInPathologicalCases</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">runner.optimizer.maxDepth</span> = <span class="hljs-string">100</span>
+<span class="hljs-meta">runner.optimizer.maxVisitsPerToken</span> = <span class="hljs-string">10000</span>
+<span class="hljs-meta">runner.optimizer.pruneSlowStates</span> = <span class="hljs-string">Yes</span>
+<span class="hljs-meta">runner.optimizer.recurseOnBlocks</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">runner.parser</span> = <span class="hljs-string">Source</span>
+<span class="hljs-meta">spaces.afterColonInMatchPattern</span> = <span class="hljs-string">Always</span>
+<span class="hljs-meta">spaces.afterKeywordBeforeParen</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">spaces.afterSymbolicDefs</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">spaces.afterTripleEquals</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">spaces.aroundSymbolicInfixOperators</span> = <span class="hljs-string">null</span>
+<span class="hljs-meta">spaces.beforeApplyArgInParens</span> = <span class="hljs-string">Never</span>
+<span class="hljs-meta">spaces.beforeContextBoundColon</span> = <span class="hljs-string">Never</span>
+<span class="hljs-meta">spaces.beforeInfixArgInParens</span> = <span class="hljs-string">Always</span>
+<span class="hljs-meta">spaces.inByNameTypes</span> = <span class="hljs-string">true</span>
+<span class="hljs-meta">spaces.inImportCurlyBraces</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">spaces.inInterpolatedStringCurlyBraces</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">spaces.inParentheses</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">spaces.neverAroundInfixTypes</span> = <span class="hljs-string">[]</span>
+<span class="hljs-meta">spaces.withinContextBoundBraces</span> = <span class="hljs-string">Never</span>
+<span class="hljs-attr">version</span> = <span class="hljs-string">"3.11.3"</span>
+<span class="hljs-meta">verticalMultiline.arityThreshold</span> = <span class="hljs-string">100</span>
+<span class="hljs-meta">verticalMultiline.atDefnSite</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">verticalMultiline.newlineAfterOpenParen</span> = <span class="hljs-string">false</span>
+<span class="hljs-meta">xmlLiterals.assumeFormatted</span> = <span class="hljs-string">false</span>
 </code></pre>
 </span></div></article></div><div class="docs-prevnext"><a class="docs-prev button" href="/scalafmt/docs/installation.html"><span class="arrow-prev">← </span><span>Installation</span></a><a class="docs-next button" href="/scalafmt/docs/gotchas.html"><span>Gotchas</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#most-popular">Most popular</a><ul class="toc-headings"><li><a href="#maxcolumn"><code>maxColumn</code></a></li><li><a href="#assumestandardlibrarystripmargin"><code>assumeStandardLibraryStripMargin</code></a></li></ul></li><li><a href="#version">Version</a></li><li><a href="#scala-dialects">Scala Dialects</a><ul class="toc-headings"><li><a href="#runnerdialectoverride"><code>runner.dialectOverride</code></a></li><li><a href="#runnerdialectfeatures"><code>runner.dialectFeatures</code></a></li><li><a href="#scala-3">Scala 3</a></li><li><a href="#scala-2-with--xsource3">Scala 2 with <code>-Xsource:3</code></a></li></ul></li><li><a href="#presets">Presets</a><ul class="toc-headings"><li><a href="#top-level-presets">Top-level presets</a></li><li><a href="#appending-to-preset-collections">Appending to preset collections</a></li></ul></li><li><a href="#indentation">Indentation</a><ul class="toc-headings"><li><a href="#indentmain"><code>indent.main</code></a></li><li><a href="#indentsignificant"><code>indent.significant</code></a></li><li><a href="#indentcallsite"><code>indent.callSite</code></a></li><li><a href="#indentbinpackcallsite"><code>indent.binPackCallSite</code></a></li><li><a href="#indentctrlsite"><code>indent.ctrlSite</code></a></li><li><a href="#indentdefnsite"><code>indent.defnSite</code></a></li><li><a href="#indentbinpackdefnsite"><code>indent.binPackDefnSite</code></a></li><li><a href="#indentctorsite"><code>indent.ctorSite</code></a></li><li><a href="#indentmatchsite"><code>indent.matchSite</code></a></li><li><a href="#indentcasesite"><code>indent.caseSite</code></a></li><li><a href="#indentextendsite"><code>indent.extendSite</code></a></li><li><a href="#indentwithsiterelativetoextends"><code>indent.withSiteRelativeToExtends</code></a></li><li><a href="#indentcommasiterelativetoextends"><code>indent.commaSiteRelativeToExtends</code></a></li><li><a href="#indentextrabeforeopenparendefnsite"><code>indent.extraBeforeOpenParenDefnSite</code></a></li><li><a href="#indentafterinfixsite"><code>indent.afterInfixSite</code></a></li><li><a href="#indent-for-binpackcallsite">Indent for <code>binPack.callSite</code></a></li><li><a href="#indentinfix"><code>indent.infix</code></a></li></ul></li><li><a href="#alignment">Alignment</a><ul class="toc-headings"><li><a href="#alignpreset"><code>align.preset</code></a></li><li><a href="#aligntokens"><code>align.tokens</code></a></li><li><a href="#alignarrowenumeratorgenerator"><code>align.arrowEnumeratorGenerator</code></a></li><li><a href="#aligncloseparensite"><code>align.closeParenSite</code></a></li><li><a href="#alignopenparencallsite"><code>align.openParenCallSite</code></a></li><li><a href="#alignopenbracketcallsite"><code>align.openBracketCallSite</code></a></li><li><a href="#alignopenparenctrlsite"><code>align.openParenCtrlSite</code></a></li><li><a href="#alignopenparendefnsite"><code>align.openParenDefnSite</code></a></li><li><a href="#alignopenbracketdefnsite"><code>align.openBracketDefnSite</code></a></li><li><a href="#alignopenparentuplesite"><code>align.openParenTupleSite</code></a></li><li><a href="#alignbeforeopenparenxxxsite"><code>align.beforeOpenParenXxxSite</code></a></li><li><a href="#alignstripmargin"><code>align.stripMargin</code></a></li><li><a href="#alignmultiline"><code>align.multiline</code></a></li><li><a href="#alignallowoverflow"><code>align.allowOverflow</code></a></li><li><a href="#alignininterpolation"><code>align.inInterpolation</code></a></li><li><a href="#aligndelayuntilspace"><code>align.delayUntilSpace</code></a></li></ul></li><li><a href="#newlines">Newlines</a><ul class="toc-headings"><li><a href="#newlinessource"><code>newlines.source</code></a></li><li><a href="#newlinestoplevelstatementblanklines"><code>newlines.topLevelStatementBlankLines</code></a></li><li><a href="#newlines-around-package-or-template-body">Newlines around package or template body</a></li><li><a href="#newlinesbeforemultiline"><code>newlines.beforeMultiline</code></a></li><li><a href="#newlinesforcebeforemultilineassign"><code>newlines.forceBeforeMultilineAssign</code></a></li><li><a href="#newlinesforcebeforeassign"><code>newlines.forceBeforeAssign</code></a></li><li><a href="#newlinesbeforetypebounds"><code>newlines.beforeTypeBounds</code></a></li><li><a href="#newlinesalwaysbeforeelseaftercurlyif"><code>newlines.alwaysBeforeElseAfterCurlyIf</code></a></li><li><a href="#newlinesbeforecurlylambdaparams"><code>newlines.beforeCurlyLambdaParams</code></a></li><li><a href="#newlinesaftercurlylambdaparams"><code>newlines.afterCurlyLambdaParams</code></a></li><li><a href="#newlinesimplicitparamlistmodifierxxx"><code>newlines.implicitParamListModifierXXX</code></a></li><li><a href="#newlinesinfix"><code>newlines.infix</code></a></li><li><a href="#newlinesavoidforsimpleoverflow"><code>newlines.avoidForSimpleOverflow</code></a></li><li><a href="#newlinesavoidinresulttype"><code>newlines.avoidInResultType</code></a></li><li><a href="#newlinessometimesbeforecoloninmethodreturntype"><code>newlines.sometimesBeforeColonInMethodReturnType</code></a></li><li><a href="#newlinesbeforeopenparenxxxsite"><code>newlines.beforeOpenParenXxxSite</code></a></li><li><a href="#newlinesininterpolation"><code>newlines.inInterpolation</code></a></li><li><a href="#newlinesignoreinsyntax"><code>newlines.ignoreInSyntax</code></a></li><li><a href="#newlinesannotation"><code>newlines.annotation</code></a></li><li><a href="#newlinesselfannotation"><code>newlines.selfAnnotation</code></a></li></ul></li><li><a href="#newlines-danglingparentheses">Newlines: <code>danglingParentheses</code></a><ul class="toc-headings"><li><a href="#danglingparenthesesdefnsite"><code>danglingParentheses.defnSite</code></a></li><li><a href="#danglingparenthesescallsite"><code>danglingParentheses.callSite</code></a></li><li><a href="#danglingparenthesesbracketxxxsite"><code>danglingParentheses.bracketXxxSite</code></a></li><li><a href="#danglingparenthesesctrlsite"><code>danglingParentheses.ctrlSite</code></a></li><li><a href="#danglingparenthesesimportsite"><code>danglingParentheses.importSite</code></a></li><li><a href="#danglingparenthesestuplesite"><code>danglingParentheses.tupleSite</code></a></li><li><a href="#danglingparenthesesexclude"><code>danglingParentheses.exclude</code></a></li></ul></li><li><a href="#newlines-config-style-formatting">Newlines: Config-style formatting</a><ul class="toc-headings"><li><a href="#newlinesconfigstylexxxsite"><code>newlines.configStyle.xxxSite</code></a></li><li><a href="#newlinesconfigstylexxxsiteprefer"><code>newlines.configStyle.xxxSite.prefer</code></a></li><li><a href="#forcing-config-style">Forcing config style</a></li><li><a href="#newlinesconfigstylebeforecomma"><code>newlines.configStyle.beforeComma</code></a></li></ul></li><li><a href="#rewrite-rules">Rewrite Rules</a><ul class="toc-headings"><li><a href="#avoidinfix"><code>AvoidInfix</code></a></li><li><a href="#redundantbraces"><code>RedundantBraces</code></a></li><li><a href="#inserting-braces">Inserting braces</a></li><li><a href="#redundantparens"><code>RedundantParens</code></a></li><li><a href="#sortmodifiers"><code>SortModifiers</code></a></li><li><a href="#prefercurlyfors"><code>PreferCurlyFors</code></a></li><li><a href="#imports"><code>Imports</code></a></li><li><a href="#trailing-commas">Trailing commas</a></li><li><a href="#rewritetokens"><code>rewrite.tokens</code></a></li><li><a href="#removesemicolons">RemoveSemicolons</a></li><li><a href="#rewriteliterals">RewriteLiterals</a></li><li><a href="#proceduresyntax"><code>ProcedureSyntax</code></a></li></ul></li><li><a href="#scala3-rewrites">Scala3 rewrites</a><ul class="toc-headings"><li><a href="#rewritescala3-presets"><code>rewrite.scala3</code> presets</a></li><li><a href="#rewritescala3converttonewsyntax"><code>rewrite.scala3.convertToNewSyntax</code></a></li><li><a href="#rewritescala3optionalbraces"><code>rewrite.scala3.optionalBraces</code></a></li><li><a href="#rewritescala3endmarkerpreferinsert"><code>rewrite.scala3.endMarker.preferInsert</code></a></li><li><a href="#rewritescala3endmarkerinsertremove"><code>rewrite.scala3.endMarker.{insert,remove}</code></a></li><li><a href="#rewritescala3endmarkerspanhas"><code>rewrite.scala3.endMarker.spanHas</code></a></li><li><a href="#rewritescala3-interval-checks"><code>rewrite.scala3</code> interval checks</a></li></ul></li><li><a href="#vertical-multiline">Vertical Multiline</a><ul class="toc-headings"><li><a href="#verticalmultilinearitythreshold"><code>verticalMultiline.arityThreshold</code></a></li><li><a href="#verticalmultilinenewlineafteropenparen"><code>verticalMultiline.newlineAfterOpenParen</code></a></li><li><a href="#verticalmultilineexcludedanglingparens"><code>verticalMultiline.excludeDanglingParens</code></a></li><li><a href="#vertical-multiline-with-implicit-parameter-lists">Vertical multiline with <code>implicit</code> parameter lists</a></li></ul></li><li><a href="#comment-processing">Comment processing</a><ul class="toc-headings"><li><a href="#commentswrap"><code>comments.wrap</code></a></li><li><a href="#commentswrapstandaloneslcasslc"><code>comments.wrapStandaloneSlcAsSlc</code></a></li><li><a href="#commentswrapsinglelinemlcasslc"><code>comments.wrapSingleLineMlcAsSlc</code></a></li><li><a href="#commentsindenttrailingincasebody"><code>comments.indentTrailingInCaseBody</code></a></li><li><a href="#docstringsstyle"><code>docstrings.style</code></a></li><li><a href="#docstringsremoveempty"><code>docstrings.removeEmpty</code></a></li><li><a href="#docstringsoneline"><code>docstrings.oneline</code></a></li><li><a href="#docstringswrap"><code>docstrings.wrap</code></a></li><li><a href="#docstringswrapmaxcolumn"><code>docstrings.wrapMaxColumn</code></a></li><li><a href="#docstringsblankfirstline"><code>docstrings.blankFirstLine</code></a></li><li><a href="#docstringsforceblanklinebefore"><code>docstrings.forceBlankLineBefore</code></a></li></ul></li><li><a href="#disabling-or-customizing-formatting">Disabling or customizing formatting</a><ul class="toc-headings"><li><a href="#search-state-exploded"><code>Search state exploded</code></a></li><li><a href="#for-code-block">For code block</a></li><li><a href="#-format-off">// format: off</a></li><li><a href="#project">Project</a></li><li><a href="#fileoverride"><code>fileOverride</code></a></li></ul></li><li><a href="#spaces">Spaces</a><ul class="toc-headings"><li><a href="#spacesbeforecontextboundcolon"><code>spaces.beforeContextBoundColon</code></a></li><li><a href="#spaceswithincontextboundbraces"><code>spaces.withinContextBoundBraces</code></a></li><li><a href="#spacesinimportcurlybraces"><code>spaces.inImportCurlyBraces</code></a></li><li><a href="#spacesininterpolatedstringcurlybraces"><code>spaces.inInterpolatedStringCurlyBraces</code></a></li><li><a href="#spacesinparentheses"><code>spaces.inParentheses</code></a></li><li><a href="#spacesneveraroundinfixtypes"><code>spaces.neverAroundInfixTypes</code></a></li><li><a href="#spacesaroundsymbolicinfixoperators"><code>spaces.aroundSymbolicInfixOperators</code></a></li><li><a href="#spacesafterkeywordbeforeparen"><code>spaces.afterKeywordBeforeParen</code></a></li><li><a href="#spacesinbynametypes"><code>spaces.inByNameTypes</code></a></li><li><a href="#spacesaftersymbolicdefs"><code>spaces.afterSymbolicDefs</code></a></li><li><a href="#spacesbeforexxxarginparens"><code>spaces.beforeXxxArgInParens</code></a></li><li><a href="#spacesaftercoloninmatchpattern"><code>spaces.afterColonInMatchPattern</code></a></li></ul></li><li><a href="#literals">Literals</a><ul class="toc-headings"><li><a href="#literalslong"><code>literals.long</code></a></li><li><a href="#literalshexprefix"><code>literals.hexPrefix</code></a></li><li><a href="#literalshexdigits"><code>literals.hexDigits</code></a></li><li><a href="#literalsbinprefix"><code>literals.binPrefix</code></a></li><li><a href="#literalsfloatingpoint"><code>literals.floatingPoint</code></a></li></ul></li><li><a href="#xml">XML</a><ul class="toc-headings"><li><a href="#xmlliteralsassumeformatted"><code>xmlLiterals.assumeFormatted</code></a></li></ul></li><li><a href="#binpacking">Binpacking</a><ul class="toc-headings"><li><a href="#binpack-presets"><code>binPack</code> presets</a></li><li><a href="#literal-argument-lists">Literal argument lists</a></li><li><a href="#binpackparentconstructors"><code>binPack.parentConstructors</code></a></li><li><a href="#binpackxxxsite"><code>binPack.xxxSite</code></a></li><li><a href="#binpackbracketxxxsite"><code>binPack.bracketXxxSite</code></a></li><li><a href="#binpackimportselectors"><code>binPack.importSelectors</code></a></li></ul></li><li><a href="#select-chains">Select chains</a><ul class="toc-headings"><li><a href="#newlinesselectchainsstyle"><code>newlines.selectChains.style</code></a></li><li><a href="#newlinesselectchainsenclose"><code>newlines.selectChains.enclose</code></a></li><li><a href="#newlinesselectchainsclassiccanstartwithbraceapply"><code>newlines.selectChains.classicCanStartWithBraceApply</code></a></li><li><a href="#newlinesselectchainsclassiccanstartwithoutapply"><code>newlines.selectChains.classicCanStartWithoutApply</code></a></li><li><a href="#newlinesselectchainsclassickeepfirst"><code>newlines.selectChains.classicKeepFirst</code></a></li><li><a href="#newlinesselectchainsclassickeepafterfirstbreak"><code>newlines.selectChains.classicKeepAfterFirstBreak</code></a></li></ul></li><li><a href="#miscellaneous">Miscellaneous</a><ul class="toc-headings"><li><a href="#lineendings"><code>lineEndings</code></a></li></ul></li><li><a href="#markdown-formatting">Markdown Formatting</a></li><li><a href="#advanced-formatting-process">Advanced: formatting process</a></li><li><a href="#advanced-route-search-optimizations">Advanced: Route search optimizations</a><ul class="toc-headings"><li><a href="#route-search-optimizations-giving-up">Route search optimizations: giving up</a></li><li><a href="#route-search-optimizations-discarding-some-states">Route search optimizations: discarding some states</a></li><li><a href="#route-search-optimizations-preferential-treatment">Route search optimizations: preferential treatment</a></li></ul></li><li><a href="#edition">Edition</a></li><li><a href="#other">Other</a></li></ul></nav></div><footer class="nav-footer" id="footer" style="background-color:#A23244"><section class="sitemap"><a href="/scalafmt/" class="nav-home"><img src="/scalafmt/img/scalameta-logo.png" alt="Scalafmt" width="66" height="58"/></a><div><h5>Docs</h5><a href="
                 /scalafmt/docs/installation.html">Installation</a><a href="
