@@ -33,8 +33,7 @@ class ScalafmtModifier extends StringModifier {
         Scalafmt.format(program, c).toEither match {
           case Right(formatted) =>
             implicit val sb = new StringBuilder
-            mdBlock("scala formatted", formatted.trim)
-            mdBlock("scala original", program.trim)
+            mdPrePost(program.trim, formatted.trim)
             mdConfig("Config for this example:", config.trim)
             sb.toString()
           case Left(e: ParseException) =>
@@ -60,19 +59,34 @@ private object ScalafmtModifier {
   def mdBlock(lang: String, code: String)(implicit sb: StringBuilder): Unit = sb
     .append("```").append(lang).append("\n").append(code).append("\n```\n")
 
+  /** Renders original and formatted side by side (the `.scalafmt-pair` styling
+    * labels them "// Before" / "// After"). The blank lines around each fenced
+    * block let CommonMark close the surrounding raw-HTML block and highlight
+    * the code. Built without `stripMargin` on purpose: the embedded code often
+    * has `stripMargin` continuations of its own, and `|` there must survive.
+    */
+  def mdPrePost(pre: String, post: String)(implicit sb: StringBuilder): Unit =
+    div("scalafmt-pair") {
+      div("before")(mdBlock("scala", pre))
+      div("after")(mdBlock("scala", post))
+    }
+
   def mdConfig(title: String, code: String)(implicit sb: StringBuilder): Unit =
     if (code.nonEmpty) html("details", "config", " open") {
       sb.append(s"<summary>$title</summary>\n\n")
-      mdBlock("scala config", code)
+      mdBlock("scala", code)
     }
 
   def html(tag: String, cls: String, attrs: String = "")(
       body: => Unit,
   )(implicit sb: StringBuilder): Unit = {
-    sb.append("<").append(tag).append(" class='").append(cls).append("'")
+    sb.append("<").append(tag).append(" class=\"").append(cls).append("\"")
       .append(attrs).append(">\n\n")
     body
     sb.append("\n</").append(tag).append(">\n")
   }
+
+  def div(cls: String)(body: => Unit)(implicit sb: StringBuilder): Unit =
+    html("div", cls)(body)
 
 }
