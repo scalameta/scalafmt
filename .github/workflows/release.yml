@@ -12,7 +12,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-java@v5
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'temurin'
           cache: 'sbt'
       - uses: sbt/setup-sbt@v1
@@ -33,7 +33,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-java@v5
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'temurin'
           cache: 'sbt'
       - uses: sbt/setup-sbt@v1
