@@ -35,6 +35,7 @@ export default {
     ],
   ],
   plugins: ["@easyops-cn/docusaurus-search-local"],
+  clientModules: ["./src/js/scalafmt-compare.js"],
   themeConfig: {
     colorMode: { respectPrefersColorScheme: true },
     image: "img/scalameta-logo.png",

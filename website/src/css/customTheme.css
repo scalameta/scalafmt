@@ -62,6 +62,22 @@ pre {
   }
 }
 
+/* Toggle mode (added by scalafmt-compare.js): stack, show one block at a
+   time, put the toggle button below. */
+.scalafmt-pair.toggle {
+  flex-direction: column;
+}
+
+.scalafmt-pair .before[hidden],
+.scalafmt-pair .after[hidden] {
+  display: none;
+}
+
+.scalafmt-compare__toggle {
+  align-self: flex-start;
+  margin: 0.25em 20px 0.75em;
+}
+
 .sidenote {
   margin: 1em 0;
   color: #0c5460;
