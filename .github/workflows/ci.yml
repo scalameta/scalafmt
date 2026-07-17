@@ -50,9 +50,6 @@ jobs:
         if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
       - run: sbt ++${{ matrix.scala }} publishLocal
         if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
-      - run: sbt ++${{ matrix.scala }} "mdoc --check-link-hygiene"
-        if: ${{ startsWith(matrix.scala, '2.') &&
-          (success() || failure()) && steps.gitconfig.outcome == 'success' }}
       # Build and sanity-check the fat jar
       - run: sbt ++${{ matrix.scala }} "cli/assembly; cli/runAssembly --non-interactive"
         if: ${{ (success() || failure()) && steps.testjvm.outcome == 'success' }}
@@ -88,6 +85,24 @@ jobs:
       - run: ./scalafmt --test
       - run: yarn install
       - run: yarn format-check
+  docs:
+    # Build the Docusaurus site (runs mdoc + yarn build via the sbt plugin) so
+    # a broken site fails a PR rather than only surfacing at release.
+    # -Dmdoc.linkHygiene=true makes that same mdoc run fail on dead links, so
+    # this also covers link hygiene in one pass. Node is preinstalled on the
+    # ubuntu runner; docs is Scala 2.12 only.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'sbt'
+      - uses: sbt/setup-sbt@v1
+      - run: sbt -Dmdoc.linkHygiene=true ++2.12.21 docs/docusaurusCreateSite
   native-image: # deprecated, will soon be removed
     permissions:
       contents: write  # for actions/upload-release-asset to upload release asset
