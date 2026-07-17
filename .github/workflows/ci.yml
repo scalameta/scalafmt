@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  testJVM:
     strategy:
       fail-fast: false
       matrix:
@@ -48,19 +48,51 @@ jobs:
       - run: sbt ++${{ matrix.scala }} test-jvm
         if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
         id: testjvm
-      - run: sbt ++${{ matrix.scala }} test-js
-        if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
-      - run: sbt ++${{ matrix.scala }} test-native
-        if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
-        # Workaround for scala-native/scala-native#4917 (intermittent SIGSEGV
-        # in the multithreaded native binary), as in release-native.yml.
-        env:
-          SCALANATIVE_GC_TRAP_BASED_YIELDPOINTS: "0"
-      - run: sbt ++${{ matrix.scala }} publishLocal
-        if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
       # Build and sanity-check the fat jar
       - run: sbt ++${{ matrix.scala }} "cli/assembly; cli/runAssembly --non-interactive"
         if: ${{ (success() || failure()) && steps.testjvm.outcome == 'success' }}
+  testJsNative:
+    # Native/JS output is JDK-independent (native emits a binary, JS runs on
+    # Node), so no java matrix — one JDK, matching release-native.yml. Native
+    # is slow and occasionally SIGSEGVs (scala-native#4917), so we exercise
+    # it only on a representative subset of the OSes we publish binaries for
+    # (linux x64, macOS arm, windows x64). JS and the all-platform
+    # publishLocal smoke test piggyback the ubuntu leg, reusing its warm
+    # native build without spinning extra runners.
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+          - macOS-15
+          - windows-2025
+        scala:
+          - '2.12.21'
+          - '2.13.18'
+          - '3.3.7'
+    runs-on: ${{ matrix.os }}
+    env:
+      SCALANATIVE_GC_TRAP_BASED_YIELDPOINTS: "0"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Set up JVM
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'sbt'
+      - uses: sbt/setup-sbt@v1
+      - name: Set git config for GitOps tests
+        id: gitconfig
+        run: git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
+      - run: sbt ++${{ matrix.scala }} test-native
+        if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
+      - run: sbt ++${{ matrix.scala }} test-js
+        if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' && runner.os == 'Linux' }}
+      - run: sbt ++${{ matrix.scala }} publishLocal
+        if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' && runner.os == 'Linux' }}
   community-test:
     strategy:
       fail-fast: false
