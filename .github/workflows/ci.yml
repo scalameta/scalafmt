@@ -48,6 +48,10 @@ jobs:
         if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
       - run: sbt ++${{ matrix.scala }} test-native
         if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
+        # Workaround for scala-native/scala-native#4917 (intermittent SIGSEGV
+        # in the multithreaded native binary), as in release-native.yml.
+        env:
+          SCALANATIVE_GC_TRAP_BASED_YIELDPOINTS: "0"
       - run: sbt ++${{ matrix.scala }} publishLocal
         if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
       # Build and sanity-check the fat jar
