@@ -185,7 +185,8 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
         case _ => false
       }) ||
       (left.ft.right match {
-        case _: T.Colon => !shouldRewriteColonOnRight(left)
+        case _: T.Colon => !shouldRewriteColonOnRight(left) ||
+          !skipRightToBraces(left)
         case _ => false
       })
     ft.right match {

@@ -10215,7 +10215,6 @@ then
    )
 <<< #5346 non-idempotent nested optional-braces with blank line
 rewrite.scala3.preset = "common"
-lineEndings = unix
 ===
 object Outer:
   val a = 1
@@ -10223,16 +10222,9 @@ object Outer:
   object Inner:
     val b = 2
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,6 +1,5 @@
--object Outer {
--  val a = 1
-+object Outer:
-+   val a = 1
- ∙
--  object Inner:
--     val b = 2
--}
-+   object Inner:
-+      val b = 2
+object Outer {
+  val a = 1
+
+  object Inner:
+     val b = 2
+}
