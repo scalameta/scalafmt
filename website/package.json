@@ -2,7 +2,7 @@
   "scripts": {
     "start": "docusaurus start",
     "build": "docusaurus build",
-    "publish-gh-pages": "docusaurus deploy",
+    "deploy": "docusaurus deploy",
     "docusaurus": "docusaurus",
     "serve": "docusaurus serve",
     "swizzle": "docusaurus swizzle"
