@@ -71,7 +71,9 @@ export default {
           items: [{ label: "GitHub", href: repoUrl }],
         },
       ],
-      logo: { alt: "Scalameta", src: "img/scalameta-logo.png" },
+      // Explicit dimensions so the browser reserves the box during HTML parse,
+      // avoiding a flash of the full-size 150x150 logo before CSS loads.
+      logo: { alt: "Scalameta", src: "img/scalameta-logo.png", width: 50, height: 50 },
       copyright: `Copyright © ${new Date().getFullYear()} Scalafmt`,
     },
     prism: {
