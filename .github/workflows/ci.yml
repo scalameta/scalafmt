@@ -20,8 +20,8 @@ jobs:
           - '21'
         os:
           - windows-2025
-          - ubuntu-22.04
-          - ubuntu-22.04-arm
+          - ubuntu-24.04
+          - ubuntu-24.04-arm
         scala:
           - '2.12.21'
           - '2.13.18'
