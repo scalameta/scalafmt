@@ -27,9 +27,9 @@ jobs:
           - ubuntu-24.04
           - ubuntu-24.04-arm
         scala:
-          - '2.12.21'
-          - '2.13.18'
-          - '3.3.7'
+          - '2.12'
+          - '2.13'
+          - '3.3'
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -67,9 +67,9 @@ jobs:
           - macOS-15
           - windows-2025
         scala:
-          - '2.12.21'
-          - '2.13.18'
-          - '3.3.7'
+          - '2.12'
+          - '2.13'
+          - '3.3'
     runs-on: ${{ matrix.os }}
     env:
       SCALANATIVE_GC_TRAP_BASED_YIELDPOINTS: "0"
@@ -142,7 +142,7 @@ jobs:
           distribution: 'temurin'
           cache: 'sbt'
       - uses: sbt/setup-sbt@v1
-      - run: sbt -Dmdoc.linkHygiene=true ++2.12.21 docs/docusaurusCreateSite
+      - run: sbt -Dmdoc.linkHygiene=true ++2.12 docs/docusaurusCreateSite
   native-image: # deprecated, will soon be removed
     permissions:
       contents: write  # for actions/upload-release-asset to upload release asset
