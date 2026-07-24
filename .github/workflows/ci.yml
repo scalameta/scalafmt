@@ -14,136 +14,175 @@ concurrency:
 permissions:
   contents: read
 
+# ─────────────────────────────────────────────────────────────────────────
+# One definition, two views. The five `w*` jobs carry the whole PR gate as
+# ~11-min balanced buckets and have NO event guard, so they run on both
+# pull_request AND push. Post-merge simply ADDS the `post-*` jobs (guarded
+# `if: github.event_name == 'push'`) — the deferred axes (JDK 21, other OSes,
+# the flaky native *run*, Windows community, native-image). Nothing is
+# re-specified, so the PR and post-merge sets cannot drift apart.
+#
+# Within a worker every command is its own `!cancelled()`-guarded step, so a
+# failure never masks its siblings — you see all of them in one run.
+# ─────────────────────────────────────────────────────────────────────────
+
 jobs:
-  testJVM:
+  # ===== post-merge superset: deferred axes, added only on push to main =====
+  post-jvm:                # JDK 21 everywhere + JDK 17 on the non-PR OSes
+    if: ${{ github.event_name == 'push' }}
     strategy:
       fail-fast: false
       matrix:
-        java:
-          - '17'
-          - '21'
-        os:
-          - windows-2025
-          - ubuntu-24.04
-          - ubuntu-24.04-arm
-        scala:
-          - '2.12'
-          - '2.13'
-          - '3.3'
+        os: [ ubuntu-24.04, ubuntu-24.04-arm, windows-2025 ]
+        java: [ '17', '21' ]
+        exclude:
+          - os: ubuntu-24.04   # ubuntu/17 is already the PR gate (w2/w3/w5)
+            java: '17'
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
+      - &checkout
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - name: Set up JVM
+      - &jdk
         uses: actions/setup-java@v5
         with:
-          java-version: ${{ matrix.java }}
-          distribution: 'temurin'
-          cache: 'sbt'
-      - uses: sbt/setup-sbt@v1
-      - name: Set git config for GitOps tests
-        id: gitconfig
+          # matrix.java on the matrix jobs; falls back to 17 (the PR-gate JDK)
+          # wherever there's no matrix.java — so one anchor serves every job.
+          java-version: ${{ matrix.java || '17' }}
+          distribution: temurin
+          cache: sbt
+      - &sbt
+        uses: sbt/setup-sbt@v1
+      - &gitcfg
+        id: env
+        name: Set git config for GitOps tests
         run: git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
-      - run: sbt ++${{ matrix.scala }} test-jvm
-        if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
-        id: testjvm
-      # Build and sanity-check the fat jar
-      - run: sbt ++${{ matrix.scala }} "cli/assembly; cli/runAssembly --non-interactive"
-        if: ${{ (success() || failure()) && steps.testjvm.outcome == 'success' }}
-  testJsNative:
-    # Native/JS output is JDK-independent (native emits a binary, JS runs on
-    # Node), so no java matrix — one JDK, matching release-native.yml. Native
-    # is slow and occasionally SIGSEGVs (scala-native#4917), so we exercise
-    # it only on a representative subset of the OSes we publish binaries for
-    # (linux x64, macOS arm, windows x64). JS and the all-platform
-    # publishLocal smoke test piggyback the ubuntu leg, reusing its warm
-    # native build without spinning extra runners.
+      - &testjvm212
+        if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: sbt ++2.12 test-jvm
+      - &testjvm213
+        id: jvm213
+        if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: sbt ++2.13 test-jvm
+      - &testjvm33
+        if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: sbt ++3.3 test-jvm
+      - &assembly213
+        if: ${{ !cancelled() && steps.jvm213.outcome == 'success' }}
+        run: sbt ++2.13 "cli/assembly; cli/runAssembly --non-interactive"
+
+  post-native:             # the slow, flaky native link+run + JS + all-platform publishLocal
+    # Native output is JDK-independent; exercised on the OSes we publish for.
+    if: ${{ github.event_name == 'push' }}
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-24.04
-          - macOS-15
-          - windows-2025
-        scala:
-          - '2.12'
-          - '2.13'
-          - '3.3'
+        os: [ ubuntu-24.04, macOS-15, windows-2025 ]
+        scala: [ '2.12', '2.13', '3.3' ]
     runs-on: ${{ matrix.os }}
     env:
-      SCALANATIVE_GC_TRAP_BASED_YIELDPOINTS: "0"
+      SCALANATIVE_GC_TRAP_BASED_YIELDPOINTS: "0"   # avoid intermittent SIGSEGV (scala-native#4917)
     steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - name: Set up JVM
-        uses: actions/setup-java@v5
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: 'sbt'
-      - uses: sbt/setup-sbt@v1
-      - name: Set git config for GitOps tests
-        id: gitconfig
-        run: git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
-      - run: sbt ++${{ matrix.scala }} test-native
-        if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' }}
-      - run: sbt ++${{ matrix.scala }} test-js
-        if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' && runner.os == 'Linux' }}
-      - run: sbt ++${{ matrix.scala }} publishLocal
-        if: ${{ (success() || failure()) && steps.gitconfig.outcome == 'success' && runner.os == 'Linux' }}
-  community-test:
+      - *checkout
+      - *jdk
+      - *sbt
+      - *gitcfg
+      # native run is occasionally flaky (SIGSEGV, scala-native#4917); retry
+      # once so a single crash self-heals instead of red-X'ing main. shell:
+      # bash (not the Windows default pwsh) so `||` behaves on every runner.
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        shell: bash
+        run: sbt ++${{ matrix.scala }} test-native || sbt ++${{ matrix.scala }} test-native
+      - &testjs
+        if: ${{ !cancelled() && steps.env.outcome == 'success' && runner.os == 'Linux' }}
+        run: sbt ++${{ matrix.scala || '2.13' }} test-js
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' && runner.os == 'Linux' }}
+        run: sbt ++${{ matrix.scala }} publishLocal
+
+  # ===== PR gate: 5 balanced ubuntu/JDK17 workers (run on PR *and* push) =====
+  w1-spark-fmt:            # community Spark (~10.3) + formatting (~0.5)
+    runs-on: ubuntu-24.04
+    steps:
+      - *checkout
+      - *jdk
+      - *sbt
+      - *gitcfg
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: sbt communityTestsSpark/test
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: ./scalafmt --test
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: yarn install && yarn format-check
+
+  w2-intellij-jvm3:        # community Intellij (~8.1) + test-jvm 3.3 (~2.5)
+    runs-on: ubuntu-24.04
+    steps:
+      - *checkout
+      - *jdk
+      - *sbt
+      - *gitcfg
+      - *testjvm33
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: sbt communityTestsIntellij/test
+
+  w3-other-jvm213-asm:     # community Other (~7.1) + test-jvm 2.13 (~3.3) + assembly (~0.6)
+    runs-on: ubuntu-24.04
+    steps:
+      - *checkout
+      - *jdk
+      - *sbt
+      - *gitcfg
+      - *testjvm213
+      - *assembly213
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: sbt communityTestsOther/test
+
+  w4-scala3-js-nativecompile:  # community Scala3 (~7.0) + test-js 2.13 (~2.2) + native compile 2.13 (~1.0)
+    runs-on: ubuntu-24.04
+    steps:
+      - *checkout
+      - *jdk
+      - *sbt
+      - *gitcfg
+      - *testjs
+      # native COMPILE only (Scala->NIR): catches a forgotten platform impl in
+      # ~1 min. The slow, flaky native link+run lives in post-native (push only).
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: sbt ++2.13 testsNative/Test/compile
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: sbt communityTestsScala3/test
+
+  w5-scala2-jvm212-docs:   # community Scala2 (~5.3) + test-jvm 2.12 (~3.3) + docs (~2.6)  [the 2.12 cluster]
+    runs-on: ubuntu-24.04
+    steps:
+      - *checkout
+      - *jdk
+      - *sbt
+      - *gitcfg
+      - *testjvm212
+      # docs is Scala 2.12 (mdoc + yarn build); reuses the 2.12 core compiled
+      # just above. linkHygiene=true also fails the run on dead doc links.
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: sbt -Dmdoc.linkHygiene=true ++2.12 docs/docusaurusCreateSite
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: sbt communityTestsScala2/test
+
+  post-community-windows:  # Windows-only community coverage (line-ending handling differs)
+    if: ${{ github.event_name == 'push' }}
     strategy:
       fail-fast: false
       matrix:
-        java: [ '17' ]
-        os: [ windows-latest, ubuntu-latest ]
         group: [ Scala2, Scala3, Spark, Intellij, Other ]
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-2025
     steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - name: Set up JVM
-        uses: actions/setup-java@v5
-        with:
-          java-version: ${{ matrix.java }}
-          distribution: 'temurin'
-          cache: 'sbt'
-      - uses: sbt/setup-sbt@v1
+      - *checkout
+      - *jdk
+      - *sbt
       - run: sbt communityTests${{ matrix.group }}/test
-  formatting:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-java@v5
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'sbt'
-      - run: ./scalafmt --test
-      - run: yarn install
-      - run: yarn format-check
-  docs:
-    # Build the Docusaurus site (runs mdoc + yarn build via the sbt plugin) so
-    # a broken site fails a PR rather than only surfacing at release.
-    # -Dmdoc.linkHygiene=true makes that same mdoc run fail on dead links, so
-    # this also covers link hygiene in one pass. Node is preinstalled on the
-    # ubuntu runner; docs is Scala 2.12 only.
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-java@v5
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: 'sbt'
-      - uses: sbt/setup-sbt@v1
-      - run: sbt -Dmdoc.linkHygiene=true ++2.12 docs/docusaurusCreateSite
-  native-image: # deprecated, will soon be removed
+
+  native-image:            # deprecated but still load-bearing; not a PR gate
+    if: ${{ github.event_name == 'push' }}
     permissions:
       contents: write  # for actions/upload-release-asset to upload release asset
     runs-on: ${{ matrix.os }}
