@@ -1,1 +1,0 @@
-"use strict";(globalThis.webpackChunk=globalThis.webpackChunk||[]).push([[820],{7481(a){a.exports=JSON.parse('{"metadata":{"permalink":"/scalafmt/blog","page":1,"postsPerPage":10,"totalPages":1,"totalCount":0,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);
