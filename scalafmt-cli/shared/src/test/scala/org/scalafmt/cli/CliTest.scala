@@ -660,6 +660,48 @@ trait CliTestBehavior {
       )
     }
 
+    def unparseableAmongMisformatted(
+        extraConf: String,
+    )(args: String*): Future[(ExitCode, String)] = {
+      val input =
+        s"""|/.scalafmt.conf
+            |version = "$version"
+            |$extraConf
+            |/bar.scala
+            |object   Bar { }
+            |/baz.scala
+            |object   Baz { }
+            |/broken.scala
+            |object Broken { val b =
+            |""".stripMargin
+      val dir = string2dir(input)
+      val out = new ByteArrayOutputStream()
+      val config = Cli
+        .getConfig(getMockOptions(dir, dir, new PrintStream(out)), args: _*).get
+      Cli.run(config).map((_, CliTest.stripCR(out.toString)))
+    }
+
+    test(s"unparseable file among misformatted ones: $label")(
+      unparseableAmongMisformatted("")("--test").map { case (exit, out) =>
+        assertContains(out, s"broken.scala:2: error:$dialectError")
+        assertContains(out, "+object Bar {}")
+        assertContains(out, "+object Baz {}")
+        assertContains(out, "error: --test failed")
+        // the parse error zeroes out the whole code, TestError included
+        assertEquals(exit, ExitCode.Ok)
+      },
+    )
+
+    test(s"unparseable file among misformatted ones, fatalWarnings: $label")(
+      unparseableAmongMisformatted("runner.fatalWarnings = true")("--test")
+        .map { case (exit, out) =>
+          assertContains(out, s"broken.scala:2: error:$dialectError")
+          assertContains(out, "+object Bar {}")
+          assertContains(out, "error: --test failed")
+          assertEquals(exit, ExitCode(3)) // TestError+ParseError
+        },
+    )
+
     test(s"exception is thrown on invalid .scalafmt.conf: $label") {
       val input =
         s"""/.scalafmt.conf
