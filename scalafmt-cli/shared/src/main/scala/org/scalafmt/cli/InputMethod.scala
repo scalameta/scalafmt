@@ -19,6 +19,9 @@ sealed abstract class InputMethod {
   protected def list(options: CliOptions): Unit
   protected def overwrite(text: String, options: CliOptions): Future[Unit]
 
+  /** Returns the exit code and what to say about this file, or null if there's
+    * nothing to say; the caller decides when to print it.
+    */
   final def write(
       formatted: String,
       original: String,
@@ -39,8 +42,7 @@ sealed abstract class InputMethod {
         val msg =
           if (diff.nonEmpty) diff
           else s"--- +$pathStr\n    => modified line endings only"
-        options.common.err.println(msg)
-        ExitCode.TestError.future
+        ExitCode.TestError.withMsg(msg).future
       case _ => options.exitCodeOnChange.future
     }
   }

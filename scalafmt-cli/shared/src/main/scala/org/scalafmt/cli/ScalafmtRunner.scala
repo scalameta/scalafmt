@@ -124,6 +124,8 @@ trait ScalafmtRunner {
     }
 
     val completed = Promise[ExitCode]()
+    val printErr =
+      (r: ExitCode) => if (r.msg ne null) options.common.err.println(r.msg)
 
     val tasks = List.newBuilder[Future[Try[ExitCode]]]
     inputMethods.foreach { inputMethod =>
@@ -139,6 +141,7 @@ trait ScalafmtRunner {
         }(writeContext).transform { r =>
           val ok = r == Success(ExitCode.Ok)
           termDisplay.foreach(_.doneWrite(ok = ok))
+          r.foreach(printErr)
           if (!ok && options.check) {
             val code = asExit(r)
             // a tolerated error won't fail the run, so it mustn't stop it
