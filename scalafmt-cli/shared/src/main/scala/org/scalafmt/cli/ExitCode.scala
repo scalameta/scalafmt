@@ -8,7 +8,13 @@ sealed abstract case class ExitCode(code: Int, name: String) {
   def is(c: ExitCode): Boolean = (code & c.code) != 0
   override def toString: String = s"$name=$code"
 
+  /** What to report about the file this code came from, or null. */
+  def msg: String = null
+
   def future: Future[ExitCode] = Future.successful(this)
+  def withMsg(x: String): ExitCode = new ExitCode(code, name) {
+    override def msg: String = x
+  }
 }
 
 object ExitCode {
@@ -50,6 +56,7 @@ object ExitCode {
       result
     }
 
+  // a msg describes one file, but not two; callers report it before merging
   def merge(exit1: ExitCode, exit2: ExitCode): ExitCode =
     apply(exit1.code | exit2.code)
 }
