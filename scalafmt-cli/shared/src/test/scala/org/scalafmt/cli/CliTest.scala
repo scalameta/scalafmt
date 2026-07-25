@@ -687,8 +687,15 @@ trait CliTestBehavior {
         assertContains(out, "+object Bar {}")
         assertContains(out, "+object Baz {}")
         assertContains(out, "error: --test failed")
-        // the parse error zeroes out the whole code, TestError included
-        assertEquals(exit, ExitCode.Ok)
+        assertEquals(exit, ExitCode.TestError)
+      },
+    )
+
+    test(s"unparseable file among misformatted ones, --check: $label")(
+      unparseableAmongMisformatted("")("--check").map { case (exit, out) =>
+        // fail-fast stops at the first real failure, so only one diff
+        assertContains(out, "error: --test failed")
+        assertEquals(exit, ExitCode.TestError)
       },
     )
 

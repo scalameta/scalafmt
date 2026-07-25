@@ -161,12 +161,6 @@ object Cli extends CliUtils {
         options.common.out.println("error: --test failed")
         options.onTestFailure.foreach(options.common.out.println)
       } else options.common.out.println(s"error: $exit")
-    if (
-      options.writeMode == WriteMode.Test && !options.fatalWarnings &&
-      exit.is(ExitCode.ParseError)
-    )
-      // Ignore parse errors etc.
-      ExitCode.Ok
-    else exit
+    options.tolerate(exit)
   }
 }
