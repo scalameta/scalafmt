@@ -141,12 +141,12 @@ trait ScalafmtRunner {
         }(writeContext).transform { r =>
           val ok = r == Success(ExitCode.Ok)
           termDisplay.foreach(_.doneWrite(ok = ok))
-          r.foreach(printErr)
-          if (!ok && options.check) {
-            val code = asExit(r)
-            // a tolerated error won't fail the run, so it mustn't stop it
-            if (!options.tolerate(code).isOk) completed.trySuccess(code)
-          }
+          if (!ok)
+            if (options.check) {
+              val code = asExit(r)
+              // a tolerated error won't fail the run, so it mustn't stop it
+              if (!options.tolerate(code).isOk) completed.trySuccess(code)
+            } else r.foreach(printErr)
           Success(r)
         }
         tasks += future
@@ -157,7 +157,10 @@ trait ScalafmtRunner {
       ExitCode.merge(res, asExit(r))
     }.onComplete(completed.tryComplete)
 
-    completed.future.td { case (td, _) => td.end() }
+    completed.future.td { case (td, _) => td.end() }.map { code =>
+      if (options.check) printErr(code)
+      code
+    }
   }
 
 }

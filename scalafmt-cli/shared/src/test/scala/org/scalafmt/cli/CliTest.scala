@@ -693,7 +693,8 @@ trait CliTestBehavior {
 
     test(s"unparseable file among misformatted ones, --check: $label")(
       unparseableAmongMisformatted("")("--check").map { case (exit, out) =>
-        // fail-fast stops at the first real failure, so only one diff
+        // fail-fast reports one failure, whichever file got there first
+        assertEquals(CliTest.countDiffs(out), 1)
         assertContains(out, "error: --test failed")
         assertEquals(exit, ExitCode.TestError)
       },
@@ -803,6 +804,26 @@ trait CliTestBehavior {
 class CliTest extends AbstractCliTest with CliTestBehavior {
   if (PlatformCompat.isJVM) testCli("1.6.0-RC4") // test for runDynamic, incompatible with Scala Native
   testCli(stableVersion) // test for runScalafmt
+
+  // how many failures race in before fail-fast latches depends on the write
+  // execution context, so pin both wirings
+  Seq(Seq.empty[String], Seq("--async-format")).foreach { extraArgs =>
+    val label = extraArgs.mkString(" ")
+    test(s"--check reports a single file out of many $label") {
+      val files = (1 to 20).map(i => s"/f$i.scala\nobject   F$i { }\n").mkString
+      val dir = string2dir(
+        s"""|/.scalafmt.conf
+            |version = "$stableVersion"
+            |$files
+            |""".stripMargin,
+      )
+      val out = new ByteArrayOutputStream()
+      val init = getMockOptions(dir, dir, new PrintStream(out))
+      val config = Cli.getConfig(init, ("--check" +: extraArgs): _*).get
+      run(config, ExitCode.TestError)
+        .map(_ => assertEquals(CliTest.countDiffs(out.toString), 1))
+    }
+  }
 
   test(s"path-error") {
     val input =
@@ -1466,6 +1487,9 @@ class CliTest extends AbstractCliTest with CliTestBehavior {
 }
 
 object CliTest {
+
+  def countDiffs(out: String): Int = out.linesIterator
+    .count(_.startsWith("+++ b"))
 
   val stripCR: String => String = {
     val eol = System.lineSeparator()
