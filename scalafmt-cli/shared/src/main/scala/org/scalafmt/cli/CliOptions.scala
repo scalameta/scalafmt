@@ -210,4 +210,12 @@ case class CliOptions(
   private[cli] def exitCodeOnChange =
     if (error) ExitCode.TestError else ExitCode.Ok
 
+  /** Clears the bits this run is configured to tolerate; see #1835, a parse
+    * error is reported but doesn't fail `--test`. Keeps the other bits, so a
+    * tolerated error can't mask a real failure in another file.
+    */
+  private[cli] def tolerate(exit: ExitCode): ExitCode =
+    if (writeMode != WriteMode.Test || fatalWarnings) exit
+    else ExitCode(exit.code & ~ExitCode.ParseError.code)
+
 }
