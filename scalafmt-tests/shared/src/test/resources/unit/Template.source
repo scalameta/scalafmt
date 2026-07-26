@@ -31,3 +31,33 @@ class A(b: B)
     with G {
   def x = 2
 }
+<<< #5362 trailing space, empty template, then stat
+onTestFailure = "NullPointerException"
+===
+class A 
+class B
+>>>
+test failed: java.lang.NullPointerException: Cannot invoke "org.scalafmt.internal.FormatToken.idx()" because "exp$1" is null
+<<< #5362 trailing space, empty template, at eof
+class A 
+>>>
+class A
+<<< #5362 trailing space, empty template, comment before
+onTestFailure = "NullPointerException"
+===
+class A /*c*/ 
+class B
+>>>
+test failed: java.lang.NullPointerException: Cannot invoke "org.scalafmt.internal.FormatToken.idx()" because "exp$1" is null
+<<< #5362 trailing space, template with parent
+class A extends B 
+class C
+>>>
+class A extends B
+class C
+<<< #5362 trailing space, template with body
+class A { def f = 1 } 
+class B
+>>>
+class A { def f = 1 }
+class B
