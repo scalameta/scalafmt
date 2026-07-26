@@ -1442,7 +1442,8 @@ object SplitsAfterTemplateKeyword extends Splits {
         import lo._
         val policy = Policy ?
           (cfg.binPack.keepParentConstructors ||
-            templ.begOffset == templ.endOffset) || {
+            // empty template; its offsets are inverted if it spans whitespace
+            templ.begOffset >= templ.endOffset) || {
             val expire = templateDerivesOrCurlyOrLastNonTrivial(templ)
             val forceNewlineBeforeExtends = Policy.beforeLeft(expire, "NLPCTOR") {
               case Decision(FT(_, soft.ExtendsOrDerives(), m), s)

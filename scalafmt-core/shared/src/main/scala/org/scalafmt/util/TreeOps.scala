@@ -636,7 +636,7 @@ object TreeOps {
     */
   def noExplicitImplicit(m: Mod.Implicit, ownerStart: Int): Boolean = {
     val beg = m.begOffset
-    beg < ownerStart || beg == m.endOffset
+    beg < ownerStart || beg >= m.endOffset // empty: offsets can invert
   }
 
   def noExplicitImplicit(ownerStart: Int, orElse: Boolean)(m: Mod): Boolean =
