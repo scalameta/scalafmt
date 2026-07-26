@@ -3,7 +3,7 @@ package org.scalafmt
 import org.scalafmt.Error.{Incomplete, SearchStateExploded}
 import org.scalafmt.config.LineEndings
 import org.scalafmt.rewrite.FormatTokensRewrite
-import org.scalafmt.sysops.{FileOps, PlatformFileOps}
+import org.scalafmt.sysops._
 import org.scalafmt.util._
 
 import scala.meta.parsers.ParseException
@@ -42,18 +42,31 @@ class FormatTests
     // this line makes them instead throw a useful exception pointing to the right stat file
     implicit val loc = t.loc
     val verbose = t.only.contains(true)
-    val debug = new Debug(verbose = verbose)
     val runner = t.style.runner
-    val result = Scalafmt.formatCode(
-      t.original,
-      t.style.copy(runner = HasTests.scalafmtRunner(runner, debug)),
-      filename = t.filename,
-    )
+    def withDebug(dbg: Debug) = t.style
+      .copy(runner = HasTests.scalafmtRunner(runner, dbg))
+    val debug = new Debug(verbose = verbose)
+    val err = t.style.onTestFailure
+    // matches the exception type, or its message; JS reports a null dereference
+    // as a fatal error, naming NPE in the message of its own wrapper type
+    def isExpectedFailure(e: Throwable): Boolean = err.nonEmpty && {
+      e.getClass.getSimpleName == err || {
+        val msg = e.getMessage
+        (msg ne null) && msg.contains(err)
+      }
+    }
+    val style = withDebug(debug)
+    val result = // a fatal error might not be captured by the formatter's own Try
+      try Scalafmt.formatCode(t.original, style, filename = t.filename)
+      catch { case e: Throwable => Formatted.Result(e, style) }
     debug.printTest()
     val resultEither = result.formatted.toEither
-    val err = t.style.onTestFailure
     val obtained = resultEither match {
-      case Left(e) if err.nonEmpty && e.getMessage.contains(err) => t.expected
+      case Left(e) if isExpectedFailure(e) =>
+        // the text is JVM-specific: Native drops the message, JS wraps the type
+        if (PlatformCompat.isJVM)
+          assertEquals(s"test failed: ${e.getMessage}\n", lf(t.expected))
+        return
       case Left(e: Incomplete) => e.formattedCode
       case Left(e: SearchStateExploded) => logger.elem(e); e.partialOutput
       case Left(e: Error.WithCode) => throw e
@@ -94,11 +107,8 @@ class FormatTests
     }
     val debug2 = new Debug(verbose = verbose)
     debug2Opt = Some(debug2)
-    val result2 = Scalafmt.formatCode(
-      obtained,
-      t.style.copy(runner = HasTests.scalafmtRunner(runner, debug2)),
-      filename = t.filename,
-    )
+    val result2 = Scalafmt
+      .formatCode(obtained, withDebug(debug2), filename = t.filename)
     debug2.printTest()
     val result2Either = result2.formatted.toEither
     result2Either match {
