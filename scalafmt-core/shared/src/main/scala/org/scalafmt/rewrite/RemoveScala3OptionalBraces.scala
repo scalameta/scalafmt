@@ -224,12 +224,12 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
         if (isSingleStatBlock) {
           val range = getSpan
           range >= style.maxColumn && x.satisfied(range)
-        } else x.max == 0 || x.satisfied(getSpan)
+        } else x.satisfied(getSpan)
       val checkBlankGaps = (x: RewriteScala3Settings.Between) =>
         if (isSingleStatBlock) {
           val range = getBlankGaps
           range >= 1 && x.satisfied(range)
-        } else x.max == 0 || x.satisfied(getBlankGaps)
+        } else x.satisfied(getBlankGaps)
       val checks = Iterator((ib.span, checkSpan), (ib.blankGaps, checkBlankGaps))
         .flatMap { case (bw, f) => if (bw.enabled) Some(f(bw)) else None }
       if (cfg.preferInsert) checks.contains(true)

@@ -10681,21 +10681,13 @@ def f: Int = {
 rewrite.scala3.optionalBraces.enabled = true
 rewrite.scala3.optionalBraces.insert.blankGaps.max = 0
 rewrite.scala3.optionalBraces.remove.blankGaps.min = 1
-lineEndings = unix
 ===
 def f: Int =
   1
 
   2
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,5 +1,4 @@
--def f: Int = {
--  1
-+def f: Int =
-+   1
- ∙
--  2
--}
-+   2
+def f: Int =
+   1
+
+   2
