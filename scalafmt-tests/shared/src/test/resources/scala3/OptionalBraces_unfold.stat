@@ -10609,3 +10609,121 @@ object Outer {
   object Inner:
      val b = 2
 }
+<<< #5366 def body with blank line, preset
+rewrite.scala3.preset = "common"
+lineEndings = unix
+===
+def f: Int =
+  1
+
+  2
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,5 +1,4 @@
+-def f: Int = {
+-  1
++def f: Int =
++   1
+ ∙
+-  2
+-}
++   2
+<<< #5366 braced def body with blank line, preset
+rewrite.scala3.preset = "common"
+lineEndings = unix
+===
+def f: Int = {
+  1
+
+  2
+}
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,4 +1,5 @@
+-def f: Int =
+-   1
++def f: Int = {
++  1
+ ∙
+-   2
++  2
++}
+<<< #5366 braced def body without blank line, preset
+rewrite.scala3.preset = "common"
+===
+def f: Int = {
+  1
+  2
+}
+>>>
+def f: Int =
+   1
+   2
+<<< #5366 def body with blank line, overlapping insert/remove
+rewrite.scala3.optionalBraces.enabled = true
+rewrite.scala3.optionalBraces.insert.blankGaps.min = 1
+rewrite.scala3.optionalBraces.remove.blankGaps.min = 0
+lineEndings = unix
+===
+def f: Int =
+  1
+
+  2
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,5 +1,4 @@
+-def f: Int = {
+-  1
++def f: Int =
++   1
+ ∙
+-  2
+-}
++   2
+<<< #5366 def body with blank line, insert and remove from zero
+rewrite.scala3.optionalBraces.enabled = true
+rewrite.scala3.optionalBraces.insert.blankGaps.min = 0
+rewrite.scala3.optionalBraces.remove.blankGaps.min = 0
+lineEndings = unix
+===
+def f: Int =
+  1
+
+  2
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,5 +1,4 @@
+-def f: Int = {
+-  1
++def f: Int =
++   1
+ ∙
+-  2
+-}
++   2
+<<< #5366 def body with blank line, insert bounded above
+rewrite.scala3.optionalBraces.enabled = true
+rewrite.scala3.optionalBraces.insert.blankGaps.max = 0
+rewrite.scala3.optionalBraces.remove.blankGaps.min = 1
+lineEndings = unix
+===
+def f: Int =
+  1
+
+  2
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,5 +1,4 @@
+-def f: Int = {
+-  1
++def f: Int =
++   1
+ ∙
+-  2
+-}
++   2
