@@ -26,8 +26,9 @@ object RewriteScala3Settings {
   private val styleGuideCommon = new RewriteScala3Settings(
     convertToNewSyntax = true,
     newSyntax = ConvertToNewSyntax(deprecated = false),
-    optionalBraces = RemoveOptionalBraces(insert =
-      Some(BracesFilters(blankGaps = Between(min = 1))),
+    optionalBraces = RemoveOptionalBraces(
+      insert = Some(BracesFilters(blankGaps = Between(min = 1))),
+      remove = Some(BracesFilters(blankGaps = Between(max = 0))),
     ),
     endMarker = EndMarker(remove = EndMarker.Filters(blankGaps = Between(min = 1))),
   )

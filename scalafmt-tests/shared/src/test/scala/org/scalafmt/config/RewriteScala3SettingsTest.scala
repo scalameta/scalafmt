@@ -92,6 +92,7 @@ class RewriteScala3SettingsTest extends SharedFunSuiteBase {
   }
 
   Seq( // presets
+    "common",
     "true",
     "false",
   ).foreach(preset =>
@@ -99,16 +100,6 @@ class RewriteScala3SettingsTest extends SharedFunSuiteBase {
       val rob = hocon(s"rewrite.scala3.preset = $preset").rewrite.scala3
         .optionalBraces
       assertEquals(rob.normalized, rob, s"preset not normalized: $rob")
-    },
-  )
-
-  Seq( // presets not normalized
-    "common",
-  ).foreach(preset =>
-    test(s"RewriteScala3Settings: preset ranges [$preset] not normalized") {
-      val rob = hocon(s"rewrite.scala3.preset = $preset").rewrite.scala3
-        .optionalBraces
-      assertNotEquals(rob.normalized, rob, s"preset was normalized: $rob")
     },
   )
 
