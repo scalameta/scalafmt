@@ -160,7 +160,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
     val nextFt = ftoks.nextNonCommentAfter(ft)
     val notOkToRewrite = hasFormatOff || { // can't force significant indentation
       val cfg = settings
-      !cfg.remove.forall { x =>
+      !cfg.removeFilters.forall { x =>
         import RewriteScala3Settings.Between
         val checks = Iterator[(Between, Between => Boolean)](
           (x.span, _.satisfied(session.getSpan(left))),
@@ -213,7 +213,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
   )(implicit session: Session, style: ScalafmtConfig): Boolean = {
     // left must be a LeftBrace
     val cfg = settings
-    !cfg.insert.exists { ib =>
+    !cfg.insertFilters.exists { ib =>
       val isSingleStatBlock = isTreeSingleExpr(left.how match {
         case x: ReplacementType.AppendAfter => x.ft.rightOwner
         case _ => left.ft.rightOwner
