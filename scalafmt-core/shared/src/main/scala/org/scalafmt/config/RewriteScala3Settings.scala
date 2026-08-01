@@ -52,26 +52,26 @@ object RewriteScala3Settings {
   case class RemoveOptionalBraces(
       enabled: Boolean = true,
       preferInsert: Boolean = true,
-      insert: Option[BracesFilters] = None,
-      remove: Option[BracesFilters] = None,
+      private[config] val insert: Option[BracesFilters] = None,
+      private[config] val remove: Option[BracesFilters] = None,
       fewerBraces: FewerBraces = FewerBraces.default,
       oldSyntaxToo: Boolean = false,
   ) {
-    def isRemoveEnabled: Boolean = remove.forall(_.enabled)
-    def isInsertEnabled: Boolean = insert.exists(_.enabled)
+    private val ins = insert.filter(_.enabled)
+    private val rem = remove.filter(_.enabled)
 
-    private[config] def normalized: RemoveOptionalBraces = {
-      val ibOpt = insert.filter(_.enabled)
-      val rbOpt = remove.filter(_.enabled)
-      ibOpt.fold(copy(insert = None, remove = rbOpt))(ib =>
-        rbOpt.fold( // if insert is Some, remove must be too
-          copy(insert = ibOpt, remove = Some(BracesFilters.disabled)),
-        )(rb =>
-          if (preferInsert) copy(insert = ibOpt, remove = Some(rb.exclude(ib)))
-          else copy(insert = Some(ib.exclude(rb)), remove = rbOpt),
-        ),
-      )
+    // what to brace; loses the region `remove` claims unless preferred
+    val insertFilters: Option[BracesFilters] =
+      if (preferInsert) ins else ins.map(i => rem.fold(i)(i.exclude))
+
+    // what to unbrace; unset means always, disabled means never
+    val removeFilters: Option[BracesFilters] = ins.fold(rem) { i =>
+      val f = (r: BracesFilters) => if (preferInsert) r.exclude(i) else r
+      Some(rem.fold(BracesFilters.disabled)(f))
     }
+
+    def isRemoveEnabled: Boolean = removeFilters.forall(_.enabled)
+    def isInsertEnabled: Boolean = insertFilters.exists(_.enabled)
   }
 
   object RemoveOptionalBraces {
@@ -86,8 +86,8 @@ object RewriteScala3Settings {
       .deriveEncoder[RemoveOptionalBraces]
 
     implicit final val decoder: ConfDecoderEx[RemoveOptionalBraces] = generic
-      .deriveDecoderEx[RemoveOptionalBraces](no).map(_.normalized).noTypos
-      .detectSectionRenames.contramapPartial {
+      .deriveDecoderEx[RemoveOptionalBraces](no).noTypos.detectSectionRenames
+      .contramapPartial {
         case Conf.Bool(true) | Conf.Str("yes") => Conf
             .Obj("enabled" -> Conf(true))
         case Conf.Bool(false) | Conf.Str("no") => Conf

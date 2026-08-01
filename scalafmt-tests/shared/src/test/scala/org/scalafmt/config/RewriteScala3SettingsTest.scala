@@ -84,11 +84,45 @@ class RewriteScala3SettingsTest extends SharedFunSuiteBase {
     val ob = RemoveOptionalBraces(insert =
       Some(BracesFilters(blankGaps = Between(min = 1))),
     )
-    // as built, `remove` means "always", so it takes back what insert added
+    // an unset `remove` reads as never once `insert` is set, not as always
     val (once, twice) = formatTwice(ob)
-    assertNotEquals(twice, once)
-    val (onceNormal, twiceNormal) = formatTwice(ob.normalized)
-    assertEquals(twiceNormal, onceNormal)
+    assertEquals(twice, once)
+  }
+
+  private val gapsFrom1 = BracesFilters(blankGaps = Between(min = 1))
+  private val spanTo5 = BracesFilters(span = Between(max = 5))
+  Seq(
+    // preferInsert, insert, remove, insertFilters, removeFilters
+    (true, None, None, None, None),
+    (true, None, Some(spanTo5), None, Some(spanTo5)),
+    (true, Some(gapsFrom1), None, Some(gapsFrom1), Some(BracesFilters.disabled)),
+    (
+      true,
+      Some(gapsFrom1),
+      Some(spanTo5),
+      Some(gapsFrom1),
+      Some(spanTo5.exclude(gapsFrom1)),
+    ),
+    (false, None, None, None, None),
+    (false, None, Some(spanTo5), None, Some(spanTo5)),
+    (false, Some(gapsFrom1), None, Some(gapsFrom1), Some(BracesFilters.disabled)),
+    (
+      false,
+      Some(gapsFrom1),
+      Some(spanTo5),
+      Some(gapsFrom1.exclude(spanTo5)),
+      Some(spanTo5),
+    ),
+  ).foreach { case (preferInsert, insert, remove, insFilters, remFilters) =>
+    test(s"RewriteScala3Settings: filters [preferInsert=$preferInsert, $insert, $remove]") {
+      val obtained = RemoveOptionalBraces(
+        preferInsert = preferInsert,
+        insert = insert,
+        remove = remove,
+      )
+      assertEquals(obtained.insertFilters, insFilters)
+      assertEquals(obtained.removeFilters, remFilters)
+    }
   }
 
   Seq( // presets
@@ -99,7 +133,12 @@ class RewriteScala3SettingsTest extends SharedFunSuiteBase {
     test(s"RewriteScala3Settings: preset ranges [$preset]") {
       val rob = hocon(s"rewrite.scala3.preset = $preset").rewrite.scala3
         .optionalBraces
-      assertEquals(rob.normalized, rob, s"preset not normalized: $rob")
+      val overlaps = rob.insertFilters.exists(i =>
+        rob.removeFilters.exists(r =>
+          i.span.overlaps(r.span) || i.blankGaps.overlaps(r.blankGaps),
+        ),
+      )
+      assert(!overlaps, s"preset ranges overlap: $rob")
     },
   )
 
