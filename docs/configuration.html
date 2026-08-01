@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.10.1">
 <title data-rh="true">Configuration | Scalafmt</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://scalameta.org/scalafmt/img/scalameta-logo.png"><meta data-rh="true" name="twitter:image" content="https://scalameta.org/scalafmt/img/scalameta-logo.png"><meta data-rh="true" property="og:url" content="https://scalameta.org/scalafmt/docs/configuration"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Configuration | Scalafmt"><meta data-rh="true" name="description" content="If you have very specific preferences for configuring your formatting,"><meta data-rh="true" property="og:description" content="If you have very specific preferences for configuring your formatting,"><link data-rh="true" rel="icon" href="/scalafmt/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://scalameta.org/scalafmt/docs/configuration"><link data-rh="true" rel="alternate" href="https://scalameta.org/scalafmt/docs/configuration" hreflang="en"><link data-rh="true" rel="alternate" href="https://scalameta.org/scalafmt/docs/configuration" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Configuration","item":"https://scalameta.org/scalafmt/docs/configuration"}]}</script><link rel="stylesheet" href="/scalafmt/assets/css/styles.bd29fe0d.css">
-<script src="/scalafmt/assets/js/runtime~main.9bec01a2.js" defer="defer"></script>
+<script src="/scalafmt/assets/js/runtime~main.d379e3c7.js" defer="defer"></script>
 <script src="/scalafmt/assets/js/main.fd793670.js" defer="defer"></script>
 </head>
 <body>
@@ -3726,12 +3726,14 @@ parameters under <code>rewrite.scala3</code> subsection.</p>
 <li class=""><code>common</code>: intends to approximate the
 <a href="https://contributors.scala-lang.org/t/towards-a-common-scala-style-recommendation/7383" target="_blank" rel="noopener noreferrer" class="">common style recommendation</a>
 <ul>
-<li class="">as of v3.11.2, it includes:
+<li class="">as of v3.11.6, it includes:
 <ul>
 <li class=""><code>rewrite.scala3.convertToNewSyntax = true</code></li>
 <li class=""><code>rewrite.scala3.newSyntax.deprecated = false</code></li>
 <li class=""><code>rewrite.scala3.endMarker.remove.blankGaps.min = 1</code></li>
+<li class=""><code>rewrite.scala3.optionalBraces.enabled = true</code></li>
 <li class=""><code>rewrite.scala3.optionalBraces.insert.blankGaps.min = 1</code></li>
+<li class=""><code>rewrite.scala3.optionalBraces.remove.blankGaps.max = 0</code></li>
 </ul>
 </li>
 </ul>
