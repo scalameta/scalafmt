@@ -4582,11 +4582,13 @@ The following presets are available for the `rewrite.scala3` section:
 
 - `common`: intends to approximate the
   [common style recommendation](https://contributors.scala-lang.org/t/towards-a-common-scala-style-recommendation/7383)
-  - as of v3.11.2, it includes:
+  - as of v3.11.6, it includes:
     - `rewrite.scala3.convertToNewSyntax = true`
     - `rewrite.scala3.newSyntax.deprecated = false`
     - `rewrite.scala3.endMarker.remove.blankGaps.min = 1`
+    - `rewrite.scala3.optionalBraces.enabled = true`
     - `rewrite.scala3.optionalBraces.insert.blankGaps.min = 1`
+    - `rewrite.scala3.optionalBraces.remove.blankGaps.max = 0`
 
 ### `rewrite.scala3.convertToNewSyntax`
 

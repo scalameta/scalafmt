@@ -10235,27 +10235,19 @@ object Outer {
 }
 <<< #5366 def body with blank line, preset
 rewrite.scala3.preset = "common"
-lineEndings = unix
 ===
 def f: Int =
   1
 
   2
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,5 +1,4 @@
--def f: Int = {
--  1
-+def f: Int =
-+   1
- ∙
--  2
--}
-+   2
+def f: Int = {
+  1
+
+  2
+}
 <<< #5366 braced def body with blank line, preset
 rewrite.scala3.preset = "common"
-lineEndings = unix
 ===
 def f: Int = {
   1
@@ -10263,17 +10255,11 @@ def f: Int = {
   2
 }
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,4 +1,5 @@
--def f: Int =
--   1
-+def f: Int = {
-+  1
- ∙
--   2
-+  2
-+}
+def f: Int = {
+  1
+
+  2
+}
 <<< #5366 braced def body without blank line, preset
 rewrite.scala3.preset = "common"
 ===
