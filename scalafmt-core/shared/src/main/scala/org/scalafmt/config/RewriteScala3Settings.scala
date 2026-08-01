@@ -211,11 +211,15 @@ object RewriteScala3Settings {
       else if (other.max < 0) max >= other.min
       else max >= other.min && min <= other.max
     def exclude(other: Between): Between =
-      if (other.enabled) copy(
+      if (!enabled || !other.enabled) this
+      else if (other.min == 0 && other.max < 0) Between.disabled // excludes all
+      else copy(
         min = if (other.max < 0) min else min.max(other.max + 1),
-        max = if (other.min < 0) max else max.min(other.min - 1),
+        max =
+          if (other.min < 0) max
+          else if (max < 0) other.min - 1 // was unbounded
+          else max.min(other.min - 1),
       )
-      else this
   }
   object Between {
     val disabled = new Between()

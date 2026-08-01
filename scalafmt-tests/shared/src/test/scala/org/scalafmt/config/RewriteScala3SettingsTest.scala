@@ -58,9 +58,9 @@ class RewriteScala3SettingsTest extends SharedFunSuiteBase {
       Between(min = 5, max = 1),
     ),
     (Between(max = 5), Between(max = 2), Between(min = 3, max = 5)),
-    (Between(min = 1), Between(min = 3), Between(min = 1)),
-    (Between(min = 0), Between(min = 1), Between(min = 0)),
-    (Between(min = 0), Between(min = 0), Between(min = 0)),
+    (Between(min = 1), Between(min = 3), Between(min = 1, max = 2)),
+    (Between(min = 0), Between(min = 1), Between(min = 0, max = 0)),
+    (Between(min = 0), Between(min = 0), Between()),
   ).foreach { case (lt, rt, excluded) =>
     test(s"RewriteScala3Settings.Between: exclude [$lt, $rt]")(
       assertEquals(lt.exclude(rt), excluded),
