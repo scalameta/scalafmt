@@ -44,7 +44,7 @@ inThisBuild {
     resolvers += Resolver.sonatypeCentralSnapshots,
     testFrameworks += TestFrameworks.MUnit,
     // causes native image issues
-    dependencyOverrides += "org.jline" % "jline" % "3.30.15",
+    dependencyOverrides += "org.jline" % "jline" % "3.30.16",
   )
 }
 
