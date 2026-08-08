@@ -35,21 +35,48 @@ inThisBuild {
   )
 }
 
-name := "scalafmtRoot"
-publish / skip := true
-
 lazy val runAssembly = inputKey[Unit]("Run assembly")
 
 lazy val copyScalaNative = taskKey[Unit]("Copy Scala Native output to root")
 
-copyScalaNative := {
-  val binaryVersion = (cli.native / scalaBinaryVersion).value
-  val suffix = if (Properties.isWin) ".exe" else ""
-  val nativeOutput = (cli.native / Compile / target).value /
-    s"scala-$binaryVersion" / s"scalafmt-cli$suffix"
-  val output = baseDirectory.value / s"scalafmt$suffix"
-  IO.copyFile(nativeOutput, output)
-}
+def rootSettings = Def.settings(
+  name := "scalafmtRoot",
+  unpublished,
+  copyScalaNative := {
+    val binaryVersion = (cliNative / scalaBinaryVersion).value
+    val suffix = if (Properties.isWin) ".exe" else ""
+    val nativeOutput = (cliNative / Compile / target).value /
+      s"scala-$binaryVersion" / s"scalafmt-cli$suffix"
+    val output = baseDirectory.value / s"scalafmt$suffix"
+    IO.copyFile(nativeOutput, output)
+  },
+)
+
+def allMatrices = Seq(
+  interfaces,
+  sysops,
+  config,
+  macros,
+  core,
+  dynamicCore,
+  dynamic,
+  cli,
+  tests,
+  communityTestsCommon,
+  communityTestsScala2,
+  communityTestsScala3,
+  communityTestsSpark,
+  communityTestsIntellij,
+  communityTestsOther,
+  benchmarks,
+  docs,
+).flatMap(_.componentProjects.map(p => LocalProject(p.id)))
+
+// An explicit root, rather than the one sbt generates: in sbt 2 a bare
+// top-level setting applies to every project, so `publish / skip` must have a
+// project to live in or it would silently disable publishing build-wide.
+lazy val root = project.in(file(".")).withId("scalafmt-root")
+  .aggregate(allMatrices: _*).settings(rootSettings)
 
 addCommandAlias("native-image", "cli/nativeImage")
 addCommandAlias(
@@ -224,6 +251,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .jsSettings(scalaJsSettings, scalaJSUseMainModuleInitializer := true)
   .jvmEnablePlugins(NativeImagePlugin)
   .jvmConfigure(_.dependsOn(dynamic).aggregate(dynamic))
+def cliNative = cli.native
 
 lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-tests")).settings(
