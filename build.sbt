@@ -151,7 +151,7 @@ lazy val config = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   ).jsSettings(scalaJsSettings)
 
 lazy val core = crossProject(JVMPlatform, NativePlatform, JSPlatform)
-  .in(file("scalafmt-core")).settings(
+  .withoutSuffixFor(JVMPlatform).in(file("scalafmt-core")).settings(
     moduleName := "scalafmt-core",
     buildInfoSettings("org.scalafmt", "Versions"),
     scalacSettings,
@@ -170,7 +170,7 @@ lazy val core = crossProject(JVMPlatform, NativePlatform, JSPlatform)
 lazy val coreJVM = core.jvm
 
 lazy val macros = crossProject(JVMPlatform, NativePlatform, JSPlatform)
-  .in(file("scalafmt-macros")).settings(
+  .withoutSuffixFor(JVMPlatform).in(file("scalafmt-macros")).settings(
     moduleName := "scalafmt-macros",
     scalacSettings,
     libraryDependencies += scalameta.value,
