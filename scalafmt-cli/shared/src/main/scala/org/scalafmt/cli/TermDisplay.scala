@@ -194,7 +194,7 @@ private[cli] class TermDisplay(
       out.down(1)
       out.clearLine(2)
       out.down(1)
-      out.up(2)
+      out.up(4)
       out.left(10000)
     }
 
