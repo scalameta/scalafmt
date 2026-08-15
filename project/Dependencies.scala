@@ -6,6 +6,12 @@ import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 // scalafmt: { maxColumn = 120 }
 
 object Dependencies {
+  val scala212 = "2.12.21"
+  val scala213 = "2.13.18"
+  val scala3 = "3.3.8"
+  val scala2Versions = Seq(scala213, scala212)
+  val scalaVersions = scala2Versions :+ scala3
+
   val metaconfigV = "0.18.7"
   val scalametaV = "4.17.3"
   val coursier = "2.1.24"
