@@ -1,23 +1,10 @@
-import scala.scalanative.build._
 import scala.util.Properties
 
-import org.scalajs.linker.interface.ESVersion
-
 import Dependencies._
+import Extensions._
 import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 def isCI = System.getenv("CI") != null
-
-def scala212 = "2.12.21"
-def scala213 = "2.13.18"
-def scala3 = "3.3.8"
-val scala2Versions = Seq(scala213, scala212)
-val scalaVersions = scala2Versions :+ scala3
-
-def isScalaVer(ver: String) = Def.setting(scalaBinaryVersion.value == ver)
-def isScala212 = isScalaVer("2.12")
-def isScala213 = isScalaVer("2.13")
-def isScala3 = isScalaVer("3")
 
 inThisBuild {
   List(
@@ -182,32 +169,6 @@ lazy val macros = crossProject(JVMPlatform, NativePlatform, JSPlatform)
 
 import sbtassembly.AssemblyPlugin.defaultUniversalScript
 
-val scalacJvmOptions = Def.setting {
-  val cross = if (!isScala213.value) Nil else Seq("-Ymacro-annotations")
-
-  val warningAsError =
-    if (isScala212.value) Seq("-Xfatal-warnings", "-deprecation:false")
-    else Seq("-Wconf:any:error,cat=deprecation:silent")
-
-  val unused =
-    if (isScala3.value) "-Wunused:all"
-    else if (isScala213.value)
-      "-Wunused:imports,privates,locals,patvars,implicits,explicits,params"
-    else "-Ywarn-unused:imports,privates,locals,patvars,implicits"
-
-  val javaver =
-    if (isScala3.value) Seq("-java-output-version:8")
-    else Seq("-target:8", "-release:8")
-
-  cross ++ warningAsError ++ javaver :+ unused
-}
-
-val scalacSettings = Def.settings(
-  javacOptions ++= Seq("-source", "8", "-target", "8"),
-  Compile / compile / scalacOptions ++= scalacJvmOptions.value,
-  Test / compile / scalacOptions ++= scalacJvmOptions.value,
-)
-
 lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-cli")).settings(
     moduleName := "scalafmt-cli",
@@ -266,7 +227,7 @@ lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
 
 lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   .withoutSuffixFor(JVMPlatform).in(file("scalafmt-tests")).settings(
-    publish / skip := true,
+    unpublished,
     sharedTestSettings,
     libraryDependencies += scalametaTestkit.value % Test,
     libraryDependencies += "com.lihaoyi" %%% "scalatags" % "0.13.1" % Test,
@@ -280,8 +241,6 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
   ).enablePlugins(BuildInfoPlugin).dependsOn(core).aggregate(core)
   .jvmSettings(javaOptions += "-Dfile.encoding=UTF8", parallelCollections)
   .jsSettings(scalaJsSettings).jsEnablePlugins(ScalaJSPlugin)
-
-lazy val sharedTestSettings = Seq(libraryDependencies += munit.value % Test)
 
 lazy val communityTestsCommon = crossProject(JVMPlatform, NativePlatform)
   .withoutSuffixFor(JVMPlatform)
@@ -311,14 +270,14 @@ lazy val communityTestsOther = crossProject(JVMPlatform, NativePlatform)
 def confCommunityTestShared(where: String)(
     project: sbtcrossproject.CrossProject,
 ) = project.in(file(where)).settings(communityTestsSettings)
-  .settings(sharedTestSettings).nativeSettings(scalaNativeConfig)
+  .nativeSettings(scalaNativeConfig)
 
 def confCommunityTest(where: String)(project: sbtcrossproject.CrossProject) =
   project.configureCross(confCommunityTestShared(where))
     .dependsOn(communityTestsCommon % "test->test")
 
 lazy val benchmarks = project.in(file("scalafmt-benchmarks")).settings(
-  publish / skip := true,
+  unpublished,
   moduleName := "scalafmt-benchmarks",
   libraryDependencies += scalametaTestkit.value,
   libraryDependencies += munit.value % Test,
@@ -334,7 +293,7 @@ lazy val benchmarks = project.in(file("scalafmt-benchmarks")).settings(
 
 lazy val docs = project.in(file("scalafmt-docs")).settings(
   crossScalaVersions := List(scala212),
-  publish / skip := true,
+  unpublished,
   mdoc := (Compile / run).evaluated,
 ).dependsOn(cli.jvm, dynamic).enablePlugins(DocusaurusPlugin)
 
@@ -367,23 +326,3 @@ def buildInfoSettings(pkg: String, obj: String): Seq[Def.Setting[_]] = Seq(
   buildInfoPackage := pkg,
   buildInfoObject := obj,
 )
-
-lazy val communityTestsSettings: Seq[Def.Setting[_]] = Def.settings(
-  publish / skip := true,
-  scalacSettings,
-  javaOptions += "-Dfile.encoding=UTF8",
-)
-
-lazy val scalaJsSettings = Seq(
-  // to support Node.JS functionality
-  scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
-  // to support MULTILINE in regex
-  scalaJSLinkerConfig ~= (_.withESFeatures(_.withESVersion(ESVersion.ES2018))),
-)
-
-lazy val scalaNativeConfig = nativeConfig ~= { _.withMode(Mode.releaseFull) }
-
-def parallelCollections = libraryDependencies ++= {
-  if (!isScala213.value) Nil
-  else Seq("org.scala-lang.modules" %%% "scala-parallel-collections" % "1.2.0")
-}
