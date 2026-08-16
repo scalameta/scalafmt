@@ -412,12 +412,7 @@ class DynamicSuite extends FunSuite {
     f.setVersion(version.toString, "Scala211")
     f.assertFormat()
 
-    val cache = f.dynamic.moduleLoader match {
-      case x: ScalafmtModuleLoader.CachedProxy => x.cache
-      case x =>
-        fail("ReflectResolver is not cached: " + x.getClass.getSimpleName)
-    }
-    cache.getFromCache(version) match {
+    f.dynamic.moduleLoader.cache.getFromCache(version) match {
       case Some(Right(x)) => assert(x.intellijScalaFmtConfig.nonEmpty)
       case _ => fail(s"failed cache.getFromCache($version)")
     }
@@ -650,7 +645,8 @@ private object DynamicSuite {
     ): FormatEval[ScalafmtReflect] =
       if (ver.toString == nightly) Right(ScalafmtReflect(clsLoader, ver))
       else downloader.load(cfg, ver, props)
-    override def close(): Unit = downloader.close()
+    // we delegate, so the downloader owns what it made and has to release it
+    override def close(obj: ScalafmtReflect): Unit = downloader.close(obj)
   }
 
   def getBackQuote(version: ScalafmtVersion): String =

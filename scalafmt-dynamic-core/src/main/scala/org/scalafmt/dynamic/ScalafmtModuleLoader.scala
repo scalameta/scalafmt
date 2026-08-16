@@ -4,15 +4,15 @@ import org.scalafmt.CompatCollections.JavaConverters._
 import org.scalafmt.dynamic.ScalafmtDynamicError._
 import org.scalafmt.dynamic.utils.ReentrantCache
 import org.scalafmt.interfaces.RepositoryPackageDownloaderFactory
+import org.scalafmt.sysops.PlatformRunOps
 
-import java.io.{Closeable, File}
+import java.io.Closeable
 import java.net.URLClassLoader
 import java.nio.file.Path
 
-import scala.concurrent.ExecutionContext
 import scala.util.Try
 
-trait ScalafmtModuleLoader extends Closeable {
+trait ScalafmtModuleLoader {
 
   def load(
       configPath: Path,
@@ -20,6 +20,7 @@ trait ScalafmtModuleLoader extends Closeable {
       properties: ScalafmtProperties,
   ): FormatEval[ScalafmtReflect]
 
+  def close(obj: ScalafmtReflect): Unit = obj.closeClassLoader(this)
 }
 
 object ScalafmtModuleLoader {
@@ -39,11 +40,19 @@ object ScalafmtModuleLoader {
         dependencies.asJava,
       )).fold(
         x => Left(new CannotDownload(configPath, version, x)),
-        loadClassPath(configPath, version),
+        jars => {
+          val urls = jars.asScala.map(_.toURI.toURL).toSeq
+          Try {
+            val classloader = new URLClassLoader(urls.toArray, null)
+            ScalafmtReflect(classloader, version, ownedBy = this)
+          }.toEither.left.map {
+            case e: ReflectiveOperationException =>
+              new CorruptedClassPath(configPath, version, urls, e)
+            case e => new UnknownConfigError(configPath, e)
+          }
+        },
       )
     }
-
-    override def close(): Unit = {}
   }
 
   object CachedProxy {
@@ -68,25 +77,12 @@ object ScalafmtModuleLoader {
       cache.getOrAddToCache(version)(load)
     }
 
+    override def close(obj: ScalafmtReflect): Unit = {}
     override def close(): Unit = {
-      cache.clear()
-        .foreach(_.foreach(_.right.foreach(_.close()))(ExecutionContext.global))
-      loader.close()
+      implicit val ec = PlatformRunOps.parasiticExecutionContext
+      cache.clear().foreach(_.foreach(_.foreach(loader.close)))
     }
-  }
 
-  private def loadClassPath(configPath: Path, version: ScalafmtVersion)(
-      jars: java.lang.Iterable[File],
-  ): FormatEval[ScalafmtReflect] = {
-    val urls = jars.asScala.map(_.toURI.toURL).toSeq
-    Try {
-      val classloader = new URLClassLoader(urls.toArray, null)
-      ScalafmtReflect(classloader, version)
-    }.toEither.left.map {
-      case e: ReflectiveOperationException =>
-        new CorruptedClassPath(configPath, version, urls, e)
-      case e => new UnknownConfigError(configPath, e)
-    }
   }
 
 }
