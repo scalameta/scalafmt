@@ -2,26 +2,53 @@
 
 import sbt.*
 import sbt.Keys.*
+import sbt.internal.{ProjectFinder, ProjectMatrix}
 
 import scala.scalanative.build.Mode
 import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport.*
 
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import org.scalajs.linker.interface.{ESVersion, ModuleKind}
-import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
-
-import sbtcrossproject.CrossPlugin.autoImport.*
-import sbtcrossproject.CrossProject
-import scalajscrossproject.ScalaJSCrossPlugin.autoImport.*
-import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.*
 
 object Extensions {
 
   import Dependencies.*
 
-  val allPlatforms = Seq(JVMPlatform, NativePlatform, JSPlatform)
-  val jvmAndNative = Seq(JVMPlatform, NativePlatform)
+  // Leaves the JVM/2.13 cell unsuffixed; left alone a matrix unsuffixes JVM/Scala 3.
+  def bareAxes: Seq[VirtualAxis] = Seq(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(scala213))
+
+  // sbt runs a `;`-separated list; the leading separator is required
+  def tasks(ts: Seq[String]): String = ts.mkString("; ", "; ", "")
+
+  def tasksOf(p: Project, ts: String*): Seq[String] = ts.map(t => s"${p.id}/$t")
+
+  // `++<version>` selects no row, so every version gets its own alias. Cell ids are generated, so
+  // the names are taken from them rather than spelled out.
+  def testAliases(versions: Seq[String], matrices: ProjectMatrix*): Seq[Setting[_]] = versions.flatMap { v =>
+    def alias(name: String, f: ProjectMatrix => ProjectFinder) = addCommandAlias(
+      s"test-$name-${VirtualAxis.scalaABIVersion(v).idSuffix}",
+      tasks(matrices.map(m => s"${f(m)(v).id}/test")),
+    )
+    alias("jvm", _.jvm) ++ alias("js", _.js) ++ alias("native", _.native)
+  }
+
+  // A matrix has one base directory, so a cell has to name every tree it reads. Directories that
+  // do not exist are harmless.
+  private def roots(base: File, dirs: String*): Seq[Setting[_]] = {
+    def under(conf: String, leaf: String => Seq[String]) = Def.setting {
+      // a matrix base may be relative, and a relative source root resolves against the wrong one
+      val root = IO.resolve((ThisBuild / baseDirectory).value, base)
+      for (dir <- dirs.toList; name <- leaf(scalaBinaryVersion.value)) yield root / dir / "src" / conf / name
+    }
+    def sources(sbv: String) = Seq("scala", "java", s"scala-$sbv", s"scala-${sbv.head}").distinct
+    Def.settings(
+      Compile / unmanagedSourceDirectories ++= under("main", sources).value,
+      Test / unmanagedSourceDirectories ++= under("test", sources).value,
+      Compile / unmanagedResourceDirectories ++= under("main", _ => Seq("resources")).value,
+      Test / unmanagedResourceDirectories ++= under("test", _ => Seq("resources")).value,
+    )
+  }
 
   def isScalaVer(ver: String) = Def.setting(scalaBinaryVersion.value == ver)
   def isScala212 = isScalaVer("2.12")
@@ -70,32 +97,50 @@ object Extensions {
   lazy val communityTestsSettings: Seq[Def.Setting[_]] = Def
     .settings(unpublished, scalacSettings, sharedTestSettings, javaOptions += "-Dfile.encoding=UTF8")
 
-  implicit class CrossProjectBuilderExtensions(private val self: CrossProject.Builder) extends AnyVal {
-    def apply(name: String): CrossProject = self.withoutSuffixFor(JVMPlatform).in(file(name))
-  }
+  // `projectMatrix` is a macro that reads the name of the val it is assigned to, so it cannot be
+  // called here; it arrives as the receiver instead.
+  implicit class ProjectMatrixExtensions(private val self: ProjectMatrix) extends AnyVal {
 
-  // A crossProject declares its platforms up front, so the per-platform methods only carry
-  // settings and the whole-set ones have nothing to do. Both become real once each row is
-  // declared separately.
-  implicit class CrossProjectExtensions(private val self: CrossProject) extends AnyVal {
+    def apply(name: String, axes: VirtualAxis*): ProjectMatrix = {
+      val axesToUse = if (axes.isEmpty) bareAxes else axes
+      // off `in`'s result, not `self`: until then the base is still the val name
+      val named = self.in(file(name)).defaultAxes(axesToUse *)
+      named.settings(roots(named.base, "shared"))
+    }
 
-    def crossJvm(ss: Def.SettingsDefinition*): CrossProject = self.jvmSettings(ss *)
+    def crossJvm(ss: Def.SettingsDefinition*): ProjectMatrix = self
+      .jvmPlatform(scalaVersions, jvmRoots ++ ss.flatMap(_.settings))
 
-    // JSPlatform already enables the plugin; naming it is how the row asks for it under a matrix
-    def crossJs(ss: Def.SettingsDefinition*): CrossProject = self.jsEnablePlugins(ScalaJSPlugin).jsSettings(ss *)
+    def crossJs(ss: Def.SettingsDefinition*): ProjectMatrix = self
+      .jsPlatform(scalaVersions, roots(self.base, "js", "js-jvm", "js-native") ++ ss.flatMap(_.settings))
 
-    def crossNative(ss: Def.SettingsDefinition*): CrossProject = self.nativeSettings(ss *)
+    def crossNative(ss: Def.SettingsDefinition*): ProjectMatrix = self
+      .nativePlatform(scalaVersions, roots(self.base, "native", "jvm-native", "js-native") ++ ss.flatMap(_.settings))
 
-    // a JVM row carrying no Scala version, for Java-only sources
-    def crossJvmJava(ss: Def.SettingsDefinition*): CrossProject = self.jvmSettings(ss *)
+    // A JVM row carrying no Scala version, for Java-only sources. Not
+    // `jvmPlatform(autoScalaLibrary = false)`: that one passes VirtualAxis.jvm to a customRow which
+    // appends it again, and the doubled axis renames the generated directories to `scalajvm-jvm`.
+    // The cell id is unaffected, so it would just compile nothing.
+    def crossJvmJava(ss: Def.SettingsDefinition*): ProjectMatrix = self
+      .customRow(autoScalaLibrary = false, axisValues = Nil, settings = jvmRoots ++ ss.flatMap(_.settings))
 
-    def crossAll: CrossProject = self.crossJvm().crossJs().crossNative()
+    // a row that needs the cell itself, not just its settings
+    def crossJvmRow(version: String, configure: Project => Project): ProjectMatrix = self
+      .jvmPlatform(Seq(version), Nil, configure(_).settings(jvmRoots))
 
-    def crossJsNative: CrossProject = self.crossJs().crossNative()
+    // a row that needs the cell itself, not just its settings
+    def crossJvmRow(versions: String*)(configure: String => Project => Project): ProjectMatrix = versions
+      .foldLeft(self)((acc, version) => acc.crossJvmRow(version, configure(version)))
 
-    def crossJvmNative(nativeOnly: Def.SettingsDefinition*): CrossProject = self.crossJvm().crossNative(nativeOnly *)
+    def crossAll: ProjectMatrix = self.crossJvm().crossJs().crossNative()
 
-    def communityTest: CrossProject = self.settings(communityTestsSettings).crossJvmNative(scalaNativeConfig)
+    def crossJsNative: ProjectMatrix = self.crossJs().crossNative()
+
+    def crossJvmNative(nativeOnly: Def.SettingsDefinition*): ProjectMatrix = self.crossJvm().crossNative(nativeOnly *)
+
+    def communityTest: ProjectMatrix = self.settings(communityTestsSettings).crossJvmNative(scalaNativeConfig)
+
+    private def jvmRoots = roots(self.base, "jvm", "jvm-native", "js-jvm")
   }
 
 }

@@ -60,17 +60,17 @@ jobs:
         run: git config --global user.email "scalafmt@scalameta.org" && git config --global user.name "scalafmt"
       - &testjvm212
         if: ${{ !cancelled() && steps.env.outcome == 'success' }}
-        run: sbt ++2.12 test-jvm
+        run: sbt test-jvm-2_12
       - &testjvm213
         id: jvm213
         if: ${{ !cancelled() && steps.env.outcome == 'success' }}
-        run: sbt ++2.13 test-jvm
+        run: sbt test-jvm-2_13
       - &testjvm33
         if: ${{ !cancelled() && steps.env.outcome == 'success' }}
-        run: sbt ++3.3 test-jvm
+        run: sbt test-jvm-3
       - &assembly213
         if: ${{ !cancelled() && steps.jvm213.outcome == 'success' }}
-        run: sbt ++2.13 "cli/assembly; cli/runAssembly --non-interactive"
+        run: sbt "cli/assembly; cli/runAssembly --non-interactive"
 
   post-native:             # the slow, flaky native link+run + JS + all-platform publishLocal
     # Native output is JDK-independent; exercised on the OSes we publish for.
@@ -79,7 +79,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-24.04, macOS-15, windows-2025 ]
-        scala: [ '2.12', '2.13', '3.3' ]
+        scala: [ '2_12', '2_13', '3' ]
     runs-on: ${{ matrix.os }}
     env:
       SCALANATIVE_GC_TRAP_BASED_YIELDPOINTS: "0"   # avoid intermittent SIGSEGV (scala-native#4917)
@@ -93,12 +93,13 @@ jobs:
       # bash (not the Windows default pwsh) so `||` behaves on every runner.
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
         shell: bash
-        run: sbt ++${{ matrix.scala }} test-native || sbt ++${{ matrix.scala }} test-native
+        run: sbt test-native-${{ matrix.scala }} || sbt test-native-${{ matrix.scala }}
       - &testjs
         if: ${{ !cancelled() && steps.env.outcome == 'success' && runner.os == 'Linux' }}
-        run: sbt ++${{ matrix.scala || '2.13' }} test-js
-      - if: ${{ !cancelled() && steps.env.outcome == 'success' && runner.os == 'Linux' }}
-        run: sbt ++${{ matrix.scala }} publishLocal
+        run: sbt test-js-${{ matrix.scala || '2_13' }}
+      # publishLocal now covers every cell, so one matrix entry suffices
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' && runner.os == 'Linux' && matrix.scala == '2_13' }}
+        run: sbt publishLocal
 
   # ===== PR gate: 5 balanced ubuntu/JDK17 workers (run on PR *and* push) =====
   w1-spark-fmt:            # community Spark (~10.3) + formatting (~0.5)
@@ -149,7 +150,7 @@ jobs:
       # native COMPILE only (Scala->NIR): catches a forgotten platform impl in
       # ~1 min. The slow, flaky native link+run lives in post-native (push only).
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
-        run: sbt ++2.13 testsNative/Test/compile
+        run: sbt testsNative/Test/compile
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
         run: sbt communityTestsScala3/test
 
@@ -164,7 +165,7 @@ jobs:
       # docs is Scala 2.12 (mdoc + yarn build); reuses the 2.12 core compiled
       # just above. linkHygiene=true also fails the run on dead doc links.
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
-        run: sbt -Dmdoc.linkHygiene=true ++2.12 docs/docusaurusCreateSite
+        run: sbt -Dmdoc.linkHygiene=true docs/docusaurusCreateSite
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
         run: sbt communityTestsScala2/test
 

@@ -2,7 +2,6 @@ import scala.util.Properties
 
 import Dependencies._
 import Extensions._
-import sbtcrossproject.CrossPlugin.autoImport.crossProject
 
 def isCI = System.getenv("CI") != null
 
@@ -27,7 +26,6 @@ inThisBuild {
       url("https://geirsson.com"),
     )),
     scalaVersion := scala213,
-    crossScalaVersions := scalaVersions,
     resolvers += Resolver.sonatypeCentralSnapshots,
     testFrameworks += TestFrameworks.MUnit,
     // causes native image issues
@@ -42,6 +40,7 @@ lazy val copyScalaNative = taskKey[Unit]("Copy Scala Native output to root")
 def rootSettings = Def.settings(
   name := "scalafmtRoot",
   unpublished,
+  crossScalaVersions := Nil, // the cells answer for their own versions
   copyScalaNative := {
     val binaryVersion = (cliNative / scalaBinaryVersion).value
     val suffix = if (Properties.isWin) ".exe" else ""
@@ -70,7 +69,7 @@ def allMatrices = Seq(
   communityTestsOther,
   benchmarks,
   docs,
-).flatMap(_.componentProjects.map(p => LocalProject(p.id)))
+).flatMap(_.projectRefs)
 
 // An explicit root, rather than the one sbt generates: in sbt 2 a bare
 // top-level setting applies to every project, so `publish / skip` must have a
@@ -78,16 +77,14 @@ def allMatrices = Seq(
 lazy val root = project.in(file(".")).withId("scalafmt-root")
   .aggregate(allMatrices: _*).settings(rootSettings)
 
-addCommandAlias("native-image", "cli/nativeImage")
+addCommandAlias("native-image", s"${cli.jvm(scala213).id}/nativeImage")
 addCommandAlias(
   "scala-native",
-  "cliNative/compile;cliNative/nativeLink;copyScalaNative",
+  tasks(tasksOf(cliNative, "compile", "nativeLink") :+ "copyScalaNative"),
 )
-addCommandAlias("test-jvm", "tests/test;cli/test")
-addCommandAlias("test-js", "testsJS/test;cliJS/test")
-addCommandAlias("test-native", "testsNative/test;cliNative/test")
+testAliases(scalaVersions, tests, cli)
 
-lazy val dynamicCore = project.in(file("scalafmt-dynamic-core")).settings(
+lazy val dynamicCore = projectMatrix("scalafmt-dynamic-core").settings(
   moduleName := "scalafmt-dynamic-core",
   description := "Implementation of scalafmt-interfaces",
   buildInfoSettings("org.scalafmt.dynamic", "BuildInfo"),
@@ -103,10 +100,10 @@ lazy val dynamicCore = project.in(file("scalafmt-dynamic-core")).settings(
       val oldStrategy = (assembly / assemblyMergeStrategy).value
       oldStrategy(x)
   },
-).dependsOn(interfaces.jvm, sysops.jvm).dependsOn(core.jvm % "test")
+).crossJvm().dependsOn(interfaces, sysops).dependsOn(core % "test")
   .enablePlugins(BuildInfoPlugin)
 
-lazy val dynamic = project.in(file("scalafmt-dynamic")).settings(
+lazy val dynamic = projectMatrix("scalafmt-dynamic").settings(
   moduleName := "scalafmt-dynamic",
   description := "Implementation of scalafmt-dynamic using coursier",
   libraryDependencies += {
@@ -117,7 +114,7 @@ lazy val dynamic = project.in(file("scalafmt-dynamic")).settings(
   },
   sharedTestSettings,
   scalacSettings,
-).dependsOn(dynamicCore).dependsOn(core.jvm % "test")
+).crossJvm().dependsOn(dynamicCore).dependsOn(core % "test")
 
 def interfacesSettings = Def.settings(
   moduleName := "scalafmt-interfaces",
@@ -139,11 +136,9 @@ def interfacesJvmSettings = Def.settings(
   Compile / doc / javacOptions := Seq("-Xdoclint:none", "-quiet"),
   Compile / doc / scalacOptions ++=
     Seq("-no-link-warnings", "-Wconf:cat=doc:silent"),
-  crossVersion := CrossVersion.disabled,
-  autoScalaLibrary := false,
 )
 
-lazy val interfaces = crossProject(allPlatforms *)("scalafmt-interfaces")
+lazy val interfaces = projectMatrix("scalafmt-interfaces")
   .settings(interfacesSettings).crossJvmJava(interfacesJvmSettings)
   .crossJsNative
 
@@ -160,8 +155,8 @@ def sysopsJsSettings = Def.settings(
   scalaJsSettings,
 )
 
-lazy val sysops = crossProject(allPlatforms *)("scalafmt-sysops")
-  .settings(sysopsSettings).crossJvm().crossNative().crossJs(sysopsJsSettings)
+lazy val sysops = projectMatrix("scalafmt-sysops").settings(sysopsSettings)
+  .crossJvm().crossNative().crossJs(sysopsJsSettings)
 
 def configSettings = Def.settings(
   moduleName := "scalafmt-config",
@@ -174,9 +169,9 @@ def configJvmSettings = libraryDependencies += metaconfigTypesafe.value
 def configNativeSettings = libraryDependencies += metaconfigSconfig.value
 def configJsSettings = Def.settings(configNativeSettings, scalaJsSettings)
 
-lazy val config = crossProject(allPlatforms *)("scalafmt-config")
-  .settings(configSettings).crossJvm(configJvmSettings)
-  .crossNative(configNativeSettings).crossJs(configJsSettings)
+lazy val config = projectMatrix("scalafmt-config").settings(configSettings)
+  .crossJvm(configJvmSettings).crossNative(configNativeSettings)
+  .crossJs(configJsSettings)
 
 def coreSettings = Def.settings(
   moduleName := "scalafmt-core",
@@ -195,11 +190,10 @@ def coreSettings = Def.settings(
 def coreNativeSettings = libraryDependencies +=
   "com.lihaoyi" %%% "fastparse" % "3.1.1"
 
-lazy val core = crossProject(allPlatforms *)("scalafmt-core")
-  .settings(coreSettings).crossJvm().crossJs().crossNative(coreNativeSettings)
-  .aggregate(sysops, config, macros).dependsOn(sysops, config, macros)
-  .enablePlugins(BuildInfoPlugin)
-lazy val coreJVM = core.jvm
+lazy val core = projectMatrix("scalafmt-core").settings(coreSettings).crossJvm()
+  .crossJs().crossNative(coreNativeSettings).aggregate(sysops, config, macros)
+  .dependsOn(sysops, config, macros).enablePlugins(BuildInfoPlugin)
+lazy val coreJVM = core.jvm(scala213)
 
 def macrosSettings = Def.settings(
   moduleName := "scalafmt-macros",
@@ -211,8 +205,8 @@ def macrosSettings = Def.settings(
   },
 )
 
-lazy val macros = crossProject(allPlatforms *)("scalafmt-macros")
-  .settings(macrosSettings).crossAll
+lazy val macros = projectMatrix("scalafmt-macros").settings(macrosSettings)
+  .crossAll
 
 import sbtassembly.AssemblyPlugin.defaultUniversalScript
 
@@ -272,13 +266,17 @@ def cliSettings = Def.settings(
   sharedTestSettings,
 )
 
-lazy val cli = crossProject(allPlatforms *)("scalafmt-cli").settings(cliSettings)
-  .crossJvm(cliJvmSettings).crossNative(scalaNativeConfig)
+lazy val cli = projectMatrix("scalafmt-cli").settings(cliSettings)
+  .crossJvmRow(scalaVersions: _*)(cliJvmRow).crossNative(scalaNativeConfig)
   .dependsOn(core, interfaces)
   // TODO: enable NPM publishing
-  .crossJs(cliJsSettings).jvmEnablePlugins(NativeImagePlugin)
-  .jvmConfigure(_.dependsOn(dynamic).aggregate(dynamic))
-def cliNative = cli.native
+  .crossJs(cliJsSettings)
+def cliNative = cli.native(scala213)
+
+// `dynamic` is JVM-only, so a matrix-wide dependency would leave the JS and
+// native rows with no row to resolve against.
+def cliJvmRow(v: String): Project => Project = _.enablePlugins(NativeImagePlugin)
+  .dependsOn(dynamic.jvm(v)).aggregate(dynamic.jvm(v)).settings(cliJvmSettings)
 
 def testsSettings = Def.settings(
   unpublished,
@@ -287,46 +285,41 @@ def testsSettings = Def.settings(
   libraryDependencies += "com.lihaoyi" %%% "scalatags" % "0.13.1" % Test,
   scalacSettings,
   buildInfoPackage := "org.scalafmt.tests",
-  buildInfoKeys := Seq[BuildInfoKey]("resourceDirectory" -> {
-    val sharedTests = (baseDirectory.value.getParentFile / "shared").toPath
-    (Test / resourceDirectories).value.find(_.toPath.startsWith(sharedTests))
-      .get
-  }),
+  // a cell's baseDirectory is a generated .sbt/matrix directory, so name the
+  // shared tree from the build root
+  buildInfoKeys := Seq[BuildInfoKey](
+    "resourceDirectory" -> (ThisBuild / baseDirectory).value /
+      "scalafmt-tests" / "shared" / "src" / "test" / "resources",
+  ),
 )
 
 def testsJvmSettings = Def
   .settings(javaOptions += "-Dfile.encoding=UTF8", parallelCollections)
 
-lazy val tests = crossProject(allPlatforms *)("scalafmt-tests")
-  .settings(testsSettings).enablePlugins(BuildInfoPlugin).dependsOn(core)
-  .aggregate(core).crossJvm(testsJvmSettings).crossJs(scalaJsSettings)
-  .crossNative()
+lazy val tests = projectMatrix("scalafmt-tests").settings(testsSettings)
+  .enablePlugins(BuildInfoPlugin).dependsOn(core).aggregate(core)
+  .crossJvm(testsJvmSettings).crossJs(scalaJsSettings).crossNative()
 
-lazy val communityTestsCommon =
-  crossProject(jvmAndNative *)("scalafmt-tests-community/common").communityTest
-    .dependsOn(core)
+lazy val communityTestsCommon = projectMatrix("scalafmt-tests-community/common")
+  .communityTest.dependsOn(core)
 
-lazy val communityTestsScala2 =
-  crossProject(jvmAndNative *)("scalafmt-tests-community/scala2").communityTest
-    .dependsOn(communityTestsCommon % "test->test")
+lazy val communityTestsScala2 = projectMatrix("scalafmt-tests-community/scala2")
+  .communityTest.dependsOn(communityTestsCommon % "test->test")
 
-lazy val communityTestsScala3 =
-  crossProject(jvmAndNative *)("scalafmt-tests-community/scala3").communityTest
-    .dependsOn(communityTestsCommon % "test->test")
+lazy val communityTestsScala3 = projectMatrix("scalafmt-tests-community/scala3")
+  .communityTest.dependsOn(communityTestsCommon % "test->test")
 
-lazy val communityTestsSpark =
-  crossProject(jvmAndNative *)("scalafmt-tests-community/spark").communityTest
-    .dependsOn(communityTestsCommon % "test->test")
+lazy val communityTestsSpark = projectMatrix("scalafmt-tests-community/spark")
+  .communityTest.dependsOn(communityTestsCommon % "test->test")
 
 lazy val communityTestsIntellij =
-  crossProject(jvmAndNative *)("scalafmt-tests-community/intellij")
-    .communityTest.dependsOn(communityTestsCommon % "test->test")
-
-lazy val communityTestsOther =
-  crossProject(jvmAndNative *)("scalafmt-tests-community/other").communityTest
+  projectMatrix("scalafmt-tests-community/intellij").communityTest
     .dependsOn(communityTestsCommon % "test->test")
 
-lazy val benchmarks = project.in(file("scalafmt-benchmarks")).settings(
+lazy val communityTestsOther = projectMatrix("scalafmt-tests-community/other")
+  .communityTest.dependsOn(communityTestsCommon % "test->test")
+
+lazy val benchmarks = projectMatrix("scalafmt-benchmarks").settings(
   unpublished,
   moduleName := "scalafmt-benchmarks",
   libraryDependencies += scalametaTestkit.value,
@@ -339,13 +332,15 @@ lazy val benchmarks = project.in(file("scalafmt-benchmarks")).settings(
     "-Xms512M",
     "-Xmx2G",
   ),
-).dependsOn(coreJVM, cli.jvm).enablePlugins(JmhPlugin)
+).crossJvm().dependsOn(core, cli).enablePlugins(JmhPlugin)
 
-lazy val docs = project.in(file("scalafmt-docs")).settings(
-  crossScalaVersions := List(scala212),
-  unpublished,
-  mdoc := (Compile / run).evaluated,
-).dependsOn(cli.jvm, dynamic).enablePlugins(DocusaurusPlugin)
+lazy val docs = projectMatrix(
+  "scalafmt-docs",
+  VirtualAxis.jvm,
+  VirtualAxis.scalaABIVersion(scala212),
+).settings(unpublished, mdoc := (Compile / run).evaluated)
+  .jvmPlatform(Seq(scala212)).dependsOn(cli, dynamic)
+  .enablePlugins(DocusaurusPlugin)
 
 val V = "\\d+\\.\\d+\\.\\d+"
 val ReleaseCandidate = s"($V-RC\\d+).*".r
