@@ -110,7 +110,7 @@ jobs:
       - *sbt
       - *gitcfg
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
-        run: sbt communityTestsSpark/test
+        run: sbt communityTestsSpark/testFull
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
         run: ./scalafmt --test
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
@@ -125,7 +125,7 @@ jobs:
       - *gitcfg
       - *testjvm33
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
-        run: sbt communityTestsIntellij/test
+        run: sbt communityTestsIntellij/testFull
 
   w3-other-jvm213-asm:     # community Other (~7.1) + test-jvm 2.13 (~3.3) + assembly (~0.6)
     runs-on: ubuntu-24.04
@@ -137,7 +137,7 @@ jobs:
       - *testjvm213
       - *assembly213
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
-        run: sbt communityTestsOther/test
+        run: sbt communityTestsOther/testFull
 
   w4-scala3-js-nativecompile:  # community Scala3 (~7.0) + test-js 2.13 (~2.2) + native compile 2.13 (~1.0)
     runs-on: ubuntu-24.04
@@ -152,7 +152,7 @@ jobs:
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
         run: sbt testsNative/Test/compile
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
-        run: sbt communityTestsScala3/test
+        run: sbt communityTestsScala3/testFull
 
   w5-scala2-jvm212-docs:   # community Scala2 (~5.3) + test-jvm 2.12 (~3.3) + docs (~2.6)  [the 2.12 cluster]
     runs-on: ubuntu-24.04
@@ -167,7 +167,7 @@ jobs:
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
         run: sbt -Dmdoc.linkHygiene=true docs/docusaurusCreateSite
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
-        run: sbt communityTestsScala2/test
+        run: sbt communityTestsScala2/testFull
 
   post-community-windows:  # Windows-only community coverage (line-ending handling differs)
     if: ${{ github.event_name == 'push' }}
@@ -180,7 +180,7 @@ jobs:
       - *checkout
       - *jdk
       - *sbt
-      - run: sbt communityTests${{ matrix.group }}/test
+      - run: sbt communityTests${{ matrix.group }}/testFull
 
   native-image:            # deprecated but still load-bearing; not a PR gate
     if: ${{ github.event_name == 'push' }}

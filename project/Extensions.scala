@@ -2,12 +2,10 @@
 
 import sbt.*
 import sbt.Keys.*
-import sbt.internal.{ProjectFinder, ProjectMatrix}
 
 import scala.scalanative.build.Mode
 import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport.*
 
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import org.scalajs.linker.interface.{ESVersion, ModuleKind}
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 
@@ -25,17 +23,17 @@ object Extensions {
 
   // `++<version>` selects no row, so every version gets its own alias. Cell ids are generated, so
   // the names are taken from them rather than spelled out.
-  def testAliases(versions: Seq[String], matrices: ProjectMatrix*): Seq[Setting[_]] = versions.flatMap { v =>
+  def testAliases(versions: Seq[String], matrices: ProjectMatrix*): Seq[Setting[?]] = versions.flatMap { v =>
     def alias(name: String, f: ProjectMatrix => ProjectFinder) = addCommandAlias(
       s"test-$name-${VirtualAxis.scalaABIVersion(v).idSuffix}",
-      tasks(matrices.map(m => s"${f(m)(v).id}/test")),
+      tasks(matrices.map(m => s"${f(m)(v).id}/testFull")),
     )
     alias("jvm", _.jvm) ++ alias("js", _.js) ++ alias("native", _.native)
   }
 
   // A matrix has one base directory, so a cell has to name every tree it reads. Directories that
   // do not exist are harmless.
-  private def roots(base: File, dirs: String*): Seq[Setting[_]] = {
+  private def roots(base: File, dirs: String*): Seq[Setting[?]] = {
     def under(conf: String, leaf: String => Seq[String]) = Def.setting {
       // a matrix base may be relative, and a relative source root resolves against the wrong one
       val root = IO.resolve((ThisBuild / baseDirectory).value, base)
@@ -92,9 +90,9 @@ object Extensions {
   lazy val scalaNativeConfig = nativeConfig ~= { _.withMode(Mode.releaseFull) }
 
   def parallelCollections = libraryDependencies ++=
-    { if (!isScala213.value) Nil else Seq("org.scala-lang.modules" %%% "scala-parallel-collections" % "1.2.0") }
+    { if (!isScala213.value) Nil else Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "1.2.0") }
 
-  lazy val communityTestsSettings: Seq[Def.Setting[_]] = Def
+  lazy val communityTestsSettings: Seq[Def.Setting[?]] = Def
     .settings(unpublished, scalacSettings, sharedTestSettings, javaOptions += "-Dfile.encoding=UTF8")
 
   // `projectMatrix` is a macro that reads the name of the val it is assigned to, so it cannot be

@@ -1,8 +1,6 @@
 import sbt.*
 import sbt.Keys.*
 
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
-
 // scalafmt: { maxColumn = 120 }
 
 object Dependencies {
@@ -21,7 +19,7 @@ object Dependencies {
   val smorgN = "org.scalameta"
   val smpkgN = "scalameta"
 
-  private def smorg(pkg: => String, v: String) = Def.setting(smorgN %%% pkg % v)
+  private def smorg(pkg: => String, v: String) = Def.setting(smorgN %% pkg % v)
 
   val munit = smorg("munit", munitV)
   val scalameta = Def.setting {

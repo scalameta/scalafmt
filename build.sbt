@@ -51,31 +51,8 @@ def rootSettings = Def.settings(
   },
 )
 
-def allMatrices = Seq(
-  interfaces,
-  sysops,
-  config,
-  macros,
-  core,
-  dynamicCore,
-  dynamic,
-  cli,
-  tests,
-  communityTestsCommon,
-  communityTestsScala2,
-  communityTestsScala3,
-  communityTestsSpark,
-  communityTestsIntellij,
-  communityTestsOther,
-  benchmarks,
-  docs,
-).flatMap(_.projectRefs)
-
-// An explicit root, rather than the one sbt generates: in sbt 2 a bare
-// top-level setting applies to every project, so `publish / skip` must have a
-// project to live in or it would silently disable publishing build-wide.
-lazy val root = project.in(file(".")).withId("scalafmt-root")
-  .aggregate(allMatrices: _*).settings(rootSettings)
+lazy val root = rootProject.withId("scalafmt-root").autoAggregate
+  .settings(rootSettings)
 
 addCommandAlias("native-image", s"${cli.jvm(scala213).id}/nativeImage")
 addCommandAlias(
@@ -88,7 +65,7 @@ lazy val dynamicCore = projectMatrix("scalafmt-dynamic-core").settings(
   moduleName := "scalafmt-dynamic-core",
   description := "Implementation of scalafmt-interfaces",
   buildInfoSettings("org.scalafmt.dynamic", "BuildInfo"),
-  libraryDependencies ++= List("com.typesafe" % "config" % "1.4.9"),
+  libraryDependencies += "com.typesafe" % "config" % "1.4.9",
   sharedTestSettings,
   scalacSettings,
   assembly / assemblyMergeStrategy := {
@@ -108,7 +85,7 @@ lazy val dynamic = projectMatrix("scalafmt-dynamic").settings(
   description := "Implementation of scalafmt-dynamic using coursier",
   libraryDependencies += {
     val pkg = "io.get-coursier" %% "coursier" % coursier
-    if (isScala3.value) (pkg cross CrossVersion.for3Use2_13)
+    if (isScala3.value) pkg.cross(CrossVersion.for3Use2_13)
       .exclude("org.scala-lang.modules", "scala-collection-compat_2.13")
     else pkg
   },
@@ -126,9 +103,13 @@ def interfacesSettings = Def.settings(
     val props = new java.util.Properties()
     props.put("version", version.value)
     IO.write(props, "scalafmt properties", out)
-    List(out)
+    Seq(out)
   },
 )
+
+lazy val interfaces = projectMatrix("scalafmt-interfaces")
+  .settings(interfacesSettings).crossJvmJava(interfacesJvmSettings)
+  .crossJsNative
 
 // The JVM sources are Java, so this row carries no Scala version.
 def interfacesJvmSettings = Def.settings(
@@ -138,10 +119,6 @@ def interfacesJvmSettings = Def.settings(
     Seq("-no-link-warnings", "-Wconf:cat=doc:silent"),
 )
 
-lazy val interfaces = projectMatrix("scalafmt-interfaces")
-  .settings(interfacesSettings).crossJvmJava(interfacesJvmSettings)
-  .crossJsNative
-
 def sysopsSettings = Def.settings(
   moduleName := "scalafmt-sysops",
   description := "Scalafmt systems operations",
@@ -149,14 +126,14 @@ def sysopsSettings = Def.settings(
   sharedTestSettings,
 )
 
-def sysopsJsSettings = Def.settings(
-  libraryDependencies +=
-    smorgN %%% "io" % scalametaV cross CrossVersion.for3Use2_13,
-  scalaJsSettings,
-)
-
 lazy val sysops = projectMatrix("scalafmt-sysops").settings(sysopsSettings)
   .crossJvm().crossNative().crossJs(sysopsJsSettings)
+
+def sysopsJsSettings = Def.settings(
+  libraryDependencies +=
+    (smorgN %% "io" % scalametaV).cross(CrossVersion.for3Use2_13),
+  scalaJsSettings,
+)
 
 def configSettings = Def.settings(
   moduleName := "scalafmt-config",
@@ -178,17 +155,17 @@ def coreSettings = Def.settings(
   buildInfoSettings("org.scalafmt", "Versions"),
   scalacSettings,
   libraryDependencies += scalameta.value,
-  libraryDependencies ++= Seq(smorgN %%% "mdoc-parser" % mdocV),
+  libraryDependencies += smorgN %% "mdoc-parser" % mdocV,
   libraryDependencies ++= {
     if (!isScala212.value) Nil
     else Seq(compilerPlugin(
-      "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full,
+      ("org.scalamacros" % "paradise" % "2.1.1").cross(CrossVersion.full),
     ))
   },
 )
 
 def coreNativeSettings = libraryDependencies +=
-  "com.lihaoyi" %%% "fastparse" % "3.1.1"
+  "com.lihaoyi" %% "fastparse" % "3.1.1"
 
 lazy val core = projectMatrix("scalafmt-core").settings(coreSettings).crossJvm()
   .crossJs().crossNative(coreNativeSettings).aggregate(sysops, config, macros)
@@ -257,17 +234,15 @@ def cliSettings = Def.settings(
       val oldStrategy = (assembly / assemblyMergeStrategy).value
       oldStrategy(x)
   },
-  libraryDependencies ++= Seq(
-    smorgN %%% "munit-diff" % munitV,
-    "com.github.scopt" %%% "scopt" % "4.1.0",
-  ),
+  libraryDependencies += smorgN %% "munit-diff" % munitV,
+  libraryDependencies += "com.github.scopt" %% "scopt" % "4.1.0",
   scalacSettings,
   Compile / mainClass := Some("org.scalafmt.cli.Cli"),
   sharedTestSettings,
 )
 
 lazy val cli = projectMatrix("scalafmt-cli").settings(cliSettings)
-  .crossJvmRow(scalaVersions: _*)(cliJvmRow).crossNative(scalaNativeConfig)
+  .crossJvmRow(scalaVersions *)(cliJvmRow).crossNative(scalaNativeConfig)
   .dependsOn(core, interfaces)
   // TODO: enable NPM publishing
   .crossJs(cliJsSettings)
@@ -282,7 +257,7 @@ def testsSettings = Def.settings(
   unpublished,
   sharedTestSettings,
   libraryDependencies += scalametaTestkit.value % Test,
-  libraryDependencies += "com.lihaoyi" %%% "scalatags" % "0.13.1" % Test,
+  libraryDependencies += "com.lihaoyi" %% "scalatags" % "0.13.1" % Test,
   scalacSettings,
   buildInfoPackage := "org.scalafmt.tests",
   // a cell's baseDirectory is a generated .sbt/matrix directory, so name the
@@ -349,7 +324,7 @@ val Milestone = s"($V-M\\d+).*".r
 lazy val stableVersion = Def
   .setting((ThisBuild / version).value.replaceAll("\\+.*", ""))
 
-def buildInfoSettings(pkg: String, obj: String): Seq[Def.Setting[_]] = Seq(
+def buildInfoSettings(pkg: String, obj: String): Seq[Def.Setting[?]] = Seq(
   buildInfoKeys := Seq[BuildInfoKey](
     name,
     version,
