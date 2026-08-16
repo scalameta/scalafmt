@@ -10,9 +10,12 @@ import scala.util.{Failure, Try}
 
 import com.typesafe.config.ConfigFactory
 
-case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
-    extends Closeable {
-  import classLoader.loadClass
+case class ScalafmtReflect(
+    private val classLoader: ClassLoader,
+    version: ScalafmtVersion,
+    ownedBy: ScalafmtModuleLoader = null,
+) {
+  def loadClass(name: String): Class[_] = classLoader.loadClass(name)
 
   // FIXME: the class does not exist for version old versions, e.g. v0.2.8
   private val formattedCls = loadClass("org.scalafmt.Formatted")
@@ -166,8 +169,8 @@ case class ScalafmtReflect(classLoader: ClassLoader, version: ScalafmtVersion)
     module.get(null)
   }
 
-  override def close(): Unit = classLoader match {
-    case x: Closeable => x.close()
+  def closeClassLoader(loader: ScalafmtModuleLoader): Unit = classLoader match {
+    case x: Closeable if ownedBy eq loader => x.close()
     case _ =>
   }
 }

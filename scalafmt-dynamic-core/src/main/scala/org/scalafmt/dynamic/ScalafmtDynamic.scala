@@ -16,8 +16,7 @@ final case class ScalafmtDynamic(
     with RepositoryCredential.ScalafmtExtension
     with ScalafmtSessionFactory {
 
-  val moduleLoader: ScalafmtModuleLoader = ScalafmtModuleLoader
-    .CachedProxy(_moduleLoader)
+  val moduleLoader = ScalafmtModuleLoader.CachedProxy(_moduleLoader)
 
   def this(
       moduleLoader: ScalafmtModuleLoader,

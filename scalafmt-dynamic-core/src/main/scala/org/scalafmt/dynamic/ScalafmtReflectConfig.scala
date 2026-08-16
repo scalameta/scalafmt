@@ -13,11 +13,10 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
     private[dynamic] val target: Object,
 ) {
   import ScalafmtReflectConfig._
-  import fmtReflect.classLoader
   private val targetCls = target.getClass
 
-  private val dialectCls = classLoader.loadClass("scala.meta.Dialect")
-  private val dialectsCls = classLoader.loadClass("scala.meta.dialects.package")
+  private val dialectCls = fmtReflect.loadClass("scala.meta.Dialect")
+  private val dialectsCls = fmtReflect.loadClass("scala.meta.dialects.package")
 
   private val projectField = target.invoke("project")
   private val projectMatcherField = projectField.invoke("matcher")
