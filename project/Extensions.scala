@@ -8,11 +8,20 @@ import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport.*
 
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import org.scalajs.linker.interface.{ESVersion, ModuleKind}
+import org.scalajs.sbtplugin.ScalaJSPlugin
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
+
+import sbtcrossproject.CrossPlugin.autoImport.*
+import sbtcrossproject.CrossProject
+import scalajscrossproject.ScalaJSCrossPlugin.autoImport.*
+import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.*
 
 object Extensions {
 
   import Dependencies.*
+
+  val allPlatforms = Seq(JVMPlatform, NativePlatform, JSPlatform)
+  val jvmAndNative = Seq(JVMPlatform, NativePlatform)
 
   def isScalaVer(ver: String) = Def.setting(scalaBinaryVersion.value == ver)
   def isScala212 = isScalaVer("2.12")
@@ -60,5 +69,33 @@ object Extensions {
 
   lazy val communityTestsSettings: Seq[Def.Setting[_]] = Def
     .settings(unpublished, scalacSettings, sharedTestSettings, javaOptions += "-Dfile.encoding=UTF8")
+
+  implicit class CrossProjectBuilderExtensions(private val self: CrossProject.Builder) extends AnyVal {
+    def apply(name: String): CrossProject = self.withoutSuffixFor(JVMPlatform).in(file(name))
+  }
+
+  // A crossProject declares its platforms up front, so the per-platform methods only carry
+  // settings and the whole-set ones have nothing to do. Both become real once each row is
+  // declared separately.
+  implicit class CrossProjectExtensions(private val self: CrossProject) extends AnyVal {
+
+    def crossJvm(ss: Def.SettingsDefinition*): CrossProject = self.jvmSettings(ss *)
+
+    // JSPlatform already enables the plugin; naming it is how the row asks for it under a matrix
+    def crossJs(ss: Def.SettingsDefinition*): CrossProject = self.jsEnablePlugins(ScalaJSPlugin).jsSettings(ss *)
+
+    def crossNative(ss: Def.SettingsDefinition*): CrossProject = self.nativeSettings(ss *)
+
+    // a JVM row carrying no Scala version, for Java-only sources
+    def crossJvmJava(ss: Def.SettingsDefinition*): CrossProject = self.jvmSettings(ss *)
+
+    def crossAll: CrossProject = self.crossJvm().crossJs().crossNative()
+
+    def crossJsNative: CrossProject = self.crossJs().crossNative()
+
+    def crossJvmNative(nativeOnly: Def.SettingsDefinition*): CrossProject = self.crossJvm().crossNative(nativeOnly *)
+
+    def communityTest: CrossProject = self.settings(communityTestsSettings).crossJvmNative(scalaNativeConfig)
+  }
 
 }

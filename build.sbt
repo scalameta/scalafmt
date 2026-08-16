@@ -143,9 +143,9 @@ def interfacesJvmSettings = Def.settings(
   autoScalaLibrary := false,
 )
 
-lazy val interfaces = crossProject(JVMPlatform, NativePlatform, JSPlatform)
-  .withoutSuffixFor(JVMPlatform).in(file("scalafmt-interfaces"))
-  .settings(interfacesSettings).jvmSettings(interfacesJvmSettings)
+lazy val interfaces = crossProject(allPlatforms *)("scalafmt-interfaces")
+  .settings(interfacesSettings).crossJvmJava(interfacesJvmSettings)
+  .crossJsNative
 
 def sysopsSettings = Def.settings(
   moduleName := "scalafmt-sysops",
@@ -160,10 +160,8 @@ def sysopsJsSettings = Def.settings(
   scalaJsSettings,
 )
 
-lazy val sysops = crossProject(JVMPlatform, NativePlatform, JSPlatform)
-  .withoutSuffixFor(JVMPlatform).in(file("scalafmt-sysops"))
-  .settings(sysopsSettings).jsEnablePlugins(ScalaJSPlugin)
-  .jsSettings(sysopsJsSettings)
+lazy val sysops = crossProject(allPlatforms *)("scalafmt-sysops")
+  .settings(sysopsSettings).crossJvm().crossNative().crossJs(sysopsJsSettings)
 
 def configSettings = Def.settings(
   moduleName := "scalafmt-config",
@@ -176,10 +174,9 @@ def configJvmSettings = libraryDependencies += metaconfigTypesafe.value
 def configNativeSettings = libraryDependencies += metaconfigSconfig.value
 def configJsSettings = Def.settings(configNativeSettings, scalaJsSettings)
 
-lazy val config = crossProject(JVMPlatform, NativePlatform, JSPlatform)
-  .withoutSuffixFor(JVMPlatform).in(file("scalafmt-config"))
-  .settings(configSettings).jvmSettings(configJvmSettings)
-  .nativeSettings(configNativeSettings).jsSettings(configJsSettings)
+lazy val config = crossProject(allPlatforms *)("scalafmt-config")
+  .settings(configSettings).crossJvm(configJvmSettings)
+  .crossNative(configNativeSettings).crossJs(configJsSettings)
 
 def coreSettings = Def.settings(
   moduleName := "scalafmt-core",
@@ -198,10 +195,10 @@ def coreSettings = Def.settings(
 def coreNativeSettings = libraryDependencies +=
   "com.lihaoyi" %%% "fastparse" % "3.1.1"
 
-lazy val core = crossProject(JVMPlatform, NativePlatform, JSPlatform)
-  .withoutSuffixFor(JVMPlatform).in(file("scalafmt-core")).settings(coreSettings)
-  .nativeSettings(coreNativeSettings).aggregate(sysops, config, macros)
-  .dependsOn(sysops, config, macros).enablePlugins(BuildInfoPlugin)
+lazy val core = crossProject(allPlatforms *)("scalafmt-core")
+  .settings(coreSettings).crossJvm().crossJs().crossNative(coreNativeSettings)
+  .aggregate(sysops, config, macros).dependsOn(sysops, config, macros)
+  .enablePlugins(BuildInfoPlugin)
 lazy val coreJVM = core.jvm
 
 def macrosSettings = Def.settings(
@@ -214,9 +211,8 @@ def macrosSettings = Def.settings(
   },
 )
 
-lazy val macros = crossProject(JVMPlatform, NativePlatform, JSPlatform)
-  .withoutSuffixFor(JVMPlatform).in(file("scalafmt-macros"))
-  .settings(macrosSettings)
+lazy val macros = crossProject(allPlatforms *)("scalafmt-macros")
+  .settings(macrosSettings).crossAll
 
 import sbtassembly.AssemblyPlugin.defaultUniversalScript
 
@@ -276,12 +272,11 @@ def cliSettings = Def.settings(
   sharedTestSettings,
 )
 
-lazy val cli = crossProject(JVMPlatform, NativePlatform, JSPlatform)
-  .withoutSuffixFor(JVMPlatform).in(file("scalafmt-cli")).settings(cliSettings)
-  .jvmSettings(cliJvmSettings).nativeSettings(scalaNativeConfig)
+lazy val cli = crossProject(allPlatforms *)("scalafmt-cli").settings(cliSettings)
+  .crossJvm(cliJvmSettings).crossNative(scalaNativeConfig)
   .dependsOn(core, interfaces)
   // TODO: enable NPM publishing
-  .jsSettings(cliJsSettings).jvmEnablePlugins(NativeImagePlugin)
+  .crossJs(cliJsSettings).jvmEnablePlugins(NativeImagePlugin)
   .jvmConfigure(_.dependsOn(dynamic).aggregate(dynamic))
 def cliNative = cli.native
 
@@ -302,44 +297,33 @@ def testsSettings = Def.settings(
 def testsJvmSettings = Def
   .settings(javaOptions += "-Dfile.encoding=UTF8", parallelCollections)
 
-lazy val tests = crossProject(JVMPlatform, NativePlatform, JSPlatform)
-  .withoutSuffixFor(JVMPlatform).in(file("scalafmt-tests"))
+lazy val tests = crossProject(allPlatforms *)("scalafmt-tests")
   .settings(testsSettings).enablePlugins(BuildInfoPlugin).dependsOn(core)
-  .aggregate(core).jvmSettings(testsJvmSettings).jsSettings(scalaJsSettings)
-  .jsEnablePlugins(ScalaJSPlugin)
+  .aggregate(core).crossJvm(testsJvmSettings).crossJs(scalaJsSettings)
+  .crossNative()
 
-lazy val communityTestsCommon = crossProject(JVMPlatform, NativePlatform)
-  .withoutSuffixFor(JVMPlatform)
-  .configureCross(confCommunityTestShared("scalafmt-tests-community/common"))
-  .dependsOn(core)
+lazy val communityTestsCommon =
+  crossProject(jvmAndNative *)("scalafmt-tests-community/common").communityTest
+    .dependsOn(core)
 
-lazy val communityTestsScala2 = crossProject(JVMPlatform, NativePlatform)
-  .withoutSuffixFor(JVMPlatform)
-  .configureCross(confCommunityTest("scalafmt-tests-community/scala2"))
+lazy val communityTestsScala2 =
+  crossProject(jvmAndNative *)("scalafmt-tests-community/scala2").communityTest
+    .dependsOn(communityTestsCommon % "test->test")
 
-lazy val communityTestsScala3 = crossProject(JVMPlatform, NativePlatform)
-  .withoutSuffixFor(JVMPlatform)
-  .configureCross(confCommunityTest("scalafmt-tests-community/scala3"))
+lazy val communityTestsScala3 =
+  crossProject(jvmAndNative *)("scalafmt-tests-community/scala3").communityTest
+    .dependsOn(communityTestsCommon % "test->test")
 
-lazy val communityTestsSpark = crossProject(JVMPlatform, NativePlatform)
-  .withoutSuffixFor(JVMPlatform)
-  .configureCross(confCommunityTest("scalafmt-tests-community/spark"))
+lazy val communityTestsSpark =
+  crossProject(jvmAndNative *)("scalafmt-tests-community/spark").communityTest
+    .dependsOn(communityTestsCommon % "test->test")
 
-lazy val communityTestsIntellij = crossProject(JVMPlatform, NativePlatform)
-  .withoutSuffixFor(JVMPlatform)
-  .configureCross(confCommunityTest("scalafmt-tests-community/intellij"))
+lazy val communityTestsIntellij =
+  crossProject(jvmAndNative *)("scalafmt-tests-community/intellij")
+    .communityTest.dependsOn(communityTestsCommon % "test->test")
 
-lazy val communityTestsOther = crossProject(JVMPlatform, NativePlatform)
-  .withoutSuffixFor(JVMPlatform)
-  .configureCross(confCommunityTest("scalafmt-tests-community/other"))
-
-def confCommunityTestShared(where: String)(
-    project: sbtcrossproject.CrossProject,
-) = project.in(file(where)).settings(communityTestsSettings)
-  .nativeSettings(scalaNativeConfig)
-
-def confCommunityTest(where: String)(project: sbtcrossproject.CrossProject) =
-  project.configureCross(confCommunityTestShared(where))
+lazy val communityTestsOther =
+  crossProject(jvmAndNative *)("scalafmt-tests-community/other").communityTest
     .dependsOn(communityTestsCommon % "test->test")
 
 lazy val benchmarks = project.in(file("scalafmt-benchmarks")).settings(
