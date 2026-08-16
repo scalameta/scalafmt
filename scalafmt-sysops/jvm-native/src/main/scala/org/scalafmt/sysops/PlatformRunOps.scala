@@ -16,8 +16,8 @@ private[scalafmt] object PlatformRunOps {
   private val ncores = Runtime.getRuntime.availableProcessors()
 
   // creates non-daemon threads
-  val inputExecutionContext: ExecutionContextExecutorService = ExecutionContext
-    .fromExecutorService(Executors.newFixedThreadPool(ncores))
+  lazy val inputExecutionContext: ExecutionContextExecutorService =
+    createContext()
 
   lazy val formatExecutionContext: ExecutionContext = {
     val queue = new SynchronousQueue[Runnable]() {
@@ -28,7 +28,10 @@ private[scalafmt] object PlatformRunOps {
     )
   }
 
-  val outputExecutionContext: ExecutionContextExecutorService = ExecutionContext
+  lazy val outputExecutionContext: ExecutionContextExecutorService =
+    createContext()
+
+  private def createContext() = ExecutionContext
     .fromExecutorService(Executors.newFixedThreadPool(ncores))
 
   implicit def parasiticExecutionContext: ExecutionContext =
