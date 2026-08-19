@@ -4804,6 +4804,24 @@ object A {
 }
 ```
 
+### `verticalMultiline.arityThresholdForLambdas`
+
+```scala mdoc:defaults
+verticalMultiline.arityThresholdForLambdas
+```
+
+When configured, parameter lists of anonymous functions (lambdas) use this threshold instead of `verticalMultiline.arityThreshold`. This allows setting a low threshold for class and method definitions while preventing short multi-parameter lambdas from exploding vertically.
+
+```scala mdoc:scalafmt
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+verticalMultiline.arityThresholdForLambdas = 100
+---
+object A {
+  def foo(x: String, y: String) = Some((ticket, _, _) => restoreTicketFun(ticket.id.get))
+}
+```
+
 ### `verticalMultiline.newlineAfterOpenParen`
 
 ```scala mdoc:defaults

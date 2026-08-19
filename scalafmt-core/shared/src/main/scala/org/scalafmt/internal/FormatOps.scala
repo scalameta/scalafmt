@@ -701,9 +701,21 @@ class FormatOps(
       else Indent(indentParam, close, ExpiresOn.Before)
 
     def aboveArityThreshold = {
-      val threshold = style.verticalMultiline.arityThreshold
+      val defaultThreshold = style.verticalMultiline.arityThreshold
+      val lambdaThreshold = style.verticalMultiline.arityThresholdForLambdas
+        .getOrElse(defaultThreshold)
       allOwners.exists {
-        case Member.ParamClause(v) => v.lengthCompare(threshold) >= 0
+        case pc @ Member.ParamClause(v) =>
+          val isLambda = pc match {
+            case ParamClauseParent(p) => p match {
+                case _: Term.FunctionTerm | _: Member.Function |
+                    _: Term.AnonymousFunction => true
+                case _ => false
+              }
+            case _ => false
+          }
+          val threshold = if (isLambda) lambdaThreshold else defaultThreshold
+          v.lengthCompare(threshold) >= 0
         case _ => false
       }
     }
