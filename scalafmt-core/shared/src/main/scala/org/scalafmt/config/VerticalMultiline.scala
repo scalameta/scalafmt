@@ -7,6 +7,7 @@ import metaconfig._
 case class VerticalMultiline(
     atDefnSite: Boolean = false,
     arityThreshold: Int = 100,
+    arityThresholdForLambdas: Option[Int] = None,
     newlineAfterOpenParen: Boolean = false,
 )
 

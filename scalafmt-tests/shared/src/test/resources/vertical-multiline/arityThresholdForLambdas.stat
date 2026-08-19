@@ -1,0 +1,84 @@
+maxColumn = 80
+verticalMultiline = {
+  atDefnSite = true
+  arityThreshold = 2
+  arityThresholdForLambdas = 100
+}
+indent.defnSite = 2
+
+<<< Multi-param def explodes vertically while multi-param lambda stays single-line
+object A {
+  def foo(x: String, y: String) = Some((ticket, _, _) => restoreTicketFun(ticket.id.get))
+}
+>>>
+object A {
+  def foo(
+    x: String,
+    y: String
+  ) = Some((ticket, _, _) => restoreTicketFun(ticket.id.get))
+}
+
+<<< Case class defn explodes vertically while lambda in field default value stays single-line
+case class DateRangeInputFormGroup(
+  label: String,
+  startValidator: (Option[Date], Option[Date]) => FormGroupValidation = (_, _) => DateFormGroupValidators.success
+)
+>>>
+case class DateRangeInputFormGroup(
+  label: String,
+  startValidator: (Option[Date], Option[Date]) => FormGroupValidation = (
+    _,
+    _
+  ) => DateFormGroupValidators.success)
+
+<<< Lambda exceeding custom arityThresholdForLambdas explodes vertically
+verticalMultiline = {
+  atDefnSite = true
+  arityThreshold = 2
+  arityThresholdForLambdas = 3
+}
+===
+object A {
+  def foo(x: String, y: String) = {
+    val shortLambda = (a: Int, b: Int) => a + b
+    val longLambda = (a: Int, b: Int, c: Int) => a + b + c
+  }
+}
+>>>
+object A {
+  def foo(
+    x: String,
+    y: String
+  ) = {
+    val shortLambda = (a: Int, b: Int) => a + b
+    val longLambda = (
+      a: Int,
+      b: Int,
+      c: Int
+    ) => a + b + c
+  }
+}
+
+<<< Lambda exploding vertically when arityThresholdForLambdas is explicitly low
+verticalMultiline = {
+  atDefnSite = true
+  arityThreshold = 100
+  arityThresholdForLambdas = 2
+}
+===
+object A {
+  def foo(x: String, y: String) = {
+    val shortLambda = (a: Int) => a
+    val longLambda = (a: Int, b: Int) => a + b
+  }
+}
+>>>
+object A {
+  def foo(x: String, y: String) = {
+    val shortLambda = (a: Int) => a
+    val longLambda = (
+      a: Int,
+      b: Int
+    ) => a + b
+  }
+}
