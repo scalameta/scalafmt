@@ -3644,3 +3644,39 @@ object a
  * qux
  */
 object a
+<<< blankFirstLine=keep, wrapping
+docstrings.blankFirstLine = keep
+docstrings.style = SpaceAsterisk
+docstrings.wrap = unfold
+maxColumn = 30
+===
+/** text on the first line
+  */
+/**
+  * blank first line
+  */
+val a = 1
+>>>
+/** text on the first line
+  */
+/** blank first line
+  */
+val a = 1
+<<< blankFirstLine=keep, not wrapping
+docstrings.blankFirstLine = keep
+docstrings.style = SpaceAsterisk
+maxColumn = 30
+===
+/** text on the first line
+  */
+/**
+  * blank first line
+  */
+val a = 1
+>>>
+/** text on the first line
+  */
+/**
+  * blank first line
+  */
+val a = 1
