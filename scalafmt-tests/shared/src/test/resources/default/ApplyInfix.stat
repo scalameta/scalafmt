@@ -1317,3 +1317,15 @@ indent.infix {
       foo6 / foo7 / foo8 / foo9 / fooA /
       fooB / fooC / fooD / fooE / fooF
 }
+<<< #5387 assignment op, trailing comment
+val x =
+  (a
+    :*= b //
+    :*= c
+    :*= d)
+>>>
+val x =
+  (a
+    :*= b //
+  :*= c
+    :*= d)
