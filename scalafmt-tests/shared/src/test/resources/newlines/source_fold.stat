@@ -13414,18 +13414,18 @@ object A {
   ) => ff(ticket)
   val asarg = Some(
     (ticket: Tckt,
-      session: Sess
+     session: Sess
     ) => ff(ticket)
   )
   val astwo = foo(
     xx,
     (ticket: Tckt,
-      session: Sess
+     session: Sess
     ) => ff(ticket)
   )
   val asparen = (
     (ticket: Tckt,
-      session: Sess
+     session: Sess
     ) => ff(ticket)
   )
   case class Cls(
@@ -13460,19 +13460,19 @@ object A {
       ) => ff(ticket)
   val asarg = Some(
     (ticket: Tckt,
-          session: Sess
-        ) => ff(ticket)
+     session: Sess
+    ) => ff(ticket)
   )
   val astwo = foo(
     xx,
     (ticket: Tckt,
-          session: Sess
-        ) => ff(ticket)
+     session: Sess
+    ) => ff(ticket)
   )
   val asparen = (
         (ticket: Tckt,
-              session: Sess
-            ) => ff(ticket)
+         session: Sess
+        ) => ff(ticket)
       )
   case class Cls(
         v: Res = (

@@ -625,7 +625,8 @@ class FormatOps(
     val close = matchingLeft(ft)
     val beforeClose = prev(close)
     val indentParam = style.indent.getDefnSite(lpOwner)
-    val indentSep = Indent((indentParam - 2).max(0), close, ExpiresOn.After)
+    val indentSepLen = (indentParam - 2).max(0)
+    val indentSep = Indent(indentSepLen, close, ExpiresOn.After)
     val isBracket = open.is[T.LeftBracket]
 
     def getClausesFromClauseGroup(tree: Member.ParamClauseGroup) = {
@@ -749,7 +750,25 @@ class FormatOps(
         style.newlines.forceAfterImplicitParamListModifier
       val nlNoAlt = implicitNL ||
         !rightIsImplicit && style.verticalMultiline.newlineAfterOpenParen
-      val nlMod = Newline.withAltIf(!nlNoAlt)(slbSplit.modExt)
+      /* a lambda has one clause, so its alternative can't be aligning a `)(`
+       * group; keeping the first param on the open paren line, the rest align
+       * under it rather than at the indent computed for a break */
+      val lambdaClause = lpOwner match {
+        case t: Term.ParamClause => t.parent.is[Term.FunctionTerm]
+        case _ => false
+      }
+      val altIndents =
+        if (!lambdaClause) Nil
+        else Seq(
+          Indent(Length.StateColumn, close, ExpiresOn.After),
+          // cancelled within the clause, so only the close drops to the paren
+          Indent(-1 - indentSepLen, close, ExpiresOn.After),
+          Indent(1 + indentSepLen, close, ExpiresOn.Before),
+        )
+      val nlMod = Newline.withAltIf(!nlNoAlt)(
+        slbSplit.modExt.withIndents(altIndents),
+        noAltIndent = lambdaClause,
+      )
       val spaceImplicit = !implicitNL && implicitParams.lengthCompare(1) > 0 &&
         style.newlines.notBeforeImplicitParamListModifier
       Seq(
