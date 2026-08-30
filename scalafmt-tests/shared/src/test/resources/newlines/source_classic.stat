@@ -14165,3 +14165,94 @@ object X {
     { val a = f(6); g(a) }
   )
 }
+<<< verticalMultiline at a lambda param clause
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+indent.defnSite = 2
+===
+object A {
+  def dfit(a: Aa, b: Bb) = ff(a)
+  def dmid(a: Aa, b: Bb) = fff(aaa, bbb)
+  val tfit = (a: Aa, b: Bb) => ff(a)
+  val tmid = (a: Aa, b: Bb) => fff(aaa, bbb)
+  val twide = (ticketing: Tckt, sessioning: Sess, contexting: Ctx) => ff(a)
+  val ufit = (a, b) => ff(a)
+  val umid = (a, b) => fff(aaa, bbb, ccc)
+  val uwide = (ticketing, sessioning, contexting, requesting) => ff(a)
+  val mfit = (a: Aa, b) => ff(a)
+  val mmid = (a: Aa, b) => fff(aaa, bbbb)
+  val mwide = (ticketing, sessioning: Sess, contexting) => ff(a)
+  val amid: (Aa, Bb) => Rr = (a: Aa, b) => fff(aaa, bbb)
+  val inarg = Some((a, b) => fff(aaa, bbb))
+  val onearg = (a) => fff(aaa, bbb, ccc)
+  val noarg = () => fff(aaa, bbb, ccc)
+  case class Cls(label: Sess, valid: (Tckt, Sess) => Res = (_, _) => ff)
+}
+>>>
+object A {
+  def dfit(
+    a: Aa,
+    b: Bb
+  ) = ff(a)
+  def dmid(
+    a: Aa,
+    b: Bb
+  ) = fff(aaa, bbb)
+  val tfit = (
+    a: Aa,
+    b: Bb
+  ) => ff(a)
+  val tmid = (
+    a: Aa,
+    b: Bb
+  ) => fff(aaa, bbb)
+  val twide = (
+    ticketing: Tckt,
+    sessioning: Sess,
+    contexting: Ctx
+  ) => ff(a)
+  val ufit = (
+    a,
+    b
+  ) => ff(a)
+  val umid = (
+    a,
+    b
+  ) => fff(aaa, bbb, ccc)
+  val uwide = (
+    ticketing,
+    sessioning,
+    contexting,
+    requesting
+  ) => ff(a)
+  val mfit = (
+    a: Aa,
+    b
+  ) => ff(a)
+  val mmid = (
+    a: Aa,
+    b
+  ) => fff(aaa, bbbb)
+  val mwide = (
+    ticketing,
+    sessioning: Sess,
+    contexting
+  ) => ff(a)
+  val amid: (Aa, Bb) => Rr = (
+    a: Aa,
+    b
+  ) => fff(aaa, bbb)
+  val inarg = Some(
+    (a,
+      b
+    ) => fff(aaa, bbb)
+  )
+  val onearg = (a) => fff(aaa, bbb, ccc)
+  val noarg = () => fff(aaa, bbb, ccc)
+  case class Cls(
+    label: Sess,
+    valid: (Tckt, Sess) => Res = (
+      _,
+      _
+    ) => ff)
+}
