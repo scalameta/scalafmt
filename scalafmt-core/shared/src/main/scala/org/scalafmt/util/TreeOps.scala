@@ -320,8 +320,8 @@ object TreeOps {
 
   def isParamClauseSite(tree: Tree): Boolean = tree match {
     case _: Type.ParamClause => !tree.parent.is[Type.Lambda]
-    case _: Term.ParamClause => tree.parent match {
-        case Some(p: Term.FunctionTerm) => !isSeqSingle(p.paramClause.values)
+    case t: Term.ParamClause => tree.parent match {
+        case Some(_: Term.FunctionTerm) => !isSeqSingle(t.values)
         case _ => true
       }
     case _: Type.FuncParamClause | _: Type.Tuple => true

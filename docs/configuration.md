@@ -4834,6 +4834,21 @@ Separation between parameter groups are indented by two spaces less than
 > maxColumn value in width or if the number of arguments to the method exceeds
 > the [`verticalMultiline.arityThreshold`](#verticalmultilinearitythreshold).
 
+> Since v3.11.6, it skips the parameters of an anonymous function which
+> declare no types, as they read as a tuple rather than a parameter list.
+
+```scala mdoc:scalafmt
+maxColumn = 80
+verticalMultiline.atDefnSite = true
+verticalMultiline.arityThreshold = 2
+indent.defnSite = 2
+---
+object A {
+  val typed = (ticket: Ticket, session: Session) => restore(ticket)
+  val untyped = (ticket, session) => restore(ticket)
+}
+```
+
 ### `verticalMultiline.arityThreshold`
 
 ```scala mdoc:defaults
