@@ -1463,6 +1463,12 @@ object SplitsAfterTemplateKeyword extends Splits {
 object SplitsAfterLeftParenOrBracket {
   def get1(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig): Seq[Split] = {
     import fo._, tokens._, ft._
+    def defnSiteForVerticalMultiline = leftOwner match {
+      case t: Term.ParamClause => !t.parent.is[Term.FunctionTerm] ||
+        // untyped lambda parameters read as a tuple, not as a parameter list
+        t.values.exists(_.decltpe.nonEmpty) && isSeqMulti(t.values)
+      case t => isParamClauseSite(t)
+    }
     if (
       meta.formatOff && leftOwner.isAny[Member.SyntaxValuesClause, Member.Tuple]
     ) {
@@ -1476,7 +1482,7 @@ object SplitsAfterLeftParenOrBracket {
     }
     // Parameter opening for one parameter group. This format works
     // on the WHOLE defnSite (via policies)
-    else if (cfg.verticalMultiline.atDefnSite && isParamClauseSite(leftOwner))
+    else if (cfg.verticalMultiline.atDefnSite && defnSiteForVerticalMultiline)
       verticalMultiline()
     else null
   }

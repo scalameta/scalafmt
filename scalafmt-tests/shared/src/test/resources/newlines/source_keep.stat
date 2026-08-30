@@ -14043,14 +14043,9 @@ object A {
     sessioning: Sess,
     contexting: Ctx
   ) => ff(a)
-  val ufit = (
-    a,
-    b
-  ) => ff(a)
-  val umid = (
-    a,
-    b
-  ) => fff(aaa, bbb, ccc)
+  val ufit = (a, b) => ff(a)
+  val umid =
+    (a, b) => fff(aaa, bbb, ccc)
   val uwide = (
     ticketing,
     sessioning,
@@ -14074,17 +14069,12 @@ object A {
     a: Aa,
     b
   ) => fff(aaa, bbb)
-  val inarg = Some(
-    (a,
-      b
-    ) => fff(aaa, bbb)
-  )
+  val inarg =
+    Some((a, b) => fff(aaa, bbb))
   val onearg = (a) => fff(aaa, bbb, ccc)
   val noarg = () => fff(aaa, bbb, ccc)
   case class Cls(
     label: Sess,
-    valid: (Tckt, Sess) => Res = (
-      _,
-      _
-    ) => ff)
+    valid: (Tckt, Sess) => Res =
+      (_, _) => ff)
 }
