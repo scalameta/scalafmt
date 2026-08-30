@@ -3659,7 +3659,8 @@ val a = 1
 >>>
 /** text on the first line
   */
-/** blank first line
+/**
+  * blank first line
   */
 val a = 1
 <<< blankFirstLine=keep, not wrapping
