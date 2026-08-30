@@ -14585,16 +14585,16 @@ object A {
   ) = fff(aaa, bbb)
   val tfit =
     (a: Aa,
-      b: Bb
+     b: Bb
     ) => ff(a)
   val tmid =
     (a: Aa,
-      b: Bb
+     b: Bb
     ) => fff(aaa, bbb)
   val twide =
     (ticketing: Tckt,
-      sessioning: Sess,
-      contexting: Ctx
+     sessioning: Sess,
+     contexting: Ctx
     ) => ff(a)
   val ufit = (a, b) => ff(a)
   val umid =
@@ -14608,20 +14608,20 @@ object A {
     ) => ff(a)
   val mfit =
     (a: Aa,
-      b
+     b
     ) => ff(a)
   val mmid =
     (a: Aa,
-      b
+     b
     ) => fff(aaa, bbbb)
   val mwide =
     (ticketing,
-      sessioning: Sess,
-      contexting
+     sessioning: Sess,
+     contexting
     ) => ff(a)
   val amid: (Aa, Bb) => Rr =
     (a: Aa,
-      b
+     b
     ) => fff(aaa, bbb)
   val inarg = Some((a, b) =>
     fff(aaa, bbb)
@@ -14651,32 +14651,32 @@ object A {
 object A {
   val asrhs =
     (ticket: Tckt,
-      session: Sess
+     session: Sess
     ) => ff(ticket)
   val asasc: Any =
     (ticket: Tckt,
-      session: Sess
+     session: Sess
     ) => ff(ticket)
   val asarg = Some(
     (ticket: Tckt,
-      session: Sess
+     session: Sess
     ) => ff(ticket)
   )
   val astwo = foo(
     xx,
     (ticket: Tckt,
-      session: Sess
+     session: Sess
     ) => ff(ticket)
   )
   val asparen = (
     (ticket: Tckt,
-      session: Sess
+     session: Sess
     ) => ff(ticket)
   )
   case class Cls(
     v: Res =
       (ticket: Tckt,
-        session: Sess
+       session: Sess
       ) => ff(ticket))
 }
 <<< verticalMultiline, typed lambda, indent.defnSite = 6
@@ -14697,31 +14697,31 @@ object A {
 object A {
   val asrhs =
     (ticket: Tckt,
-          session: Sess
-        ) => ff(ticket)
+     session: Sess
+    ) => ff(ticket)
   val asasc: Any =
     (ticket: Tckt,
-          session: Sess
-        ) => ff(ticket)
+     session: Sess
+    ) => ff(ticket)
   val asarg = Some(
     (ticket: Tckt,
-          session: Sess
-        ) => ff(ticket)
+     session: Sess
+    ) => ff(ticket)
   )
   val astwo = foo(
     xx,
     (ticket: Tckt,
-          session: Sess
-        ) => ff(ticket)
+     session: Sess
+    ) => ff(ticket)
   )
   val asparen = (
         (ticket: Tckt,
-              session: Sess
-            ) => ff(ticket)
+         session: Sess
+        ) => ff(ticket)
       )
   case class Cls(
         v: Res =
           (ticket: Tckt,
-                session: Sess
-              ) => ff(ticket))
+           session: Sess
+          ) => ff(ticket))
 }
