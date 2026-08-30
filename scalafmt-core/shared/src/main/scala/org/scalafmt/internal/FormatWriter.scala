@@ -879,23 +879,23 @@ class FormatWriter(formatOps: FormatOps) {
         private var lastBreak: Int = -1
 
         def format(): Unit = {
-          val noWrap = (wrap eq Docstrings.Wrap.keep) || {
-            ScaladocParser.parse(tok.meta.left.text) match {
-              case Some(doc) =>
-                val sbLen = sb.length
-                try { formatWithWrap(doc); false }
-                catch { case _: Throwable => sb.setLength(sbLen); true }
-              case None => true
+          val noWrap = (wrap eq Docstrings.Wrap.keep) ||
+            ScaladocParser.parse(text).forall { doc =>
+              val sbLen = sb.length
+              try { formatWithWrap(doc); false }
+              catch { case _: Throwable => sb.setLength(sbLen); true }
             }
-          }
           if (noWrap) formatNoWrap()
         }
 
         private def formatWithWrap(doc: Scaladoc): Unit = {
           sb.append("/**")
           val afterOpen = sb.length
+          val eol = text.indexOf('\n')
+          val hadBlankFirstLine = eol > 0 &&
+            State.getLineLength(text, 3, eol) == 0 // 3 skips "/**"
           val (sbLen, beforeText) =
-            if (style.docstrings.skipFirstLineIf(false)) {
+            if (style.docstrings.skipFirstLineIf(hadBlankFirstLine)) {
               appendBreak()
               (0, sb.length) // 0 force margin but not extra asterisk
             } else {

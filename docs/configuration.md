@@ -5164,7 +5164,7 @@ Takes the following values:
 
 > Since v2.7.5.
 >
-> - Ignored for `docstrings.style = keep` or `docstrings.wrap = no`.
+> - Ignored for `docstrings.style = keep`.
 > - [since v3.8.4] For `docstrings.style = Asterisk`, only `fold` changes default behaviour.
 
 ```scala mdoc:scalafmt
