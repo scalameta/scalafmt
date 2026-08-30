@@ -1340,6 +1340,8 @@ object SplitsBeforeLeftParenOrBracket extends Splits {
       val beforeOpenParenSplits =
         if (!right.is[T.LeftParen]) null
         else if (defn) cfg.newlines.getBeforeOpenParenDefnSite.nnMap { x =>
+          /* the extra indent sets the parameter groups apart from the body,
+           * so a definition with no body doesn't take it */
           val indent =
             if (beforeDefRhs eq null) cfg.indent.main
             else {
