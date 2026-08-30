@@ -397,17 +397,25 @@ style). Defaults to `indent.callSite`.
 Example:
 
 ```scala mdoc:scalafmt
-newlines.configStyle.callSite.prefer = false
-danglingParentheses.callSite = false
 binPack.callSite = always
 indent.callSite = 2
 indent.binPackCallSite = 4
 ---
 func(1, // next indented by 4
   "")
-func( // next indented by 2
+func( // next indented by 2, config style disables binpacking
     1,
     "")
+/* scalafmt: { // disable config style
+     newlines.configStyle.callSite.prefer = false
+     danglingParentheses.callSite = false
+   }
+ */
+func(1, // next indented by 4
+  "")
+func( // next indented by 4
+  1,
+  "")
 ```
 
 ### `indent.ctrlSite`
@@ -467,17 +475,25 @@ style). Defaults to `indent.defnSite`.
 Example:
 
 ```scala mdoc:scalafmt
-newlines.configStyle.defnSite.prefer = false
-danglingParentheses.defnSite = false
 binPack.defnSite = always
 indent.defnSite = 2
 indent.binPackDefnSite = 4
 ---
 def func(a: Int, // next indented by 4
   b: String)
-def func( // next indented by 2
+def func( // next indented by 2, config style disables binpacking
     a: Int,
     b: String)
+/* scalafmt: { // disable config style
+     newlines.configStyle.defnSite.prefer = false
+     danglingParentheses.defnSite = false
+   }
+ */
+def func(a: Int, // next indented by 4
+  b: String)
+def func( // next indented by 4
+  a: Int,
+  b: String)
 ```
 
 ### `indent.ctorSite`
@@ -624,19 +640,23 @@ indent.extraBeforeOpenParenDefnSite
 maxColumn = 25
 newlines.beforeOpenParenDefnSite = fold
 ---
+// no body
 case class fooClass
   (foo1: String)
   (foo2: String, foo3: String)
   (foo5: String)
+// has a body
 abstract class fooClass
   (foo1: String)
   (foo2: String, foo3: String)
   (foo5: String) {
+  // no body
   def fooDef
     (foo1: String)
     (foo2: String, foo3: String)
     (foo5: String)
 }
+// has a body
 def fooDef
   (foo1: String)
   (foo2: String, foo3: String)
@@ -650,19 +670,23 @@ maxColumn = 25
 indent.extraBeforeOpenParenDefnSite = 2
 newlines.beforeOpenParenDefnSite = fold
 ---
+// no body
 case class fooClass
   (foo1: String)
   (foo2: String, foo3: String)
   (foo5: String)
+// has a body
 abstract class fooClass
   (foo1: String)
   (foo2: String, foo3: String)
   (foo5: String) {
+  // no body
   def fooDef
     (foo1: String)
     (foo2: String, foo3: String)
     (foo5: String)
 }
+// has a body
 def fooDef
   (foo1: String)
   (foo2: String, foo3: String)
@@ -676,19 +700,23 @@ maxColumn = 25
 indent.extraBeforeOpenParenDefnSite = -1
 newlines.beforeOpenParenDefnSite = fold
 ---
+// no body
 case class fooClass
   (foo1: String)
   (foo2: String, foo3: String)
   (foo5: String)
+// has a body
 abstract class fooClass
   (foo1: String)
   (foo2: String, foo3: String)
   (foo5: String) {
+  // no body
   def fooDef
     (foo1: String)
     (foo2: String, foo3: String)
     (foo5: String)
 }
+// has a body
 def fooDef
   (foo1: String)
   (foo2: String, foo3: String)
@@ -996,6 +1024,8 @@ function {
   a &&
     b
 }
+(a &&
+  b).c
 ```
 
 ```scala mdoc:scalafmt
@@ -1021,6 +1051,8 @@ function {
   a &&
     b
 }
+(a &&
+  b).c
 ```
 
 ```scala mdoc:scalafmt
@@ -1046,6 +1078,8 @@ function {
   a &&
     b
 }
+(a &&
+  b).c
 ```
 
 ```scala mdoc:scalafmt
@@ -1071,6 +1105,8 @@ function {
   a &&
     b
 }
+(a &&
+  b).c
 ```
 
 #### `indent.infix`: `excludeRegex`
@@ -2102,6 +2138,9 @@ NB: for breaks before parameters of a multi-line lambda, use `multiline` with
 ```scala mdoc:scalafmt
 newlines.beforeMultiline = unfold
 ---
+// had no break after "="
+val aaa = bbbbbbbbbb + cccccccc +
+  dddddddddd + eeeeeeeeee
 a match {
   // had space after "=>"
   case a => if (step != 0)
@@ -2116,6 +2155,9 @@ a match {
 ```scala mdoc:scalafmt
 newlines.beforeMultiline = fold
 ---
+// had no break after "="
+val aaa = bbbbbbbbbb + cccccccc +
+  dddddddddd + eeeeeeeeee
 a match {
   // had space after "=>"
   case a => if (step != 0)
@@ -2130,6 +2172,9 @@ a match {
 ```scala mdoc:scalafmt
 newlines.beforeMultiline = keep
 ---
+// had no break after "="
+val aaa = bbbbbbbbbb + cccccccc +
+  dddddddddd + eeeeeeeeee
 a match {
   // had space after "=>"
   case a => if (step != 0)
@@ -2144,6 +2189,9 @@ a match {
 ```scala mdoc:scalafmt
 # newlines.beforeMultiline = classic
 ---
+// had no break after "="
+val aaa = bbbbbbbbbb + cccccccc +
+  dddddddddd + eeeeeeeeee
 a match {
   // had space after "=>"
   case a => if (step != 0)
@@ -3770,8 +3818,8 @@ in the desired order:
 ```scala mdoc:scalafmt
 rewrite.rules = [SortModifiers]
 rewrite.sortModifiers.order = [
-  "implicit", "final", "sealed", "abstract",
-  "override", "private", "protected", "lazy"
+  "override", "final", "implicit", "sealed",
+  "abstract", "private", "protected", "lazy"
 ]
 ---
 override implicit final val x = 2
@@ -4578,9 +4626,9 @@ This section describes rules which are applied if the appropriate dialect (e.g.,
 
 ### `rewrite.scala3` presets
 
-The following presets are available for the `rewrite.scala3` section:
+The following [presets](#presets) are available for the `rewrite.scala3` section:
 
-- `common`: intends to approximate the
+- `preset = common`: intends to approximate the
   [common style recommendation](https://contributors.scala-lang.org/t/towards-a-common-scala-style-recommendation/7383)
   - as of v3.11.6, it includes:
     - `rewrite.scala3.convertToNewSyntax = true`
