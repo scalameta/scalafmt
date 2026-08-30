@@ -179,8 +179,8 @@ class InfixSplits(
   private val appPrecedence = app.precedence
   private val beforeLhs = !isAfterOp && ft.left.start < app.begOffset
   private val isFirstOp = beforeLhs || isLeftInfix && isAfterOp
-  private val fullExpire = ftoks
-    .nextNonCommentSameLine(ftoks.getLastExceptParen(fullInfix))
+  private val fullInfixEnd = ftoks.getLastExceptParen(fullInfix)
+  private val fullExpire = ftoks.nextNonCommentSameLine(fullInfixEnd)
 
   private val assignBodyExpire = {
     val prevFt = ftoks.tokenBefore(fullInfix)
@@ -290,7 +290,7 @@ class InfixSplits(
 
   val (nlIndent, nlPolicy) = {
     def policy(triggers: T*)(implicit fl: FileLine) =
-      Policy ? triggers.isEmpty || Policy.onLeft(fullExpire, prefix = "INF") {
+      Policy ? triggers.isEmpty || Policy.onLeft(fullInfixEnd, prefix = "INF") {
         case Decision(FT(_: T.Ident, _, m), s) if isInfixOp(m.leftOwner) =>
           InfixSplits.switch(s, triggers: _*)
         case Decision(xft @ FT(_, _: T.Ident, m), s)
