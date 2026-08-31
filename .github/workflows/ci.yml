@@ -45,7 +45,7 @@ jobs:
         with:
           fetch-depth: 0
       - &jdk
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           # matrix.java on the matrix jobs; falls back to 17 (the PR-gate JDK)
           # wherever there's no matrix.java — so one anchor serves every job.
