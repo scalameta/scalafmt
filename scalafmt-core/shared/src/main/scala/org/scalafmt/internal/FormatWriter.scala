@@ -1271,6 +1271,29 @@ class FormatWriter(formatOps: FormatOps) {
             }
           }
 
+          def processEligible(isSlc: Boolean, alignKind: AlignKind)(implicit
+              floc: FormatLocation,
+          ): Unit = {
+            val (container, depth) = getAlignContainer(isSlc)
+            def appendCandidate() = columnCandidates += {
+              val col = getAlignColumn(floc, alignKind) + columnShift
+              new AlignStop(col, depth, floc, getAlignHashKey(floc), isSlc)
+            }
+            if (alignContainer eq null) alignContainer = container
+            else if (alignContainer ne container)
+              if (isSlc) {
+                val prevFt = prevNonCommentSameLine(floc.formatToken)
+                if (alignContainer.endOffset >= prevFt.left.end) appendCandidate()
+              } else if (
+                container.begOffset <= alignContainer.begOffset &&
+                container.endOffset >= alignContainer.endOffset
+              ) {
+                alignContainer = container
+                columnCandidates.clear()
+              }
+            if (alignContainer eq container) appendCandidate()
+          }
+
           @tailrec
           def processLine(wasSlc: Boolean): Unit = {
             if (idx > 0) {
@@ -1290,27 +1313,7 @@ class FormatWriter(formatOps: FormatOps) {
               val isSlc = ft.right.is[T.Comment] && locations(idx)
                 .hasBreakAfter && !ft.rightHasNewline
               val alignKind = shouldAlign(ft, isSlc)
-              if (alignKind != AlignKind.No) {
-                val (container, depth) = getAlignContainer(isSlc)
-                def appendCandidate() = columnCandidates += {
-                  val col = getAlignColumn(floc, alignKind) + columnShift
-                  new AlignStop(col, depth, floc, getAlignHashKey(floc), isSlc)
-                }
-                if (alignContainer eq null) alignContainer = container
-                else if (alignContainer ne container)
-                  if (isSlc) {
-                    val prevFt = prevNonCommentSameLine(ft)
-                    if (alignContainer.endOffset >= prevFt.left.end)
-                      appendCandidate()
-                  } else if (
-                    container.begOffset <= alignContainer.begOffset &&
-                    container.endOffset >= alignContainer.endOffset
-                  ) {
-                    alignContainer = container
-                    columnCandidates.clear()
-                  }
-                if (alignContainer eq container) appendCandidate()
-              }
+              if (alignKind != AlignKind.No) processEligible(isSlc, alignKind)
               processLine(wasSlc = isSlc)
             }
           }
@@ -2001,19 +2004,25 @@ object FormatWriter {
     if (left) floc.state.prev.column else floc.state.column
   }
 
+  /** Owner of the token to align by; not meaningful for a comment align stop.
+    *
+    * Historically, we match infix operator as infix expression, since initially
+    * we didn't have a way to match parent trees.
+    */
+  private def getNonSlcAlignOwner(ft: FT): Tree = ft.rightOwner match {
+    case x: Term.Name => x.parent match {
+        case Some(p: Term.ApplyInfix) => p
+        case _ => x
+      }
+    case x => x
+  }
+
   private def shouldAlign(ft: FT, slc: Boolean)(implicit
       floc: FormatLocation,
   ): AlignKind = {
     val code = if (slc) "//" else ft.meta.right.text
-    def getOwner =
-      if (slc) ft.leftOwner // Corner case when line ends with comment
-      else ft.rightOwner match {
-        case x: Term.Name =>
-          /* historically, we match infix operator as infix expression,
-           * since initially we didn't have a way to match parent trees */
-          x.parent match { case Some(p: Term.ApplyInfix) => p; case _ => x }
-        case x => x
-      }
+    // Corner case when line ends with comment
+    def getOwner = if (slc) ft.leftOwner else getNonSlcAlignOwner(ft)
     def matches(matchers: Seq[TreePattern.Matcher], owner: Tree): Boolean =
       matchers.exists(_.matches(owner))
     floc.style.alignMap.get(code) match {
