@@ -1269,6 +1269,7 @@ class FormatWriter(formatOps: FormatOps) {
               )
               if (toFlush ne null) flushAlignBlock(toFlush)
             }
+            columnShift = 0
           }
 
           def processEligible(isSlc: Boolean, alignKind: AlignKind)(implicit
@@ -1296,11 +1297,6 @@ class FormatWriter(formatOps: FormatOps) {
 
           @tailrec
           def processLine(wasSlc: Boolean): Unit = {
-            if (idx > 0) {
-              val prevFloc = locations(idx - 1)
-              if (prevFloc.hasBreakAfter || prevFloc.formatToken.leftHasNewline)
-                columnShift = 0
-            }
             implicit val floc: FormatLocation = locations(idx)
             val ft = floc.formatToken
             idx += 1
