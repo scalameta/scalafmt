@@ -168,13 +168,22 @@ object Align {
 
   /** @param spansBlock
     *   the block ends only at a blank line, not when the container changes
+    * @param skipsMultiline
+    *   a token whose expression spans several lines is not aligned
     */
-  sealed abstract class Multiline(val spansBlock: Boolean)
+  sealed abstract class Multiline(
+      val spansBlock: Boolean,
+      val skipsMultiline: Boolean,
+  ) {
+    /* a default argument would live in `object Multiline`, which the case
+     * objects would then initialize; `codec` reads them back as nulls */
+    def this(spansBlock: Boolean) = this(spansBlock, skipsMultiline = false)
+  }
   object Multiline {
     case object adjacent extends Multiline(spansBlock = false)
     case object all extends Multiline(spansBlock = true)
-    case object none extends Multiline(spansBlock = false)
-    case object skip extends Multiline(spansBlock = true)
+    case object none extends Multiline(spansBlock = false, skipsMultiline = true)
+    case object skip extends Multiline(spansBlock = true, skipsMultiline = true)
 
     implicit val codec: ConfCodecEx[Multiline] = ConfCodecEx
       .oneOfCustom[Multiline](adjacent, all, none, skip) {

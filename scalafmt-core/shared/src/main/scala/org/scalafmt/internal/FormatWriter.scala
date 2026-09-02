@@ -1253,6 +1253,11 @@ class FormatWriter(formatOps: FormatOps) {
             state.resetLine()
           }
 
+          def isEligible(isSlc: Boolean)(implicit
+              floc: FormatLocation,
+          ): Boolean = isSlc || !floc.style.align.multiline.skipsMultiline ||
+            onSingleLine(getAlignStatement(floc.formatToken.rightOwner))
+
           def processEligible(isSlc: Boolean, alignKind: AlignKind)(implicit
               floc: FormatLocation,
           ): Unit = {
@@ -1287,7 +1292,8 @@ class FormatWriter(formatOps: FormatOps) {
               val isSlc = ft.right.is[T.Comment] && state.get().hasBreakAfter &&
                 !ft.rightHasNewline
               val alignKind = shouldAlign(ft, isSlc)
-              if (alignKind != AlignKind.No) processEligible(isSlc, alignKind)
+              if (alignKind != AlignKind.No && isEligible(isSlc))
+                processEligible(isSlc, alignKind)
               processLine(wasSlc = isSlc)
             }
           }
@@ -2032,6 +2038,21 @@ object FormatWriter {
     // if we didn't care about align token lengths, we'd always "useLeft"
     val left = alignKind == AlignKind.LT || floc.formatToken.right.is[T.Comment]
     if (left) floc.state.prev else floc.state
+  }
+
+  /** The statement a token to align by belongs to. An infix operator belongs to
+    * the whole chain, not to the application it heads: in `aa % bb % cc`, both
+    * `%` belong to `aa % bb % cc`.
+    */
+  private def getAlignStatement(t: Tree): Tree = {
+    @tailrec
+    def loop(t: Tree, res: Tree): Tree = t.parentOrNoTree match {
+      case p: Term.ApplyInfix if !p.isAssignment => loop(p, p)
+      case p: Term.ArgClause => loop(p, res)
+      case p: Term.Block => loop(p, res)
+      case _ => res
+    }
+    loop(t, t)
   }
 
   /** Owner of the token to align by; not meaningful for a comment align stop.
