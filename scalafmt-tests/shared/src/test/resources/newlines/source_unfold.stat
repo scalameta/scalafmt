@@ -14725,3 +14725,148 @@ object A {
            session: Sess
           ) => ff(ticket))
 }
+<<< #5394 select chain on parenthesized infix
+maxColumn = 80
+===
+object a {
+  val stays =
+    input1
+      .filter(f)
+  val changes =
+    (input1 ++ input2)
+      .filter(f)
+}
+>>>
+object a {
+  val stays = input1.filter(f)
+  val changes = (input1 ++ input2).filter(f)
+}
+
+<<< #5394 parenthesized infix body
+maxColumn = 80
+===
+object a {
+  val changes =
+    (input1 ++ input2)
+}
+>>>
+object a {
+  val changes = (input1 ++ input2)
+}
+
+<<< #5394 infix body with parenthesized lhs
+maxColumn = 80
+===
+object a {
+  val changes =
+    (input1 ++ input2) ++ input1
+}
+>>>
+object a {
+  val changes = (input1 ++ input2) ++ input1
+}
+
+<<< #5394 def body is a select chain on parenthesized infix
+maxColumn = 80
+===
+object a {
+  def changes =
+    (input1 ++ input2)
+      .filter(f)
+}
+>>>
+object a {
+  def changes = (input1 ++ input2).filter(f)
+}
+
+<<< #5394 generator body is a select chain on parenthesized infix
+maxColumn = 80
+===
+object a {
+  for {
+    x <-
+      (input1 ++ input2)
+        .filter(f)
+  } yield x
+}
+>>>
+object a {
+  for {
+    x <- (input1 ++ input2).filter(f)
+  } yield x
+}
+
+<<< #5394 forceBeforeAssign with parenthesized infix body
+maxColumn = 80
+newlines.forceBeforeAssign = any
+===
+object a {
+  val stays = input1.filter(f)
+  val changes = (input1 ++ input2).filter(f)
+}
+>>>
+object a {
+  val stays =
+    input1.filter(f)
+  val changes = (input1 ++ input2).filter(f)
+}
+
+<<< #5394 forceBeforeMultilineAssign with parenthesized infix body
+maxColumn = 80
+newlines.forceBeforeMultilineAssign = any
+===
+object a {
+  val stays = input1
+    .filter(f)
+  val changes = (input1 ++ input2)
+    .filter(f)
+}
+>>>
+object a {
+  val stays = input1.filter(f)
+  val changes = (input1 ++ input2).filter(f)
+}
+
+<<< #5394 generator body is an infix with parenthesized lhs
+maxColumn = 60
+===
+object a {
+  for {
+    xxxxxxxxxxxxxxxxxx <- (aaaaaaaaaaaa ++ bbbbbbbbbbbb) ++ cccccccccccc
+  } yield xxxxxxxxxxxxxxxxxx
+}
+>>>
+object a {
+  for {
+    xxxxxxxxxxxxxxxxxx <-
+    (aaaaaaaaaaaa ++ bbbbbbbbbbbb) ++ cccccccccccc
+  } yield xxxxxxxxxxxxxxxxxx
+}
+
+<<< blank line before a parenthesized infix body
+lineEndings = unix
+===
+object a {
+  val dd =
+    (aaaaaaaaaaaaaaaa ++ bbbbbbbbbbbbbbbb) ++ cc
+  val ee =
+
+    (aaaaaaaaaaaaaaaa ++ bbbbbbbbbbbbbbbb) ++ cc
+}
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,10 +1,8 @@
+ object a {
+   val dd = (
+     aaaaaaaaaaaaaaaa ++ bbbbbbbbbbbbbbbb
+   ) ++ cc
+-  val ee =
+-    (
+-      aaaaaaaaaaaaaaaa ++
+-        bbbbbbbbbbbbbbbb
+-    ) ++ cc
++  val ee = (
++    aaaaaaaaaaaaaaaa ++ bbbbbbbbbbbbbbbb
++  ) ++ cc
+ }
