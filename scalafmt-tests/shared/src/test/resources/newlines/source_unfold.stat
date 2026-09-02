@@ -14839,7 +14839,7 @@ object a {
 object a {
   for {
     xxxxxxxxxxxxxxxxxx <-
-    (aaaaaaaaaaaa ++ bbbbbbbbbbbb) ++ cccccccccccc
+      (aaaaaaaaaaaa ++ bbbbbbbbbbbb) ++ cccccccccccc
   } yield xxxxxxxxxxxxxxxxxx
 }
 

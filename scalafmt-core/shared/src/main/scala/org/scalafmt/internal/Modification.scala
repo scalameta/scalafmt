@@ -52,6 +52,7 @@ object Newline extends NewlineT
 
 object Newline2x extends NewlineT(isDouble = true) {
   def apply(isDouble: Boolean): NewlineT = if (isDouble) this else Newline
+  def apply(nl: Int): NewlineT = apply(FT.hasBlankLine(nl))
   def apply(ft: FT): NewlineT = apply(ft.hasBlankLine)
 }
 
@@ -66,8 +67,9 @@ object Space extends Modification {
 
   def apply(flag: Boolean): Modification = if (flag) this else NoSplit
   def orNL(flag: Boolean): Modification = if (flag) this else Newline
-  def orNL(nl: Int): Modification =
-    if (FT.noBreak(nl)) this else Newline2x(FT.hasBlankLine(nl))
+  def orNL(isSpace: Boolean, nl: Int): Modification =
+    if (isSpace) this else Newline2x(nl)
+  def orNL(nl: Int): Modification = orNL(FT.noBreak(nl), nl)
   def orNL(ft: FT): Modification = orNL(ft.newlinesBetween)
 }
 

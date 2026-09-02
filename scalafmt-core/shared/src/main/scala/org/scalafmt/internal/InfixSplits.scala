@@ -161,9 +161,13 @@ object InfixSplits {
       nonInfixSplits: => Seq[Split],
   )(implicit style: ScalafmtConfig, ft: FT, ftoks: FormatTokens): Seq[Split] =
     asInfixApp(ft.meta.rightOwner).nnFold(nonInfixSplits) { ia =>
+      def infixMod = mod ?? {
+        val nl = ft.newlinesBetween
+        if (style.newlines.keepBreak(nl)) Newline2x(nl) else null
+      }
       val infixSite = style.newlines.infix.get(ia)
       if (infixSite.isNone) nonInfixSplits
-      else getInfixSplitsBeforeLhs(ia, infixSite, mod)
+      else getInfixSplitsBeforeLhs(ia, infixSite, infixMod)
     }
 
 }
@@ -186,7 +190,7 @@ class InfixSplits(
     val prevFt = ftoks.tokenBefore(fullInfix)
     val prevOwner = prevFt.meta.leftOwner
     prevFt.left match {
-      case _: T.Equals => Some(ftoks.getLast(prevOwner))
+      case _: T.Equals | _: T.LeftArrow => Some(ftoks.getLast(prevOwner))
       case _: T.LeftParen | _: T.LeftBracket
           if fullInfix.parent.contains(prevOwner) &&
             !(prevOwner match {
