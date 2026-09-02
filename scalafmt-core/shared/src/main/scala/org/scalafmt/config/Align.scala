@@ -62,6 +62,13 @@ import metaconfig._
   *   }}}
   *   Note. Requires mixedOwners to be true.
   *
+  * @param multiline
+  *   Controls whether to include multiline statements in the search for tokens
+  *   to align.
+  *   - `adjacent`: a multiline statement's tokens align with tokens on adjacent
+  *     lines
+  *   - `all`: they align across the block, which ends only at a blank line
+  *
   * @param stripMargin
   *   If set, indent lines with a strip-margin character in a multiline string
   *   constant relative to the opening quotes (or the strip-margin character if
@@ -71,7 +78,7 @@ import metaconfig._
 case class Align(
     allowOverflow: Boolean = false,
     delayUntilSpace: Boolean = true,
-    multiline: Boolean = false,
+    multiline: Align.Multiline = Align.Multiline.adjacent,
     stripMargin: Boolean = true,
     closeParenSite: Boolean = false,
     private val openBracketCallSite: Option[Boolean] = None,
@@ -142,7 +149,7 @@ object Align {
   // please open PR adding more stuff to it if you like.
   val most: Align = more.copy(
     allowOverflow = true,
-    multiline = true,
+    multiline = Multiline.all,
     arrowEnumeratorGenerator = true,
     tokenCategory = Map("Equals" -> "Assign", "LeftArrow" -> "Assign"),
   )
@@ -153,6 +160,20 @@ object Align {
     case Conf.Str("some" | "default") => Align.some
     case Conf.Str("more") | Conf.Bool(true) => Align.more
     case Conf.Str("most") => Align.most
+  }
+
+  /** @param spansBlock
+    *   the block ends only at a blank line, not when the container changes
+    */
+  sealed abstract class Multiline(val spansBlock: Boolean)
+  object Multiline {
+    case object adjacent extends Multiline(spansBlock = false)
+    case object all extends Multiline(spansBlock = true)
+
+    implicit val codec: ConfCodecEx[Multiline] = ConfCodecEx
+      .oneOfCustom[Multiline](adjacent, all) { case Conf.Bool(flag) =>
+        if (flag) Conf.nameOf(all) else Conf.nameOf(adjacent)
+      }
   }
 
   implicit val alignTokensDecoder: ConfDecoderEx[Seq[AlignToken]] = AlignToken
