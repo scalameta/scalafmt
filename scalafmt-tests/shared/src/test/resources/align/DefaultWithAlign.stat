@@ -376,6 +376,21 @@ val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbb
   val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa =
     function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)
 }
+<<< only align single-line statements, break before multiline, multiline=none
+align.multiline = none
+===
+{
+val a = function(1, b)
+val aaaaa = function(1, b)
+val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)
+}
+>>>
+{
+  val a                                = function(1, b)
+  val aaaaa                            = function(1, b)
+  val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa =
+    function(1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb)
+}
 <<< only align single-line statements, break within multiline
 {
 val a = function(1, b)
@@ -392,6 +407,261 @@ val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(
     1,
     b,
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  )
+}
+<<< only align single-line statements, break within multiline, multiline=none
+align.multiline = none
+===
+{
+val a = function(1, b)
+val aaaaa = function(1, b)
+val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(
+  1, b, bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+)
+}
+>>>
+{
+  val a                                = function(1, b)
+  val aaaaa                            = function(1, b)
+  val aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = function(
+    1,
+    b,
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  )
+}
+<<< multiline statement in the middle of a block, multiline=none
+align.multiline = none
+===
+object a {
+  val a    = 1
+  val bbbb = {
+    2
+  }
+  val cc = 3
+}
+>>>
+object a {
+  val a    = 1
+  val bbbb = {
+    2
+  }
+  val cc = 3
+}
+<<< multiline defn signature
+object a {
+  def foo(
+    a: Int,
+    b: Int
+  ): Int = 1
+  def bar: Int = 2
+}
+>>>
+object a {
+  def foo(
+      a: Int,
+      b: Int
+  ): Int       = 1
+  def bar: Int = 2
+}
+<<< multiline defn signature, multiline=none
+align.multiline = none
+===
+object a {
+  def foo(
+    a: Int,
+    b: Int
+  ): Int = 1
+  def bar: Int = 2
+}
+>>>
+object a {
+  def foo(
+      a: Int,
+      b: Int
+  ): Int       = 1
+  def bar: Int = 2
+}
+<<< multiline defn body, multiline=none
+align.multiline = none
+===
+trait Display {
+  def data(): Map[String, String]
+  def metadata(): Map[String, String] = Map()
+  def displayData(): DisplayData      =
+    DisplayData()
+      .withDetailedData(data())
+  def other = 1
+}
+>>>
+trait Display {
+  def data(): Map[String, String]
+  def metadata(): Map[String, String] = Map()
+  def displayData(): DisplayData      =
+    DisplayData()
+      .withDetailedData(data())
+  def other = 1
+}
+<<< multiline case body
+object a {
+  x match {
+    case aa => 1
+    case bbbbbb =>
+      22222
+    case c => 3
+  }
+}
+>>>
+object a {
+  x match {
+    case aa     => 1
+    case bbbbbb =>
+      22222
+    case c => 3
+  }
+}
+<<< multiline case body, multiline=none
+align.multiline = none
+===
+object a {
+  x match {
+    case aa     => 1
+    case bbbbbb =>
+      22222
+    case c => 3
+  }
+}
+>>>
+object a {
+  x match {
+    case aa     => 1
+    case bbbbbb =>
+      22222
+    case c => 3
+  }
+}
+<<< wrapped infix in a table, multiline=none
+align.multiline = none
+===
+object a {
+  Seq(
+    "org.scalameta" %% "munit"              % "1.0.0" % Test,
+    "org.typelevel" %% "cats-core-and-more" %
+      "2.10.0"       % "internal",
+    "co.fs2"        %% "fs2-core"           % "3.9.0"
+  )
+}
+>>>
+object a {
+  Seq(
+    "org.scalameta" %% "munit"              % "1.0.0" % Test,
+    "org.typelevel" %% "cats-core-and-more" %
+      "2.10.0"       % "internal",
+    "co.fs2"        %% "fs2-core"           % "3.9.0"
+  )
+}
+<<< wrapped infix in a table, multiline=skip
+align.multiline = skip
+===
+object a {
+  Seq(
+    "org.scalameta" %% "munit" % "1.0.0" % Test,
+    "org.typelevel" %% "cats-core-and-more" %
+      "2.10.0" % "internal",
+    "co.fs2" %% "fs2-core" % "3.9.0"
+  )
+}
+>>>
+object a {
+  Seq(
+    "org.scalameta" %% "munit"              % "1.0.0" % Test,
+    "org.typelevel" %% "cats-core-and-more" %
+      "2.10.0"       % "internal",
+    "co.fs2"        %% "fs2-core"           % "3.9.0"
+  )
+}
+<<< #1811 1 with break within rhs, multiline=skip
+align.multiline = skip
+===
+object a {
+  for {
+    a <- Option(1)
+    bbb <- Option(2)
+    cccccc <- Option {
+      3
+    }
+    dd <- Option(4)
+  } yield ()
+}
+>>>
+object a {
+  for {
+    a      <- Option(1)
+    bbb    <- Option(2)
+    cccccc <- Option {
+      3
+    }
+    dd     <- Option(4)
+  } yield ()
+}
+<<< multiline defn body, multiline=skip
+align.multiline = skip
+===
+trait Display {
+  def data(): Map[String, String]
+  def metadata(): Map[String, String] = Map()
+  def displayData(): DisplayData =
+    DisplayData()
+      .withDetailedData(data())
+  def other = 1
+}
+>>>
+trait Display {
+  def data(): Map[String, String]
+  def metadata(): Map[String, String] = Map()
+  def displayData(): DisplayData      =
+    DisplayData()
+      .withDetailedData(data())
+  def other                           = 1
+}
+<<< wrapped infix, break before the operator
+newlines.source = keep
+===
+object x {
+  Seq(
+    a % b % c,
+    aa % bb
+      % ddddddddddddddd % ee,
+    aaaaaa % bbbbb % cccc
+  )
+}
+>>>
+object x {
+  Seq(
+    a                   % b     % c,
+    aa                  % bb
+      % ddddddddddddddd % ee,
+    aaaaaa              % bbbbb % cccc
+  )
+}
+<<< wrapped infix, break before the operator, multiline=skip
+newlines.source = keep
+align.multiline = skip
+===
+object x {
+  Seq(
+    a % b % c,
+    aa % bb
+      % ddddddddddddddd % ee,
+    aaaaaa % bbbbb % cccc
+  )
+}
+>>>
+object x {
+  Seq(
+    a                   % b     % c,
+    aa                  % bb
+      % ddddddddddddddd % ee,
+    aaaaaa              % bbbbb % cccc
   )
 }
 <<< infix owner
@@ -778,6 +1048,52 @@ object a {
     dd <- Option(4)
   } yield ()
 }
+<<< #1811 1 with break within rhs, multiline=none
+align.multiline = none
+===
+object a {
+  for {
+    a      <- Option(1)
+    bbb    <- Option(2)
+    cccccc <- Option {
+      3
+    }
+    dd <- Option(4)
+  } yield ()
+}
+>>>
+object a {
+  for {
+    a      <- Option(1)
+    bbb    <- Option(2)
+    cccccc <- Option {
+      3
+    }
+    dd <- Option(4)
+  } yield ()
+}
+<<< #1811 1 with break before rhs, multiline=none
+align.multiline = none
+===
+object a {
+  for {
+    a   <- Option(1)
+    bbb <- Option(2)
+    cccccc <-
+     Option(3)
+    dd <- Option(4)
+  } yield ()
+}
+>>>
+object a {
+  for {
+    a      <- Option(1)
+    bbb    <- Option(2)
+    cccccc <-
+      Option(3)
+    dd <- Option(4)
+  } yield ()
+}
 <<< #1811 1 no blanks
 align.multiline = true
 ===
@@ -1093,6 +1409,30 @@ val x = blar match {
 }
 <<< #2449, allowOverflow
 align.allowOverflow = true
+===
+class ThisIsMyClass(a: Long, b: Long) {
+  val taskid = "abcd" + (new Random).nextLong
+  val init = 1234567890123L
+  val end = 1234567891123L
+  val myClass = new ThisIsMyClass(init, end)
+  val thisIsMyListOfClasses: ListBuffer[ThisIsMyClass] = ListBuffer()
+  val abcdefghijklmnopqrstuvwxyz = new ThisIsMyClass(init, end)
+  val abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst = new ThisIsMyClass(init, end)
+}
+>>>
+class ThisIsMyClass(a: Long, b: Long) {
+  val taskid                                           = "abcd" + (new Random).nextLong
+  val init                                             = 1234567890123L
+  val end                                              = 1234567891123L
+  val myClass                                          = new ThisIsMyClass(init, end)
+  val thisIsMyListOfClasses: ListBuffer[ThisIsMyClass] = ListBuffer()
+  val abcdefghijklmnopqrstuvwxyz                       = new ThisIsMyClass(init, end)
+  val abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrst   =
+    new ThisIsMyClass(init, end)
+}
+<<< #2449, allowOverflow, multiline=none
+align.allowOverflow = true
+align.multiline = none
 ===
 class ThisIsMyClass(a: Long, b: Long) {
   val taskid = "abcd" + (new Random).nextLong
