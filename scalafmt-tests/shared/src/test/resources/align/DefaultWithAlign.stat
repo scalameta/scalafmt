@@ -723,7 +723,7 @@ object x {
   Seq(
     a      % b               % c,
     aa     % bb
-      % ddddddddddddddd % ee,
+           % ddddddddddddddd % ee,
     aaaaaa % bbbbb           % cccc
   )
 }
@@ -786,7 +786,7 @@ object x {
   Seq(
     a      % b               % c,
     aa     % bb // note
-      % ddddddddddddddd % ee,
+           % ddddddddddddddd % ee,
     aaaaaa % bbbbb           % cccc
   )
 }
@@ -854,8 +854,8 @@ object x {
   Seq(
     a      % b     % c,
     aa     % bb
-      % cc
-      % dddd  % ee,
+           % cc
+           % dddd  % ee,
     aaaaaa % bbbbb % cccc
   )
 }
@@ -1339,9 +1339,9 @@ object x {
 object x {
   def f(): Unit = {
     println(0)
-    a = 2
-    bb = 2
-    ccc = 2
+       a = 2
+      bb = 2
+     ccc = 2
     dddd = 2
   }
 }
@@ -1357,7 +1357,7 @@ object a:
 >>>
 object a:
   aa     % bb
-    % ddddddddddddddd % ee
+         % ddddddddddddddd % ee
   aaaaaa % bbbbb           % cccc
 <<< right-aligned assignments, scala3, atLineStart=all
 runner.dialect = scala3
