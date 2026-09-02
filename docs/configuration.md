@@ -1583,8 +1583,8 @@ was disabled since the parameter's introduction in v2.5.0.
 This flag controls whether to include multiline statements in the search for
 tokens to align, with the following values:
 
-- `false`: align tokens only on adjacent lines
-- `true`: align consecutive statements even if tokens to align are not on adjacent lines
+- (since v3.11.6) `adjacent`: align tokens only on adjacent lines (was: `false`)
+- (since v3.11.6) `all`: align consecutive statements even if tokens to align are not on adjacent lines (was: `true`)
 
 > Since v2.5.0.
 
@@ -1594,7 +1594,7 @@ align.multiline
 
 ```scala mdoc:scalafmt
 align.preset = more
-align.multiline = true
+align.multiline = all
 ---
 for {
   a <- aaa
@@ -1608,7 +1608,7 @@ for {
 
 ```scala mdoc:scalafmt
 align.preset = more
-align.multiline = false
+align.multiline = adjacent
 ---
 for {
   a <- aaa

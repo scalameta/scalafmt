@@ -1206,7 +1206,8 @@ class FormatWriter(formatOps: FormatOps) {
       lazy val noAlignTokens = styleMap.forall(_.align.tokens.isEmpty)
       if (locations.length != tokens.length || noAlignTokens) Map.empty[Int, Int]
       else {
-        val state = new AlignState(locations, styleMap.init.align.multiline)
+        val state =
+          new AlignState(locations, styleMap.init.align.multiline.spansBlock)
         implicit val finalResult = Map.newBuilder[Int, Int]
 
         while (!state.done()) {
@@ -1407,7 +1408,7 @@ class FormatWriter(formatOps: FormatOps) {
     )(implicit builder: mutable.Builder[(Int, Int), Map[Int, Int]]): Unit = {
       val endIndex = locations.length - 1
       block.foreach { x =>
-        if (x.style.align.multiline) {
+        if (x.style.align.multiline.spansBlock) {
           val headStop = x.stops.head
           val ftIndex = headStop.ft.meta.idx
           if (ftIndex < endIndex)
@@ -1927,7 +1928,7 @@ object FormatWriter {
         def matchStops() = (refStop.isSlc, curStop.isSlc) match {
           case (false, false) =>
             val isMatchPossible = sameOwner &&
-              (floc.style.align.multiline ||
+              (floc.style.align.multiline.eq(Align.Multiline.all) ||
                 refStop.ft.rightOwner.endOffset <=
                 curStop.ft.rightOwner.begOffset)
             if (isMatchPossible) {
