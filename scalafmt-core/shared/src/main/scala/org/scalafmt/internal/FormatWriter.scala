@@ -474,14 +474,18 @@ class FormatWriter(formatOps: FormatOps) {
       ): Int = {
         val mod = state.mod
         def align = tokenAligns.get(i).fold(0)(_ + alignOffset) + delayedAlign
+        def shiftAlign(required: Int): Int = {
+          val extra = align
+          sb.append(getIndentation(required + extra))
+          extra
+        }
         mod match {
           case nl: NewlineT =>
             val extraBlanks =
               if (i == locations.length - 1) 0
               else extraBlankTokens.getOrElse(i, if (nl.isDouble) 1 else 0)
             sb.append(getNewlines(extraBlanks))
-            if (!nl.noIndent) sb.append(getIndentation(state.indentation))
-            0
+            if (nl.noIndent) 0 else shiftAlign(state.indentation)
 
           case p: Provided =>
             sb.append(p.betweenText)
@@ -489,10 +493,7 @@ class FormatWriter(formatOps: FormatOps) {
 
           case NoSplit if style.align.delayUntilSpace => -align // delay
 
-          case _ =>
-            val alignShift = align
-            sb.append(getIndentation(mod.length + alignShift))
-            alignShift
+          case _ => shiftAlign(mod.length)
         }
       }
 
