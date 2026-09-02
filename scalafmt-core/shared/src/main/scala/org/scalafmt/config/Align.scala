@@ -68,6 +68,10 @@ import metaconfig._
   *   - `adjacent`: a multiline statement's tokens align with tokens on adjacent
   *     lines
   *   - `all`: they align across the block, which ends only at a blank line
+  *   - `none`: a multiline statement contributes no token, and a line left with
+  *     none interrupts the alignment block
+  *   - `skip`: the same, except the block ends only at a blank line, so the
+  *     lines on either side still align with each other
   *
   * @param stripMargin
   *   If set, indent lines with a strip-margin character in a multiline string
@@ -169,10 +173,13 @@ object Align {
   object Multiline {
     case object adjacent extends Multiline(spansBlock = false)
     case object all extends Multiline(spansBlock = true)
+    case object none extends Multiline(spansBlock = false)
+    case object skip extends Multiline(spansBlock = true)
 
     implicit val codec: ConfCodecEx[Multiline] = ConfCodecEx
-      .oneOfCustom[Multiline](adjacent, all) { case Conf.Bool(flag) =>
-        if (flag) Conf.nameOf(all) else Conf.nameOf(adjacent)
+      .oneOfCustom[Multiline](adjacent, all, none, skip) {
+        case Conf.Bool(flag) =>
+          if (flag) Conf.nameOf(all) else Conf.nameOf(adjacent)
       }
   }
 

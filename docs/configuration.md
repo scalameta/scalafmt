@@ -1585,6 +1585,11 @@ tokens to align, with the following values:
 
 - (since v3.11.6) `adjacent`: align tokens only on adjacent lines (was: `false`)
 - (since v3.11.6) `all`: align consecutive statements even if tokens to align are not on adjacent lines (was: `true`)
+- (since v3.11.6) `none`: a multiline statement contributes no token to align
+  by, and a line left with none interrupts the alignment block; this was
+  roughly the behaviour before v3.9.7
+- (since v3.11.6) `skip`: the same, except the block runs on to the next blank
+  line, so the lines on either side still align with each other
 
 > Since v2.5.0.
 
@@ -1618,6 +1623,50 @@ for {
   }
   dd <- ddddd
 } yield ()
+```
+
+```scala mdoc:scalafmt
+align.preset = more
+align.multiline = none
+---
+for {
+  a <- aaa
+  bbb <- bb
+  cccccc <- c {
+    3
+  }
+  dd <- ddddd
+} yield ()
+```
+
+```scala mdoc:scalafmt
+align.preset = more
+align.multiline = skip
+---
+for {
+  a <- aaa
+  bbb <- bb
+  cccccc <- c {
+    3
+  }
+  dd <- ddddd
+} yield ()
+```
+
+Keep in mind that `skip` shares the block rule of `all`, so a column can be set
+by a statement far above:
+
+```scala mdoc:scalafmt
+align.preset = more
+align.multiline = skip
+---
+trait A {
+  def meta: Map[Int, Int] = Map()
+  def data: Data =
+    Data()
+      .plus(x)
+  def other = 1
+}
 ```
 
 ### `align.allowOverflow`
