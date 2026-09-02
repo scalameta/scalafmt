@@ -664,6 +664,743 @@ object x {
     aaaaaa % bbbbb % cccc
   )
 }
+<<< wrapped infix, break before the operator, atLineStart=none
+newlines.source = keep
+align.atLineStart = none
+===
+object x {
+  Seq(
+    a % b % c,
+    aa % bb
+      % ddddddddddddddd % ee,
+    aaaaaa % bbbbb % cccc
+  )
+}
+>>>
+object x {
+  Seq(
+    a                   % b     % c,
+    aa                  % bb
+      % ddddddddddddddd % ee,
+    aaaaaa              % bbbbb % cccc
+  )
+}
+<<< wrapped infix, break before the operator, atLineStart=skip
+newlines.source = keep
+align.atLineStart = skip
+===
+object x {
+  Seq(
+    a % b % c,
+    aa % bb
+      % ddddddddddddddd % ee,
+    aaaaaa % bbbbb % cccc
+  )
+}
+>>>
+object x {
+  Seq(
+    a                   % b     % c,
+    aa                  % bb
+      % ddddddddddddddd % ee,
+    aaaaaa              % bbbbb % cccc
+  )
+}
+<<< wrapped infix, break before the operator, atLineStart=all
+newlines.source = keep
+align.atLineStart = all
+===
+object x {
+  Seq(
+    a % b % c,
+    aa % bb
+      % ddddddddddddddd % ee,
+    aaaaaa % bbbbb % cccc
+  )
+}
+>>>
+object x {
+  Seq(
+    a                   % b     % c,
+    aa                  % bb
+      % ddddddddddddddd % ee,
+    aaaaaa              % bbbbb % cccc
+  )
+}
+<<< wrapped infix, break before the operator after a comment, atLineStart=none
+newlines.source = keep
+align.atLineStart = none
+===
+object x {
+  Seq(
+    a % b % c,
+    aa % bb // note
+      % ddddddddddddddd % ee,
+    aaaaaa % bbbbb % cccc
+  )
+}
+>>>
+object x {
+  Seq(
+    a                   % b     % c,
+    aa                  % bb // note
+      % ddddddddddddddd % ee,
+    aaaaaa              % bbbbb % cccc
+  )
+}
+<<< wrapped infix, break before the operator after a comment, atLineStart=skip
+newlines.source = keep
+align.atLineStart = skip
+===
+object x {
+  Seq(
+    a % b % c,
+    aa % bb // note
+      % ddddddddddddddd % ee,
+    aaaaaa % bbbbb % cccc
+  )
+}
+>>>
+object x {
+  Seq(
+    a                   % b     % c,
+    aa                  % bb // note
+      % ddddddddddddddd % ee,
+    aaaaaa              % bbbbb % cccc
+  )
+}
+<<< wrapped infix, break before the operator after a comment, atLineStart=all
+newlines.source = keep
+align.atLineStart = all
+===
+object x {
+  Seq(
+    a % b % c,
+    aa % bb // note
+      % ddddddddddddddd % ee,
+    aaaaaa % bbbbb % cccc
+  )
+}
+>>>
+object x {
+  Seq(
+    a                   % b     % c,
+    aa                  % bb // note
+      % ddddddddddddddd % ee,
+    aaaaaa              % bbbbb % cccc
+  )
+}
+<<< wrapped infix, continuation line with only the operator, atLineStart=none
+newlines.source = keep
+align.atLineStart = none
+===
+object x {
+  Seq(
+    a % b % c,
+    aa % bb
+      % cc
+      % dddd % ee,
+    aaaaaa % bbbbb % cccc
+  )
+}
+>>>
+object x {
+  Seq(
+    a  % b % c,
+    aa % bb
+      % cc
+      % dddd % ee,
+    aaaaaa   % bbbbb % cccc
+  )
+}
+<<< wrapped infix, continuation line with only the operator, atLineStart=skip
+newlines.source = keep
+align.atLineStart = skip
+===
+object x {
+  Seq(
+    a % b % c,
+    aa % bb
+      % cc
+      % dddd % ee,
+    aaaaaa % bbbbb % cccc
+  )
+}
+>>>
+object x {
+  Seq(
+    a  % b % c,
+    aa % bb
+      % cc
+      % dddd % ee,
+    aaaaaa   % bbbbb % cccc
+  )
+}
+<<< wrapped infix, continuation line with only the operator, atLineStart=all
+newlines.source = keep
+align.atLineStart = all
+===
+object x {
+  Seq(
+    a % b % c,
+    aa % bb
+      % cc
+      % dddd % ee,
+    aaaaaa % bbbbb % cccc
+  )
+}
+>>>
+object x {
+  Seq(
+    a  % b % c,
+    aa % bb
+      % cc
+      % dddd % ee,
+    aaaaaa   % bbbbb % cccc
+  )
+}
+<<< line after a comment starts with a non-align token, atLineStart=none
+newlines.source = keep
+align.atLineStart = none
+===
+object x {
+  val aa = 1 // note
+  ccc.foo(bar)
+  val d = 2
+}
+>>>
+object x {
+  val aa = 1 // note
+  ccc.foo(bar)
+  val d = 2
+}
+<<< line after a comment starts with a non-align token, atLineStart=skip
+newlines.source = keep
+align.atLineStart = skip
+===
+object x {
+  val aa = 1 // note
+  ccc.foo(bar)
+  val d = 2
+}
+>>>
+object x {
+  val aa = 1 // note
+  ccc.foo(bar)
+  val d = 2
+}
+<<< line after a comment starts with a non-align token, atLineStart=all
+newlines.source = keep
+align.atLineStart = all
+===
+object x {
+  val aa = 1 // note
+  ccc.foo(bar)
+  val d = 2
+}
+>>>
+object x {
+  val aa = 1 // note
+  ccc.foo(bar)
+  val d = 2
+}
+<<< closing brace starting a line, atLineStart=none
+newlines.source = keep
+align.atLineStart = none
+===
+object x {
+  class A { def f = 1 }
+  class BBBBBBBB {
+    def g = 2
+  }
+  class C { def h = 3 }
+}
+>>>
+object x {
+  class A        { def f = 1 }
+  class BBBBBBBB {
+    def g = 2
+  }
+  class C { def h = 3 }
+}
+<<< closing brace starting a line, atLineStart=skip
+newlines.source = keep
+align.atLineStart = skip
+===
+object x {
+  class A { def f = 1 }
+  class BBBBBBBB {
+    def g = 2
+  }
+  class C { def h = 3 }
+}
+>>>
+object x {
+  class A        { def f = 1 }
+  class BBBBBBBB {
+    def g = 2
+  }
+  class C { def h = 3 }
+}
+<<< closing brace starting a line, atLineStart=all
+newlines.source = keep
+align.atLineStart = all
+===
+object x {
+  class A { def f = 1 }
+  class BBBBBBBB {
+    def g = 2
+  }
+  class C { def h = 3 }
+}
+>>>
+object x {
+  class A        { def f = 1 }
+  class BBBBBBBB {
+    def g = 2
+  }
+  class C { def h = 3 }
+}
+<<< template braces across a blank line, atLineStart=none
+runner.parser = source
+align.multiline = all
+align.atLineStart = none
+===
+object A {
+  val foo = "foo"
+}
+
+class Foo(
+) {
+  def bar: String = "foo"
+}
+
+case class SomeLongNameClass(
+    foo: String
+)
+object SomeLongNameObject {
+  val foo = "foo"
+}
+>>>
+object A {
+  val foo = "foo"
+}
+
+class Foo(
+) {
+  def bar: String = "foo"
+}
+
+case class SomeLongNameClass(
+    foo: String
+)
+object SomeLongNameObject {
+  val foo = "foo"
+}
+<<< template braces across a blank line, atLineStart=skip
+runner.parser = source
+align.multiline = all
+align.atLineStart = skip
+===
+object A {
+  val foo = "foo"
+}
+
+class Foo(
+) {
+  def bar: String = "foo"
+}
+
+case class SomeLongNameClass(
+    foo: String
+)
+object SomeLongNameObject {
+  val foo = "foo"
+}
+>>>
+object A {
+  val foo = "foo"
+}
+
+class Foo(
+) {
+  def bar: String = "foo"
+}
+
+case class SomeLongNameClass(
+    foo: String
+)
+object SomeLongNameObject {
+  val foo = "foo"
+}
+<<< template braces across a blank line, atLineStart=all
+runner.parser = source
+align.multiline = all
+align.atLineStart = all
+===
+object A {
+  val foo = "foo"
+}
+
+class Foo(
+) {
+  def bar: String = "foo"
+}
+
+case class SomeLongNameClass(
+    foo: String
+)
+object SomeLongNameObject {
+  val foo = "foo"
+}
+>>>
+object A {
+  val foo = "foo"
+}
+
+class Foo(
+) {
+  def bar: String = "foo"
+}
+
+case class SomeLongNameClass(
+    foo: String
+)
+object SomeLongNameObject {
+  val foo = "foo"
+}
+<<< wrapped infix, break before the operator, multiline=skip, atLineStart=none
+newlines.source = keep
+align.multiline = skip
+align.atLineStart = none
+===
+object x {
+  Seq(
+    a % b % c,
+    aa % bb
+      % ddddddddddddddd % ee,
+    aaaaaa % bbbbb % cccc
+  )
+}
+>>>
+object x {
+  Seq(
+    a      % b     % c,
+    aa % bb
+      % ddddddddddddddd % ee,
+    aaaaaa % bbbbb % cccc
+  )
+}
+<<< wrapped infix, break before the operator, multiline=skip, atLineStart=all
+newlines.source = keep
+align.multiline = skip
+align.atLineStart = all
+===
+object x {
+  Seq(
+    a % b % c,
+    aa % bb
+      % ddddddddddddddd % ee,
+    aaaaaa % bbbbb % cccc
+  )
+}
+>>>
+object x {
+  Seq(
+    a      % b     % c,
+    aa % bb
+      % ddddddddddddddd % ee,
+    aaaaaa % bbbbb % cccc
+  )
+}
+<<< statement starts a line, scala3, atLineStart=none
+runner.dialect = scala3
+align.tokens."+" = [ "foo" ]
+align.atLineStart = none
+===
+object a:
+  bar.foo(1)
+  foo(2)
+  baz.foo(3)
+>>>
+object a:
+  bar.foo(1)
+  foo(2)
+  baz.foo(3)
+<<< right-aligned assignments, atLineStart=none
+align.tokens."+" = [{
+  code = ""
+  owners = [{ regex = "Term\\.Name", parents = [ "Term\\.Assign" ] }]
+}]
+align.atLineStart = none
+===
+object x {
+  def f(): Unit = {
+    println(0)
+    a = 2
+    bb = 2
+    ccc = 2
+    dddd = 2
+  }
+}
+>>>
+object x {
+  def f(): Unit = {
+    println(0)
+    a = 2
+    bb = 2
+    ccc = 2
+    dddd = 2
+  }
+}
+<<< wrapped infix, scala3, atLineStart=none
+runner.dialect = scala3
+newlines.source = keep
+align.atLineStart = none
+===
+object a:
+  aa % bb
+    % ddddddddddddddd % ee
+  aaaaaa % bbbbb % cccc
+>>>
+object a:
+  aa                  % bb
+    % ddddddddddddddd % ee
+  aaaaaa              % bbbbb % cccc
+<<< right-aligned assignments, scala3, atLineStart=none
+runner.dialect = scala3
+align.tokens."+" = [{
+  code = ""
+  owners = [{ regex = "Term\\.Name", parents = [ "Term\\.Assign" ] }]
+}]
+align.atLineStart = none
+===
+object x:
+  def f(): Unit =
+    println(0)
+    a = 2
+    bb = 2
+    ccc = 2
+    dddd = 2
+>>>
+object x:
+  def f(): Unit =
+    println(0)
+    a = 2
+    bb = 2
+    ccc = 2
+    dddd = 2
+<<< for enumerators, scala3, atLineStart=none
+runner.dialect = scala3
+align.tokens."+" = [{
+  code = ""
+  owners = [{ regex = "Pat\\.Var|Term\\.Name", parents = [ "Enumerator" ] }]
+}]
+align.atLineStart = none
+===
+object a:
+  val foo = for
+    bar <- baz
+    quxxxx <- quux
+  yield bar
+>>>
+object a:
+  val foo = for
+    bar    <- baz
+    quxxxx <- quux
+  yield bar
+<<< statement starts a line, scala3, atLineStart=skip
+runner.dialect = scala3
+align.tokens."+" = [ "foo" ]
+align.atLineStart = skip
+===
+object a:
+  bar.foo(1)
+  foo(2)
+  baz.foo(3)
+>>>
+object a:
+  bar.foo(1)
+  foo(2)
+  baz.foo(3)
+<<< right-aligned assignments, atLineStart=skip
+align.tokens."+" = [{
+  code = ""
+  owners = [{ regex = "Term\\.Name", parents = [ "Term\\.Assign" ] }]
+}]
+align.atLineStart = skip
+===
+object x {
+  def f(): Unit = {
+    println(0)
+    a = 2
+    bb = 2
+    ccc = 2
+    dddd = 2
+  }
+}
+>>>
+object x {
+  def f(): Unit = {
+    println(0)
+    a = 2
+    bb = 2
+    ccc = 2
+    dddd = 2
+  }
+}
+<<< wrapped infix, scala3, atLineStart=skip
+runner.dialect = scala3
+newlines.source = keep
+align.atLineStart = skip
+===
+object a:
+  aa % bb
+    % ddddddddddddddd % ee
+  aaaaaa % bbbbb % cccc
+>>>
+object a:
+  aa                  % bb
+    % ddddddddddddddd % ee
+  aaaaaa              % bbbbb % cccc
+<<< right-aligned assignments, scala3, atLineStart=skip
+runner.dialect = scala3
+align.tokens."+" = [{
+  code = ""
+  owners = [{ regex = "Term\\.Name", parents = [ "Term\\.Assign" ] }]
+}]
+align.atLineStart = skip
+===
+object x:
+  def f(): Unit =
+    println(0)
+    a = 2
+    bb = 2
+    ccc = 2
+    dddd = 2
+>>>
+object x:
+  def f(): Unit =
+    println(0)
+    a = 2
+    bb = 2
+    ccc = 2
+    dddd = 2
+<<< for enumerators, scala3, atLineStart=skip
+runner.dialect = scala3
+align.tokens."+" = [{
+  code = ""
+  owners = [{ regex = "Pat\\.Var|Term\\.Name", parents = [ "Enumerator" ] }]
+}]
+align.atLineStart = skip
+===
+object a:
+  val foo = for
+    bar <- baz
+    quxxxx <- quux
+  yield bar
+>>>
+object a:
+  val foo = for
+    bar    <- baz
+    quxxxx <- quux
+  yield bar
+<<< statement starts a line, scala3, atLineStart=all
+runner.dialect = scala3
+align.tokens."+" = [ "foo" ]
+align.atLineStart = all
+===
+object a:
+  bar.foo(1)
+  foo(2)
+  baz.foo(3)
+>>>
+object a:
+  bar.foo(1)
+  foo(2)
+  baz.foo(3)
+<<< right-aligned assignments, atLineStart=all
+align.tokens."+" = [{
+  code = ""
+  owners = [{ regex = "Term\\.Name", parents = [ "Term\\.Assign" ] }]
+}]
+align.atLineStart = all
+===
+object x {
+  def f(): Unit = {
+    println(0)
+    a = 2
+    bb = 2
+    ccc = 2
+    dddd = 2
+  }
+}
+>>>
+object x {
+  def f(): Unit = {
+    println(0)
+    a = 2
+    bb = 2
+    ccc = 2
+    dddd = 2
+  }
+}
+<<< wrapped infix, scala3, atLineStart=all
+runner.dialect = scala3
+newlines.source = keep
+align.atLineStart = all
+===
+object a:
+  aa % bb
+    % ddddddddddddddd % ee
+  aaaaaa % bbbbb % cccc
+>>>
+object a:
+  aa                  % bb
+    % ddddddddddddddd % ee
+  aaaaaa              % bbbbb % cccc
+<<< right-aligned assignments, scala3, atLineStart=all
+runner.dialect = scala3
+align.tokens."+" = [{
+  code = ""
+  owners = [{ regex = "Term\\.Name", parents = [ "Term\\.Assign" ] }]
+}]
+align.atLineStart = all
+===
+object x:
+  def f(): Unit =
+    println(0)
+    a = 2
+    bb = 2
+    ccc = 2
+    dddd = 2
+>>>
+object x:
+  def f(): Unit =
+    println(0)
+    a = 2
+    bb = 2
+    ccc = 2
+    dddd = 2
+<<< for enumerators, scala3, atLineStart=all
+runner.dialect = scala3
+align.tokens."+" = [{
+  code = ""
+  owners = [{ regex = "Pat\\.Var|Term\\.Name", parents = [ "Enumerator" ] }]
+}]
+align.atLineStart = all
+===
+object a:
+  val foo = for
+    bar <- baz
+    quxxxx <- quux
+  yield bar
+>>>
+object a:
+  val foo = for
+    bar    <- baz
+    quxxxx <- quux
+  yield bar
 <<< infix owner
    Ok(Json.obj(
        "api" -> Json.obj(

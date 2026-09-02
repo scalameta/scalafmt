@@ -73,6 +73,19 @@ import metaconfig._
   *   - `skip`: the same, except the block ends only at a blank line, so the
   *     lines on either side still align with each other
   *
+  * @param atLineStart
+  *   Controls a token to align by which begins its line. Such a token follows a
+  *   newline, and the line ends before it is examined, so it never becomes an
+  *   align candidate.
+  *   - `none`: it is not aligned; its line keeps its other tokens, and a line
+  *     left with none interrupts the alignment block
+  *   - `skip`: its line is left out of the alignment block, which survives,
+  *     unless a blank line follows
+  *   - `all`: it is aligned, and the empty cell before it is padded
+  *
+  * With significant indentation, a token is aligned only if its line is
+  * indented further than the line its statement begins on.
+  *
   * @param stripMargin
   *   If set, indent lines with a strip-margin character in a multiline string
   *   constant relative to the opening quotes (or the strip-margin character if
@@ -83,6 +96,7 @@ case class Align(
     allowOverflow: Boolean = false,
     delayUntilSpace: Boolean = true,
     multiline: Align.Multiline = Align.Multiline.adjacent,
+    atLineStart: Align.AtLineStart = Align.AtLineStart.none,
     stripMargin: Boolean = true,
     closeParenSite: Boolean = false,
     private val openBracketCallSite: Option[Boolean] = None,
@@ -190,6 +204,16 @@ object Align {
         case Conf.Bool(flag) =>
           if (flag) Conf.nameOf(all) else Conf.nameOf(adjacent)
       }
+  }
+
+  sealed abstract class AtLineStart
+  object AtLineStart {
+    case object none extends AtLineStart
+    case object skip extends AtLineStart
+    case object all extends AtLineStart
+
+    implicit val codec: ConfCodecEx[AtLineStart] = ConfCodecEx
+      .oneOf[AtLineStart](none, skip, all)
   }
 
   implicit val alignTokensDecoder: ConfDecoderEx[Seq[AlignToken]] = AlignToken
