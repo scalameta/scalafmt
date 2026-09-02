@@ -404,7 +404,10 @@ class InfixSplits(
         else PolicyOps.decideNewlinesOnlyAfterClose(end)
       }
     }
-    val nlMod = newStmtMod ?? Space.orNL(ft.noBreak && ft.right.is[T.Comment])
+    val nlMod = newStmtMod ?? {
+      val useSpace = ft.noBreak && ft.right.is[T.Comment]
+      Space.orNL(useSpace, beforeLhs && ft.hasBlankLine)
+    }
     val delayedBreak = Policy ? nlMod.isNL || breakAfterComment(ft)
 
     val isFirstOrAssignOp = isFirstOp || isAssignmentOp
