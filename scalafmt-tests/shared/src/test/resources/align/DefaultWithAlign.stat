@@ -700,10 +700,10 @@ object x {
 >>>
 object x {
   Seq(
-    a                   % b     % c,
-    aa                  % bb
+    a      % b     % c,
+    aa     % bb
       % ddddddddddddddd % ee,
-    aaaaaa              % bbbbb % cccc
+    aaaaaa % bbbbb % cccc
   )
 }
 <<< wrapped infix, break before the operator, atLineStart=all
@@ -721,10 +721,10 @@ object x {
 >>>
 object x {
   Seq(
-    a                   % b     % c,
-    aa                  % bb
+    a      % b               % c,
+    aa     % bb
       % ddddddddddddddd % ee,
-    aaaaaa              % bbbbb % cccc
+    aaaaaa % bbbbb           % cccc
   )
 }
 <<< wrapped infix, break before the operator after a comment, atLineStart=none
@@ -763,10 +763,10 @@ object x {
 >>>
 object x {
   Seq(
-    a                   % b     % c,
-    aa                  % bb // note
+    a      % b     % c,
+    aa     % bb // note
       % ddddddddddddddd % ee,
-    aaaaaa              % bbbbb % cccc
+    aaaaaa % bbbbb % cccc
   )
 }
 <<< wrapped infix, break before the operator after a comment, atLineStart=all
@@ -784,10 +784,10 @@ object x {
 >>>
 object x {
   Seq(
-    a                   % b     % c,
-    aa                  % bb // note
+    a      % b               % c,
+    aa     % bb // note
       % ddddddddddddddd % ee,
-    aaaaaa              % bbbbb % cccc
+    aaaaaa % bbbbb           % cccc
   )
 }
 <<< wrapped infix, continuation line with only the operator, atLineStart=none
@@ -829,11 +829,11 @@ object x {
 >>>
 object x {
   Seq(
-    a  % b % c,
-    aa % bb
+    a      % b     % c,
+    aa     % bb
       % cc
       % dddd % ee,
-    aaaaaa   % bbbbb % cccc
+    aaaaaa % bbbbb % cccc
   )
 }
 <<< wrapped infix, continuation line with only the operator, atLineStart=all
@@ -852,11 +852,11 @@ object x {
 >>>
 object x {
   Seq(
-    a  % b % c,
-    aa % bb
+    a      % b     % c,
+    aa     % bb
       % cc
-      % dddd % ee,
-    aaaaaa   % bbbbb % cccc
+      % dddd  % ee,
+    aaaaaa % bbbbb % cccc
   )
 }
 <<< line after a comment starts with a non-align token, atLineStart=none
@@ -1260,9 +1260,9 @@ object a:
   aaaaaa % bbbbb % cccc
 >>>
 object a:
-  aa                  % bb
+  aa     % bb
     % ddddddddddddddd % ee
-  aaaaaa              % bbbbb % cccc
+  aaaaaa % bbbbb % cccc
 <<< right-aligned assignments, scala3, atLineStart=skip
 runner.dialect = scala3
 align.tokens."+" = [{
@@ -1356,9 +1356,9 @@ object a:
   aaaaaa % bbbbb % cccc
 >>>
 object a:
-  aa                  % bb
+  aa     % bb
     % ddddddddddddddd % ee
-  aaaaaa              % bbbbb % cccc
+  aaaaaa % bbbbb           % cccc
 <<< right-aligned assignments, scala3, atLineStart=all
 runner.dialect = scala3
 align.tokens."+" = [{

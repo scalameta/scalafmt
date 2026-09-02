@@ -1215,10 +1215,12 @@ class FormatWriter(formatOps: FormatOps) {
 
           def processLineEnd(
               wasSlc: Boolean,
+              alignKind: AlignKind = AlignKind.No,
           )(implicit floc: FormatLocation): Unit = {
             val isBlankLine = floc.state.mod.isBlankLine ||
               extraBlankTokens.contains(floc.formatToken.idx)
-            if (state.alignContainer ne null) {
+
+            def addLine(): Unit = if (state.alignContainer ne null) {
               val candidates = columnCandidates.result()
               val block = state.getOrCreateBlock()
               val blockWasEmpty = block.isEmpty
@@ -1243,14 +1245,20 @@ class FormatWriter(formatOps: FormatOps) {
 
               state.setPrevBlock(block)
             }
-            if (isBlankLine || state.alignContainer.eq(null)) {
+
+            def flush(): Unit = if (isBlankLine || state.alignContainer.eq(null)) {
               val toFlush = state.getBlockToFlush(
                 getAlignContainer(isSlc = wasSlc)._1,
                 isBlankLine,
               )
               if (toFlush ne null) flushAlignBlock(toFlush)
             }
-            state.resetLine()
+
+            if (isBlankLine || !state.takeSkipLine()) {
+              addLine()
+              flush()
+            }
+            state.resetLine(alignKind)
           }
 
           def isEligible(isSlc: Boolean)(implicit
@@ -1286,8 +1294,10 @@ class FormatWriter(formatOps: FormatOps) {
           def processLine(wasSlc: Boolean): Unit = {
             implicit val floc: FormatLocation = state.getAndNext()
             val ft = floc.formatToken
-            if (wasSlc || floc.hasBreakAfter || ft.leftHasNewline || state.done())
-              processLineEnd(wasSlc)
+            if (state.done()) processLineEnd(wasSlc = wasSlc)
+            else if (wasSlc || floc.hasBreakAfter)
+              processLineEnd(wasSlc = wasSlc, shouldAlign(ft, slc = false))
+            else if (ft.leftHasNewline) processLineEnd(wasSlc = false)
             else {
               val isSlc = ft.right.is[T.Comment] && state.get().hasBreakAfter &&
                 !ft.rightHasNewline
@@ -1298,6 +1308,15 @@ class FormatWriter(formatOps: FormatOps) {
             }
           }
 
+          if (state.pending ne null) {
+            implicit val floc: FormatLocation = state.pending
+            state.pending = null
+            /* this candidate faces the same test as any other; its column is
+             * the new line's indentation, which is `RT`, since no text precedes
+             * it on the line for `LT` to measure */
+            if (isEligible(isSlc = false))
+              processEligible(isSlc = false, AlignKind.RT)
+          }
           processLine(wasSlc = false)
         }
         state.flush(flushAlignBlock)
@@ -1775,6 +1794,8 @@ object FormatWriter {
     private var prevBlock: AlignBlock =
       if (isMultiline) null else createBlock(null)
     var alignContainer: Tree = _
+    private var skipLine: Boolean = false
+    var pending: FormatLocation = _
 
     private def createBlock(x: Tree) = blocks
       .computeIfAbsent(x, _ => new AlignBlock)
@@ -1802,9 +1823,27 @@ object FormatWriter {
       floc
     }
 
-    def resetLine(): Unit = {
+    def resetLine(
+        alignKind: AlignKind,
+    )(implicit floc: FormatLocation, ftoks: FormatTokens): Unit = {
       columnShift = 0
       alignContainer = null
+      val ignoreLineStart = alignKind == AlignKind.No ||
+        floc.style.dialect.allowSignificantIndentation &&
+        ftoks.getRawHead(getAlignStatement(floc.formatToken.rightOwner)).orHas(
+          x => locations(x.idx).state.indentation >= floc.state.indentation,
+        )
+      if (!ignoreLineStart) floc.style.align.atLineStart match {
+        case Align.AtLineStart.skip => skipLine = true
+        case Align.AtLineStart.all => pending = floc
+        case _ =>
+      }
+    }
+
+    def takeSkipLine(): Boolean = {
+      val res = skipLine
+      skipLine = false
+      res
     }
 
     def getColumn(state: State): Int = state.column + columnShift
