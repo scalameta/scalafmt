@@ -159,7 +159,7 @@ class FormatTests
     val explored = Debug.explored.get()
     logger.debug(s"Total explored: $explored")
     if (!onlyUnit && !onlyManual)
-      assertEquals(explored, 2623120, "total explored")
+      assertEquals(explored, 2626541, "total explored")
     if (!sys.env.contains("CI")) PlatformFileOps.writeFileAsync(
       FileOps.getPath("target", "index.html"),
       Report.heatmap(debugResults.result()),
