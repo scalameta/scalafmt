@@ -14186,8 +14186,9 @@ object a {
   val stays =
     input1
       .filter(f)
-  val changes = (input1 ++ input2)
-    .filter(f)
+  val changes =
+    (input1 ++ input2)
+      .filter(f)
 }
 
 <<< #5394 parenthesized infix body
@@ -14199,7 +14200,8 @@ object a {
 }
 >>>
 object a {
-  val changes = (input1 ++ input2)
+  val changes =
+    (input1 ++ input2)
 }
 
 <<< #5394 infix body with parenthesized lhs
@@ -14211,7 +14213,8 @@ object a {
 }
 >>>
 object a {
-  val changes = (input1 ++ input2) ++ input1
+  val changes =
+    (input1 ++ input2) ++ input1
 }
 
 <<< #5394 def body is a select chain on parenthesized infix
@@ -14224,8 +14227,9 @@ object a {
 }
 >>>
 object a {
-  def changes = (input1 ++ input2)
-    .filter(f)
+  def changes =
+    (input1 ++ input2)
+      .filter(f)
 }
 
 <<< #5394 generator body is a select chain on parenthesized infix
@@ -14241,8 +14245,9 @@ object a {
 >>>
 object a {
   for {
-    x <- (input1 ++ input2)
-      .filter(f)
+    x <-
+      (input1 ++ input2)
+        .filter(f)
   } yield x
 }
 
@@ -14292,7 +14297,7 @@ object a {
 object a {
   for {
     xxxxxxxxxxxxxxxxxx <-
-    (aaaaaaaaaaaa ++ bbbbbbbbbbbb) ++ cccccccccccc
+      (aaaaaaaaaaaa ++ bbbbbbbbbbbb) ++ cccccccccccc
   } yield xxxxxxxxxxxxxxxxxx
 }
 
@@ -14312,6 +14317,7 @@ object a {
     (aaaaaaaaaaaaaaaa ++
       bbbbbbbbbbbbbbbb) ++ cc
   val ee =
+
     (aaaaaaaaaaaaaaaa ++
       bbbbbbbbbbbbbbbb) ++ cc
 }
