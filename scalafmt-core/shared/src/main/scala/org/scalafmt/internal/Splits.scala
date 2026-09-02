@@ -550,13 +550,11 @@ object SplitsAfterEquals extends Splits {
       rhs: Tree,
   )(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig) = {
     import fo._, tokens._, ft._
-    InfixSplits.maybeGetInfixSplitsBeforeLhs() {
-      def endFt = getLast(rhs)
-      getSplitsDefValEquals(rhs, endFt)(
-        if (leftOwner.is[Tree.WithParamClauses]) getSplitsDefEquals(rhs, endFt)
-        else getSplitsValEquals(rhs, endFt)(getSplitsValEqualsClassic(rhs, endFt)),
-      )
-    }
+    def endFt = getLast(rhs)
+    getSplitsDefValEquals(rhs, endFt)(
+      if (leftOwner.is[Tree.WithParamClauses]) getSplitsDefEquals(rhs, endFt)
+      else getSplitsValEquals(rhs, endFt)(getSplitsValEqualsClassic(rhs, endFt)),
+    )
   }
 
   def getSplitsDefValEquals(
@@ -589,7 +587,7 @@ object SplitsAfterEquals extends Splits {
       CtrlBodySplits.slbOnly(body, spaceIndents)(x =>
         CtrlBodySplits.withIndent(Splits.lowRankNL(ft, x), body, endFt),
       )
-    else splits
+    else InfixSplits.maybeGetInfixSplitsBeforeLhs()(splits)
   }
 
   private def getSplitsDefEquals(body: Tree, endFt: FT)(implicit
@@ -695,7 +693,7 @@ object SplitsAfterEqualsLeftArrow {
   )(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig): Seq[Split] = {
     import fo._, tokens._
     if (body.is[Term.Block] && isEnclosedInBraces(body)) Seq(Split(Space, 0))
-    else InfixSplits.maybeGetInfixSplitsBeforeLhs() {
+    else {
       val endFt = getLastNonTrivial(body)
       val noSpace = !cfg.align.arrowEnumeratorGenerator ||
         (body match {

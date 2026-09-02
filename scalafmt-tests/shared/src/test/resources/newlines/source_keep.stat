@@ -14263,7 +14263,8 @@ object a {
 object a {
   val stays =
     input1.filter(f)
-  val changes = (input1 ++ input2).filter(f)
+  val changes =
+    (input1 ++ input2).filter(f)
 }
 
 <<< #5394 forceBeforeMultilineAssign with parenthesized infix body
@@ -14281,8 +14282,9 @@ object a {
   val stays =
     input1
       .filter(f)
-  val changes = (input1 ++ input2)
-    .filter(f)
+  val changes =
+    (input1 ++ input2)
+      .filter(f)
 }
 
 <<< #5394 generator body is an infix with parenthesized lhs
