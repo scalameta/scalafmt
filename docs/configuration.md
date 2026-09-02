@@ -1669,6 +1669,72 @@ trait A {
 }
 ```
 
+### `align.atLineStart`
+
+This parameter controls if and when to consider for alignment tokens at the start of a line.
+
+> Since v3.11.6.
+
+It takes the following values:
+
+- `none`: the token is ignored
+- `skip`: the entire line is ignored
+- `all`: the token is aligned
+
+With significant indentation, moving the first token of a line can change what
+that line belongs to. Such a token is aligned only if its line is indented
+further than the line its statement begins on. A token which begins its own
+statement is left alone whatever this parameter is set to.
+
+This parameter decides only how such a token is treated. Whether the expression
+it belongs to may be aligned at all is decided by
+[`align.multiline`](#alignmultiline), so under `align.multiline = none` or
+`align.multiline = skip` the first token of a wrapped infix expression is not
+aligned, whatever `align.atLineStart` is set to.
+
+```scala mdoc:defaults
+align.atLineStart
+```
+
+```scala mdoc:scalafmt
+align.preset = more
+newlines.source = keep
+align.atLineStart = none
+---
+Seq(
+  a % b % c,
+  aa % bb
+    % ddddddd % ee,
+  aaaaaa % bbbbb % cccc
+)
+```
+
+```scala mdoc:scalafmt
+align.preset = more
+newlines.source = keep
+align.atLineStart = skip
+---
+Seq(
+  a % b % c,
+  aa % bb
+    % ddddddd % ee,
+  aaaaaa % bbbbb % cccc
+)
+```
+
+```scala mdoc:scalafmt
+align.preset = more
+newlines.source = keep
+align.atLineStart = all
+---
+Seq(
+  a % b % c,
+  aa % bb
+    % ddddddd % ee,
+  aaaaaa % bbbbb % cccc
+)
+```
+
 ### `align.allowOverflow`
 
 If this flag is set, as long as unaligned lines did not overflow, we will not check
