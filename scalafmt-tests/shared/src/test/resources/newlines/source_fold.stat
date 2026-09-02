@@ -13613,6 +13613,7 @@ object a {
     (aaaaaaaaaaaaaaaa ++
       bbbbbbbbbbbbbbbb) ++ cc
   val ee =
+
     (aaaaaaaaaaaaaaaa ++
       bbbbbbbbbbbbbbbb) ++ cc
 }

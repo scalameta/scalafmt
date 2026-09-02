@@ -14855,19 +14855,14 @@ object a {
     (aaaaaaaaaaaaaaaa ++ bbbbbbbbbbbbbbbb) ++ cc
 }
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,10 +1,8 @@
- object a {
-   val dd = (
-     aaaaaaaaaaaaaaaa ++ bbbbbbbbbbbbbbbb
-   ) ++ cc
--  val ee =
--    (
--      aaaaaaaaaaaaaaaa ++
--        bbbbbbbbbbbbbbbb
--    ) ++ cc
-+  val ee = (
-+    aaaaaaaaaaaaaaaa ++ bbbbbbbbbbbbbbbb
-+  ) ++ cc
- }
+object a {
+  val dd = (
+    aaaaaaaaaaaaaaaa ++ bbbbbbbbbbbbbbbb
+  ) ++ cc
+  val ee =
+
+    (
+      aaaaaaaaaaaaaaaa ++
+        bbbbbbbbbbbbbbbb
+    ) ++ cc
+}

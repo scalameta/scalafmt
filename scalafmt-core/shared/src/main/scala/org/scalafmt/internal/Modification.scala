@@ -67,6 +67,8 @@ object Space extends Modification {
 
   def apply(flag: Boolean): Modification = if (flag) this else NoSplit
   def orNL(flag: Boolean): Modification = if (flag) this else Newline
+  def orNL(isSpace: Boolean, isBlank: Boolean): Modification =
+    if (isSpace) this else Newline2x(isBlank)
   def orNL(isSpace: Boolean, nl: Int): Modification =
     if (isSpace) this else Newline2x(nl)
   def orNL(nl: Int): Modification = orNL(FT.noBreak(nl), nl)
