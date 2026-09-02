@@ -1206,29 +1206,10 @@ class FormatWriter(formatOps: FormatOps) {
       lazy val noAlignTokens = styleMap.forall(_.align.tokens.isEmpty)
       if (locations.length != tokens.length || noAlignTokens) Map.empty[Int, Int]
       else {
-        var columnShift = 0
+        val state = new AlignState(locations, styleMap.init.align.multiline)
         implicit val finalResult = Map.newBuilder[Int, Int]
-        val isMultiline = styleMap.init.align.multiline
 
-        // all blocks must be here, to get final flush
-        val blocks = new java.util.HashMap[Tree, AlignBlock]
-        def createBlock(x: Tree) = blocks.computeIfAbsent(x, _ => new AlignBlock)
-        var prevAlignContainer: Tree = null
-        var prevBlock: AlignBlock = if (isMultiline) null else createBlock(null)
-        val getOrCreateBlock: Tree => AlignBlock =
-          if (isMultiline) createBlock else _ => prevBlock
-        val getBlockToFlush: (=> Tree, Boolean) => AlignBlock =
-          if (isMultiline) // don't flush unless blank line
-            (x, isBlankLine) => if (isBlankLine) blocks.get(x) else null
-          else (_, _) => prevBlock
-        val shouldFlush: Tree => Boolean =
-          if (!isMultiline) _ => true else (x: Tree) => x eq prevAlignContainer
-        val wasSameContainer: Tree => Boolean =
-          if (isMultiline) _ => true else (x: Tree) => x eq prevAlignContainer
-
-        var idx = 0
-        while (idx < locations.length) {
-          var alignContainer: Tree = null
+        while (!state.done()) {
           val columnCandidates = IndexedSeq.newBuilder[AlignStop]
 
           def processLineEnd(
@@ -1236,21 +1217,21 @@ class FormatWriter(formatOps: FormatOps) {
           )(implicit floc: FormatLocation): Unit = {
             val isBlankLine = floc.state.mod.isBlankLine ||
               extraBlankTokens.contains(floc.formatToken.idx)
-            if (alignContainer ne null) {
+            if (state.alignContainer ne null) {
               val candidates = columnCandidates.result()
-              val block = getOrCreateBlock(alignContainer)
+              val block = state.getOrCreateBlock()
               val blockWasEmpty = block.isEmpty
               if (!blockWasEmpty || !isBlankLine) {
                 val alignLine = new AlignLine(
                   candidates,
-                  floc.state.prev.column + columnShift,
+                  state.getColumn(floc.state.prev),
                   floc.style,
                 )
                 val appendToEmptyBlock = blockWasEmpty || {
-                  val sameOwner = wasSameContainer(alignContainer)
+                  val sameOwner = state.wasSameContainer()
                   val notAdded = !block.tryAppendToBlock(alignLine, sameOwner)
 
-                  (isBlankLine || notAdded && shouldFlush(alignContainer)) && {
+                  (isBlankLine || notAdded && state.shouldFlush()) && {
                     flushAlignBlock(block)
                     !isBlankLine
                   }
@@ -1259,17 +1240,16 @@ class FormatWriter(formatOps: FormatOps) {
                 if (appendToEmptyBlock) block.appendToEmptyBlock(alignLine)
               }
 
-              prevAlignContainer = alignContainer
-              prevBlock = block
+              state.setPrevBlock(block)
             }
-            if (isBlankLine || alignContainer.eq(null)) {
-              val toFlush = getBlockToFlush(
+            if (isBlankLine || state.alignContainer.eq(null)) {
+              val toFlush = state.getBlockToFlush(
                 getAlignContainer(isSlc = wasSlc)._1,
                 isBlankLine,
               )
               if (toFlush ne null) flushAlignBlock(toFlush)
             }
-            columnShift = 0
+            state.resetLine()
           }
 
           def processEligible(isSlc: Boolean, alignKind: AlignKind)(implicit
@@ -1277,37 +1257,34 @@ class FormatWriter(formatOps: FormatOps) {
           ): Unit = {
             val (container, depth) = getAlignContainer(isSlc)
             def appendCandidate() = columnCandidates += {
-              val col = getAlignColumn(floc, alignKind) + columnShift
+              val col = state.getColumn(getAlignColumnState(floc, alignKind))
               new AlignStop(col, depth, floc, getAlignHashKey(floc), isSlc)
             }
-            if (alignContainer eq null) alignContainer = container
-            else if (alignContainer ne container)
+            if (state.alignContainer eq null) state.alignContainer = container
+            else if (state.alignContainer ne container)
               if (isSlc) {
                 val prevFt = prevNonCommentSameLine(floc.formatToken)
-                if (alignContainer.endOffset >= prevFt.left.end) appendCandidate()
+                if (state.alignContainer.endOffset >= prevFt.left.end)
+                  appendCandidate()
               } else if (
-                container.begOffset <= alignContainer.begOffset &&
-                container.endOffset >= alignContainer.endOffset
+                container.begOffset <= state.alignContainer.begOffset &&
+                container.endOffset >= state.alignContainer.endOffset
               ) {
-                alignContainer = container
+                state.alignContainer = container
                 columnCandidates.clear()
               }
-            if (alignContainer eq container) appendCandidate()
+            if (state.alignContainer eq container) appendCandidate()
           }
 
           @tailrec
           def processLine(wasSlc: Boolean): Unit = {
-            implicit val floc: FormatLocation = locations(idx)
+            implicit val floc: FormatLocation = state.getAndNext()
             val ft = floc.formatToken
-            idx += 1
-            columnShift += floc.shift
-            if (
-              wasSlc || floc.hasBreakAfter || ft.leftHasNewline ||
-              idx >= locations.length
-            ) processLineEnd(wasSlc)
+            if (wasSlc || floc.hasBreakAfter || ft.leftHasNewline || state.done())
+              processLineEnd(wasSlc)
             else {
-              val isSlc = ft.right.is[T.Comment] && locations(idx)
-                .hasBreakAfter && !ft.rightHasNewline
+              val isSlc = ft.right.is[T.Comment] && state.get().hasBreakAfter &&
+                !ft.rightHasNewline
               val alignKind = shouldAlign(ft, isSlc)
               if (alignKind != AlignKind.No) processEligible(isSlc, alignKind)
               processLine(wasSlc = isSlc)
@@ -1316,7 +1293,7 @@ class FormatWriter(formatOps: FormatOps) {
 
           processLine(wasSlc = false)
         }
-        blocks.values.forEach(flushAlignBlock(_))
+        state.flush(flushAlignBlock)
         finalResult.result()
       }
     }
@@ -1436,8 +1413,12 @@ class FormatWriter(formatOps: FormatOps) {
           if (ftIndex < endIndex)
             shiftStateColumnIndent(ftIndex + 1, headStop.shift)
         }
+        val stops = x.stops
         var previousShift = 0
-        x.stops.foreach(stop =>
+        var stopIdx = 0
+        while (stopIdx < stops.length) {
+          val stop = stops(stopIdx)
+          stopIdx += 1
           if (stop.isActive) {
             val currentShift = stop.shift
             val offset = currentShift - previousShift
@@ -1445,8 +1426,8 @@ class FormatWriter(formatOps: FormatOps) {
               builder += stop.ft.meta.idx -> offset
               previousShift = currentShift
             }
-          },
-        )
+          }
+        }
       }
     }
 
@@ -1777,6 +1758,58 @@ object FormatWriter {
     def remove: FormatLocation = copy(leftLineId = NoLine)
   }
 
+  class AlignState(locations: Array[FormatLocation], isMultiline: Boolean) {
+    // all blocks must be here, to get final flush
+    private val blocks = new java.util.HashMap[Tree, AlignBlock]
+
+    private var idx: Int = 0
+    private var columnShift: Int = 0
+    private var prevAlignContainer: Tree = _
+    private var prevBlock: AlignBlock =
+      if (isMultiline) null else createBlock(null)
+    var alignContainer: Tree = _
+
+    private def createBlock(x: Tree) = blocks
+      .computeIfAbsent(x, _ => new AlignBlock)
+
+    def getOrCreateBlock(): AlignBlock =
+      if (isMultiline) createBlock(alignContainer) else prevBlock
+
+    def getBlockToFlush(x: => Tree, isBlankLine: Boolean): AlignBlock =
+      // don't flush unless blank line
+      if (isMultiline) if (isBlankLine) blocks.get(x) else null else prevBlock
+
+    def shouldFlush(): Boolean = !isMultiline ||
+      (alignContainer eq prevAlignContainer)
+
+    def wasSameContainer(): Boolean = isMultiline ||
+      (alignContainer eq prevAlignContainer)
+
+    def done(): Boolean = idx >= locations.length
+    def get(): FormatLocation = locations(idx)
+
+    def getAndNext(): FormatLocation = {
+      val floc = get()
+      idx += 1
+      columnShift += floc.shift
+      floc
+    }
+
+    def resetLine(): Unit = {
+      columnShift = 0
+      alignContainer = null
+    }
+
+    def getColumn(state: State): Int = state.column + columnShift
+
+    def setPrevBlock(block: AlignBlock): Unit = {
+      prevBlock = block
+      prevAlignContainer = alignContainer
+    }
+
+    def flush(f: AlignBlock => Unit): Unit = blocks.values().forEach(f(_))
+  }
+
   class AlignStopColumn(var column: Int = -1) {
     @inline
     def reset(): Unit = column = -1
@@ -1994,10 +2027,10 @@ object FormatWriter {
     * )
     * ```
     */
-  def getAlignColumn(floc: FormatLocation, alignKind: AlignKind): Int = {
+  def getAlignColumnState(floc: FormatLocation, alignKind: AlignKind): State = {
     // if we didn't care about align token lengths, we'd always "useLeft"
     val left = alignKind == AlignKind.LT || floc.formatToken.right.is[T.Comment]
-    if (left) floc.state.prev.column else floc.state.column
+    if (left) floc.state.prev else floc.state
   }
 
   /** Owner of the token to align by; not meaningful for a comment align stop.
