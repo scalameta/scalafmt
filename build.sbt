@@ -313,9 +313,8 @@ lazy val docs = projectMatrix(
   "scalafmt-docs",
   VirtualAxis.jvm,
   VirtualAxis.scalaABIVersion(scala212),
-).settings(unpublished, mdoc := (Compile / run).evaluated)
-  .jvmPlatform(Seq(scala212)).dependsOn(cli, dynamic)
-  .enablePlugins(DocusaurusPlugin)
+).settings(unpublished, mdoc := (Compile / run).evaluated).crossJvmAt(scala212)
+  .dependsOn(cli, dynamic).enablePlugins(DocusaurusPlugin)
 
 val V = "\\d+\\.\\d+\\.\\d+"
 val ReleaseCandidate = s"($V-RC\\d+).*".r
