@@ -11,6 +11,15 @@ title: Contributing
   test for Scala.js, tests benchmark code and also compiles the documentation.
 - You should be able to import the project into IntelliJ as normal:
   `File -> New -> Project from existing source` and pick the `build.sbt` file.
+- IntelliJ imports the project for one Scala version, 2.13 by default. If you
+  need to modify the defaults, set the properties below under
+  `Settings -> Build, Execution, Deployment -> Build Tools -> sbt -> VM parameters`
+  and reload the sbt project:
+  - `-Dide.scala=X`: imports Scala version `X` instead (could be `2.12`, `2.13`,
+    or `3`). `-Dide.scala=`, with no value, imports the default.
+  - `-Dide.platform=Y`: if `Y` is empty, imports all platforms; otherwise, `Y`
+    is a comma-separated list of platforms to import, and `jvm` is implied,
+    whether or not it is explicitly listed, while `js` and `native` are optional.
 
 ## Testing
 
