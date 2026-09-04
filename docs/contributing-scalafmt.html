@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.10.1">
 <title data-rh="true">Contributing | Scalafmt</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://scalameta.org/scalafmt/img/scalameta-logo.png"><meta data-rh="true" name="twitter:image" content="https://scalameta.org/scalafmt/img/scalameta-logo.png"><meta data-rh="true" property="og:url" content="https://scalameta.org/scalafmt/docs/contributing-scalafmt"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Contributing | Scalafmt"><meta data-rh="true" name="description" content="Compiling project"><meta data-rh="true" property="og:description" content="Compiling project"><link data-rh="true" rel="icon" href="/scalafmt/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://scalameta.org/scalafmt/docs/contributing-scalafmt"><link data-rh="true" rel="alternate" href="https://scalameta.org/scalafmt/docs/contributing-scalafmt" hreflang="en"><link data-rh="true" rel="alternate" href="https://scalameta.org/scalafmt/docs/contributing-scalafmt" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Contributing","item":"https://scalameta.org/scalafmt/docs/contributing-scalafmt"}]}</script><link rel="stylesheet" href="/scalafmt/assets/css/styles.bd29fe0d.css">
-<script src="/scalafmt/assets/js/runtime~main.c5711533.js" defer="defer"></script>
+<script src="/scalafmt/assets/js/runtime~main.a0915d7c.js" defer="defer"></script>
 <script src="/scalafmt/assets/js/main.968023b9.js" defer="defer"></script>
 </head>
 <body>
@@ -19,6 +19,18 @@ tests for the JVM while <code>sbt test</code> is slower because it runs cross-pl
 test for Scala.js, tests benchmark code and also compiles the documentation.</li>
 <li class="">You should be able to import the project into IntelliJ as normal:
 <code>File -&gt; New -&gt; Project from existing source</code> and pick the <code>build.sbt</code> file.</li>
+<li class="">IntelliJ imports the project for one Scala version, 2.13 by default. If you
+need to modify the defaults, set the properties below under
+<code>Settings -&gt; Build, Execution, Deployment -&gt; Build Tools -&gt; sbt -&gt; VM parameters</code>
+and reload the sbt project:
+<ul>
+<li class=""><code>-Dide.scala=X</code>: imports Scala version <code>X</code> instead (could be <code>2.12</code>, <code>2.13</code>,
+or <code>3</code>). <code>-Dide.scala=</code>, with no value, imports the default.</li>
+<li class=""><code>-Dide.platform=Y</code>: if <code>Y</code> is empty, imports all platforms; otherwise, <code>Y</code>
+is a comma-separated list of platforms to import, and <code>jvm</code> is implied,
+whether or not it is explicitly listed, while <code>js</code> and <code>native</code> are optional.</li>
+</ul>
+</li>
 </ul>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="testing">Testing<a href="#testing" class="hash-link" aria-label="Direct link to Testing" title="Direct link to Testing" translate="no">​</a></h2>
 <p>Take a look at <a href="https://github.com/scalameta/scalafmt/blob/master/scalafmt-tests/shared/src/test/resources/readme.md" target="_blank" rel="noopener noreferrer" class="">https://github.com/scalameta/scalafmt/blob/master/scalafmt-tests/shared/src/test/resources/readme.md</a> to see how to test your changes.</p>
