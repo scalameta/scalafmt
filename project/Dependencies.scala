@@ -10,7 +10,7 @@ object Dependencies {
   val scala2Versions = Seq(scala213, scala212)
   val scalaVersions = scala2Versions :+ scala3
 
-  val metaconfigV = "0.18.7"
+  val metaconfigV = "0.18.8"
   val scalametaV = "4.17.3"
   val coursier = "2.1.24"
   val munitV = "1.3.6"
