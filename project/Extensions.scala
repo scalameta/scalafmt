@@ -48,26 +48,25 @@ object Extensions {
     )
   }
 
-  /* IntelliJ folds the source roots that matrix cells share into one module, so the whole matrix
-   * compiles scala-2.13 and scala-3 together. Only IntelliJ's importer reads `ide-skip-project`, so
-   * these properties change what the IDE sees and never what sbt builds. */
-  private val ideSkipProject = SettingKey[Boolean]("ide-skip-project")
-
+  /* `bspEnabled := false` leaves a row out of the BSP workspace, so an IDE does not import it.
+   * IntelliJ can't load multiple versions, though, so force 2.13 if `ide.scala` is absent. */
   private val ideScala = {
     val prop = sys.props.getOrElse("ide.scala", "").trim
-    if (prop.isEmpty) scala213 else prop
+    if (prop.nonEmpty) Some(prop)
+    else if (sys.props.contains("idea.managed")) Some(scala213) // this looks like IntelliJ
+    else None
   }
 
-  // the platforms to import besides the JVM, which the IDE always gets
+  // an empty set is no filter, so every platform
   private val idePlatforms = {
     val prop = sys.props.getOrElse("ide.platform", "").trim
-    if (prop.isEmpty) Set.empty else prop.split("\\s*,\\s*").toSet + "jvm"
+    if (prop.isEmpty) Set.empty else prop.split("\\s*,\\s*").toSet
   }
 
   // contributes nothing when it keeps a row, so it never overrides another setting
   private def ideSkip(platform: String, version: Option[String]): Seq[Setting[?]] = {
-    val skipVersion = version.exists(v => ideScala != v && ideScala != CrossVersion.binaryScalaVersion(v))
-    if (skipVersion || idePlatforms.nonEmpty && !idePlatforms(platform)) Seq(ideSkipProject := true) else Nil
+    val skipVersion = version.exists(v => ideScala.exists(s => s != v && s != CrossVersion.binaryScalaVersion(v)))
+    if (skipVersion || idePlatforms.nonEmpty && !idePlatforms(platform)) Seq(bspEnabled := false) else Nil
   }
 
   def isScalaVer(ver: String) = Def.setting(scalaBinaryVersion.value == ver)
