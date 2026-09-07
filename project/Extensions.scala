@@ -64,10 +64,11 @@ object Extensions {
     if (prop.isEmpty) Set.empty else prop.split("\\s*,\\s*").toSet + "jvm"
   }
 
-  private def ideSkip(platform: String, scala: Boolean): Seq[Setting[?]] = Seq(ideSkipProject := {
-    val versions = Set(scalaBinaryVersion.value, scalaVersion.value)
-    scala && !versions(ideScala) || idePlatforms.nonEmpty && !idePlatforms(platform)
-  })
+  // contributes nothing when it keeps a row, so it never overrides another setting
+  private def ideSkip(platform: String, version: Option[String]): Seq[Setting[?]] = {
+    val skipVersion = version.exists(v => ideScala != v && ideScala != CrossVersion.binaryScalaVersion(v))
+    if (skipVersion || idePlatforms.nonEmpty && !idePlatforms(platform)) Seq(ideSkipProject := true) else Nil
+  }
 
   def isScalaVer(ver: String) = Def.setting(scalaBinaryVersion.value == ver)
   def isScala212 = isScalaVer("2.12")
@@ -127,11 +128,15 @@ object Extensions {
       named.settings(roots(named.base, "shared"))
     }
 
-    def crossJvm(ss: Def.SettingsDefinition*): ProjectMatrix = self.jvmPlatform(scalaVersions, jvmRoots(ss))
+    // one row at a time, so each one knows the version it is built for
+    def crossJvm(ss: Def.SettingsDefinition*): ProjectMatrix = scalaVersions
+      .foldLeft(self)((acc, v) => acc.jvmPlatform(Seq(v), jvmRoots(Some(v), ss)))
 
-    def crossJs(ss: Def.SettingsDefinition*): ProjectMatrix = self.jsPlatform(scalaVersions, jsRoots(ss))
+    def crossJs(ss: Def.SettingsDefinition*): ProjectMatrix = scalaVersions
+      .foldLeft(self)((acc, v) => acc.jsPlatform(Seq(v), jsRoots(v, ss)))
 
-    def crossNative(ss: Def.SettingsDefinition*): ProjectMatrix = self.nativePlatform(scalaVersions, nativeRoots(ss))
+    def crossNative(ss: Def.SettingsDefinition*): ProjectMatrix = scalaVersions
+      .foldLeft(self)((acc, v) => acc.nativePlatform(Seq(v), nativeRoots(v, ss)))
 
     // A JVM row carrying no Scala version, for Java-only sources. Not
     // `jvmPlatform(autoScalaLibrary = false)`: that one passes VirtualAxis.jvm to a customRow which
@@ -139,14 +144,14 @@ object Extensions {
     // The cell id is unaffected, so it would just compile nothing.
     // The row carries no Scala version, so `ide.scala` neither selects nor rejects it.
     def crossJvmJava(ss: Def.SettingsDefinition*): ProjectMatrix = self
-      .customRow(autoScalaLibrary = false, axisValues = Nil, settings = jvmRoots(ss, scala = false))
+      .customRow(autoScalaLibrary = false, axisValues = Nil, settings = jvmRoots(None, ss))
 
     // a JVM row for a project that does not cross-build
-    def crossJvmAt(version: String): ProjectMatrix = self.jvmPlatform(Seq(version), jvmRoots())
+    def crossJvmAt(version: String): ProjectMatrix = self.jvmPlatform(Seq(version), jvmRoots(Some(version)))
 
     // a row that needs the cell itself, not just its settings
     def crossJvmRow(version: String, configure: Project => Project): ProjectMatrix = self
-      .jvmPlatform(Seq(version), Nil, configure(_).settings(jvmRoots()))
+      .jvmPlatform(Seq(version), Nil, configure(_).settings(jvmRoots(Some(version))))
 
     // a row that needs the cell itself, not just its settings
     def crossJvmRow(versions: String*)(configure: String => Project => Project): ProjectMatrix = versions
@@ -160,14 +165,16 @@ object Extensions {
 
     def communityTest: ProjectMatrix = self.settings(communityTestsSettings).crossJvmNative(scalaNativeConfig)
 
-    private def platformRoots(platform: String, ss: Seq[Def.SettingsDefinition], scala: Boolean = true)(
+    private def platformRoots(platform: String, version: Option[String], ss: Seq[Def.SettingsDefinition])(
         platforms: String*,
-    ) = roots(self.base, platform +: platforms *) ++ ideSkip(platform, scala) ++ ss.flatMap(_.settings)
+    ) = roots(self.base, platform +: platforms *) ++ ideSkip(platform, version) ++ ss.flatMap(_.settings)
 
-    private def jvmRoots(ss: Seq[Def.SettingsDefinition] = Nil, scala: Boolean = true) =
-      platformRoots("jvm", ss, scala)("jvm-native", "js-jvm")
-    private def jsRoots(ss: Seq[Def.SettingsDefinition]) = platformRoots("js", ss)("js-jvm", "js-native")
-    private def nativeRoots(ss: Seq[Def.SettingsDefinition]) = platformRoots("native", ss)("jvm-native", "js-native")
+    private def jvmRoots(version: Option[String], ss: Seq[Def.SettingsDefinition] = Nil) =
+      platformRoots("jvm", version, ss)("jvm-native", "js-jvm")
+    private def jsRoots(version: String, ss: Seq[Def.SettingsDefinition]) =
+      platformRoots("js", Some(version), ss)("js-jvm", "js-native")
+    private def nativeRoots(version: String, ss: Seq[Def.SettingsDefinition]) =
+      platformRoots("native", Some(version), ss)("jvm-native", "js-native")
   }
 
 }
