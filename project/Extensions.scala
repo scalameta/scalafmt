@@ -21,8 +21,8 @@ object Extensions {
 
   def tasksOf(p: Project, ts: String*): Seq[String] = ts.map(t => s"${p.id}/$t")
 
-  // `++<version>` selects no row, so every version gets its own alias. Cell ids are generated, so
-  // the names are taken from them rather than spelled out.
+  /* `++<version>` selects no row, so every version gets its own alias. Cell ids are generated, so
+   * the names are taken from them rather than spelled out. */
   def testAliases(versions: Seq[String], matrices: ProjectMatrix*): Seq[Setting[?]] = versions.flatMap { v =>
     def alias(name: String, f: ProjectMatrix => ProjectFinder) = addCommandAlias(
       s"test-$name-${VirtualAxis.scalaABIVersion(v).idSuffix}",
@@ -31,8 +31,7 @@ object Extensions {
     alias("jvm", _.jvm) ++ alias("js", _.js) ++ alias("native", _.native)
   }
 
-  // A matrix has one base directory, so a cell has to name every tree it reads. Directories that
-  // do not exist are harmless.
+  // a cell names every tree it reads, and one that does not exist is harmless
   private def roots(base: File, dirs: String*): Seq[Setting[?]] = {
     def under(conf: String, leaf: String => Seq[String]) = Def.setting {
       // a matrix base may be relative, and a relative source root resolves against the wrong one
@@ -57,16 +56,18 @@ object Extensions {
     else None
   }
 
-  // an empty set is no filter, so every platform
-  private val idePlatforms = {
-    val prop = sys.props.getOrElse("ide.platform", "").trim
-    if (prop.isEmpty) Set.empty else prop.split("\\s*,\\s*").toSet
-  }
+  // this build exposes every platform; one that does not names its own set
+  private val defaultPlatforms = Set.empty[String]
 
-  // contributes nothing when it keeps a row, so it never overrides another setting
-  private def ideSkip(platform: String, version: Option[String]): Seq[Setting[?]] = {
-    val skipVersion = version.exists(v => ideScala.exists(s => s != v && s != CrossVersion.binaryScalaVersion(v)))
-    if (skipVersion || idePlatforms.nonEmpty && !idePlatforms(platform)) Seq(bspEnabled := false) else Nil
+  // an empty set is no filter, so every platform
+  private val idePlatforms = sys.props.get("ide.platform")
+    .fold(defaultPlatforms)(_.split(',').map(_.trim).filter(_.nonEmpty).toSet)
+
+  // only ever disables a row, so it never overrides another setting
+  private def ideSkip(platform: VirtualAxis.PlatformAxis, version: String): Seq[Setting[?]] = {
+    val skip = idePlatforms.nonEmpty && !idePlatforms(platform.value) ||
+      version.nonEmpty && ideScala.exists(s => s != version && s != CrossVersion.binaryScalaVersion(version))
+    if (skip) Seq(bspEnabled := false) else Nil
   }
 
   def isScalaVer(ver: String) = Def.setting(scalaBinaryVersion.value == ver)
@@ -116,8 +117,7 @@ object Extensions {
   lazy val communityTestsSettings: Seq[Def.Setting[?]] = Def
     .settings(unpublished, scalacSettings, sharedTestSettings, javaOptions += "-Dfile.encoding=UTF8")
 
-  // `projectMatrix` is a macro that reads the name of the val it is assigned to, so it cannot be
-  // called here; it arrives as the receiver instead.
+  // `projectMatrix` reads the name of the val it is assigned to, so it arrives as the receiver
   implicit class ProjectMatrixExtensions(private val self: ProjectMatrix) extends AnyVal {
 
     def apply(name: String, axes: VirtualAxis*): ProjectMatrix = {
@@ -129,7 +129,7 @@ object Extensions {
 
     // one row at a time, so each one knows the version it is built for
     def crossJvm(ss: Def.SettingsDefinition*): ProjectMatrix = scalaVersions
-      .foldLeft(self)((acc, v) => acc.jvmPlatform(Seq(v), jvmRoots(Some(v), ss)))
+      .foldLeft(self)((acc, v) => acc.jvmPlatform(Seq(v), jvmRoots(v, ss)))
 
     def crossJs(ss: Def.SettingsDefinition*): ProjectMatrix = scalaVersions
       .foldLeft(self)((acc, v) => acc.jsPlatform(Seq(v), jsRoots(v, ss)))
@@ -137,20 +137,19 @@ object Extensions {
     def crossNative(ss: Def.SettingsDefinition*): ProjectMatrix = scalaVersions
       .foldLeft(self)((acc, v) => acc.nativePlatform(Seq(v), nativeRoots(v, ss)))
 
-    // A JVM row carrying no Scala version, for Java-only sources. Not
-    // `jvmPlatform(autoScalaLibrary = false)`: that one passes VirtualAxis.jvm to a customRow which
-    // appends it again, and the doubled axis renames the generated directories to `scalajvm-jvm`.
-    // The cell id is unaffected, so it would just compile nothing.
-    // The row carries no Scala version, so `ide.scala` neither selects nor rejects it.
+    /* A JVM row for Java-only sources, carrying no Scala version. Not
+     * `jvmPlatform(autoScalaLibrary = false)`: that one passes VirtualAxis.jvm to a customRow which
+     * appends it again, and the doubled axis renames the generated directories to `scalajvm-jvm`,
+     * leaving the cell to compile nothing. */
     def crossJvmJava(ss: Def.SettingsDefinition*): ProjectMatrix = self
-      .customRow(autoScalaLibrary = false, axisValues = Nil, settings = jvmRoots(None, ss))
+      .customRow(autoScalaLibrary = false, axisValues = Nil, settings = jvmRoots("", ss))
 
     // a JVM row for a project that does not cross-build
-    def crossJvmAt(version: String): ProjectMatrix = self.jvmPlatform(Seq(version), jvmRoots(Some(version)))
+    def crossJvmAt(version: String): ProjectMatrix = self.jvmPlatform(Seq(version), jvmRoots(version))
 
     // a row that needs the cell itself, not just its settings
     def crossJvmRow(version: String, configure: Project => Project): ProjectMatrix = self
-      .jvmPlatform(Seq(version), Nil, configure(_).settings(jvmRoots(Some(version))))
+      .jvmPlatform(Seq(version), Nil, configure(_).settings(jvmRoots(version)))
 
     // a row that needs the cell itself, not just its settings
     def crossJvmRow(versions: String*)(configure: String => Project => Project): ProjectMatrix = versions
@@ -164,16 +163,16 @@ object Extensions {
 
     def communityTest: ProjectMatrix = self.settings(communityTestsSettings).crossJvmNative(scalaNativeConfig)
 
-    private def platformRoots(platform: String, version: Option[String], ss: Seq[Def.SettingsDefinition])(
+    private def platformRoots(platform: VirtualAxis.PlatformAxis, version: String, ss: Seq[Def.SettingsDefinition])(
         platforms: String*,
-    ) = roots(self.base, platform +: platforms *) ++ ideSkip(platform, version) ++ ss.flatMap(_.settings)
+    ) = roots(self.base, platform.value +: platforms *) ++ ideSkip(platform, version) ++ ss.flatMap(_.settings)
 
-    private def jvmRoots(version: Option[String], ss: Seq[Def.SettingsDefinition] = Nil) =
-      platformRoots("jvm", version, ss)("jvm-native", "js-jvm")
+    private def jvmRoots(version: String, ss: Seq[Def.SettingsDefinition] = Nil) =
+      platformRoots(VirtualAxis.jvm, version, ss)("jvm-native", "js-jvm")
     private def jsRoots(version: String, ss: Seq[Def.SettingsDefinition]) =
-      platformRoots("js", Some(version), ss)("js-jvm", "js-native")
+      platformRoots(VirtualAxis.js, version, ss)("js-jvm", "js-native")
     private def nativeRoots(version: String, ss: Seq[Def.SettingsDefinition]) =
-      platformRoots("native", Some(version), ss)("jvm-native", "js-native")
+      platformRoots(VirtualAxis.native, version, ss)("jvm-native", "js-native")
   }
 
 }
