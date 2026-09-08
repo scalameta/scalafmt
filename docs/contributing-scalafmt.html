@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.10.1">
 <title data-rh="true">Contributing | Scalafmt</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://scalameta.org/scalafmt/img/scalameta-logo.png"><meta data-rh="true" name="twitter:image" content="https://scalameta.org/scalafmt/img/scalameta-logo.png"><meta data-rh="true" property="og:url" content="https://scalameta.org/scalafmt/docs/contributing-scalafmt"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Contributing | Scalafmt"><meta data-rh="true" name="description" content="Compiling project"><meta data-rh="true" property="og:description" content="Compiling project"><link data-rh="true" rel="icon" href="/scalafmt/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://scalameta.org/scalafmt/docs/contributing-scalafmt"><link data-rh="true" rel="alternate" href="https://scalameta.org/scalafmt/docs/contributing-scalafmt" hreflang="en"><link data-rh="true" rel="alternate" href="https://scalameta.org/scalafmt/docs/contributing-scalafmt" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Contributing","item":"https://scalameta.org/scalafmt/docs/contributing-scalafmt"}]}</script><link rel="stylesheet" href="/scalafmt/assets/css/styles.bd29fe0d.css">
-<script src="/scalafmt/assets/js/runtime~main.d9b7b4b6.js" defer="defer"></script>
+<script src="/scalafmt/assets/js/runtime~main.758425f7.js" defer="defer"></script>
 <script src="/scalafmt/assets/js/main.968023b9.js" defer="defer"></script>
 </head>
 <body>
@@ -39,7 +39,8 @@ load multiple versions.</li>
 comma-separated list.
 <ul>
 <li class="">matches <code>jvm</code>, <code>js</code>, or <code>native</code></li>
-<li class="">if unspecified or empty: keep every platform</li>
+<li class="">if unspecified: keep every platform</li>
+<li class=""><code>-Dide.platform=</code>, with nothing after it, keeps every platform</li>
 </ul>
 </li>
 </ul>
@@ -49,9 +50,12 @@ rows use into one module, and then compiles the Scala 2 and the Scala 3
 sources of a project together. It starts sbt with <code>-Didea.managed=true</code>. If
 you do not set <code>-Dide.scala</code>, that property selects 2.13. To choose another
 version, add <code>-Dide.scala=X</code> under <code>Settings -&gt; Build, Execution, Deployment -&gt; Build Tools -&gt; sbt -&gt; VM parameters</code>, then reload the sbt project.</li>
-<li class="">An sbt server uses the system properties from its own command line. It
-ignores a property that you pass to a later command. Run <code>sbt shutdown</code>
-before you test a change to these properties from the shell.</li>
+<li class="">These properties change what an IDE imports over BSP. A command-line <code>sbt</code> is
+not a BSP client, so it still sees every row and builds and tests them all.</li>
+<li class="">An sbt server runs with the system properties from its own command line. A
+later <code>sbt</code> in the same directory attaches to that server, so a property you
+pass then changes nothing. Run <code>sbt shutdown</code> before you test a change to
+these properties.</li>
 </ul>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="testing">Testing<a href="#testing" class="hash-link" aria-label="Direct link to Testing" title="Direct link to Testing" translate="no">​</a></h2>
 <p>Take a look at <a href="https://github.com/scalameta/scalafmt/blob/master/scalafmt-tests/shared/src/test/resources/readme.md" target="_blank" rel="noopener noreferrer" class="">https://github.com/scalameta/scalafmt/blob/master/scalafmt-tests/shared/src/test/resources/readme.md</a> to see how to test your changes.</p>
