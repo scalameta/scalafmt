@@ -91,7 +91,8 @@ object Extensions {
       else if (isScala213.value) "-Wunused:imports,privates,locals,patvars,implicits,explicits,params"
       else "-Ywarn-unused:imports,privates,locals,patvars,implicits"
 
-    val javaver = if (isScala3.value) Seq("-java-output-version:8") else Seq("-target:8", "-release:8")
+    // Scala 3.8 accepts no output version below 17
+    val javaver = if (isScala3.value) Seq("-java-output-version:17") else Seq("-target:8", "-release:8")
 
     cross ++ warningAsError ++ javaver :+ unused
   }
