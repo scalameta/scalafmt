@@ -10320,11 +10320,9 @@ list.map: x =>
   a
 >>>
 list.map { x =>
-  {
-    val a = x
+  val a = x
 
-    a
-  }
+  a
 }
 <<< colon lambda body with blank line, insert and remove
 rewrite.scala3.optionalBraces.enabled = true
@@ -10337,11 +10335,9 @@ list.map: x =>
   a
 >>>
 list.map { x =>
-  {
-    val a = x
+  val a = x
 
-    a
-  }
+  a
 }
 <<< braced lambda arg with blank line, remove and fewer braces
 rewrite.scala3.optionalBraces.enabled = true
