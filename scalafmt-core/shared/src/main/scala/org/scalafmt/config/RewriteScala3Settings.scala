@@ -105,6 +105,8 @@ object RewriteScala3Settings {
   case class BracesFilters(
       span: Between = Between.disabled,
       blankGaps: Between = Between.disabled,
+      includeOwners: TreePatterns = TreePatterns.empty,
+      excludeOwners: TreePatterns = TreePatterns.empty,
   ) {
     def enabled: Boolean = span.enabled || blankGaps.enabled
 

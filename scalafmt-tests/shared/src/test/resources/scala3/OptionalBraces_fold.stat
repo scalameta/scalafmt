@@ -9993,3 +9993,87 @@ foo match {
 
     baz
 }
+<<< insert with excludeOwners naming the match
+rewrite.scala3.optionalBraces.enabled = true
+rewrite.scala3.optionalBraces.insert.blankGaps.min = 1
+rewrite.scala3.optionalBraces.insert.excludeOwners = [{regex = "Term.Match"}]
+===
+foo match
+  case x =>
+    bar
+
+    baz
+>>>
+foo match {
+  case x =>
+    bar
+
+    baz
+}
+<<< insert with includeOwners naming an if
+rewrite.scala3.optionalBraces.enabled = true
+rewrite.scala3.optionalBraces.insert.blankGaps.min = 1
+rewrite.scala3.optionalBraces.insert.includeOwners = [{regex = "Term.If"}]
+===
+foo match
+  case x =>
+    bar
+
+    baz
+>>>
+foo match {
+  case x =>
+    bar
+
+    baz
+}
+<<< insert with includeOwners naming the match
+rewrite.scala3.optionalBraces.enabled = true
+rewrite.scala3.optionalBraces.insert.blankGaps.min = 1
+rewrite.scala3.optionalBraces.insert.includeOwners = [{regex = "Term.Match"}]
+===
+foo match
+  case x =>
+    bar
+
+    baz
+>>>
+foo match {
+  case x =>
+    bar
+
+    baz
+}
+<<< remove with excludeOwners naming the case
+rewrite.scala3.optionalBraces.enabled = true
+rewrite.scala3.optionalBraces.remove.blankGaps.max = 1000
+rewrite.scala3.optionalBraces.remove.excludeOwners = [{regex = "Case"}]
+===
+foo match
+  case x => {
+    bar
+
+    baz
+  }
+>>>
+foo match
+   case x =>
+     bar
+
+     baz
+<<< braced lambda arg with includeOwners naming an apply
+rewrite.scala3.optionalBraces.enabled = true
+rewrite.scala3.optionalBraces.remove.blankGaps.max = 1000
+rewrite.scala3.optionalBraces.fewerBraces.span.max = 1000
+rewrite.scala3.optionalBraces.remove.includeOwners = [{regex = "Term.Apply"}]
+===
+list.map { x =>
+  val a = x
+
+  a
+}
+>>>
+list.map: x =>
+   val a = x
+
+   a
