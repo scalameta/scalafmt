@@ -10691,3 +10691,92 @@ def f: Int =
    1
 
    2
+<<< colon lambda body with blank line, insert only
+lineEndings = unix # the expected report is not line-ending agnostic
+rewrite.scala3.optionalBraces.enabled = true
+rewrite.scala3.optionalBraces.insert.blankGaps.min = 1
+===
+list.map: x =>
+  val a = x
+
+  a
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,6 +1,6 @@
+ list.map: x =>
+    {
+      val a = x
+ ∙
+      a
+-}
++   }
+<<< colon lambda body with blank line, insert and remove
+lineEndings = unix # the expected report is not line-ending agnostic
+rewrite.scala3.optionalBraces.enabled = true
+rewrite.scala3.optionalBraces.insert.blankGaps.min = 1
+rewrite.scala3.optionalBraces.remove.blankGaps.max = 0
+===
+list.map: x =>
+  val a = x
+
+  a
+>>>
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,7 +1,7 @@
+ list.map { x =>
+   {
+     val a = x
+ ∙
+     a
++  }
+ }
+-}
+<<< braced lambda arg with blank line, remove and fewer braces
+rewrite.scala3.optionalBraces.enabled = true
+rewrite.scala3.optionalBraces.remove.blankGaps.max = 1000
+rewrite.scala3.optionalBraces.fewerBraces.span.max = 1000
+===
+list.map { x =>
+  val a = x
+
+  a
+}
+>>>
+list.map: x =>
+   val a = x
+
+   a
+<<< braced case body with blank line, remove
+rewrite.scala3.optionalBraces.enabled = true
+rewrite.scala3.optionalBraces.remove.blankGaps.max = 1000
+===
+foo match
+  case x => {
+    bar
+
+    baz
+  }
+>>>
+foo match
+   case x =>
+     bar
+
+     baz
+<<< unbraced case body with blank line, insert
+rewrite.scala3.optionalBraces.enabled = true
+rewrite.scala3.optionalBraces.insert.blankGaps.min = 1
+===
+foo match
+  case x =>
+    bar
+
+    baz
+>>>
+foo match {
+  case x =>
+    bar
+
+    baz
+}
