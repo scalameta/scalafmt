@@ -46,22 +46,19 @@ class StyleMapTest extends SharedFunSuiteBase {
     val newFormatOps = new FormatOps(code, printlnConfig)
 
     val newHeadConfig = newFormatOps.styleMap.at(headToken)
+    assertEquals(headConfig.alignMap("=").patterns.last.regex.get, defaultEquals)
     assertEquals(
-      headConfig.alignMap("=").last.owner.get.pattern(),
-      defaultEquals,
-    )
-    assertEquals(
-      newHeadConfig.alignMap("=").last.owner.get.pattern(),
+      newHeadConfig.alignMap("=").patterns.last.regex.get,
       overrideEquals,
     )
 
     val newPrintlnConfig = newFormatOps.styleMap.at(printlnToken)
     assertEquals(
-      printlnConfig.alignMap("=").last.owner.get.pattern(),
+      printlnConfig.alignMap("=").patterns.last.regex.get,
       overrideEquals,
     )
     assertEquals(
-      newPrintlnConfig.alignMap("=").last.owner.get.pattern(),
+      newPrintlnConfig.alignMap("=").patterns.last.regex.get,
       overrideEquals,
     )
   }

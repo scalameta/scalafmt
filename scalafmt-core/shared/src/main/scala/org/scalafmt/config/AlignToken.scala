@@ -11,17 +11,14 @@ import metaconfig._
   *   array of owner specs.
   */
 
-case class AlignToken(code: String, owners: Seq[TreePattern] = Seq.empty) {
-  def getMatcher: Seq[TreePattern.Matcher] = owners.distinct.map(_.getMatcher)
-}
+case class AlignToken(code: String, owners: TreePatterns = TreePatterns.empty)
 
 object AlignToken {
 
   def apply(code: String, owner: String): AlignToken = {
-    val owners = Option(owner) match {
-      case None => Seq.empty
-      case x => Seq(TreePattern(x))
-    }
+    val owners =
+      if (null eq owner) TreePatterns.empty
+      else TreePatterns(Seq(TreePattern(Some(owner))))
     AlignToken(code, owners)
   }
 

@@ -2114,12 +2114,10 @@ object FormatWriter {
     val code = if (slc) "//" else ft.meta.right.text
     // Corner case when line ends with comment
     def getOwner = if (slc) ft.leftOwner else getNonSlcAlignOwner(ft)
-    def matches(matchers: Seq[TreePattern.Matcher], owner: Tree): Boolean =
-      matchers.exists(_.matches(owner))
     floc.style.alignMap.get(code) match {
-      case Some(x) if x.isEmpty || matches(x, getOwner) => AlignKind.RT
+      case Some(x) if x.isEmpty || x.matches(getOwner) => AlignKind.RT
       // owner-anchored (empty-code) tokens ignore the token text; never on comments
-      case None if !slc && matches(floc.style.alignByOwner, getOwner) =>
+      case None if !slc && floc.style.alignByOwner.matches(getOwner) =>
         AlignKind.LT
       case _ => AlignKind.No
     }
