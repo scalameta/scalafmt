@@ -142,4 +142,17 @@ class ScalafmtConfigTest extends SharedFunSuiteBase {
     }
   }
 
+  Seq(
+    """align.tokens = [{code = "=", owners = [{}]}]""",
+    "rewrite.insertBraces.overrideFor = [{owner = [{}]}]",
+  ).foreach(conf =>
+    test(s"tree pattern must not be empty: $conf")(
+      ScalafmtConfig.fromHoconString(conf) match {
+        case Configured.Ok(_) => fail("expected an error")
+        case Configured.NotOk(err) =>
+          assert(clue(err.msg).contains("tree pattern must set regex or parents"))
+      },
+    ),
+  )
+
 }
