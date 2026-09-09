@@ -1269,9 +1269,10 @@ for {
 Default: **[caseArrow]**
 
 An align token contains a `code` (the string literal of an operator of token) and a list of
-`owners`; each owner entry in turn contains an optional `regex` (the kind of the closest tree
-node that owns that token), and a list of `parents` (to match the tree containing the owner of
-the token).
+`owners`; each owner entry in turn contains at least one of:
+
+- `regex` (the kind of the closest tree node that owns that token), and
+- a list of `parents` (to match the tree containing the owner of the token).
 
 The `code` may be empty, in which case the `owners` are required, and each must
 specify non-optional `regex` and a non-empty list of `parents`.

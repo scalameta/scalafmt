@@ -15,6 +15,7 @@ case class TreePattern(
     regex: Option[String] = None,
     parents: Seq[String] = Seq.empty,
 ) {
+  def isEmpty: Boolean = regex.isEmpty && parents.isEmpty
   def hasBoth: Boolean = regex.isDefined && parents.nonEmpty
   def getMatcher: TreePattern.Matcher = new TreePattern.Matcher(this)
 }
@@ -23,7 +24,12 @@ object TreePattern {
   val default = TreePattern()
   implicit val surface: generic.Surface[TreePattern] = generic
     .deriveSurface[TreePattern]
-  implicit val codec: ConfCodecEx[TreePattern] = generic.deriveCodecEx(default)
+  implicit val encoder: ConfEncoder[TreePattern] = generic.deriveEncoder
+  implicit val decoder: ConfDecoderEx[TreePattern] = generic
+    .deriveDecoderEx(default).flatMap(x =>
+      if (x.isEmpty) Configured.error("tree pattern must set regex or parents")
+      else Configured.Ok(x),
+    )
 
   private def pattern(value: String): jurPattern = value.r.pattern
 
