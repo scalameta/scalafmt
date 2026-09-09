@@ -4822,6 +4822,11 @@ The section contains the following settings (available since v3.8.1):
     - an [interval](#rewritescala3-interval-checks) parameter,
       applied to the number of blank-line gaps within the region
     - `remove.maxBlankGaps` was used earlier for `remove.blankGaps.max`
+  - (since v3.11.6) `insert.includeOwners`, `insert.excludeOwners`
+    - list of owners to match on (see [`align.tokens`](#aligntokens)), if non-empty
+    - an owner refers to a tree which owns the region, such as `Term.If`,
+      `Term.Match`, `Defn.Def`, or `Case`
+    - this logic doesn't apply to regions which don't qualify as optional-braces
   - if `preferInsert = false`, these intervals will be modified, if necessary,
     to exclude those in `remove` section
 - (since v3.10.8) `remove`: will remove braces if at least
@@ -4837,6 +4842,8 @@ The section contains the following settings (available since v3.8.1):
     - an [interval](#rewritescala3-interval-checks) parameter,
       applied to the number of blank-line gaps between the braces
     - before v3.11.2, `remove.maxBlankGaps` was used instead of `remove.blankGaps.max`
+  - (since v3.11.6) `remove.includeOwners`, `remove.excludeOwners`
+    - see `insert.includeOwners` and `insert.excludeOwners` above
   - if `preferInsert = true`, these values will be decreased, if necessary,
     to be less than those in `insert` section
 - (since v3.8.1) `fewerBraces`

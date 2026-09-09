@@ -145,6 +145,7 @@ class ScalafmtConfigTest extends SharedFunSuiteBase {
   Seq(
     """align.tokens = [{code = "=", owners = [{}]}]""",
     "rewrite.insertBraces.overrideFor = [{owner = [{}]}]",
+    "rewrite.scala3.optionalBraces.insert.excludeOwners = [{}]",
   ).foreach(conf =>
     test(s"tree pattern must not be empty: $conf")(
       ScalafmtConfig.fromHoconString(conf) match {
