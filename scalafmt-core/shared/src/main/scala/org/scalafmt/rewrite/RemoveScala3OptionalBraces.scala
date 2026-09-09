@@ -82,6 +82,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
           removeToken
         case _ => null
       }
+    case _: T.Colon if settings.isInsertEnabled => insertOnToken(isColon = true)
     case _ if !settings.isRemoveEnabled => null
     case _: T.LeftParen
         if !ftoks.nextNonCommentAfter(ft).right.is[T.RightParen] =>
@@ -89,7 +90,6 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
         case t: Term.ArgClause => onLeftForArgClause(t)
         case _ => null
       }
-    case _: T.Colon if settings.isInsertEnabled => insertOnToken(isColon = true)
     case _ => null
   }
 

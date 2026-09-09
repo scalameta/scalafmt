@@ -10700,12 +10700,13 @@ list.map: x =>
 
   a
 >>>
-list.map: x =>
-   {
-     val a = x
+list.map { x =>
+  {
+    val a = x
 
-     a
-   }
+    a
+  }
+}
 <<< colon lambda body with blank line, insert and remove
 rewrite.scala3.optionalBraces.enabled = true
 rewrite.scala3.optionalBraces.insert.blankGaps.min = 1
