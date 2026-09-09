@@ -427,7 +427,10 @@ class FormatOps(
     function.parent match {
       case Some(SingleArgInBraces.OrBlock(_, delims)) => delims._2 ->
           ExpiresOn.Before
-      case _ => getLastExceptParen(function) -> ExpiresOn.After
+      case _ =>
+        val end = getLastExceptParen(function)
+        val ok = end.right.is[T.RightBrace] && (end.rightOwner eq function.body)
+        (if (ok) tokens.next(end) else end) -> ExpiresOn.After
     }
 
   def mustForceConfigStyle(ft: FT)(implicit
