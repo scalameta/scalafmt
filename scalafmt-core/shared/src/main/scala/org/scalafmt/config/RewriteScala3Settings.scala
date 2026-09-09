@@ -110,6 +110,14 @@ object RewriteScala3Settings {
   ) {
     def enabled: Boolean = span.enabled || blankGaps.enabled
 
+    def matchesOwner(owner: => meta.Tree): Boolean =
+      includeOwners.isEmpty && excludeOwners.isEmpty || {
+        val tree = owner
+        (tree eq null) ||
+        (includeOwners.isEmpty || includeOwners.matches(tree)) &&
+        !excludeOwners.matches(tree)
+      }
+
     def exclude(that: BracesFilters): BracesFilters = {
       val span = this.span.exclude(that.span)
       val blankGaps = this.blankGaps.exclude(that.blankGaps)

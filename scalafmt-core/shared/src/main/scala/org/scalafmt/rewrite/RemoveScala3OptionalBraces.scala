@@ -121,6 +121,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       if (skip) null
       else if (block.parent.is[Case]) if (isColon) removeToken else null
       else if (isColonArgFunction(ob.owner)) null
+      else if (!settings.insertFilters.forall(_.matchesOwner(ownerOf(ob)))) null
       else {
         val rb = ftoks.getLast(block)
         if (rb eq null) null
@@ -137,6 +138,9 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
         }
       }
     }
+
+  private def ownerOf(ob: OptionalBraces): Tree = ob.owner ??
+    ob.block.parentOrNull
 
   private def isColonArgFunction(owner: Tree): Boolean = owner match {
     case t: Term.FunctionLike => ftoks.tokenBefore(t).left.is[T.Colon]
@@ -172,8 +176,10 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
           (x.span, _.satisfied(session.getSpan(left))),
           (x.blankGaps, _.satisfied(session.getBlankGaps(left))),
         ).flatMap { case (bw, f) => if (bw.enabled) Some(f(bw)) else None }
-        if (!cfg.preferInsert) checks.contains(true)
-        else checks.hasNext && !checks.contains(false)
+        x.matchesOwner(getOptionalBraces(left.ft).nnMap(y => ownerOf(y._1))) && {
+          if (!cfg.preferInsert) checks.contains(true)
+          else checks.hasNext && !checks.contains(false)
+        }
       }
     } ||
       (nextFt.meta.rightOwner match {
