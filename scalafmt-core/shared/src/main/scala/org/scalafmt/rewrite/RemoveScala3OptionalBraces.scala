@@ -120,6 +120,7 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
       val block = ob.block
       if (skip) null
       else if (block.parent.is[Case]) if (isColon) removeToken else null
+      else if (isColonArgFunction(ob.owner)) null
       else {
         val rb = ftoks.getLast(block)
         if (rb eq null) null
@@ -136,6 +137,11 @@ private class RemoveScala3OptionalBraces(implicit val ftoks: FormatTokens)
         }
       }
     }
+
+  private def isColonArgFunction(owner: Tree): Boolean = owner match {
+    case t: Term.FunctionLike => ftoks.tokenBefore(t).left.is[T.Colon]
+    case _ => false
+  }
 
   override def onRight(left: Replacement, hasFormatOff: Boolean)(implicit
       ft: FT,
