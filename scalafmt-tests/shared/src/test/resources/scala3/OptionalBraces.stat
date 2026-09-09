@@ -10397,12 +10397,11 @@ foo match
 
     baz
 >>>
-foo match {
-  case x =>
-    bar
+foo match
+   case x =>
+     bar
 
-    baz
-}
+     baz
 <<< insert with includeOwners naming an if
 rewrite.scala3.optionalBraces.enabled = true
 rewrite.scala3.optionalBraces.insert.blankGaps.min = 1
@@ -10414,12 +10413,11 @@ foo match
 
     baz
 >>>
-foo match {
-  case x =>
-    bar
+foo match
+   case x =>
+     bar
 
-    baz
-}
+     baz
 <<< insert with includeOwners naming the match
 rewrite.scala3.optionalBraces.enabled = true
 rewrite.scala3.optionalBraces.insert.blankGaps.min = 1
@@ -10450,10 +10448,11 @@ foo match
   }
 >>>
 foo match
-   case x =>
+   case x => {
      bar
 
      baz
+   }
 <<< braced lambda arg with includeOwners naming an apply
 rewrite.scala3.optionalBraces.enabled = true
 rewrite.scala3.optionalBraces.remove.blankGaps.max = 1000
