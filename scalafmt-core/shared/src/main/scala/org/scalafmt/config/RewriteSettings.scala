@@ -101,13 +101,12 @@ object RewriteSettings {
       )
 
     case class Settings(
-        owner: Seq[TreePattern] = Nil,
+        owner: TreePatterns = TreePatterns.empty,
         minBreaks: Int = 0, // one less than the number of lines, as usual
         nonBlocksMinBreaks: Int = -1, // if negative, defaults to minBreaks
         countBreakBefore: Boolean = false,
     ) {
-      private lazy val matcher = owner.map(_.getMatcher)
-      def matches(tree: meta.Tree): Boolean = matcher.exists(_.matches(tree))
+      def matches(tree: meta.Tree): Boolean = owner.matches(tree)
 
       def getNonBlocksMinBreaks: Int =
         if (nonBlocksMinBreaks < 0) minBreaks else nonBlocksMinBreaks

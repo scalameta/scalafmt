@@ -130,18 +130,18 @@ case class ScalafmtConfig(
   import ScalafmtConfig._
 
   private[scalafmt] lazy val (
-    alignMap: Map[String, Seq[TreePattern.Matcher]],
-    alignByOwner: Seq[TreePattern.Matcher],
+    alignMap: Map[String, TreePatterns],
+    alignByOwner: TreePatterns,
   ) = {
-    val map = Map.newBuilder[String, Seq[TreePattern.Matcher]]
-    val seq = Seq.newBuilder[TreePattern.Matcher]
+    val map = Map.newBuilder[String, TreePatterns]
+    val seq = Seq.newBuilder[TreePattern]
     val owners = new mutable.HashSet[TreePattern]
     align.tokens.foreach(x =>
-      if (x.code.isEmpty) x.owners
-        .foreach(o => if (o.hasBoth && owners.add(o)) seq += o.getMatcher)
-      else map += x.code -> x.getMatcher,
+      if (x.code.isEmpty) x.owners.patterns
+        .foreach(o => if (o.hasBoth && owners.add(o)) seq += o)
+      else map += x.code -> x.owners,
     )
-    (map.result(), seq.result())
+    (map.result(), TreePatterns(seq.result()))
   }
 
   def withDialect(nd: NamedDialect): ScalafmtConfig =
