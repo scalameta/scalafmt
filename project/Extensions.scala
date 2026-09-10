@@ -31,22 +31,6 @@ object Extensions {
     alias("jvm", _.jvm) ++ alias("js", _.js) ++ alias("native", _.native)
   }
 
-  // a cell names every tree it reads, and one that does not exist is harmless
-  private def roots(base: File, dirs: String*): Seq[Setting[?]] = {
-    def under(conf: String, leaf: String => Seq[String]) = Def.setting {
-      // a matrix base may be relative, and a relative source root resolves against the wrong one
-      val root = IO.resolve((ThisBuild / baseDirectory).value, base)
-      for (dir <- dirs.toList; name <- leaf(scalaBinaryVersion.value)) yield root / dir / "src" / conf / name
-    }
-    def sources(sbv: String) = Seq("scala", "java", s"scala-$sbv", s"scala-${sbv.head}").distinct
-    Def.settings(
-      Compile / unmanagedSourceDirectories ++= under("main", sources).value,
-      Test / unmanagedSourceDirectories ++= under("test", sources).value,
-      Compile / unmanagedResourceDirectories ++= under("main", _ => Seq("resources")).value,
-      Test / unmanagedResourceDirectories ++= under("test", _ => Seq("resources")).value,
-    )
-  }
-
   /* `bspEnabled := false` leaves a row out of the BSP workspace, so an IDE does not import it.
    * IntelliJ can't load multiple versions, though, so force 2.13 if `ide.scala` is absent. */
   private val ideScala = {
@@ -124,8 +108,7 @@ object Extensions {
     def apply(name: String, axes: VirtualAxis*): ProjectMatrix = {
       val axesToUse = if (axes.isEmpty) bareAxes else axes
       // off `in`'s result, not `self`: until then the base is still the val name
-      val named = self.in(file(name)).defaultAxes(axesToUse *)
-      named.settings(roots(named.base, "shared"))
+      self.in(file(name)).defaultAxes(axesToUse *)
     }
 
     // one row at a time, so each one knows the version it is built for
@@ -164,16 +147,14 @@ object Extensions {
 
     def communityTest: ProjectMatrix = self.settings(communityTestsSettings).crossJvmNative(scalaNativeConfig)
 
-    private def platformRoots(platform: VirtualAxis.PlatformAxis, version: String, ss: Seq[Def.SettingsDefinition])(
-        platforms: String*,
-    ) = roots(self.base, platform.value +: platforms *) ++ ideSkip(platform, version) ++ ss.flatMap(_.settings)
+    private def platformRoots(platform: VirtualAxis.PlatformAxis, version: String, ss: Seq[Def.SettingsDefinition]) =
+      ideSkip(platform, version) ++ ss.flatMap(_.settings)
 
     private def jvmRoots(version: String, ss: Seq[Def.SettingsDefinition] = Nil) =
-      platformRoots(VirtualAxis.jvm, version, ss)("jvm-native", "js-jvm")
-    private def jsRoots(version: String, ss: Seq[Def.SettingsDefinition]) =
-      platformRoots(VirtualAxis.js, version, ss)("js-jvm", "js-native")
+      platformRoots(VirtualAxis.jvm, version, ss)
+    private def jsRoots(version: String, ss: Seq[Def.SettingsDefinition]) = platformRoots(VirtualAxis.js, version, ss)
     private def nativeRoots(version: String, ss: Seq[Def.SettingsDefinition]) =
-      platformRoots(VirtualAxis.native, version, ss)("jvm-native", "js-native")
+      platformRoots(VirtualAxis.native, version, ss)
   }
 
 }
