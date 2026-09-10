@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.10.1">
 <title data-rh="true">Configuration | Scalafmt</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:image" content="https://scalameta.org/scalafmt/img/scalameta-logo.png"><meta data-rh="true" name="twitter:image" content="https://scalameta.org/scalafmt/img/scalameta-logo.png"><meta data-rh="true" property="og:url" content="https://scalameta.org/scalafmt/docs/configuration"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Configuration | Scalafmt"><meta data-rh="true" name="description" content="If you have very specific preferences for configuring your formatting,"><meta data-rh="true" property="og:description" content="If you have very specific preferences for configuring your formatting,"><link data-rh="true" rel="icon" href="/scalafmt/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://scalameta.org/scalafmt/docs/configuration"><link data-rh="true" rel="alternate" href="https://scalameta.org/scalafmt/docs/configuration" hreflang="en"><link data-rh="true" rel="alternate" href="https://scalameta.org/scalafmt/docs/configuration" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Configuration","item":"https://scalameta.org/scalafmt/docs/configuration"}]}</script><link rel="stylesheet" href="/scalafmt/assets/css/styles.bd29fe0d.css">
-<script src="/scalafmt/assets/js/runtime~main.66fbfe36.js" defer="defer"></script>
+<script src="/scalafmt/assets/js/runtime~main.95be2197.js" defer="defer"></script>
 <script src="/scalafmt/assets/js/main.cac6dced.js" defer="defer"></script>
 </head>
 <body>
@@ -3933,6 +3933,14 @@ applied to the number of blank-line gaps within the region</li>
 <li class=""><code>remove.maxBlankGaps</code> was used earlier for <code>remove.blankGaps.max</code></li>
 </ul>
 </li>
+<li class="">(since v3.11.6) <code>insert.includeOwners</code>, <code>insert.excludeOwners</code>
+<ul>
+<li class="">list of owners to match on (see <a href="#aligntokens" class=""><code>align.tokens</code></a>), if non-empty</li>
+<li class="">an owner refers to a tree which owns the region, such as <code>Term.If</code>,
+<code>Term.Match</code>, <code>Defn.Def</code>, or <code>Case</code></li>
+<li class="">this logic doesn&#x27;t apply to regions which don&#x27;t qualify as optional-braces</li>
+</ul>
+</li>
 <li class="">if <code>preferInsert = false</code>, these intervals will be modified, if necessary,
 to exclude those in <code>remove</code> section</li>
 </ul>
@@ -3955,6 +3963,11 @@ applied to the cumulative span of all visible tokens between the braces</li>
 <li class="">an <a href="#rewritescala3-interval-checks" class="">interval</a> parameter,
 applied to the number of blank-line gaps between the braces</li>
 <li class="">before v3.11.2, <code>remove.maxBlankGaps</code> was used instead of <code>remove.blankGaps.max</code></li>
+</ul>
+</li>
+<li class="">(since v3.11.6) <code>remove.includeOwners</code>, <code>remove.excludeOwners</code>
+<ul>
+<li class="">see <code>insert.includeOwners</code> and <code>insert.excludeOwners</code> above</li>
 </ul>
 </li>
 <li class="">if <code>preferInsert = true</code>, these values will be decreased, if necessary,
