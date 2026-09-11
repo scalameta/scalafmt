@@ -1,0 +1,22 @@
+changelog:
+  categories:
+    - title: Features
+      labels:
+        - enhancement
+        - feature request
+        - performance
+    - title: Bug fixes
+      labels:
+        - bug
+        - bug in dependency
+        - regression
+    - title: Build and dependency updates
+      labels:
+        - build
+        - dependencies
+        - github_actions
+        - library-update
+        - sbt-plugin-update
+    - title: Miscellaneous
+      labels:
+        - '*'
