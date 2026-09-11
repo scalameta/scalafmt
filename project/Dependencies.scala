@@ -11,7 +11,7 @@ object Dependencies {
   val scalaVersions = scala2Versions :+ scala3
 
   val metaconfigV = "0.18.8"
-  val scalametaV = "4.17.3"
+  val scalametaV = "4.17.4"
   val coursier = "2.1.24"
   val munitV = "1.3.6"
   val mdocV = mdoc.BuildInfo.version
