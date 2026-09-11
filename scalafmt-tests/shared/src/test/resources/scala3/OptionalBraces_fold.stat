@@ -10305,7 +10305,8 @@ object a:
 >>>
 object a:
    extension (l: List[Int])
-      def f: Int = l.sum
+      def f: Int =
+        l.sum
 <<< #5418 extension group body broken, beforeBody = unfoldMultiline
 newlines.beforeBody = unfoldMultiline
 ===
