@@ -809,11 +809,10 @@ object OptionalBraces {
 
   private def shouldBreakInOptionalBraces(ft: FT, nft: FT)(implicit
       style: ScalafmtConfig,
-  ): Boolean = style.newlines.source match {
-    case Newlines.unfold => true
-    case Newlines.fold => false
-    case Newlines.keep => ft.hasBreak
-    case _ => (ft ne nft) && ft.hasBreak
+  ): Boolean = {
+    val beforeBody = style.newlines.getBeforeBody
+    if (beforeBody.ignoreSourceSplit) beforeBody eq Newlines.unfold
+    else ((beforeBody eq Newlines.keep) || (ft ne nft)) && ft.hasBreak
   }
 
   private def isTreeUsingOptionalBraces(tree: Tree)(implicit
