@@ -10493,8 +10493,10 @@ object a:
 >>>
 object a:
    def f(l: List[Int]): List[Int] =
-     if l.sizeIs < 10 then l.filter(_ % 2 == 0)
-     else l.filter(_ % 2 == 1)
+     if l.sizeIs < 10 then
+        l.filter(_ % 2 == 0)
+     else
+        l.filter(_ % 2 == 1)
 <<< #5418 if-then-else, single-expr bodies broken, beforeBody = fold
 newlines.beforeBody = fold
 ===
@@ -10521,8 +10523,10 @@ object a:
 >>>
 object a:
    def f(l: List[Int]): List[Int] =
-     if l.sizeIs < 10 then l.filter(_ % 2 == 0)
-     else l.filter(_ % 2 == 1)
+     if l.sizeIs < 10 then
+        l.filter(_ % 2 == 0)
+     else
+        l.filter(_ % 2 == 1)
 <<< #5418 if-then-else, single-expr bodies broken, beforeBody = unfoldMultiline
 newlines.beforeBody = unfoldMultiline
 ===
@@ -10574,7 +10578,10 @@ object a:
 >>>
 object a:
    def f(l: List[Int]): List[Int] =
-     if l.sizeIs < 10 then l.filter(_ % 2 == 0) else l.filter(_ % 2 == 1)
+     if l.sizeIs < 10 then
+        l.filter(_ % 2 == 0)
+     else
+        l.filter(_ % 2 == 1)
 <<< #5418 if-then-else, single-expr bodies unbroken, beforeBody = unfoldMultiline
 newlines.beforeBody = unfoldMultiline
 ===
@@ -10604,7 +10611,8 @@ object a:
 >>>
 object a:
    def f(l: List[Int]): Unit =
-     while l.sizeIs < 10 do l.foreach(println)
+     while l.sizeIs < 10 do
+        l.foreach(println)
 <<< #5418 while-do, single-expr body broken, beforeBody = fold
 newlines.beforeBody = fold
 ===
@@ -10625,7 +10633,8 @@ object a:
 >>>
 object a:
    def f(l: List[Int]): Unit =
-     while l.sizeIs < 10 do l.foreach(println)
+     while l.sizeIs < 10 do
+        l.foreach(println)
 <<< #5418 while-do, single-expr body broken, beforeBody = unfoldMultiline
 newlines.beforeBody = unfoldMultiline
 ===
@@ -10666,9 +10675,12 @@ object a:
 >>>
 object a:
    def f(l: List[Int]): Unit =
-     try l.foreach(println)
-     catch case _: Throwable => ()
-     finally l.foreach(println)
+     try
+        l.foreach(println)
+     catch
+        case _: Throwable => ()
+     finally
+        l.foreach(println)
 <<< #5418 try-catch-finally, single-expr bodies broken, beforeBody = fold
 newlines.beforeBody = fold
 ===
@@ -10700,11 +10712,13 @@ object a:
 >>>
 object a:
    def f(l: List[Int]): Unit =
-     try l.foreach(println)
+     try
+        l.foreach(println)
      catch
         case _: Throwable =>
           ()
-     finally l.foreach(println)
+     finally
+        l.foreach(println)
 <<< #5418 try-catch-finally, single-expr bodies broken, beforeBody = unfoldMultiline
 newlines.beforeBody = unfoldMultiline
 ===
@@ -10737,7 +10751,8 @@ object a:
     def f: Int = l.sum
 >>>
 object a:
-   extension (l: List[Int]) def f: Int = l.sum
+   extension (l: List[Int])
+      def f: Int = l.sum
 <<< #5418 extension group body broken, beforeBody = fold
 newlines.beforeBody = fold
 ===
@@ -10755,7 +10770,8 @@ object a:
     def f: Int = l.sum
 >>>
 object a:
-   extension (l: List[Int]) def f: Int = l.sum
+   extension (l: List[Int])
+      def f: Int = l.sum
 <<< #5418 extension group body broken, beforeBody = unfoldMultiline
 newlines.beforeBody = unfoldMultiline
 ===
@@ -10796,9 +10812,12 @@ object a:
 >>>
 object a:
    def f(l: List[Int]): Int =
-     if l.isEmpty then 0
-     else if l.sizeIs < 3 then 1
-     else 2
+     if l.isEmpty then
+        0
+     else if l.sizeIs < 3 then
+        1
+     else
+        2
 <<< #5418 else-if chain broken, beforeBody = fold
 newlines.beforeBody = fold
 ===
@@ -10832,9 +10851,12 @@ object a:
 >>>
 object a:
    def f(l: List[Int]): Int =
-     if l.isEmpty then 0
-     else if l.sizeIs < 3 then 1
-     else 2
+     if l.isEmpty then
+        0
+     else if l.sizeIs < 3 then
+        1
+     else
+        2
 <<< #5418 else-if chain broken, beforeBody = unfoldMultiline
 newlines.beforeBody = unfoldMultiline
 ===
@@ -10880,7 +10902,8 @@ object a:
    def f(l: List[Int]): List[Int] =
      if l.sizeIs < 10 then
         l.filter(_ % 2 == 0).map(_ * 2).map(_ + 1).map(_ - 3).map(_ * 5)
-     else l.filter(_ % 2 == 1)
+     else
+        l.filter(_ % 2 == 1)
 <<< #5418 if-then-else, then body too long, beforeBody = fold
 newlines.beforeBody = fold
 ===
@@ -10910,7 +10933,8 @@ object a:
    def f(l: List[Int]): List[Int] =
      if l.sizeIs < 10 then
         l.filter(_ % 2 == 0).map(_ * 2).map(_ + 1).map(_ - 3).map(_ * 5)
-     else l.filter(_ % 2 == 1)
+     else
+        l.filter(_ % 2 == 1)
 <<< #5418 if-then-else, then body too long, beforeBody = unfoldMultiline
 newlines.beforeBody = unfoldMultiline
 ===
