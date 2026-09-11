@@ -387,8 +387,10 @@ class DynamicSuite extends FunSuite {
           wrappedLiteral.replaceAll("  +", " ").trim + "\n",
           path,
         )
-        if (!isSbt && scalaVersion >= "213" && version > "2.0")
-          assertIsWrappedLiteralSuccess()
+        // since scalameta v4.17.4 (in v3.11.6), literal types parse in every dialect
+        val okWrappedLiteral = ver.major >= 2 &&
+          (ver.cmp(3, 11, 5) > 0 || !isSbt && scalaVersion >= "213")
+        if (okWrappedLiteral) assertIsWrappedLiteralSuccess()
         else assertIsWrappedLiteralFailure()
       }
     }
