@@ -1223,7 +1223,7 @@ class FormatOps(
       def getFolded(isKeep: Boolean) =
         foldedNonComment(body, nlSplitFunc, isKeep = isKeep, spaceIndents)
       def getFoldedKeepNLOnly = getFolded(true).filter(_.isNL)
-      style.newlines.getBeforeMultiline match {
+      style.newlines.getBeforeBody match {
         case Newlines.fold => getFolded(false)
         case Newlines.unfold =>
           unfoldedNonComment(body, nlSplitFunc, spaceIndents, slbOnly = false)
@@ -1283,11 +1283,11 @@ class FormatOps(
 
   // Redundant () delims around case statements
   def getClosingIfCaseBodyEnclosedAsBlock(postArrowFt: FT, caseStat: CaseTree)(
-      implicit beforeMultiline: Newlines.SourceHints,
+      implicit beforeBody: Newlines.IgnoreSourceSplit,
   ): FT = {
     val body = caseStat.body
     val ok = body.eq(postArrowFt.meta.rightOwner) &&
-      (beforeMultiline.ignoreSourceSplit || postArrowFt.noBreak)
+      (beforeBody.ignoreSourceSplit || postArrowFt.noBreak)
     if (ok) getClosingIfBodyEnclosedAsBlock(body) else null
   }
 

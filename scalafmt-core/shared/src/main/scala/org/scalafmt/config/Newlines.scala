@@ -197,10 +197,10 @@ case class Newlines(
       ForceBeforeMultilineAssign.never,
     private val forceBeforeMultilineAssign: Option[ForceBeforeMultilineAssign] =
       None,
-    private[config] val beforeMultiline: Option[SourceHints] = None,
+    private[config] val beforeBody: Option[IgnoreSourceSplit] = None,
     @DeprecatedName(
       "beforeMultilineDef",
-      "Use newlines.beforeMultiline, newlines.forceBeforeMultilineAssign instead",
+      "Use newlines.beforeBody, newlines.forceBeforeMultilineAssign instead",
       "3.0.0",
     )
     beforeMultilineDef: Option[SourceHints] = None,
@@ -276,7 +276,7 @@ case class Newlines(
   def getBeforeParenLambdaParams = beforeParenLambdaParams
     .getOrElse(beforeCurlyLambdaParams)
 
-  lazy val getBeforeMultiline = beforeMultiline.getOrElse(source)
+  lazy val getBeforeBody = beforeBody.getOrElse(source)
   lazy val shouldForceBeforeMultilineAssign = forceBeforeMultilineAssign
     .getOrElse {
       val useDef = beforeMultilineDef.contains(Newlines.unfold)
@@ -363,12 +363,23 @@ object Newlines {
         "afterInfixMaxCountPerExprForSome",
         "infix.termSite.maxCountPerExprForSome",
       ),
+      // deprecated since v3.11.6
+      SectionRename("beforeMultiline", "beforeBody"),
     )
 
   sealed abstract class IgnoreSourceSplit {
     val ignoreSourceSplit: Boolean
     @inline
     final def in(hints: IgnoreSourceSplit*): Boolean = hints.contains(this)
+  }
+
+  object IgnoreSourceSplit {
+    implicit val codec: ConfCodecEx[IgnoreSourceSplit] = ConfCodecEx
+      .oneOfCustom[IgnoreSourceSplit](keep, fold, unfold) {
+        case Conf.Bool(ok) => if (ok) Conf.nameOf(unfold) else Conf.nameOf(fold)
+        case Conf.Str(x) if x.equalsIgnoreCase("unfoldMultiline") =>
+          Conf.nameOf(unfold)
+      }
   }
 
   sealed abstract class SourceHints(val ignoreSourceSplit: Boolean)
