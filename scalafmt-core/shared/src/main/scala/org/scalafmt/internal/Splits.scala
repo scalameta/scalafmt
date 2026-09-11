@@ -705,7 +705,7 @@ object SplitsAfterEqualsLeftArrow {
       val spaceIndents =
         if (noSpace) Seq.empty else Seq(Indent(StateColumn, endFt, After))
       SplitsAfterEquals.getSplitsDefValEquals(body, endFt, spaceIndents) {
-        CtrlBodySplits.get(body, spaceIndents) {
+        CtrlBodySplits.get(body, spaceIndents, beforeBody = false) {
           if (spaceIndents.nonEmpty) Split(Space, 0).withIndents(spaceIndents)
           else {
             val noSlb = body match {

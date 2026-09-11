@@ -14542,8 +14542,10 @@ object a {
 }
 >>>
 object a {
-  val v = 1 + 2
-  def d = 1 + 2
+  val v =
+    1 + 2
+  def d =
+    1 + 2
 }
 <<< #5418 body which fits, assignment, beforeBody = unfoldMultiline
 newlines.beforeBody = unfoldMultiline
@@ -14625,7 +14627,8 @@ object a {
 >>>
 object a {
   def f =
-    try g
+    try
+      g
     catch {
       case _: E =>
         h

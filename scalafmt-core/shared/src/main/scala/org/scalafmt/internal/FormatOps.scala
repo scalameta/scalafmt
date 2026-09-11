@@ -1158,15 +1158,17 @@ class FormatOps(
         body: Tree,
         nlSplitFunc: Int => Split,
         spaceIndents: Seq[Indent],
-        slbOnly: Boolean,
+        slbOnly: Boolean = true,
+        beforeBody: Boolean = false,
     )(implicit style: ScalafmtConfig, ft: FT): Seq[Split] =
       if (tokens.isEmpty(body)) Seq(Split(Space, 0).withIndents(spaceIndents))
       else {
         val nextFt = nextNonCommentSameLineAfter(ft)
         val last = getLastNonTrivial(body)
         if (getClosingIfWithinParens(last)(nextFt) eq null) {
+          val useNL = beforeBody || !style.newlines.sourceIgnored && ft.hasBreak
           val spaceSplit =
-            if (!style.newlines.sourceIgnored && ft.hasBreak) Split.ignored
+            if (useNL) Split.ignored
             else unfoldedSpaceNonEmptyNonComment(body, slbOnly, last)
           Seq(spaceSplit.withIndents(spaceIndents), nlSplitFunc(1).forThisLine)
         } else {
@@ -1177,7 +1179,7 @@ class FormatOps(
             ),
           )
           Seq(
-            Split(Space, 0, policy),
+            if (beforeBody) Split.ignored else Split(Space, 0, policy),
             nlSplitFunc(1).forThisLine
               .withSingleLineNoOptimal(last, extend = true),
           )
@@ -1212,11 +1214,13 @@ class FormatOps(
         nlSplitFunc: Int => Split,
     )(implicit style: ScalafmtConfig, ft: FT): Seq[Split] = checkComment(
       nlSplitFunc,
-    )(_ => unfoldedNonComment(body, nlSplitFunc, spaceIndents, slbOnly = true))
+    )(_ => unfoldedNonComment(body, nlSplitFunc, spaceIndents))
 
-    def get(body: Tree, spaceIndents: Seq[Indent] = Seq.empty)(
-        classicNoBreakFunc: => Split,
-    )(nlSplitFunc: Int => Split)(implicit
+    def get(
+        body: Tree,
+        spaceIndents: Seq[Indent] = Seq.empty,
+        beforeBody: Boolean = true,
+    )(classicNoBreakFunc: => Split)(nlSplitFunc: Int => Split)(implicit
         style: ScalafmtConfig,
         ft: FT,
     ): Seq[Split] = checkComment(nlSplitFunc) { x =>
@@ -1225,8 +1229,13 @@ class FormatOps(
       def getFoldedKeepNLOnly = getFolded(true).filter(_.isNL)
       style.newlines.getBeforeBody match {
         case Newlines.fold => getFolded(false)
-        case Newlines.unfold | Newlines.unfoldMultiline =>
-          unfoldedNonComment(body, nlSplitFunc, spaceIndents, slbOnly = false)
+        case Newlines.unfold | Newlines.unfoldMultiline => unfoldedNonComment(
+            body,
+            nlSplitFunc,
+            spaceIndents,
+            slbOnly = false,
+            beforeBody && style.newlines.beforeBodyUnfold,
+          )
         case Newlines.classic if x.noBreak =>
           val func = classicNoBreakFunc
           if (func eq null) getFolded(true)
