@@ -2236,23 +2236,32 @@ package core {
 }
 ```
 
-### `newlines.beforeMultiline`
+### `newlines.beforeBody`
 
-> Since v2.7.0
+> Since v3.11.6
 
-This parameter controls whether to force a new line before a multi-line body of
-`case/if/def/val` and how to format it if the space is allowed. (For
-additional control with assignment expressions, please also see
+This parameter controls whether to force a new line before the body of
+`case/if/else/while/for/try/catch/finally/def/val` and how to format it if the
+space is allowed. It reaches a body which uses significant indentation instead
+of braces, after `then`, `else`, `do`, `catch`, `finally` or an `extension`
+clause. (For additional control with assignment expressions, please also see
 [`newlines.forceBeforeMultilineAssign`](#newlinesforcebeforemultilineassign) below.)
 
 It accepts the same values as [`newlines.source`](#newlinessource) (and defaults
-to that parameter's setting).
+to that parameter's setting). It also accepts `unfoldMultiline`, which breaks
+only before a body which cannot fit on a single line.
 
-NB: for breaks before parameters of a multi-line lambda, use `multiline` with
-[`newlines.beforeCurlyLambdaParams`](#newlinesbeforecurlylambdaparams).
+Exceptions:
+
+- for assignment body and `for` enumerators,
+  [`newlines.forceBeforeAssign`](#newlinesforcebeforeassign) and
+  [`newlines.forceBeforeMultilineAssign`](#newlinesforcebeforemultilineassign)
+  take precedence
+- for breaks before parameters of a multi-line lambda, use `multiline` with
+  [`newlines.beforeCurlyLambdaParams`](#newlinesbeforecurlylambdaparams).
 
 ```scala mdoc:scalafmt
-newlines.beforeMultiline = unfold
+newlines.beforeBody = unfold
 ---
 // had no break after "="
 val aaa = bbbbbbbbbb + cccccccc +
@@ -2269,7 +2278,7 @@ a match {
 ```
 
 ```scala mdoc:scalafmt
-newlines.beforeMultiline = fold
+newlines.beforeBody = fold
 ---
 // had no break after "="
 val aaa = bbbbbbbbbb + cccccccc +
@@ -2286,7 +2295,7 @@ a match {
 ```
 
 ```scala mdoc:scalafmt
-newlines.beforeMultiline = keep
+newlines.beforeBody = keep
 ---
 // had no break after "="
 val aaa = bbbbbbbbbb + cccccccc +
@@ -2303,7 +2312,7 @@ a match {
 ```
 
 ```scala mdoc:scalafmt
-# newlines.beforeMultiline = classic
+# newlines.beforeBody = classic
 ---
 // had no break after "="
 val aaa = bbbbbbbbbb + cccccccc +
@@ -2326,7 +2335,7 @@ a match {
 This section controls whether to force a break before a multi-line body of an
 assignment expression unless it can be formatted on a single line (or is enclosed
 in braces). By default, the rule is disabled. It takes precedence
-over `newlines.beforeMultiline` settings.
+over `newlines.beforeBody` settings.
 
 It can take the following values:
 

@@ -14323,3 +14323,250 @@ object a {
     (aaaaaaaaaaaaaaaa ++
       bbbbbbbbbbbbbbbb) ++ cc
 }
+<<< #5418 body which fits, braced control
+object a {
+  def f = if (c) 1 else 2
+  def g = while (c) f
+}
+>>>
+object a {
+  def f = if (c) 1 else 2
+  def g = while (c) f
+}
+<<< #5418 body which fits, braced control, beforeBody = unfold
+newlines.beforeBody = unfold
+===
+object a {
+  def f = if (c) 1 else 2
+  def g = while (c) f
+}
+>>>
+object a {
+  def f =
+    if (c)
+      1
+    else
+      2
+  def g =
+    while (c)
+      f
+}
+<<< #5418 body which fits, braced control, beforeBody = unfoldMultiline
+newlines.beforeBody = unfoldMultiline
+===
+object a {
+  def f = if (c) 1 else 2
+  def g = while (c) f
+}
+>>>
+object a {
+  def f =
+    if (c)
+      1
+    else
+      2
+  def g =
+    while (c)
+      f
+}
+<<< #5418 body which fits, assignment
+object a {
+  val v = 1 + 2
+  def d = 1 + 2
+}
+>>>
+object a {
+  val v = 1 + 2
+  def d = 1 + 2
+}
+<<< #5418 body which fits, assignment, beforeBody = unfold
+newlines.beforeBody = unfold
+===
+object a {
+  val v = 1 + 2
+  def d = 1 + 2
+}
+>>>
+object a {
+  val v = 1 + 2
+  def d = 1 + 2
+}
+<<< #5418 body which fits, assignment, beforeBody = unfoldMultiline
+newlines.beforeBody = unfoldMultiline
+===
+object a {
+  val v = 1 + 2
+  def d = 1 + 2
+}
+>>>
+object a {
+  val v = 1 + 2
+  def d = 1 + 2
+}
+<<< #5418 body which fits, case
+object a {
+  def f(x: Int) = x match {
+    case 1 => 1
+    case _ => 2
+  }
+}
+>>>
+object a {
+  def f(x: Int) = x match {
+    case 1 => 1
+    case _ => 2
+  }
+}
+<<< #5418 body which fits, case, beforeBody = unfold
+newlines.beforeBody = unfold
+===
+object a {
+  def f(x: Int) = x match {
+    case 1 => 1
+    case _ => 2
+  }
+}
+>>>
+object a {
+  def f(x: Int) =
+    x match {
+      case 1 => 1
+      case _ => 2
+    }
+}
+<<< #5418 body which fits, case, beforeBody = unfoldMultiline
+newlines.beforeBody = unfoldMultiline
+===
+object a {
+  def f(x: Int) = x match {
+    case 1 => 1
+    case _ => 2
+  }
+}
+>>>
+object a {
+  def f(x: Int) =
+    x match {
+      case 1 => 1
+      case _ => 2
+    }
+}
+<<< #5418 body which fits, try-catch
+object a {
+  def f = try g catch { case _: E => h }
+}
+>>>
+object a {
+  def f = try g
+  catch { case _: E => h }
+}
+<<< #5418 body which fits, try-catch, beforeBody = unfold
+newlines.beforeBody = unfold
+===
+object a {
+  def f = try g catch { case _: E => h }
+}
+>>>
+object a {
+  def f =
+    try g
+    catch { case _: E => h }
+}
+<<< #5418 body which fits, try-catch, beforeBody = unfoldMultiline
+newlines.beforeBody = unfoldMultiline
+===
+object a {
+  def f = try g catch { case _: E => h }
+}
+>>>
+object a {
+  def f =
+    try g
+    catch { case _: E => h }
+}
+<<< #5418 body which fits, enumerator generator
+object a {
+  def f = for {
+    x <- l
+    y <- m
+  } yield x + y
+}
+>>>
+object a {
+  def f = for {
+    x <- l
+    y <- m
+  } yield x + y
+}
+<<< #5418 body which fits, enumerator generator, beforeBody = unfold
+newlines.beforeBody = unfold
+===
+object a {
+  def f = for {
+    x <- l
+    y <- m
+  } yield x + y
+}
+>>>
+object a {
+  def f =
+    for {
+      x <- l
+      y <- m
+    } yield x + y
+}
+<<< #5418 body which fits, enumerator generator, beforeBody = unfoldMultiline
+newlines.beforeBody = unfoldMultiline
+===
+object a {
+  def f = for {
+    x <- l
+    y <- m
+  } yield x + y
+}
+>>>
+object a {
+  def f =
+    for {
+      x <- l
+      y <- m
+    } yield x + y
+}
+<<< #5418 assignment body which fits, forceBeforeMultilineAssign = any
+newlines.forceBeforeMultilineAssign = any
+===
+object a {
+  val v = 1 + 2
+  def d = 1 + 2
+}
+>>>
+object a {
+  val v = 1 + 2
+  def d = 1 + 2
+}
+<<< #5418 assignment body which fits, forceBeforeMultilineAssign = any, beforeBody = unfold
+newlines.forceBeforeMultilineAssign = any
+newlines.beforeBody = unfold
+===
+object a {
+  val v = 1 + 2
+  def d = 1 + 2
+}
+>>>
+object a {
+  val v = 1 + 2
+  def d = 1 + 2
+}
+<<< #5418 assignment body which fits, forceBeforeMultilineAssign = any, beforeBody = unfoldMultiline
+newlines.forceBeforeMultilineAssign = any
+newlines.beforeBody = unfoldMultiline
+===
+object a {
+  val v = 1 + 2
+  def d = 1 + 2
+}
+>>>
+object a {
+  val v = 1 + 2
+  def d = 1 + 2
+}

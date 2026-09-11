@@ -621,7 +621,7 @@ object SplitsAfterEquals extends Splits {
   private def getSplitsValEquals(body: Tree, endFt: => FT)(
       classicSplits: => Seq[Split],
   )(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig): Seq[Split] =
-    if (cfg.newlines.getBeforeMultiline eq Newlines.classic) classicSplits
+    if (cfg.newlines.getBeforeBody eq Newlines.classic) classicSplits
     else fo.CtrlBodySplits
       .getWithIndent(body, endFt)(null)(Splits.lowRankNL(ft, _))
 
@@ -983,7 +983,7 @@ object SplitsAfterRightArrow extends Splits {
     CtrlBodySplits.checkComment(nlSplit(ft)) { nft =>
       def withSlbSplit(implicit l: FileLine) =
         Seq(baseSplit.withSingleLine(getLastNonTrivial(body)), nlSplit(nft)(1))
-      implicit val beforeMultiline = cfg.newlines.getBeforeMultiline
+      implicit val bbody = cfg.newlines.getBeforeBody
       def getNLOnlySplit(cost: Int)(implicit l: FileLine) =
         Seq(nlSplit(nft)(cost))
       def getFolded(isKeep: Boolean)(implicit l: FileLine) = CtrlBodySplits
@@ -993,21 +993,19 @@ object SplitsAfterRightArrow extends Splits {
         (getClosingIfCaseBodyEnclosedAsBlock(nft, owner) ne null)
       ) Seq(baseSplit)
       else if (nft.right.is[T.KwCase]) getNLOnlySplit(0)
-      else if (hasBreak && !beforeMultiline.ignoreSourceSplit)
-        if ((beforeMultiline eq Newlines.keep) && !bodyIsEmpty)
-          getFolded(isKeep = true).filter(_.isNL)
-        else getNLOnlySplit(1)
+      else if (hasBreak && !bbody.ignoreSourceSplit)
+        if ((bbody ne Newlines.keep) || bodyIsEmpty) getNLOnlySplit(1)
+        else getFolded(isKeep = true).filter(_.isNL)
       else if (bodyIsEmpty)
-        if (right.isAny[T.RightBrace, T.Semicolon])
-          Seq(baseSplit, nlSplit(nft)(1))
-        else getNLOnlySplit(1)
-      else if (beforeMultiline eq Newlines.unfold)
+        if (!right.isAny[T.RightBrace, T.Semicolon]) getNLOnlySplit(1)
+        else Seq(baseSplit, nlSplit(nft)(1))
+      else if (bbody eq Newlines.unfold)
         if (cfg.newlines.unfold) getNLOnlySplit(0) else withSlbSplit
       else if (
-        condIsDefined || beforeMultiline.eq(Newlines.classic) ||
+        bbody.eq(Newlines.classic) || condIsDefined ||
         (getSingleStatExceptEndMarker(body) eq null)
       ) withSlbSplit
-      else getFolded(beforeMultiline eq Newlines.keep)
+      else getFolded(bbody eq Newlines.keep)
     }
   }
 }
@@ -1205,7 +1203,7 @@ object SplitsAfterRightParen extends Splits {
       val expire = getLast(body)
       def nlSplitFunc(cost: Int)(implicit fl: FileLine) = Splits
         .lowRankNL(ft, cost).withIndent(cfg.indent.main, expire, After)
-      if (cfg.newlines.getBeforeMultiline eq Newlines.unfold) CtrlBodySplits
+      if (cfg.newlines.getBeforeBody eq Newlines.unfold) CtrlBodySplits
         .checkComment(nlSplitFunc)(nft =>
           if (nft.right.is[T.LeftBrace]) {
             val nextFt = nextNonCommentSameLineAfter(nft)
@@ -3301,8 +3299,7 @@ object SplitsAfterElse extends Splits {
           val expire = tokens.getLast(t.elsep)
           def nlSplitFunc(cost: Int) = Splits.lowRankNL(ft, cost)
             .withIndent(cfg.indent.main, expire, After)
-          if (cfg.newlines.getBeforeMultiline eq Newlines.unfold)
-            Seq(nlSplitFunc(0))
+          if (cfg.newlines.getBeforeBody eq Newlines.unfold) Seq(nlSplitFunc(0))
           else CtrlBodySplits.get(t.elsep)(
             Split(Space, 0).withSingleLineNoOptimal(expire),
           )(nlSplitFunc)
@@ -3391,11 +3388,10 @@ object SplitsAfterCase extends Splits {
       else {
         // postArrowFt points to non-comment after arrowFt
         // possibly on next line without intervening comments
-        implicit val beforeMultiline = cfg.newlines.getBeforeMultiline
+        implicit val beforeBody = cfg.newlines.getBeforeBody
         val rparen = getClosingIfCaseBodyEnclosedAsBlock(postArrow, owner)
         if (rparen eq null)
-          Policy ? beforeMultiline.in(Newlines.fold, Newlines.keep) ||
-          defaultPolicy
+          Policy ? beforeBody.in(Newlines.fold, Newlines.keep) || defaultPolicy
         else {
           val lparen = next(postArrow)
           val postParen = nextNonCommentSameLine(lparen)
