@@ -1,0 +1,12 @@
+# 6af51d781: ScalafmtReflect/ScalafmtModuleLoader classloader-ownership rework
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalafmt.dynamic.ScalafmtModuleLoader#WithDownloader.close")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalafmt.dynamic.ScalafmtReflect.apply")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalafmt.dynamic.ScalafmtReflect.classLoader")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalafmt.dynamic.ScalafmtReflect.close")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalafmt.dynamic.ScalafmtReflect.copy")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.scalafmt.dynamic.ScalafmtReflect.this")
+ProblemFilters.exclude[IncompatibleResultTypeProblem]("org.scalafmt.dynamic.ScalafmtDynamic.moduleLoader")
+ProblemFilters.exclude[MissingTypesProblem]("org.scalafmt.dynamic.ScalafmtModuleLoader")
+ProblemFilters.exclude[MissingTypesProblem]("org.scalafmt.dynamic.ScalafmtModuleLoader$WithDownloader")
+ProblemFilters.exclude[MissingTypesProblem]("org.scalafmt.dynamic.ScalafmtReflect")
+ProblemFilters.exclude[MissingTypesProblem]("org.scalafmt.dynamic.ScalafmtReflect$")

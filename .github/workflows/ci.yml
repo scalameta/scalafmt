@@ -125,6 +125,8 @@ jobs:
       - *gitcfg
       - *testjvm33
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: sbt mima-3
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
         run: sbt communityTestsIntellij/testFull
 
   w3-other-jvm213-asm:     # community Other (~7.1) + test-jvm 2.13 (~3.3) + assembly (~0.6)
@@ -136,6 +138,8 @@ jobs:
       - *gitcfg
       - *testjvm213
       - *assembly213
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: sbt mima-2_13
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
         run: sbt communityTestsOther/testFull
 
@@ -162,6 +166,8 @@ jobs:
       - *sbt
       - *gitcfg
       - *testjvm212
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: sbt mima-2_12
       # docs is Scala 2.12 (mdoc + yarn build); reuses the 2.12 core compiled
       # just above. linkHygiene=true also fails the run on dead doc links.
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
