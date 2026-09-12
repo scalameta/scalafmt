@@ -61,6 +61,29 @@ addCommandAlias(
 )
 testAliases(scalaVersions, tests, cli)
 
+def mimaPublished = Command.single("mimaPublished") { (state, version) =>
+  val extracted = Project.extract(state)
+  val rows = extracted.structure.allProjectRefs.filter(ref =>
+    extracted.getOpt(ref / mimaPreviousArtifacts).exists(_.nonEmpty) &&
+      extracted.getOpt(ref / scalaVersion).contains(version),
+  )
+  if (rows.isEmpty) {
+    state.log.error(s"no mima baselines for $version")
+    state.fail
+  } else {
+    state.log.info(s"mima checks ${rows.map(_.project).mkString(", ")}")
+    // `all` runs every row, so one row's failure does not mask another's
+    rows.map(ref => s"${ref.project}/mimaReportBinaryIssues")
+      .mkString("all ", " ", "") :: state
+  }
+}
+commands += mimaPublished
+
+// one alias per version, so a CI worker checks only the rows it compiled
+def mimaAlias(v: String) = s"mima-${VirtualAxis.scalaABIVersion(v).idSuffix}"
+scalaVersions.flatMap(v => addCommandAlias(mimaAlias(v), s"mimaPublished $v"))
+addCommandAlias("mima", tasks(scalaVersions.map(mimaAlias)))
+
 lazy val dynamicCore = projectMatrix("scalafmt-dynamic-core").settings(
   moduleName := "scalafmt-dynamic-core",
   description := "Implementation of scalafmt-interfaces",
@@ -77,7 +100,7 @@ lazy val dynamicCore = projectMatrix("scalafmt-dynamic-core").settings(
       val oldStrategy = (assembly / assemblyMergeStrategy).value
       oldStrategy(x)
   },
-).crossJvm().dependsOn(interfaces, sysops).dependsOn(core % "test")
+).crossJvm(Mima.settings).dependsOn(interfaces, sysops).dependsOn(core % "test")
   .enablePlugins(BuildInfoPlugin)
 
 lazy val dynamic = projectMatrix("scalafmt-dynamic").settings(
@@ -91,7 +114,7 @@ lazy val dynamic = projectMatrix("scalafmt-dynamic").settings(
   },
   sharedTestSettings,
   scalacSettings,
-).crossJvm().dependsOn(dynamicCore).dependsOn(core % "test")
+).crossJvm(Mima.settings).dependsOn(dynamicCore).dependsOn(core % "test")
 
 def interfacesSettings = Def.settings(
   moduleName := "scalafmt-interfaces",
@@ -108,8 +131,8 @@ def interfacesSettings = Def.settings(
 )
 
 lazy val interfaces = projectMatrix("scalafmt-interfaces")
-  .settings(interfacesSettings).crossJvmJava(interfacesJvmSettings)
-  .crossJsNative
+  .settings(interfacesSettings)
+  .crossJvmJava(interfacesJvmSettings, Mima.settings).crossJsNative
 
 // The JVM sources are Java, so this row carries no Scala version.
 def interfacesJvmSettings = Def.settings(
@@ -127,7 +150,7 @@ def sysopsSettings = Def.settings(
 )
 
 lazy val sysops = projectMatrix("scalafmt-sysops").settings(sysopsSettings)
-  .crossJvm().crossNative().crossJs(sysopsJsSettings)
+  .crossJvm(Mima.settings).crossNative().crossJs(sysopsJsSettings)
 
 def sysopsJsSettings = Def.settings(
   libraryDependencies +=
@@ -167,9 +190,10 @@ def coreSettings = Def.settings(
 def coreNativeSettings = libraryDependencies +=
   "com.lihaoyi" %% "fastparse" % "3.1.1"
 
-lazy val core = projectMatrix("scalafmt-core").settings(coreSettings).crossJvm()
-  .crossJs().crossNative(coreNativeSettings).aggregate(sysops, config, macros)
-  .dependsOn(sysops, config, macros).enablePlugins(BuildInfoPlugin)
+lazy val core = projectMatrix("scalafmt-core").settings(coreSettings)
+  .crossJvm(Mima.coreSettings).crossJs().crossNative(coreNativeSettings)
+  .aggregate(sysops, config, macros).dependsOn(sysops, config, macros)
+  .enablePlugins(BuildInfoPlugin)
 lazy val coreJVM = core.jvm(scala213)
 
 def macrosSettings = Def.settings(

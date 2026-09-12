@@ -10,7 +10,7 @@ addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.12.1")
 addSbtPlugin("com.github.sbt" % "sbt-matrix-sources" % "0.1.0")
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.11.7")
 
-addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.6")
+addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.2.0")
 
 addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.9.2")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.2")
