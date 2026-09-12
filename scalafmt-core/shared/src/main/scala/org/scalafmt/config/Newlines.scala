@@ -364,7 +364,10 @@ object Newlines {
         "infix.termSite.maxCountPerExprForSome",
       ),
       // deprecated since v3.11.6
-      SectionRename("beforeMultiline", "beforeBody"),
+      SectionRename { case Conf.Str("unfold") => Conf.Str("unfoldMultiline") }(
+        "beforeMultiline",
+        "beforeBody",
+      ),
     )
 
   sealed abstract class IgnoreSourceSplit {
@@ -375,10 +378,8 @@ object Newlines {
 
   object IgnoreSourceSplit {
     implicit val codec: ConfCodecEx[IgnoreSourceSplit] = ConfCodecEx
-      .oneOfCustom[IgnoreSourceSplit](keep, fold, unfold) {
+      .oneOfCustom[IgnoreSourceSplit](keep, fold, unfold, unfoldMultiline) {
         case Conf.Bool(ok) => if (ok) Conf.nameOf(unfold) else Conf.nameOf(fold)
-        case Conf.Str(x) if x.equalsIgnoreCase("unfoldMultiline") =>
-          Conf.nameOf(unfold)
       }
   }
 
@@ -401,6 +402,11 @@ object Newlines {
         case Conf.Bool(false) => Conf.nameOf(fold)
       }
   }
+
+  // like unfold, but only for a body which cannot fit on one line
+  sealed abstract class BeforeBody(val ignoreSourceSplit: Boolean)
+      extends IgnoreSourceSplit
+  case object unfoldMultiline extends BeforeBody(true)
 
   case class Infix(
       private val termSite: Infix.Site = Infix.Site.default,

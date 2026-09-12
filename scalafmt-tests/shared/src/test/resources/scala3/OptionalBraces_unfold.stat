@@ -11084,8 +11084,7 @@ object a:
      try
         l.foreach(println)
      catch
-        case _: Throwable =>
-          ()
+        case _: Throwable => ()
      finally
         l.foreach(println)
 <<< #5418 extension group body broken

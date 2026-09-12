@@ -14360,14 +14360,8 @@ object a {
 }
 >>>
 object a {
-  def f =
-    if (c)
-      1
-    else
-      2
-  def g =
-    while (c)
-      f
+  def f = if (c) 1 else 2
+  def g = while (c) f
 }
 <<< #5418 body which fits, assignment
 object a {
@@ -14430,8 +14424,10 @@ object a {
 object a {
   def f(x: Int) =
     x match {
-      case 1 => 1
-      case _ => 2
+      case 1 =>
+        1
+      case _ =>
+        2
     }
 }
 <<< #5418 body which fits, case, beforeBody = unfoldMultiline
@@ -14470,7 +14466,10 @@ object a {
 object a {
   def f =
     try g
-    catch { case _: E => h }
+    catch {
+      case _: E =>
+        h
+    }
 }
 <<< #5418 body which fits, try-catch, beforeBody = unfoldMultiline
 newlines.beforeBody = unfoldMultiline
