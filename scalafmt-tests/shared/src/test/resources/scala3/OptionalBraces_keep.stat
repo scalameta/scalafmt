@@ -10732,7 +10732,8 @@ object a:
      try
         l.foreach(println)
      catch
-        case _: Throwable => ()
+        case _: Throwable =>
+          ()
      finally
         l.foreach(println)
 <<< #5418 try-catch-finally, single-expr bodies broken, beforeBody = unfoldMultiline

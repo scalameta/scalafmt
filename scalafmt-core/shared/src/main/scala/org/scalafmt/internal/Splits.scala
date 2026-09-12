@@ -999,11 +999,10 @@ object SplitsAfterRightArrow extends Splits {
       else if (bodyIsEmpty)
         if (!right.isAny[T.RightBrace, T.Semicolon]) getNLOnlySplit(1)
         else Seq(baseSplit, nlSplit(nft)(1))
-      else if (bbody eq Newlines.unfold)
-        if (cfg.newlines.unfold) getNLOnlySplit(0) else withSlbSplit
+      else if (bbody eq Newlines.unfold) getNLOnlySplit(0)
       else if (
-        bbody.eq(Newlines.classic) || condIsDefined ||
-        (getSingleStatExceptEndMarker(body) eq null)
+        bbody.eq(Newlines.unfoldMultiline) || bbody.eq(Newlines.classic) ||
+        condIsDefined || (getSingleStatExceptEndMarker(body) eq null)
       ) withSlbSplit
       else getFolded(bbody eq Newlines.keep)
     }

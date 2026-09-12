@@ -5717,10 +5717,8 @@ assembly / assemblyMergeStrategy := {
 }
 >>>
 assembly / assemblyMergeStrategy := {
-  case A("B", c @ _*) =>
-    D.e
-  case _ =>
-    E.f
+  case A("B", c @ _*) => D.e
+  case _ => E.f
 }
 <<< TryWithHandler: newline after catch
 object a {
@@ -14910,13 +14908,9 @@ object a {
 >>>
 object a {
   def f =
-    if (c)
-      1
-    else
-      2
-  def g =
-    while (c)
-      f
+    if (c) 1
+    else 2
+  def g = while (c) f
 }
 <<< #5418 body which fits, assignment
 object a {
@@ -15001,10 +14995,8 @@ object a {
 object a {
   def f(x: Int) =
     x match {
-      case 1 =>
-        1
-      case _ =>
-        2
+      case 1 => 1
+      case _ => 2
     }
 }
 <<< #5418 body which fits, try-catch
@@ -15046,8 +15038,7 @@ object a {
   def f =
     try g
     catch {
-      case _: E =>
-        h
+      case _: E => h
     }
 }
 <<< #5418 body which fits, enumerator generator

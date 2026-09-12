@@ -10701,7 +10701,9 @@ object a:
 object a:
    def f(l: List[Int]): Unit =
      try l.foreach(println)
-     catch case _: Throwable => ()
+     catch
+        case _: Throwable =>
+          ()
      finally l.foreach(println)
 <<< #5418 try-catch-finally, single-expr bodies broken, beforeBody = unfoldMultiline
 newlines.beforeBody = unfoldMultiline
