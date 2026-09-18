@@ -43,9 +43,9 @@ Take a look at https://github.com/scalameta/scalafmt/blob/main/scalafmt-tests/sh
 
 ## Opening pull requests
 
-- **All code PRs should come with**: a meaningful description, inline-comments
-  for important things, unit tests (positive and negative), and a green build in
-  [CI](https://travis-ci.org/scalameta/scalafmt).
+- **All code PRs follow the
+  [contributing guide](https://github.com/scalameta/.github/blob/main/CONTRIBUTING.md)
+  of the scalameta organization**.
 - **Format your code with scalafmt**. Run `./scalafmt` from the project root
   directory.
 - **Format documentation with Prettier**. Run `yarn install && yarn format`
@@ -58,13 +58,20 @@ Take a look at https://github.com/scalameta/scalafmt/blob/main/scalafmt-tests/sh
   **If your code is hard to unit test, and you don't want to unit test it,
   that's ok**. But be prepared to argue why that's the case!
 - **It's entirely possible your changes won't be merged**, or will get ripped
-  out later. This is also the case for my changes, as the Author!
+  out later. This is also the case for maintainer changes.
 - **Even a rejected/reverted PR is valuable**! It helps explore the solution
   space, and know what works and what doesn't. For every line in the repo, at
   least three lines were tried, committed, and reverted/refactored, and more
   than 10 were tried without committing.
-- **Feel free to send Proof-Of-Concept PRs** that you don't intend to get
-  merged.
+
+## Contributing with agents
+
+Your agent reads
+[`AGENTS.md`](https://github.com/scalameta/scalafmt/blob/main/AGENTS.md) in
+this repository, which points at the organization's
+[`AGENTS.md`](https://github.com/scalameta/.github/blob/main/AGENTS.md). The
+section "Contributing with agents" of the organization's guide applies to you
+and to the agent.
 
 ## Opening issues
 
