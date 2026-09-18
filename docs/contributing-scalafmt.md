@@ -39,7 +39,7 @@ title: Contributing
 
 ## Testing
 
-Take a look at https://github.com/scalameta/scalafmt/blob/master/scalafmt-tests/shared/src/test/resources/readme.md to see how to test your changes.
+Take a look at https://github.com/scalameta/scalafmt/blob/main/scalafmt-tests/shared/src/test/resources/readme.md to see how to test your changes.
 
 ## Opening pull requests
 
