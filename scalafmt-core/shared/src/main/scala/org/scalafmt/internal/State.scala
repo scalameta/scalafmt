@@ -509,6 +509,9 @@ object State {
     }
   }
 
+  def getColumnsLeft(ft: FT, column: Int): (Int, Int) =
+    getColumns(ft.left, ft.meta.left, column)(identity)(identity)
+
   def getColumns(ft: FT, indent: Int, column: Int)(implicit
       style: ScalafmtConfig,
   ): (Int, Int) = getColumns(ft.right, ft.meta.right, column)(
