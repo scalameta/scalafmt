@@ -14814,3 +14814,118 @@ object a {
   s"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" + b
   <x>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</x> + b
 }
+<<< #5427 long interpolation with stripMargin, braces to end marker
+runner.parser = source
+runner.dialect = scala30
+rewrite.scala3.removeOptionalBraces = yes
+rewrite.scala3.endMarker.insert.breaks.min = 4
+===
+object O {
+  val helpMessage: String = HelpMessages.shortHelpMessage(cmdName, helpHeader)
+  val detailedHelpMessage: String = s"""$helpHeader
+       |
+       |The entire $fullRunnerName project's classpath is loaded to the repl.
+       |
+       |${HelpMessages.commandConfigurations(cmdName)}
+       |
+       |${HelpMessages.acceptedInputs}
+       |
+       |${HelpMessages.commandDocWebsiteReference(cmdName)}""".stripMargin
+}
+>>>
+object O:
+  val helpMessage: String =
+    HelpMessages.shortHelpMessage(
+      cmdName,
+      helpHeader
+    )
+  val detailedHelpMessage: String =
+    s"""$helpHeader
+       |
+       |The entire $fullRunnerName project's classpath is loaded to the repl.
+       |
+       |${HelpMessages
+        .commandConfigurations(cmdName)}
+       |
+       |${HelpMessages.acceptedInputs}
+       |
+       |${HelpMessages
+        .commandDocWebsiteReference(
+          cmdName
+        )}""".stripMargin
+end O
+<<< #5427 long interpolation with stripMargin, end marker follows
+runner.parser = source
+runner.dialect = scala30
+rewrite.scala3.removeOptionalBraces = yes
+rewrite.scala3.endMarker.insert.breaks.min = 4
+===
+object O:
+  val helpMessage: String = HelpMessages.shortHelpMessage(cmdName, helpHeader)
+  val detailedHelpMessage: String = s"""$helpHeader
+       |
+       |The entire $fullRunnerName project's classpath is loaded to the repl.
+       |
+       |${HelpMessages.commandConfigurations(cmdName)}
+       |
+       |${HelpMessages.acceptedInputs}
+       |
+       |${HelpMessages.commandDocWebsiteReference(cmdName)}""".stripMargin
+end O
+>>>
+object O:
+  val helpMessage: String =
+    HelpMessages.shortHelpMessage(
+      cmdName,
+      helpHeader
+    )
+  val detailedHelpMessage: String =
+    s"""$helpHeader
+       |
+       |The entire $fullRunnerName project's classpath is loaded to the repl.
+       |
+       |${HelpMessages
+        .commandConfigurations(cmdName)}
+       |
+       |${HelpMessages.acceptedInputs}
+       |
+       |${HelpMessages
+        .commandDocWebsiteReference(
+          cmdName
+        )}""".stripMargin
+end O
+<<< #5427 long literal with stripMargin, end marker follows
+runner.parser = source
+runner.dialect = scala30
+rewrite.scala3.removeOptionalBraces = yes
+rewrite.scala3.endMarker.insert.breaks.min = 4
+===
+object O:
+  val helpMessage: String = HelpMessages.shortHelpMessage(cmdName, helpHeader)
+  val detailedHelpMessage: String = """$helpHeader
+       |
+       |The entire $fullRunnerName project's classpath is loaded to the repl.
+       |
+       |${HelpMessages.commandConfigurations(cmdName)}
+       |
+       |${HelpMessages.acceptedInputs}
+       |
+       |${HelpMessages.commandDocWebsiteReference(cmdName)}""".stripMargin
+end O
+>>>
+object O:
+  val helpMessage: String =
+    HelpMessages.shortHelpMessage(
+      cmdName,
+      helpHeader
+    )
+  val detailedHelpMessage: String = """$helpHeader
+       |
+       |The entire $fullRunnerName project's classpath is loaded to the repl.
+       |
+       |${HelpMessages.commandConfigurations(cmdName)}
+       |
+       |${HelpMessages.acceptedInputs}
+       |
+       |${HelpMessages.commandDocWebsiteReference(cmdName)}""".stripMargin
+end O
