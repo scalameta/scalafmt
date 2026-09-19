@@ -16,7 +16,7 @@ class StateTest extends munit.FunSuite {
     val tokens = new FormatOps(tree, ScalafmtConfig.default).tokens
     val ft = tokens.arr.find(x => x.left.is[T.Xml.Part] && x.meta.left.hasNL)
       .get
-    val columns = State.getColumns(ft.left, ft.meta.left, 0)(identity)(identity)
+    val columns = State.getColumnsLeft(ft, 0)
     assertEquals(columns, (18, 18))
   }
 

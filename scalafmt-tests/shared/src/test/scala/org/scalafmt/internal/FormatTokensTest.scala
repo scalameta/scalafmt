@@ -37,13 +37,13 @@ class FormatTokensTest extends munit.FunSuite {
   )
 
   test("width of a multiline interpolation with stripMargin")(
-    assertEquals(widthOfRhs(interpolation), 92),
+    assertEquals(widthOfRhs(interpolation), 77),
   )
 
-  test("width of a multiline xml literal")(assertEquals(widthOfRhs(xml), 79))
+  test("width of a multiline xml literal")(assertEquals(widthOfRhs(xml), 68))
 
   test("width of a multiline pattern interpolation")(
-    assertEquals(widthOf(pattern)(_.collect { case t: Case => t.pat }.head), 80),
+    assertEquals(widthOf(pattern)(_.collect { case t: Case => t.pat }.head), 65),
   )
 
 }

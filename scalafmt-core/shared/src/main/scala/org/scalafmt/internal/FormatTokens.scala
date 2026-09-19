@@ -330,9 +330,32 @@ class FormatTokens(leftTok2tok: FormatTokens.TokenToIndexMap)(val arr: Array[FT]
   private final lazy val offsets: Array[FormatTokens.Offsets] = {
     val result = new Array[FormatTokens.Offsets](arr.length)
     var offsets = new FormatTokens.Offsets(0, 0, 0)
-    arr.foreach { t =>
-      result(t.idx) = offsets
-      offsets += t
+    var litEnd = 0 // the end of the interpolation or xml being measured
+    var idx = 0
+    while (idx < arr.length) {
+      result(idx) = offsets
+      val t = arr(idx)
+      offsets =
+        if (idx < litEnd) offsets.plus(t, 0) // width already accounted
+        else {
+          val isInterp = t.left.isAny[T.Interpolation.Start, T.Xml.Start]
+          val end = if (isInterp) matchingLeftOrNull(t) else null
+          if (end eq null) offsets + t
+          else {
+            // find the widest line within interpolation
+            var maxWidth = 0
+            var column = 0
+            litEnd = idx
+            while (litEnd <= end.idx) {
+              val (head, last) = State.getColumnsLeft(arr(litEnd), column)
+              if (head > maxWidth) maxWidth = head
+              column = last
+              litEnd += 1
+            }
+            offsets.plus(t, maxWidth)
+          }
+        }
+      idx += 1
     }
     result
   }
@@ -513,9 +536,13 @@ object FormatTokens {
 
   class Offsets(val nonWs: Int, val width: Int, val nonWsNonPunct: Int) {
     def +(ft: FT): Offsets = {
+      val (head, last) = State.getColumnsLeft(ft, 0)
+      plus(ft, head.max(last))
+    }
+
+    // `width` is the token's own, or a whole interpolation's or xml's
+    def plus(ft: FT, width: Int): Offsets = {
       val tok = ft.left
-      val (head, last) = State
-        .getColumns(tok, ft.meta.left, 0)(identity)(identity)
       def tokLenUnless(flag: Boolean) = if (flag) 0 else tok.len
       val owner = ft.leftOwner
       val nonPunct = tok match {
@@ -540,7 +567,7 @@ object FormatTokens {
       }
       new Offsets(
         this.nonWs + tok.len,
-        this.width + head.max(last),
+        this.width + width,
         this.nonWsNonPunct + nonPunct,
       )
     }
