@@ -5711,6 +5711,8 @@ import a.b.{c, d}
 
 > Since v3.0.0.
 
+Also applies to the braces of an XML splice.
+
 ```scala mdoc:defaults
 spaces.inInterpolatedStringCurlyBraces
 ```
@@ -5721,6 +5723,7 @@ spaces.inInterpolatedStringCurlyBraces = true
 s"Hello ${the} world!"
 s"Hello ${ th.e} world!"
 s"Hello ${the() } world!"
+<p>Hello {the} world!</p>
 ```
 
 ```scala mdoc:scalafmt
@@ -5729,6 +5732,7 @@ spaces.inInterpolatedStringCurlyBraces = false
 s"Hello ${ oneHundred }% world!"
 s"Hello ${ th.e} world!"
 s"Hello ${the() } world!"
+<p>Hello { the } world!</p>
 ```
 
 ### `spaces.inParentheses`

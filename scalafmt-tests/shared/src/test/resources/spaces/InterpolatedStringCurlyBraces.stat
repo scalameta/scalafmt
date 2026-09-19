@@ -63,6 +63,6 @@ object a {
 object a {
   s"${ x }"
   s"${ x }"
-  <a>{x}</a>
-  <a>{x}</a>
+  <a>{ x }</a>
+  <a>{ x }</a>
 }

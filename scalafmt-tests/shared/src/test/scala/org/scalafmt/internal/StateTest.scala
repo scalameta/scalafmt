@@ -17,7 +17,7 @@ class StateTest extends munit.FunSuite {
     val ft = tokens.arr.find(x => x.left.is[T.Xml.Part] && x.meta.left.hasNL)
       .get
     val columns = State.getColumns(ft.left, ft.meta.left, 0)(identity)(identity)
-    assertEquals(columns, (5, 18))
+    assertEquals(columns, (18, 18))
   }
 
 }

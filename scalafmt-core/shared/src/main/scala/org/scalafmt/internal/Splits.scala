@@ -826,7 +826,7 @@ object SplitsBeforeRightBrace extends Splits {
     if (left.is[T.LeftBrace]) Seq(Split(NoSplit, 0))
     else if (existsParentOfType[ImportExportStat](rightOwner))
       Seq(Split(Space(cfg.spaces.inImportCurlyBraces), 0))
-    else if (next(ft).right.is[T.Interpolation.SpliceEnd])
+    else if (next(ft).right.isAny[T.Interpolation.SpliceEnd, T.Xml.SpliceEnd])
       Seq(Split(Space(cfg.spaces.inInterpolatedStringCurlyBraces), 0))
     else if (rightOwner.is[Type.Bounds]) { // context bounds
       val tb = rightOwner.asInstanceOf[Type.Bounds]
