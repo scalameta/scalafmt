@@ -13867,3 +13867,88 @@ object a {
   val v = 1 + 2
   def d = 1 + 2
 }
+<<< multiline string and xml on a val, !ignoreInSyntax
+newlines.ignoreInSyntax = false
+===
+object O {
+  val s = """a
+    b"""
+  val x = <div>
+    <p/>
+  </div>
+}
+>>>
+object O {
+  val s =
+    """a
+    b"""
+  val x = <div>
+    <p/>
+  </div>
+}
+<<< multiline string and spliced xml on a val, !ignoreInSyntax
+newlines.ignoreInSyntax = false
+===
+object O {
+  val s = """a
+    b"""
+  val x = <div>
+    <p>{a}</p>
+  </div>
+}
+>>>
+object O {
+  val s =
+    """a
+    b"""
+  val x = <div>
+    <p>{a}</p>
+  </div>
+}
+<<< overflow of an interpolation and an xml literal, avoidForSimpleOverflow
+newlines.avoidForSimpleOverflow = [tooLong]
+===
+object a {
+  foo(s"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ${x}", 1)
+  foo(<x>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa {x}</x>, 1)
+  s"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ${x}" + bar
+  <x>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa {x}</x> + bar
+}
+>>>
+object a {
+  foo(
+    s"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ${x}",
+    1
+  )
+  foo(
+    <x>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa {
+      x
+    }</x>,
+    1
+  )
+  s"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ${x}" +
+    bar
+  <x>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa {
+    x
+  }</x> + bar
+}
+<<< overlong interpolation and xml literal alone, avoidForSimpleOverflow
+newlines.avoidForSimpleOverflow = [tooLong]
+===
+object a {
+  foo(s"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+  foo(<x>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</x>)
+  s"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" + b
+  <x>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</x> + b
+}
+>>>
+object a {
+  foo(s"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+  foo(
+    <x>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</x>
+  )
+  s"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+    b
+  <x>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</x> +
+    b
+}

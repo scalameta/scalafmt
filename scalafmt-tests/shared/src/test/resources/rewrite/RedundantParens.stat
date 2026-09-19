@@ -2412,3 +2412,19 @@ foo match {
   case foo @ (_: Foo | _: Bar) if baz =>
   case foo @ (_: Foo) | _: Bar if baz =>
 }
+<<< parens around an interpolation and an xml literal
+rewrite.rules = [RedundantParens]
+===
+object a {
+  val a = (s"x")
+  val b = (<x/>)
+  val c = (s"x") + y
+  val d = (<x/>) + y
+}
+>>>
+object a {
+  val a = s"x"
+  val b = <x/>
+  val c = s"x" + y
+  val d = <x/> + y
+}
