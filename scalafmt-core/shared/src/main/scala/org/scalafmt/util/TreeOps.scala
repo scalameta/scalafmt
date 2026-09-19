@@ -1060,12 +1060,14 @@ object TreeOps {
     case _ => false
   }
 
-  def braceSpace(owner: Tree): Modification = Space {
-    def isXml(t: Tree) = t.isAny[Term.Xml, Pat.Xml]
-    owner match {
-      case t: Term.Block => !t.parent.exists(isXml)
-      case t => !isXml(t) && !isCapturingBrace(t)
+  def braceSpace(owner: Tree)(implicit cfg: ScalafmtConfig): Modification = {
+    def isXmlNoSpace(t: Tree) = t.isAny[Term.Xml, Pat.Xml] &&
+      !cfg.spaces.inInterpolatedStringCurlyBraces
+    val noSpace = owner match {
+      case t: Term.Block => t.parent.exists(isXmlNoSpace)
+      case t => isXmlNoSpace(t) || isCapturingBrace(t)
     }
+    Space(!noSpace)
   }
 
   def isEmptyTree(tree: Tree): Boolean = tree match {

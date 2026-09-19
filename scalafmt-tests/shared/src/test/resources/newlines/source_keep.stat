@@ -14587,7 +14587,8 @@ object O {
   val s =
     """a
     b"""
-  val x = <div>
+  val x =
+    <div>
     <p/>
   </div>
 }
@@ -14606,7 +14607,8 @@ object O {
   val s =
     """a
     b"""
-  val x = <div>
+  val x =
+    <div>
     <p>{a}</p>
   </div>
 }
@@ -14649,9 +14651,7 @@ object a {
 >>>
 object a {
   foo(s"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-  foo(
-    <x>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</x>
-  )
+  foo(<x>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</x>)
   s"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
     b
   <x>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</x> +

@@ -372,14 +372,14 @@ class FormatTokens(leftTok2tok: FormatTokens.TokenToIndexMap)(val arr: Array[FT]
           val xft = nft
           if (xft.hasBreak) xft else getNonMultilineEnd(xft, inInterp = inInterp)
         }
-      case _: T.Interpolation.Id =>
+      case _: T.Interpolation.Id | _: T.Xml.Start =>
         getNonMultilineEnd(nft, inInterp = inInterp + 1)
       case _: T.Constant.String if ft.rightHasNewline => null
       case _ if inInterp == 0 => nft
-      case _: T.Interpolation.End =>
+      case _: T.Interpolation.End | _: T.Xml.End =>
         if (inInterp == 1) nft
         else getNonMultilineEnd(nft, inInterp = inInterp - 1)
-      case _: T.Interpolation.Part if ft.rightHasNewline => null
+      case _: T.Interpolation.Part | _: T.Xml.Part if ft.rightHasNewline => null
       case _ => getNonMultilineEnd(nft, inInterp = inInterp)
     }
   }
