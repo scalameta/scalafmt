@@ -16,14 +16,14 @@ inThisBuild {
       dynverGitDescribeOutput.value.mkVersion(dynVer, curVersion)
     },
     organization := smorgN,
-    homepage := Some(url("https://github.com/scalameta/scalafmt")),
+    homepage := Some(uri("https://github.com/scalameta/scalafmt")),
     licenses :=
-      List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+      List("Apache-2.0" -> uri("http://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(Developer(
       "olafurpg",
       "Ólafur Páll Geirsson",
       "olafurpg@gmail.com",
-      url("https://geirsson.com"),
+      uri("https://geirsson.com"),
     )),
     scalaVersion := scala213,
     resolvers += Resolver.sonatypeCentralSnapshots,
@@ -361,7 +361,7 @@ def buildInfoSettings(pkg: String, obj: String): Seq[Def.Setting[?]] = Seq(
     "scala213" -> scala213,
     "scala3" -> scala3,
     "coursier" -> coursier,
-    "commit" -> sys.process.Process("git rev-parse HEAD").lineStream_!.head,
+    "commit" -> sys.process.Process("git rev-parse HEAD").lazyLines_!.head,
     "timestamp" -> System.currentTimeMillis().toString,
     scalaVersion,
     sbtVersion,
