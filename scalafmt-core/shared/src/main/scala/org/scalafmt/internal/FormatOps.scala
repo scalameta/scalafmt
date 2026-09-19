@@ -1142,8 +1142,10 @@ class FormatOps(
         last: FT,
     )(implicit style: ScalafmtConfig): Split = {
       val expire = nextNonCommentSameLine(last)
-      def slbSplit(end: FT)(implicit fileLine: FileLine) = Split(Space, 0)
-        .withSingleLine(end, noSyntaxNL = true)
+      // the single-line policy stops before the block's last token
+      def slbSplit(end: FT)(implicit fileLine: FileLine) =
+        if (!style.newlines.ignoreInSyntax && end.leftHasNewline) Split.ignored
+        else Split(Space, 0).withSingleLine(end)
       if (slbOnly) slbSplit(expire)
       else getBlockStat(body) match {
         // we force newlines in for/yield
