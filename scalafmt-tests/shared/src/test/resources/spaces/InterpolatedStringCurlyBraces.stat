@@ -50,3 +50,19 @@ spaces.inInterpolatedStringCurlyBraces = true
 import play.api.libs.json.{JsObject, JsString, Json}
 >>>
 import play.api.libs.json.{JsObject, JsString, Json}
+<<< xml splice braces beside interpolation splice braces
+spaces.inInterpolatedStringCurlyBraces = true
+===
+object a {
+  s"${x}"
+  s"${ x }"
+  <a>{x}</a>
+  <a>{ x }</a>
+}
+>>>
+object a {
+  s"${ x }"
+  s"${ x }"
+  <a>{ x }</a>
+  <a>{ x }</a>
+}

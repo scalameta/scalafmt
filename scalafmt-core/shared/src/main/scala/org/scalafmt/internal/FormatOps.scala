@@ -56,10 +56,12 @@ class FormatOps(
 
   @tailrec
   final def getSlbEndOnLeft(start: FT)(implicit style: ScalafmtConfig): FT = {
-    val nft = start.right match {
+    val nft = start.right match { // start stops, null goes to next
       case _: T.EOF => start
-      case _: T.Comma | _: T.Semicolon | _: T.Equals |
-          _: T.Interpolation.Start | _: T.Interpolation.SpliceEnd |
+      case _: T.Comma | _: T.Semicolon | _: T.Equals => null
+      case _: T.Xml.Start | _: T.Xml.Part | _: T.Xml.End => null
+      // allow splice markers, since interpolation looks like a single literal
+      case _: T.Interpolation.Start | _: T.Interpolation.SpliceEnd |
           _: T.Interpolation.End | _: T.Interpolation.SpliceStart |
           _: T.Interpolation.Part => null
       case _: T.RightArrow => // given breaks before `=>`

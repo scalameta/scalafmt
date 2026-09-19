@@ -255,7 +255,7 @@ final class State(
           else lineStartsStatement(isComment)
         val delay = startFt match {
           case null => false
-          case FT(_, _: T.Interpolation.Start, _) => tokens
+          case FT(_, _: T.Interpolation.Start | _: T.Xml.Start, _) => tokens
               .matchingRight(startFt).left ne ft.right
           case _ => true
         }
@@ -269,8 +269,9 @@ final class State(
           (style.newlines.inInterpolation eq Newlines.InInterpolation.avoid)) &&
         State.isWithinInterpolation(ft.meta.rightOwner)
       ) ft.right match {
-        case _: T.Interpolation.End => getCustomPenalty
-        case _: T.Interpolation.Id if delayedPenalty != 0 => getFullPenalty // can't delay multiple times
+        case _: T.Interpolation.End | _: T.Xml.End => getCustomPenalty
+        case _: T.Interpolation.Id | _: T.Xml.Start if delayedPenalty != 0 =>
+          getFullPenalty // can't delay multiple times
         case _ => // delay for intermediate interpolation tokens
           result(tokLength, true)
       }
@@ -499,6 +500,8 @@ object State {
           val margin: Int => Int = interpPartMargin
           val pipe = getStripMarginCharForInterpolate(meta.owner)
           getColumnsWithStripMargin(pipe, syntax, firstNL, margin, firstLength)
+        case _: T.Xml.Part =>
+          getColumnsFromMultiline(syntax, firstNL, firstLength)
         case _ =>
           val lastNewline = syntax.length - syntax.lastIndexOf('\n') - 1
           (firstLength, lastNewline)
@@ -595,7 +598,8 @@ object State {
   } && !split.modExt.indents.exists(_.hasStateColumn)
 
   @inline
-  private def isInterpolation(tree: Tree): Boolean = tree.is[Term.Interpolate]
+  private def isInterpolation(tree: Tree): Boolean = tree
+    .isAny[Term.Interpolate, Term.Xml]
 
   @inline
   private def isWithinInterpolation(tree: Tree): Boolean =
