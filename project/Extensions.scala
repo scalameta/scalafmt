@@ -99,8 +99,14 @@ object Extensions {
   def parallelCollections = libraryDependencies ++=
     { if (!isScala213.value) Nil else Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "1.2.0") }
 
-  lazy val communityTestsSettings: Seq[Def.Setting[?]] = Def
-    .settings(unpublished, scalacSettings, sharedTestSettings, javaOptions += "-Dfile.encoding=UTF8")
+  lazy val communityTestsSettings: Seq[Def.Setting[?]] = Def.settings(
+    unpublished,
+    scalacSettings,
+    sharedTestSettings,
+    javaOptions += "-Dfile.encoding=UTF8",
+    // a suite's buffered output has gone missing on CI, and the counts with it
+    Test / logBuffered := false,
+  )
 
   // `projectMatrix` reads the name of the val it is assigned to, so it arrives as the receiver
   implicit class ProjectMatrixExtensions(private val self: ProjectMatrix) extends AnyVal {
