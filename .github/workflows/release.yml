@@ -5,6 +5,7 @@ on:
     tags: ["*"]
 jobs:
   publish:
+    if: github.repository == 'scalameta/scalafmt'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -26,6 +27,7 @@ jobs:
           GIT_USER: scalameta@scalameta.org
           GIT_DEPLOY_KEY: ${{ secrets.GIT_DEPLOY_KEY }}
   publish-docusaurus:
+    if: github.repository == 'scalameta/scalafmt'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
