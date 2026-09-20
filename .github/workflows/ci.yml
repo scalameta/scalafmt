@@ -44,6 +44,10 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+      - &upstreamtags
+        name: Fetch upstream release tags
+        if: github.repository != 'scalameta/scalafmt'
+        run: git fetch --no-tags https://github.com/scalameta/scalafmt.git '+refs/tags/*:refs/tags/*'
       - &jdk
         uses: actions/setup-java@v6
         with:
@@ -85,6 +89,7 @@ jobs:
       SCALANATIVE_GC_TRAP_BASED_YIELDPOINTS: "0"   # avoid intermittent SIGSEGV (scala-native#4917)
     steps:
       - *checkout
+      - *upstreamtags
       - *jdk
       - *sbt
       - *gitcfg
@@ -106,6 +111,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - *checkout
+      - *upstreamtags
       - *jdk
       - *sbt
       - *gitcfg
@@ -120,6 +126,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - *checkout
+      - *upstreamtags
       - *jdk
       - *sbt
       - *gitcfg
@@ -133,6 +140,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - *checkout
+      - *upstreamtags
       - *jdk
       - *sbt
       - *gitcfg
@@ -147,6 +155,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - *checkout
+      - *upstreamtags
       - *jdk
       - *sbt
       - *gitcfg
@@ -162,6 +171,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - *checkout
+      - *upstreamtags
       - *jdk
       - *sbt
       - *gitcfg
@@ -184,6 +194,7 @@ jobs:
     runs-on: windows-2025
     steps:
       - *checkout
+      - *upstreamtags
       - *jdk
       - *sbt
       - run: sbt communityTests${{ matrix.group }}/testFull
