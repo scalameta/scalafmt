@@ -94,11 +94,15 @@ jobs:
       - *sbt
       - *gitcfg
       # native run is occasionally flaky (SIGSEGV, scala-native#4917); retry
-      # once so a single crash self-heals instead of red-X'ing main. shell:
-      # bash (not the Windows default pwsh) so `||` behaves on every runner.
-      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+      # once so a single crash self-heals instead of red-X'ing main.
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' && runner.os != 'Windows' }}
         shell: bash
         run: sbt test-native-${{ matrix.scala }} || sbt test-native-${{ matrix.scala }}
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' && runner.os == 'Windows' }}
+        shell: pwsh
+        run: |
+          sbt test-native-${{ matrix.scala }}
+          if ($LASTEXITCODE -ne 0) { sbt test-native-${{ matrix.scala }} }
       - &testjs
         if: ${{ !cancelled() && steps.env.outcome == 'success' && runner.os == 'Linux' }}
         run: sbt test-js-${{ matrix.scala || '2_13' }}
