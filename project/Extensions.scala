@@ -64,21 +64,21 @@ object Extensions {
   lazy val sharedTestSettings = Seq(libraryDependencies += munit.value % Test)
 
   val scalacJvmOptions = Def.setting {
-    val cross = if (!isScala213.value) Nil else Seq("-Ymacro-annotations")
+    val opts = Seq.newBuilder[String]
 
-    val warningAsError =
-      if (isScala212.value) Seq("-Xfatal-warnings", "-deprecation:false")
-      else Seq("-Wconf:any:error,cat=deprecation:silent")
+    if (isScala213.value) opts += "-Ymacro-annotations"
 
-    val unused =
-      if (isScala3.value) "-Wunused:all"
-      else if (isScala213.value) "-Wunused:imports,privates,locals,patvars,implicits,explicits,params"
-      else "-Ywarn-unused:imports,privates,locals,patvars,implicits"
+    if (isScala212.value) opts ++= Seq("-Xfatal-warnings", "-deprecation:false")
+    else opts += "-Wconf:any:error,cat=deprecation:silent"
+
+    if (isScala3.value) opts += "-Wunused:all"
+    else if (isScala213.value) opts += "-Wunused:imports,privates,locals,patvars,implicits,explicits,params"
+    else opts += "-Ywarn-unused:imports,privates,locals,patvars,implicits"
 
     // Scala 3.8 accepts no output version below 17
-    val javaver = if (isScala3.value) Seq("-java-output-version:17") else Seq("-target:8", "-release:8")
+    if (isScala3.value) opts += "-java-output-version:17" else opts ++= Seq("-target:8", "-release:8")
 
-    cross ++ warningAsError ++ javaver :+ unused
+    opts.result()
   }
 
   val scalacSettings = Def.settings(
