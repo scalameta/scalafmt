@@ -58,6 +58,8 @@ object Extensions {
   def isScala212 = isScalaVer("2.12")
   def isScala213 = isScalaVer("2.13")
   def isScala3 = isScalaVer("3")
+  def isScala3_3 = Def.setting(scalaVersion.value.startsWith("3.3."))
+  def isJvm = Def.setting(virtualAxes.value.contains(VirtualAxis.jvm))
 
   val unpublished = publish / skip := true
 
@@ -77,6 +79,9 @@ object Extensions {
 
     // Scala 3.8 accepts no output version below 17
     if (isScala3.value) opts += "-java-output-version:17" else opts ++= Seq("-target:8", "-release:8")
+
+    // only the JVM needs it, and Scala Native 0.5.12 crashes on it (scala-native#4869)
+    if (isScala3_3.value && isJvm.value) opts += "-Yfuture-lazy-vals"
 
     opts.result()
   }
