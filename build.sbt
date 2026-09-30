@@ -114,7 +114,8 @@ lazy val dynamic = projectMatrix("scalafmt-dynamic").settings(
   },
   sharedTestSettings,
   scalacSettings,
-).crossJvm(Mima.settings).dependsOn(dynamicCore).dependsOn(core % "test")
+).crossJvm(Mima.settings).dependsOn(dynamicCore).aggregate(dynamicCore)
+  .dependsOn(core % "test")
 
 def interfacesSettings = Def.settings(
   moduleName := "scalafmt-interfaces",
