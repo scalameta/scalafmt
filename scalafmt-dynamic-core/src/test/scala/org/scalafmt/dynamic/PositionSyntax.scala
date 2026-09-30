@@ -1,6 +1,7 @@
 package org.scalafmt.dynamic
 
 import scala.meta._
+import scala.meta.internal.inputs.XtensionInput
 
 object PositionSyntax {
 
