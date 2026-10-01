@@ -33,7 +33,15 @@ abstract class AbstractCliTest extends FunSuite {
 
   def run(options: CliOptions, exitCode: ExitCode = ExitCode.Ok)(implicit
       loc: munit.Location,
-  ): Future[Unit] = Cli.run(options).map(assertEquals(_, exitCode))
+  ): Future[Unit] = {
+    // show the error output on failure, unless the test reads it itself
+    val err = new ByteArrayOutputStream()
+    val common = options.common
+    val opts =
+      if (common.err ne Output.NoopStream.printStream) options
+      else options.copy(common = common.copy(err = new PrintStream(err)))
+    Cli.run(opts).map(assertEquals(_, exitCode, err.toString("UTF-8")))
+  }
 
   def getConfig(args: String*): CliOptions = Cli
     .getConfig(baseCliOptions, args: _*).get
