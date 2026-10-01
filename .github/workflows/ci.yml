@@ -81,6 +81,7 @@ jobs:
         os: [ ubuntu-24.04, macOS-15, windows-2025 ]
         scala: [ '2_12', '2_13', '3' ]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     env:
       SCALANATIVE_GC_TRAP_BASED_YIELDPOINTS: "0"   # avoid intermittent SIGSEGV (scala-native#4917)
     steps:
