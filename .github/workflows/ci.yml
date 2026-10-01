@@ -94,7 +94,9 @@ jobs:
       # bash (not the Windows default pwsh) so `||` behaves on every runner.
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
         shell: bash
-        run: sbt test-native-${{ matrix.scala }} || sbt test-native-${{ matrix.scala }}
+        env:
+          SBT_FLAGS: ${{ runner.os == 'Windows' && '--server' || '' }}   # sbtn hangs the native tests on Windows
+        run: sbt $SBT_FLAGS test-native-${{ matrix.scala }} || sbt $SBT_FLAGS test-native-${{ matrix.scala }}
       - &testjs
         if: ${{ !cancelled() && steps.env.outcome == 'success' && runner.os == 'Linux' }}
         run: sbt test-js-${{ matrix.scala || '2_13' }}
