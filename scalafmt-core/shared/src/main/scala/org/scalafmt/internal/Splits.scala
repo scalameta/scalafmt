@@ -3222,8 +3222,10 @@ object SplitsAfterDo extends Splits {
               .withIndents(indent)
             else {
               val exclude = insideBracesBlock(ft, eft, parens = true)
+              // break before `while` if a block inside the body spans lines
               Split(Space, 0)
                 .withSingleLine(getSlbEndOnLeft(eft), exclude = exclude)
+                .andPolicy(decideNewlinesOnlyBeforeCloseOnBreak(kwWhile))
             }
           val nlSplit = Split(Newline, 1, decideNewlinesOnlyBeforeToken(kwWhile))
             .withIndents(indent)
