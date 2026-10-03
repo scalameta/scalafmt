@@ -138,7 +138,8 @@ object O {
   for {
     pos <- "a->1|b->2".split('|')
     c = pos.split("->")
-  } yield ()
+  }
+  yield ()
 }
 <<< #2695 generator and multiple guards, braces but semicolons
 object O {

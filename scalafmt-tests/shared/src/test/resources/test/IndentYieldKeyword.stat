@@ -15,7 +15,8 @@ yield {
 >>>
 for {
   parent <- sym.info.parents
-} yield {
+}
+yield {
   genClassName(psym)
 }
 <<< right curly brace
@@ -34,7 +35,8 @@ for {parent <- sym.info.parents}
   genClassName(psym)
 }
 >>>
-for { parent <- sym.info.parents } yield {
+for { parent <- sym.info.parents }
+yield {
   genClassName(psym)
 }
 <<< break before `for`
