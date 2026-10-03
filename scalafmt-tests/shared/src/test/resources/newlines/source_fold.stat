@@ -14896,10 +14896,12 @@ object a {
   finally h
   do (ffffffffffffffffffff(
     xxxxxxxxxxxxxxx
-  )) while (c)
+  ))
+  while (c)
   do (ffffffffffffffffffff(
     xxxxxxxxxxxxxxx
-  )) while (c)
+  ))
+  while (c)
   do (f) while (c)
   do (f) while (c)
 }

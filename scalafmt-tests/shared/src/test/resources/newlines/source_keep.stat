@@ -15527,7 +15527,8 @@ object a {
   finally j
   do foo + {
     bar
-  } while (c)
+  }
+  while (c)
 }
 <<< keyword after a brace inside the clause, scala2, multiline, newlines.alwaysBeforeElseAfterCurlyIf = true
 newlines.alwaysBeforeElseAfterCurlyIf = true
@@ -15563,7 +15564,8 @@ object a {
   finally j
   do foo + {
     bar
-  } while (c)
+  }
+  while (c)
 }
 <<< keyword after a brace inside the clause, scala3, multiline
 runner.dialect = scala3
@@ -15678,7 +15680,8 @@ object a {
   catch { case _ => g }
   do foo(
     a
-  ) while (c)
+  )
+  while (c)
 }
 <<< keyword after a paren inside the clause, scala2, multiline, newlines.alwaysBeforeElseAfterCurlyIf = true
 newlines.alwaysBeforeElseAfterCurlyIf = true
@@ -15706,7 +15709,8 @@ object a {
   catch { case _ => g }
   do foo(
     a
-  ) while (c)
+  )
+  while (c)
 }
 <<< keyword after parens, scala2
 object a {
@@ -15798,7 +15802,8 @@ object a {
     ffffffffffffffffffff(
       xxxxxxxxxxxxxxx
     )
-  ) while (c)
+  )
+  while (c)
   do (
     ffffffffffffffffffff(
       xxxxxxxxxxxxxxx
