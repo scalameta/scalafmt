@@ -471,8 +471,16 @@ object SplitsAfterLeftBrace extends Splits {
         case null => (1, 0)
         case (shared, here) => (shared + here, shared + 1)
       }
-    val newlineBeforeClosingCurly =
-      decideNewlinesOnlyBeforeClose(Split(Newline, 0, rank = -1))(close)
+    val newlineBeforeClosingCurly = {
+      val policy =
+        decideNewlinesOnlyBeforeClose(Split(Newline, 0, rank = -1))(close)
+      // this block starts the statement, which must fit for then, do, yield
+      val nlAfterClose = cfg.newlines.keywordAfterCurlyMultiline &&
+        close.right.isAny[T.KwThen, T.KwDo, T.KwYield] &&
+        isCurlyWithNextKeyword(leftOwner, close)
+      if (nlAfterClose) policy ==> decideNewlinesOnlyAfterClose(close)
+      else policy
+    }
     val nlPolicy = lambdaNLPolicy ==> newlineBeforeClosingCurly
     val nlSplit = Split(nl, nlCost, nlPolicy)
       .withIndent(cfg.indent.main, close, Before)
@@ -3195,7 +3203,7 @@ object SplitsBeforeWhile extends Splits {
     if (!rightOwner.is[Term.Do]) Nil
     else if (hasBlankLine) Seq(Split(Newline2x, 0))
     else if (left.is[T.RightBrace] && isCurlyWithNextKeyword(ft, ft))
-      SplitsBeforeKeywordAfterCurly.get
+      SplitsBeforeKeywordAfterCurly.get(Seq(Split(Space, 0), Split(Newline, 1)))
     else {
       val noSplit = Split(!cfg.newlines.sourceIgnored && hasBreak, 0)(Space)
       val nlSplit = Split(Newline, 1)
@@ -3206,12 +3214,17 @@ object SplitsBeforeWhile extends Splits {
 
 // a keyword after a curly which closes the entire previous part
 object SplitsBeforeKeywordAfterCurly {
-  def get(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig): Seq[Split] = {
-    val noSplit =
-      if (cfg.newlines.keywordAfterCurlyMultiline) Split(Space, 0)
-        .withSingleLine(fo.tokens.getLast(ft.rightOwner))
-      else Split(cfg.newlines.keywordAfterCurlyBreaks(ft.hasBreak), 0)(Space)
-    Seq(noSplit, Split(Newline, 1))
+  // `splits` are the ones without the parameter, `noSplit` first
+  def get(
+      splits: Seq[Split],
+  )(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig): Seq[Split] = {
+    val nlSplit = Split(Newline, 1)
+    if (cfg.newlines.keywordAfterCurlyMultiline) Seq(
+      Split(Space, 0).withSingleLine(fo.tokens.getLast(ft.rightOwner)),
+      nlSplit,
+    )
+    else if (cfg.newlines.keywordAfterCurlyBreaks(ft.hasBreak)) Seq(nlSplit)
+    else splits
   }
 }
 
@@ -3276,9 +3289,11 @@ object SplitsAfterDo extends Splits {
 object SplitsBeforeThenDo {
   def get(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig): Seq[Split] = {
     import fo._, tokens._, ft._
-    val noSplit = Split(!cfg.newlines.sourceIgnored && hasBreak, 0)(Space)
+    def noSplit(nlOnly: Boolean) = Split(nlOnly, 0)(Space)
       .withOptimalToken(nextNonCommentSameLineAfter(ft), killOnFail = false)
-    Seq(noSplit, Split(Newline, 1))
+    if (left.is[T.RightBrace] && isCurlyWithNextKeyword(ft, ft))
+      SplitsBeforeKeywordAfterCurly.get(Seq(noSplit(false), Split(Newline, 1)))
+    else Seq(noSplit(!cfg.newlines.sourceIgnored && hasBreak), Split(Newline, 1))
   }
 }
 
@@ -3339,7 +3354,10 @@ object SplitsBeforeElseYield extends Splits {
   ): Seq[Split] = {
     import fo._, tokens._, ft._
     if (ft.hasBlankLine) Seq(Split(Newline2x, 0))
-    else if (left.is[T.RightBrace]) Seq(Split(Space, 0))
+    else if (left.is[T.RightBrace])
+      if (right.is[T.KwYield] && isCurlyWithNextKeyword(ft, ft))
+        SplitsBeforeKeywordAfterCurly.get(Seq(Split(Space, 0)))
+      else Seq(Split(Space, 0))
     else {
       val noSplit =
         if (cfg.newlines.okSpaceForSource(newlinesBetween)) {

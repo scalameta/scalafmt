@@ -2440,10 +2440,11 @@ same values as [`newlines.source`](#newlinessource).
 > Since v3.11.6
 
 This parameter controls whether to break between a closing curly brace and a
-keyword which continues the same statement: `else` in `if`, `catch` and
-`finally` in `try`, and `while` in `do`. It applies only to a brace which
-encloses the entire preceding part, such as the `then` branch or the `try`
-body; after any other brace, the keyword is treated as following any other
+keyword which continues the same statement: `then` and `else` in `if`,
+`catch` and `finally` in `try`, `while` in `do`, `do` in `while`, and `do`
+and `yield` in `for`. It applies only to a brace which encloses the entire
+preceding part, such as the condition, the `then` branch or the `try` body;
+after any other brace, the keyword is treated as following any other
 expression.
 
 It takes the following values:

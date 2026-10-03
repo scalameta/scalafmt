@@ -15967,7 +15967,8 @@ object a {
   while (c)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
 }
 <<< keyword after curly, scala2, broken, indent.yieldKeyword = false
 indent.yieldKeyword = false
@@ -16020,7 +16021,8 @@ object a {
   while (c)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
 }
 <<< keyword after curly, scala2, tucked
 object a {
@@ -16164,7 +16166,8 @@ object a:
   do f(x)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
   try {
     f
   }
@@ -16228,7 +16231,8 @@ object a:
   do f(x)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
   try {
     f
   }
@@ -16815,7 +16819,8 @@ object a {
   while (c)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
 }
 <<< keyword after curly, scala2, broken, newlines.keywordAfterCurly = unfoldMultiline
 newlines.keywordAfterCurly = unfoldMultiline
@@ -16868,7 +16873,8 @@ object a {
   while (c)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
 }
 <<< keyword after curly, scala2, tucked, newlines.keywordAfterCurly = keep
 newlines.keywordAfterCurly = keep
@@ -17004,7 +17010,8 @@ object a {
   while (c)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
 }
 <<< keyword after curly, scala2, tucked, newlines.keywordAfterCurly = unfoldMultiline
 newlines.keywordAfterCurly = unfoldMultiline
@@ -17052,7 +17059,8 @@ object a {
   while (c)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
 }
 <<< keyword after curly, scala3, broken, newlines.keywordAfterCurly = fold
 runner.dialect = scala3
@@ -17092,8 +17100,7 @@ object a:
 object a:
   if {
     c
-  }
-  then f
+  } then f
   else g
   if c then {
     f
@@ -17102,12 +17109,10 @@ object a:
   }
   while {
     c
-  }
-  do f
+  } do f
   for {
     x <- xs
-  }
-  do f(x)
+  } do f(x)
   for {
     x <- xs
   } yield x
@@ -17173,7 +17178,8 @@ object a:
   do f(x)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
   try {
     f
   }
@@ -17237,7 +17243,8 @@ object a:
   do f(x)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
   try {
     f
   }
@@ -17382,7 +17389,8 @@ object a:
 object a:
   if {
     c
-  } then f
+  }
+  then f
   else g
   if c then {
     f
@@ -17392,13 +17400,16 @@ object a:
   }
   while {
     c
-  } do f
+  }
+  do f
   for {
     x <- xs
-  } do f(x)
+  }
+  do f(x)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
   try {
     f
   }
@@ -17437,7 +17448,8 @@ object a:
 object a:
   if {
     c
-  } then f
+  }
+  then f
   else g
   if c then {
     f
@@ -17447,13 +17459,16 @@ object a:
   }
   while {
     c
-  } do f
+  }
+  do f
   for {
     x <- xs
-  } do f(x)
+  }
+  do f(x)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
   try {
     f
   }
@@ -17511,7 +17526,8 @@ object a {
   while (c)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
 }
 <<< keyword after curly, scala2, tucked, newlines.alwaysBeforeElseAfterCurlyIf = true
 newlines.alwaysBeforeElseAfterCurlyIf = true
@@ -17559,7 +17575,8 @@ object a {
   while (c)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
 }
 <<< keyword after curly, scala3, broken, newlines.alwaysBeforeElseAfterCurlyIf = true
 runner.dialect = scala3
@@ -17618,7 +17635,8 @@ object a:
   do f(x)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
   try {
     f
   }
@@ -17657,7 +17675,8 @@ object a:
 object a:
   if {
     c
-  } then f
+  }
+  then f
   else g
   if c then {
     f
@@ -17667,13 +17686,16 @@ object a:
   }
   while {
     c
-  } do f
+  }
+  do f
   for {
     x <- xs
-  } do f(x)
+  }
+  do f(x)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
   try {
     f
   }
@@ -17731,7 +17753,8 @@ object a {
   while (c)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
 }
 <<< keyword after curly, scala3, broken, newlines.keywordAfterCurly = keep
 runner.dialect = scala3
@@ -17790,7 +17813,8 @@ object a:
   do f(x)
   for {
     x <- xs
-  } yield x
+  }
+  yield x
   try {
     f
   }
@@ -18751,9 +18775,10 @@ object a {
 }
 >>>
 object a {
-  for { x <- xs } yield ffffffffff +
-    gggggggggg
-  for { x <- xs } yield x
+  for { x <- xs }
+  yield ffffffffff + gggggggggg
+  for { x <- xs }
+  yield x
 }
 <<< then, do, yield after curly, whole construct, scala2, newlines.keywordAfterCurly = unfoldMultiline
 newlines.keywordAfterCurly = unfoldMultiline
@@ -18764,8 +18789,8 @@ object a {
 }
 >>>
 object a {
-  for { x <- xs } yield ffffffffff +
-    gggggggggg
+  for { x <- xs }
+  yield ffffffffff + gggggggggg
   for { x <- xs } yield x
 }
 <<< then, do, yield after curly, whole construct, scala3, newlines.keywordAfterCurly = keep
@@ -18830,16 +18855,20 @@ object a:
   for { x <- xs } yield x
 >>>
 object a:
-  if { c } then
-    ffffffffffffff + gggggggggggggg
+  if { c }
+  then ffffffffffffff + gggggggggggggg
   else h
-  while { c } do
-    ffffffffffffff + gggggggggggggg
-  for { x <- xs } yield ffffffffff +
-    gggggggggg
-  if { c } then f else g
-  while { c } do f
-  for { x <- xs } yield x
+  while { c }
+  do ffffffffffffff + gggggggggggggg
+  for { x <- xs }
+  yield ffffffffff + gggggggggg
+  if { c }
+  then f
+  else g
+  while { c }
+  do f
+  for { x <- xs }
+  yield x
 <<< then, do, yield after curly, whole construct, scala3, newlines.keywordAfterCurly = unfoldMultiline
 runner.dialect = scala3
 newlines.keywordAfterCurly = unfoldMultiline
@@ -18854,13 +18883,13 @@ object a:
   for { x <- xs } yield x
 >>>
 object a:
-  if { c } then
-    ffffffffffffff + gggggggggggggg
+  if { c }
+  then ffffffffffffff + gggggggggggggg
   else h
-  while { c } do
-    ffffffffffffff + gggggggggggggg
-  for { x <- xs } yield ffffffffff +
-    gggggggggg
+  while { c }
+  do ffffffffffffff + gggggggggggggg
+  for { x <- xs }
+  yield ffffffffff + gggggggggg
   if { c } then f else g
   while { c } do f
   for { x <- xs } yield x
