@@ -14956,8 +14956,7 @@ object a {
 >>>
 object a {
   def h = for (x <- l) f
-  def i =
-    for (x <- l) yield x
+  def i = for (x <- l) yield x
 }
 <<< #5418 body too long, braced control
 object a {
@@ -15064,9 +15063,8 @@ object a {
 }
 >>>
 object a {
-  def f = fooooo(aaaaaaaa).baaaar(
-    bbbbbbbbbbb
-  )
+  def f =
+    fooooo(aaaaaaaa).baaaar(bbbbbbbbbbb)
   def g =
     fooooo(aaaaaaaa)(
       bbbbbbbbbbbbbbbbbbbbbb

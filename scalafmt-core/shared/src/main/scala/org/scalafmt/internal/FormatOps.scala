@@ -1233,11 +1233,12 @@ class FormatOps(
       def getFoldedKeepNLOnly = getFolded(true).filter(_.isNL)
       style.newlines.getBeforeBody match {
         case Newlines.fold => getFolded(false)
-        case Newlines.unfold | Newlines.unfoldMultiline => unfoldedNonComment(
+        case bb @ (Newlines.unfold | Newlines.unfoldMultiline) =>
+          unfoldedNonComment(
             body,
             nlSplitFunc,
             spaceIndents,
-            slbOnly = false,
+            slbOnly = bb eq Newlines.unfoldMultiline,
             beforeBody && style.newlines.beforeBodyUnfold,
           )
         case Newlines.classic if x.noBreak =>
