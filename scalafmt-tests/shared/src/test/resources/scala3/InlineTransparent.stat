@@ -16,8 +16,7 @@ inline val logging = {
 transparent inline def choose(b: Boolean): A = {if(b) {new A} else {new B}}
 >>>
 transparent inline def choose(b: Boolean): A = {
-  if (b) { new A }
-  else { new B }
+  if (b) { new A } else { new B }
 }
 <<< inline transparent break
 maxColumn = 20
