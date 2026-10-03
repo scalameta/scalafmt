@@ -219,7 +219,7 @@ def cliJvmSettings = Def.settings(
   libraryDependencies += "com.facebook" % "nailgun-server" % "1.0.1",
   nativeImageInstalled := isCI,
   nativeImageOptions += "-march=compatibility",
-  nativeImageOptions ++= {
+  nativeImageOptions ++= Def.uncached(
     // https://www.graalvm.org/22.3/reference-manual/native-image/guides/build-static-executables/
     // https://www.graalvm.org/latest/reference-manual/native-image/guides/build-static-executables/
     sys.env.get("NATIVE_IMAGE_STATIC") match {
@@ -230,8 +230,8 @@ def cliJvmSettings = Def.settings(
         )
       case Some("musl") => Seq("--static", "--libc=musl")
       case _ => Nil
-    }
-  },
+    },
+  ),
   runAssembly := {
     val jar = (assembly / assemblyOutputPath).value
     val args = sbt.complete.DefaultParsers.spaceDelimited("<args>").parsed
