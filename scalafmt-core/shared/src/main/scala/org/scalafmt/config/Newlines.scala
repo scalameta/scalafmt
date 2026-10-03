@@ -193,6 +193,7 @@ case class Newlines(
     @ExtraName("usingParamListModifierPrefer")
     implicitParamListModifierPrefer: Option[BeforeAfter] = None,
     alwaysBeforeElseAfterCurlyIf: Boolean = false,
+    private[config] val keywordAfterCurly: Option[IgnoreSourceSplit] = None,
     forceBeforeAssign: ForceBeforeMultilineAssign =
       ForceBeforeMultilineAssign.never,
     private val forceBeforeMultilineAssign: Option[ForceBeforeMultilineAssign] =
