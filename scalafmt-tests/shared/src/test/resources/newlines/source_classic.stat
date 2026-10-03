@@ -16558,7 +16558,169 @@ object a {
   try { f }
   catch { case _ => g }
 }
+<<< keyword after curly, whole construct, scala2, newlines.keywordAfterCurly = fold
+newlines.keywordAfterCurly = fold
+===
+object a {
+  do { f } while (cccccccccccccc && dddddddddddddd)
+  try { f } catch { case _ => g } finally {
+    h
+  }
+  do { f } while (c)
+  try { f } catch { case _ => g }
+}
+>>>
+object a {
+  do { f } while (
+    cccccccccccccc && dddddddddddddd
+  )
+  try { f }
+  catch { case _ => g }
+  finally {
+    h
+  }
+  do { f } while (c)
+  try { f }
+  catch { case _ => g }
+}
+<<< keyword after curly, whole construct, scala2, newlines.keywordAfterCurly = unfold
+newlines.keywordAfterCurly = unfold
+===
+object a {
+  do { f } while (cccccccccccccc && dddddddddddddd)
+  try { f } catch { case _ => g } finally {
+    h
+  }
+  do { f } while (c)
+  try { f } catch { case _ => g }
+}
+>>>
+object a {
+  do { f } while (
+    cccccccccccccc && dddddddddddddd
+  )
+  try { f }
+  catch { case _ => g }
+  finally {
+    h
+  }
+  do { f } while (c)
+  try { f }
+  catch { case _ => g }
+}
+<<< keyword after curly, whole construct, scala2, newlines.keywordAfterCurly = unfoldMultiline
+newlines.keywordAfterCurly = unfoldMultiline
+===
+object a {
+  do { f } while (cccccccccccccc && dddddddddddddd)
+  try { f } catch { case _ => g } finally {
+    h
+  }
+  do { f } while (c)
+  try { f } catch { case _ => g }
+}
+>>>
+object a {
+  do { f } while (
+    cccccccccccccc && dddddddddddddd
+  )
+  try { f }
+  catch { case _ => g }
+  finally {
+    h
+  }
+  do { f } while (c)
+  try { f }
+  catch { case _ => g }
+}
 <<< single-line block before keyword
+object a {
+  if (c) { f } else { g }
+  try { f } catch { case _ => g }
+  try { f } catch { g } finally { h }
+  if (c) { f }
+  else { g }
+  try { f }
+  catch { case _ => g }
+  if (c) { ffffffffff } else { gggggggggggggg }
+}
+>>>
+object a {
+  if (c) { f }
+  else { g }
+  try { f }
+  catch { case _ => g }
+  try { f }
+  catch { g }
+  finally { h }
+  if (c) { f }
+  else { g }
+  try { f }
+  catch { case _ => g }
+  if (c) { ffffffffff }
+  else { gggggggggggggg }
+}
+<<< single-line block before keyword, newlines.keywordAfterCurly = fold
+newlines.keywordAfterCurly = fold
+===
+object a {
+  if (c) { f } else { g }
+  try { f } catch { case _ => g }
+  try { f } catch { g } finally { h }
+  if (c) { f }
+  else { g }
+  try { f }
+  catch { case _ => g }
+  if (c) { ffffffffff } else { gggggggggggggg }
+}
+>>>
+object a {
+  if (c) { f }
+  else { g }
+  try { f }
+  catch { case _ => g }
+  try { f }
+  catch { g }
+  finally { h }
+  if (c) { f }
+  else { g }
+  try { f }
+  catch { case _ => g }
+  if (c) { ffffffffff }
+  else { gggggggggggggg }
+}
+<<< single-line block before keyword, newlines.keywordAfterCurly = unfold
+newlines.keywordAfterCurly = unfold
+===
+object a {
+  if (c) { f } else { g }
+  try { f } catch { case _ => g }
+  try { f } catch { g } finally { h }
+  if (c) { f }
+  else { g }
+  try { f }
+  catch { case _ => g }
+  if (c) { ffffffffff } else { gggggggggggggg }
+}
+>>>
+object a {
+  if (c) { f }
+  else { g }
+  try { f }
+  catch { case _ => g }
+  try { f }
+  catch { g }
+  finally { h }
+  if (c) { f }
+  else { g }
+  try { f }
+  catch { case _ => g }
+  if (c) { ffffffffff }
+  else { gggggggggggggg }
+}
+<<< single-line block before keyword, newlines.keywordAfterCurly = unfoldMultiline
+newlines.keywordAfterCurly = unfoldMultiline
+===
 object a {
   if (c) { f } else { g }
   try { f } catch { case _ => g }
@@ -16608,6 +16770,81 @@ object a {
   else if (d) { g }
   else { h }
 }
+<<< single-line block before keyword, mixed, newlines.keywordAfterCurly = fold
+newlines.keywordAfterCurly = fold
+===
+object a {
+  try f catch { g } finally h
+  try f
+  catch { g } finally h
+  try { f } catch { g } finally hhhhhhhhhhhhhhhhh
+  if (c) { f } else if (d) { g } else { h }
+}
+>>>
+object a {
+  try f
+  catch { g }
+  finally h
+  try f
+  catch { g }
+  finally h
+  try { f }
+  catch { g }
+  finally hhhhhhhhhhhhhhhhh
+  if (c) { f }
+  else if (d) { g }
+  else { h }
+}
+<<< single-line block before keyword, mixed, newlines.keywordAfterCurly = unfold
+newlines.keywordAfterCurly = unfold
+===
+object a {
+  try f catch { g } finally h
+  try f
+  catch { g } finally h
+  try { f } catch { g } finally hhhhhhhhhhhhhhhhh
+  if (c) { f } else if (d) { g } else { h }
+}
+>>>
+object a {
+  try f
+  catch { g }
+  finally h
+  try f
+  catch { g }
+  finally h
+  try { f }
+  catch { g }
+  finally hhhhhhhhhhhhhhhhh
+  if (c) { f }
+  else if (d) { g }
+  else { h }
+}
+<<< single-line block before keyword, mixed, newlines.keywordAfterCurly = unfoldMultiline
+newlines.keywordAfterCurly = unfoldMultiline
+===
+object a {
+  try f catch { g } finally h
+  try f
+  catch { g } finally h
+  try { f } catch { g } finally hhhhhhhhhhhhhhhhh
+  if (c) { f } else if (d) { g } else { h }
+}
+>>>
+object a {
+  try f
+  catch { g }
+  finally h
+  try f
+  catch { g }
+  finally h
+  try { f }
+  catch { g }
+  finally hhhhhhhhhhhhhhhhh
+  if (c) { f }
+  else if (d) { g }
+  else { h }
+}
 <<< single-line block before keyword, else-if chain
 object a {
   if (c) { f } else if (d) g else h
@@ -16626,3 +16863,1714 @@ object a {
   else if (d) { g }
   else h
 }
+<<< single-line block before keyword, else-if chain, newlines.keywordAfterCurly = fold
+newlines.keywordAfterCurly = fold
+===
+object a {
+  if (c) { f } else if (d) g else h
+  if (c) { ffffffffff } else if (d) g else h
+  if (c) { ffffffffff } else if (d) { g } else h
+}
+>>>
+object a {
+  if (c) { f }
+  else if (d) g
+  else h
+  if (c) { ffffffffff }
+  else if (d) g
+  else h
+  if (c) { ffffffffff }
+  else if (d) { g }
+  else h
+}
+<<< single-line block before keyword, else-if chain, newlines.keywordAfterCurly = unfold
+newlines.keywordAfterCurly = unfold
+===
+object a {
+  if (c) { f } else if (d) g else h
+  if (c) { ffffffffff } else if (d) g else h
+  if (c) { ffffffffff } else if (d) { g } else h
+}
+>>>
+object a {
+  if (c) { f }
+  else if (d) g
+  else h
+  if (c) { ffffffffff }
+  else if (d) g
+  else h
+  if (c) { ffffffffff }
+  else if (d) { g }
+  else h
+}
+<<< single-line block before keyword, else-if chain, newlines.keywordAfterCurly = unfoldMultiline
+newlines.keywordAfterCurly = unfoldMultiline
+===
+object a {
+  if (c) { f } else if (d) g else h
+  if (c) { ffffffffff } else if (d) g else h
+  if (c) { ffffffffff } else if (d) { g } else h
+}
+>>>
+object a {
+  if (c) { f }
+  else if (d) g
+  else h
+  if (c) { ffffffffff }
+  else if (d) g
+  else h
+  if (c) { ffffffffff }
+  else if (d) { g }
+  else h
+}
+<<< keyword after curly, scala2, broken, newlines.keywordAfterCurly = fold
+newlines.keywordAfterCurly = fold
+===
+object a {
+  if (c) {
+    f
+  }
+  else {
+    g
+  }
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+  finally {
+    h
+  }
+  do {
+    f
+  }
+  while (c)
+  for {
+    x <- xs
+  }
+  yield x
+}
+>>>
+object a {
+  if (c) {
+    f
+  }
+  else {
+    g
+  }
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+  finally {
+    h
+  }
+  do {
+    f
+  }
+  while (c)
+  for {
+    x <- xs
+  } yield x
+}
+<<< keyword after curly, scala2, broken, newlines.keywordAfterCurly = unfold
+newlines.keywordAfterCurly = unfold
+===
+object a {
+  if (c) {
+    f
+  }
+  else {
+    g
+  }
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+  finally {
+    h
+  }
+  do {
+    f
+  }
+  while (c)
+  for {
+    x <- xs
+  }
+  yield x
+}
+>>>
+object a {
+  if (c) {
+    f
+  }
+  else {
+    g
+  }
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+  finally {
+    h
+  }
+  do {
+    f
+  }
+  while (c)
+  for {
+    x <- xs
+  } yield x
+}
+<<< keyword after curly, scala2, broken, newlines.keywordAfterCurly = unfoldMultiline
+newlines.keywordAfterCurly = unfoldMultiline
+===
+object a {
+  if (c) {
+    f
+  }
+  else {
+    g
+  }
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+  finally {
+    h
+  }
+  do {
+    f
+  }
+  while (c)
+  for {
+    x <- xs
+  }
+  yield x
+}
+>>>
+object a {
+  if (c) {
+    f
+  }
+  else {
+    g
+  }
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+  finally {
+    h
+  }
+  do {
+    f
+  }
+  while (c)
+  for {
+    x <- xs
+  } yield x
+}
+<<< keyword after curly, scala2, tucked, newlines.keywordAfterCurly = keep
+newlines.keywordAfterCurly = keep
+===
+object a {
+  if (c) {
+    f
+  } else {
+    g
+  }
+  try {
+    f
+  } catch {
+    case _ => g
+  } finally {
+    h
+  }
+  do {
+    f
+  } while (c)
+  for {
+    x <- xs
+  } yield x
+}
+>>>
+object a {
+  if (c) {
+    f
+  } else {
+    g
+  }
+  try {
+    f
+  } catch {
+    case _ => g
+  } finally {
+    h
+  }
+  do {
+    f
+  } while (c)
+  for {
+    x <- xs
+  } yield x
+}
+<<< keyword after curly, scala2, tucked, newlines.keywordAfterCurly = fold
+newlines.keywordAfterCurly = fold
+===
+object a {
+  if (c) {
+    f
+  } else {
+    g
+  }
+  try {
+    f
+  } catch {
+    case _ => g
+  } finally {
+    h
+  }
+  do {
+    f
+  } while (c)
+  for {
+    x <- xs
+  } yield x
+}
+>>>
+object a {
+  if (c) {
+    f
+  } else {
+    g
+  }
+  try {
+    f
+  } catch {
+    case _ => g
+  } finally {
+    h
+  }
+  do {
+    f
+  } while (c)
+  for {
+    x <- xs
+  } yield x
+}
+<<< keyword after curly, scala2, tucked, newlines.keywordAfterCurly = unfold
+newlines.keywordAfterCurly = unfold
+===
+object a {
+  if (c) {
+    f
+  } else {
+    g
+  }
+  try {
+    f
+  } catch {
+    case _ => g
+  } finally {
+    h
+  }
+  do {
+    f
+  } while (c)
+  for {
+    x <- xs
+  } yield x
+}
+>>>
+object a {
+  if (c) {
+    f
+  } else {
+    g
+  }
+  try {
+    f
+  } catch {
+    case _ => g
+  } finally {
+    h
+  }
+  do {
+    f
+  } while (c)
+  for {
+    x <- xs
+  } yield x
+}
+<<< keyword after curly, scala2, tucked, newlines.keywordAfterCurly = unfoldMultiline
+newlines.keywordAfterCurly = unfoldMultiline
+===
+object a {
+  if (c) {
+    f
+  } else {
+    g
+  }
+  try {
+    f
+  } catch {
+    case _ => g
+  } finally {
+    h
+  }
+  do {
+    f
+  } while (c)
+  for {
+    x <- xs
+  } yield x
+}
+>>>
+object a {
+  if (c) {
+    f
+  } else {
+    g
+  }
+  try {
+    f
+  } catch {
+    case _ => g
+  } finally {
+    h
+  }
+  do {
+    f
+  } while (c)
+  for {
+    x <- xs
+  } yield x
+}
+<<< keyword after curly, scala3, broken, newlines.keywordAfterCurly = fold
+runner.dialect = scala3
+newlines.keywordAfterCurly = fold
+===
+object a:
+  if {
+    c
+  }
+  then f
+  else g
+  if c then {
+    f
+  }
+  else {
+    g
+  }
+  while {
+    c
+  }
+  do f
+  for {
+    x <- xs
+  }
+  do f(x)
+  for {
+    x <- xs
+  }
+  yield x
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+>>>
+object a:
+  if {
+    c
+  }
+  then f
+  else g
+  if c then {
+    f
+  }
+  else {
+    g
+  }
+  while {
+    c
+  }
+  do f
+  for {
+    x <- xs
+  }
+  do f(x)
+  for {
+    x <- xs
+  } yield x
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+<<< keyword after curly, scala3, broken, newlines.keywordAfterCurly = unfold
+runner.dialect = scala3
+newlines.keywordAfterCurly = unfold
+===
+object a:
+  if {
+    c
+  }
+  then f
+  else g
+  if c then {
+    f
+  }
+  else {
+    g
+  }
+  while {
+    c
+  }
+  do f
+  for {
+    x <- xs
+  }
+  do f(x)
+  for {
+    x <- xs
+  }
+  yield x
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+>>>
+object a:
+  if {
+    c
+  }
+  then f
+  else g
+  if c then {
+    f
+  }
+  else {
+    g
+  }
+  while {
+    c
+  }
+  do f
+  for {
+    x <- xs
+  }
+  do f(x)
+  for {
+    x <- xs
+  } yield x
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+<<< keyword after curly, scala3, broken, newlines.keywordAfterCurly = unfoldMultiline
+runner.dialect = scala3
+newlines.keywordAfterCurly = unfoldMultiline
+===
+object a:
+  if {
+    c
+  }
+  then f
+  else g
+  if c then {
+    f
+  }
+  else {
+    g
+  }
+  while {
+    c
+  }
+  do f
+  for {
+    x <- xs
+  }
+  do f(x)
+  for {
+    x <- xs
+  }
+  yield x
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+>>>
+object a:
+  if {
+    c
+  }
+  then f
+  else g
+  if c then {
+    f
+  }
+  else {
+    g
+  }
+  while {
+    c
+  }
+  do f
+  for {
+    x <- xs
+  }
+  do f(x)
+  for {
+    x <- xs
+  } yield x
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+<<< keyword after curly, scala3, tucked, newlines.keywordAfterCurly = keep
+runner.dialect = scala3
+newlines.keywordAfterCurly = keep
+===
+object a:
+  if {
+    c
+  } then f
+  else g
+  if c then {
+    f
+  } else {
+    g
+  }
+  while {
+    c
+  } do f
+  for {
+    x <- xs
+  } do f(x)
+  for {
+    x <- xs
+  } yield x
+  try {
+    f
+  } catch {
+    case _ => g
+  }
+>>>
+object a:
+  if {
+    c
+  } then f
+  else g
+  if c then {
+    f
+  } else {
+    g
+  }
+  while {
+    c
+  } do f
+  for {
+    x <- xs
+  } do f(x)
+  for {
+    x <- xs
+  } yield x
+  try {
+    f
+  } catch {
+    case _ => g
+  }
+<<< keyword after curly, scala3, tucked, newlines.keywordAfterCurly = fold
+runner.dialect = scala3
+newlines.keywordAfterCurly = fold
+===
+object a:
+  if {
+    c
+  } then f
+  else g
+  if c then {
+    f
+  } else {
+    g
+  }
+  while {
+    c
+  } do f
+  for {
+    x <- xs
+  } do f(x)
+  for {
+    x <- xs
+  } yield x
+  try {
+    f
+  } catch {
+    case _ => g
+  }
+>>>
+object a:
+  if {
+    c
+  } then f
+  else g
+  if c then {
+    f
+  } else {
+    g
+  }
+  while {
+    c
+  } do f
+  for {
+    x <- xs
+  } do f(x)
+  for {
+    x <- xs
+  } yield x
+  try {
+    f
+  } catch {
+    case _ => g
+  }
+<<< keyword after curly, scala3, tucked, newlines.keywordAfterCurly = unfold
+runner.dialect = scala3
+newlines.keywordAfterCurly = unfold
+===
+object a:
+  if {
+    c
+  } then f
+  else g
+  if c then {
+    f
+  } else {
+    g
+  }
+  while {
+    c
+  } do f
+  for {
+    x <- xs
+  } do f(x)
+  for {
+    x <- xs
+  } yield x
+  try {
+    f
+  } catch {
+    case _ => g
+  }
+>>>
+object a:
+  if {
+    c
+  } then f
+  else g
+  if c then {
+    f
+  } else {
+    g
+  }
+  while {
+    c
+  } do f
+  for {
+    x <- xs
+  } do f(x)
+  for {
+    x <- xs
+  } yield x
+  try {
+    f
+  } catch {
+    case _ => g
+  }
+<<< keyword after curly, scala3, tucked, newlines.keywordAfterCurly = unfoldMultiline
+runner.dialect = scala3
+newlines.keywordAfterCurly = unfoldMultiline
+===
+object a:
+  if {
+    c
+  } then f
+  else g
+  if c then {
+    f
+  } else {
+    g
+  }
+  while {
+    c
+  } do f
+  for {
+    x <- xs
+  } do f(x)
+  for {
+    x <- xs
+  } yield x
+  try {
+    f
+  } catch {
+    case _ => g
+  }
+>>>
+object a:
+  if {
+    c
+  } then f
+  else g
+  if c then {
+    f
+  } else {
+    g
+  }
+  while {
+    c
+  } do f
+  for {
+    x <- xs
+  } do f(x)
+  for {
+    x <- xs
+  } yield x
+  try {
+    f
+  } catch {
+    case _ => g
+  }
+<<< keyword after a brace inside the clause, scala2, tucked, newlines.keywordAfterCurly = keep
+newlines.keywordAfterCurly = keep
+===
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar } catch { case _ => g }
+  try f catch { case _ => g } finally xs.map { x => x }
+  try f catch h + { i } finally j
+  do foo + { bar } while (c)
+}
+>>>
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar }
+  catch { case _ => g }
+  try f
+  catch { case _ => g }
+  finally xs.map { x => x }
+  try f
+  catch h + { i }
+  finally j
+  do foo + { bar } while (c)
+}
+<<< keyword after a brace inside the clause, scala2, tucked, newlines.keywordAfterCurly = fold
+newlines.keywordAfterCurly = fold
+===
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar } catch { case _ => g }
+  try f catch { case _ => g } finally xs.map { x => x }
+  try f catch h + { i } finally j
+  do foo + { bar } while (c)
+}
+>>>
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar }
+  catch { case _ => g }
+  try f
+  catch { case _ => g }
+  finally xs.map { x => x }
+  try f
+  catch h + { i }
+  finally j
+  do foo + { bar } while (c)
+}
+<<< keyword after a brace inside the clause, scala2, tucked, newlines.keywordAfterCurly = unfold
+newlines.keywordAfterCurly = unfold
+===
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar } catch { case _ => g }
+  try f catch { case _ => g } finally xs.map { x => x }
+  try f catch h + { i } finally j
+  do foo + { bar } while (c)
+}
+>>>
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar }
+  catch { case _ => g }
+  try f
+  catch { case _ => g }
+  finally xs.map { x => x }
+  try f
+  catch h + { i }
+  finally j
+  do foo + { bar } while (c)
+}
+<<< keyword after a brace inside the clause, scala2, tucked, newlines.keywordAfterCurly = unfoldMultiline
+newlines.keywordAfterCurly = unfoldMultiline
+===
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar } catch { case _ => g }
+  try f catch { case _ => g } finally xs.map { x => x }
+  try f catch h + { i } finally j
+  do foo + { bar } while (c)
+}
+>>>
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar }
+  catch { case _ => g }
+  try f
+  catch { case _ => g }
+  finally xs.map { x => x }
+  try f
+  catch h + { i }
+  finally j
+  do foo + { bar } while (c)
+}
+<<< keyword after a brace inside the clause, scala2, broken, newlines.keywordAfterCurly = keep
+newlines.keywordAfterCurly = keep
+===
+object a {
+  if (c) foo + { bar }
+  else g
+  try foo { bar }
+  catch { case _ => g }
+  try f catch h + { i }
+  finally j
+  do foo + { bar }
+  while (c)
+}
+>>>
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar }
+  catch { case _ => g }
+  try f
+  catch h + { i }
+  finally j
+  do foo + { bar }
+  while (c)
+}
+<<< keyword after a brace inside the clause, scala2, broken, newlines.keywordAfterCurly = fold
+newlines.keywordAfterCurly = fold
+===
+object a {
+  if (c) foo + { bar }
+  else g
+  try foo { bar }
+  catch { case _ => g }
+  try f catch h + { i }
+  finally j
+  do foo + { bar }
+  while (c)
+}
+>>>
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar }
+  catch { case _ => g }
+  try f
+  catch h + { i }
+  finally j
+  do foo + { bar }
+  while (c)
+}
+<<< keyword after a brace inside the clause, scala2, broken, newlines.keywordAfterCurly = unfold
+newlines.keywordAfterCurly = unfold
+===
+object a {
+  if (c) foo + { bar }
+  else g
+  try foo { bar }
+  catch { case _ => g }
+  try f catch h + { i }
+  finally j
+  do foo + { bar }
+  while (c)
+}
+>>>
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar }
+  catch { case _ => g }
+  try f
+  catch h + { i }
+  finally j
+  do foo + { bar }
+  while (c)
+}
+<<< keyword after a brace inside the clause, scala2, broken, newlines.keywordAfterCurly = unfoldMultiline
+newlines.keywordAfterCurly = unfoldMultiline
+===
+object a {
+  if (c) foo + { bar }
+  else g
+  try foo { bar }
+  catch { case _ => g }
+  try f catch h + { i }
+  finally j
+  do foo + { bar }
+  while (c)
+}
+>>>
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar }
+  catch { case _ => g }
+  try f
+  catch h + { i }
+  finally j
+  do foo + { bar }
+  while (c)
+}
+<<< keyword after a brace inside the clause, scala3, tucked, newlines.keywordAfterCurly = keep
+runner.dialect = scala3
+newlines.keywordAfterCurly = keep
+===
+object a:
+  if foo + { c } then f else g
+  if c then foo + { bar } else g
+  while foo + { c } do f
+  for x <- xs ++ { ys } do f(x)
+  for x <- xs ++ { ys } yield x
+>>>
+object a:
+  if foo + { c } then f else g
+  if c then foo + { bar } else g
+  while foo + { c } do f
+  for x <- xs ++ { ys } do f(x)
+  for x <- xs ++ { ys } yield x
+<<< keyword after a brace inside the clause, scala3, tucked, newlines.keywordAfterCurly = fold
+runner.dialect = scala3
+newlines.keywordAfterCurly = fold
+===
+object a:
+  if foo + { c } then f else g
+  if c then foo + { bar } else g
+  while foo + { c } do f
+  for x <- xs ++ { ys } do f(x)
+  for x <- xs ++ { ys } yield x
+>>>
+object a:
+  if foo + { c } then f else g
+  if c then foo + { bar } else g
+  while foo + { c } do f
+  for x <- xs ++ { ys } do f(x)
+  for x <- xs ++ { ys } yield x
+<<< keyword after a brace inside the clause, scala3, tucked, newlines.keywordAfterCurly = unfold
+runner.dialect = scala3
+newlines.keywordAfterCurly = unfold
+===
+object a:
+  if foo + { c } then f else g
+  if c then foo + { bar } else g
+  while foo + { c } do f
+  for x <- xs ++ { ys } do f(x)
+  for x <- xs ++ { ys } yield x
+>>>
+object a:
+  if foo + { c } then f else g
+  if c then foo + { bar } else g
+  while foo + { c } do f
+  for x <- xs ++ { ys } do f(x)
+  for x <- xs ++ { ys } yield x
+<<< keyword after a brace inside the clause, scala3, tucked, newlines.keywordAfterCurly = unfoldMultiline
+runner.dialect = scala3
+newlines.keywordAfterCurly = unfoldMultiline
+===
+object a:
+  if foo + { c } then f else g
+  if c then foo + { bar } else g
+  while foo + { c } do f
+  for x <- xs ++ { ys } do f(x)
+  for x <- xs ++ { ys } yield x
+>>>
+object a:
+  if foo + { c } then f else g
+  if c then foo + { bar } else g
+  while foo + { c } do f
+  for x <- xs ++ { ys } do f(x)
+  for x <- xs ++ { ys } yield x
+<<< keyword after a brace inside the clause, scala3, broken, newlines.keywordAfterCurly = keep
+runner.dialect = scala3
+newlines.keywordAfterCurly = keep
+===
+object a:
+  if foo + { c }
+  then f
+  else g
+  if c then foo + { bar }
+  else g
+  while foo + { c }
+  do f
+  for x <- xs ++ { ys }
+  do f(x)
+  for x <- xs ++ { ys }
+  yield x
+>>>
+object a:
+  if foo + { c }
+  then f
+  else g
+  if c then foo + { bar } else g
+  while foo + { c }
+  do f
+  for x <- xs ++ { ys }
+  do f(x)
+  for x <- xs ++ { ys } yield x
+<<< keyword after a brace inside the clause, scala3, broken, newlines.keywordAfterCurly = fold
+runner.dialect = scala3
+newlines.keywordAfterCurly = fold
+===
+object a:
+  if foo + { c }
+  then f
+  else g
+  if c then foo + { bar }
+  else g
+  while foo + { c }
+  do f
+  for x <- xs ++ { ys }
+  do f(x)
+  for x <- xs ++ { ys }
+  yield x
+>>>
+object a:
+  if foo + { c }
+  then f
+  else g
+  if c then foo + { bar } else g
+  while foo + { c }
+  do f
+  for x <- xs ++ { ys }
+  do f(x)
+  for x <- xs ++ { ys } yield x
+<<< keyword after a brace inside the clause, scala3, broken, newlines.keywordAfterCurly = unfold
+runner.dialect = scala3
+newlines.keywordAfterCurly = unfold
+===
+object a:
+  if foo + { c }
+  then f
+  else g
+  if c then foo + { bar }
+  else g
+  while foo + { c }
+  do f
+  for x <- xs ++ { ys }
+  do f(x)
+  for x <- xs ++ { ys }
+  yield x
+>>>
+object a:
+  if foo + { c }
+  then f
+  else g
+  if c then foo + { bar } else g
+  while foo + { c }
+  do f
+  for x <- xs ++ { ys }
+  do f(x)
+  for x <- xs ++ { ys } yield x
+<<< keyword after a brace inside the clause, scala3, broken, newlines.keywordAfterCurly = unfoldMultiline
+runner.dialect = scala3
+newlines.keywordAfterCurly = unfoldMultiline
+===
+object a:
+  if foo + { c }
+  then f
+  else g
+  if c then foo + { bar }
+  else g
+  while foo + { c }
+  do f
+  for x <- xs ++ { ys }
+  do f(x)
+  for x <- xs ++ { ys }
+  yield x
+>>>
+object a:
+  if foo + { c }
+  then f
+  else g
+  if c then foo + { bar } else g
+  while foo + { c }
+  do f
+  for x <- xs ++ { ys }
+  do f(x)
+  for x <- xs ++ { ys } yield x
+<<< keyword after a brace inside the clause, scala2, multiline, newlines.keywordAfterCurly = keep
+newlines.keywordAfterCurly = keep
+===
+object a {
+  if (c) foo + {
+    bar
+  } else g
+  try foo {
+    bar
+  } catch { case _ => g }
+  try f catch h + {
+    i
+  } finally j
+  do foo + {
+    bar
+  } while (c)
+}
+>>>
+object a {
+  if (c) foo + {
+    bar
+  }
+  else g
+  try
+    foo {
+      bar
+    }
+  catch { case _ => g }
+  try f
+  catch
+    h + {
+      i
+    }
+  finally j
+  do foo + {
+    bar
+  }
+  while (c)
+}
+<<< keyword after a brace inside the clause, scala2, multiline, newlines.keywordAfterCurly = fold
+newlines.keywordAfterCurly = fold
+===
+object a {
+  if (c) foo + {
+    bar
+  } else g
+  try foo {
+    bar
+  } catch { case _ => g }
+  try f catch h + {
+    i
+  } finally j
+  do foo + {
+    bar
+  } while (c)
+}
+>>>
+object a {
+  if (c) foo + {
+    bar
+  }
+  else g
+  try
+    foo {
+      bar
+    }
+  catch { case _ => g }
+  try f
+  catch
+    h + {
+      i
+    }
+  finally j
+  do foo + {
+    bar
+  }
+  while (c)
+}
+<<< keyword after a brace inside the clause, scala2, multiline, newlines.keywordAfterCurly = unfold
+newlines.keywordAfterCurly = unfold
+===
+object a {
+  if (c) foo + {
+    bar
+  } else g
+  try foo {
+    bar
+  } catch { case _ => g }
+  try f catch h + {
+    i
+  } finally j
+  do foo + {
+    bar
+  } while (c)
+}
+>>>
+object a {
+  if (c) foo + {
+    bar
+  }
+  else g
+  try
+    foo {
+      bar
+    }
+  catch { case _ => g }
+  try f
+  catch
+    h + {
+      i
+    }
+  finally j
+  do foo + {
+    bar
+  }
+  while (c)
+}
+<<< keyword after a brace inside the clause, scala2, multiline, newlines.keywordAfterCurly = unfoldMultiline
+newlines.keywordAfterCurly = unfoldMultiline
+===
+object a {
+  if (c) foo + {
+    bar
+  } else g
+  try foo {
+    bar
+  } catch { case _ => g }
+  try f catch h + {
+    i
+  } finally j
+  do foo + {
+    bar
+  } while (c)
+}
+>>>
+object a {
+  if (c) foo + {
+    bar
+  }
+  else g
+  try
+    foo {
+      bar
+    }
+  catch { case _ => g }
+  try f
+  catch
+    h + {
+      i
+    }
+  finally j
+  do foo + {
+    bar
+  }
+  while (c)
+}
+<<< keyword after a brace inside the clause, scala3, multiline, newlines.keywordAfterCurly = keep
+runner.dialect = scala3
+newlines.keywordAfterCurly = keep
+===
+object a:
+  if foo + {
+    c
+  } then f
+  else g
+  if c then foo + {
+    bar
+  } else g
+  while foo + {
+    c
+  } do f
+  for x <- xs ++ {
+    ys
+  } do f(x)
+  for x <- xs ++ {
+    ys
+  } yield x
+>>>
+object a:
+  if foo + {
+      c
+    }
+  then f
+  else g
+  if c then
+    foo + {
+      bar
+    }
+  else g
+  while foo + {
+      c
+    }
+  do f
+  for x <- xs ++ {
+      ys
+    }
+  do f(x)
+  for x <- xs ++ {
+      ys
+    }
+  yield x
+<<< keyword after a brace inside the clause, scala3, multiline, newlines.keywordAfterCurly = fold
+runner.dialect = scala3
+newlines.keywordAfterCurly = fold
+===
+object a:
+  if foo + {
+    c
+  } then f
+  else g
+  if c then foo + {
+    bar
+  } else g
+  while foo + {
+    c
+  } do f
+  for x <- xs ++ {
+    ys
+  } do f(x)
+  for x <- xs ++ {
+    ys
+  } yield x
+>>>
+object a:
+  if foo + {
+      c
+    }
+  then f
+  else g
+  if c then
+    foo + {
+      bar
+    }
+  else g
+  while foo + {
+      c
+    }
+  do f
+  for x <- xs ++ {
+      ys
+    }
+  do f(x)
+  for x <- xs ++ {
+      ys
+    }
+  yield x
+<<< keyword after a brace inside the clause, scala3, multiline, newlines.keywordAfterCurly = unfold
+runner.dialect = scala3
+newlines.keywordAfterCurly = unfold
+===
+object a:
+  if foo + {
+    c
+  } then f
+  else g
+  if c then foo + {
+    bar
+  } else g
+  while foo + {
+    c
+  } do f
+  for x <- xs ++ {
+    ys
+  } do f(x)
+  for x <- xs ++ {
+    ys
+  } yield x
+>>>
+object a:
+  if foo + {
+      c
+    }
+  then f
+  else g
+  if c then
+    foo + {
+      bar
+    }
+  else g
+  while foo + {
+      c
+    }
+  do f
+  for x <- xs ++ {
+      ys
+    }
+  do f(x)
+  for x <- xs ++ {
+      ys
+    }
+  yield x
+<<< keyword after a brace inside the clause, scala3, multiline, newlines.keywordAfterCurly = unfoldMultiline
+runner.dialect = scala3
+newlines.keywordAfterCurly = unfoldMultiline
+===
+object a:
+  if foo + {
+    c
+  } then f
+  else g
+  if c then foo + {
+    bar
+  } else g
+  while foo + {
+    c
+  } do f
+  for x <- xs ++ {
+    ys
+  } do f(x)
+  for x <- xs ++ {
+    ys
+  } yield x
+>>>
+object a:
+  if foo + {
+      c
+    }
+  then f
+  else g
+  if c then
+    foo + {
+      bar
+    }
+  else g
+  while foo + {
+      c
+    }
+  do f
+  for x <- xs ++ {
+      ys
+    }
+  do f(x)
+  for x <- xs ++ {
+      ys
+    }
+  yield x
+<<< keyword after parens, scala2, newlines.keywordAfterCurly = unfold
+newlines.keywordAfterCurly = unfold
+===
+object a {
+  if (c) (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  ) else g
+  if (c) (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  )
+  else g
+  if (c) (f) else g
+  if (c) (f)
+  else g
+  try (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  ) catch { case _ => g }
+  try (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  )
+  catch { case _ => g }
+  try (f) catch { case _ => g }
+  try (f)
+  catch { case _ => g }
+  try f catch (
+    gggggggggggggggggggg(xxxxxxxxxxxxxxx)
+  ) finally h
+  try f catch (
+    gggggggggggggggggggg(xxxxxxxxxxxxxxx)
+  )
+  finally h
+  do (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  ) while (c)
+  do (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  )
+  while (c)
+  do (f) while (c)
+  do (f)
+  while (c)
+}
+>>>
+object a {
+  if (c)
+    (
+      ffffffffffffffffffff(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  else g
+  if (c)
+    (
+      ffffffffffffffffffff(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  else g
+  if (c) (f) else g
+  if (c) (f)
+  else g
+  try
+    (
+      ffffffffffffffffffff(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  catch { case _ => g }
+  try
+    (
+      ffffffffffffffffffff(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  catch { case _ => g }
+  try (f)
+  catch { case _ => g }
+  try (f)
+  catch { case _ => g }
+  try f
+  catch
+    (
+      gggggggggggggggggggg(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  finally h
+  try f
+  catch
+    (
+      gggggggggggggggggggg(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  finally h
+  do (
+    ffffffffffffffffffff(
+      xxxxxxxxxxxxxxx
+    )
+  )
+  while (c)
+  do (
+    ffffffffffffffffffff(
+      xxxxxxxxxxxxxxx
+    )
+  )
+  while (c)
+  do (f) while (c)
+  do (f)
+  while (c)
+}
+<<< keyword after parens, scala3, newlines.keywordAfterCurly = unfold
+runner.dialect = scala3
+newlines.keywordAfterCurly = unfold
+===
+object a:
+  if (
+    cccccccccccccccccccc(xxxxxxxxxxxxxxx)
+  ) then f else g
+  if (
+    cccccccccccccccccccc(xxxxxxxxxxxxxxx)
+  )
+  then f else g
+  if (c) then f
+  if (c)
+  then f
+  while (
+    cccccccccccccccccccc(xxxxxxxxxxxxxxx)
+  ) do f
+  while (
+    cccccccccccccccccccc(xxxxxxxxxxxxxxx)
+  )
+  do f
+  while (c) do f
+  while (c)
+  do f
+  for (
+    x <- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  ) do f(x)
+  for (
+    x <- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  )
+  do f(x)
+  for (x <- xs) do f(x)
+  for (x <- xs)
+  do f(x)
+  if c then (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  ) else g
+  if c then (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  )
+  else g
+>>>
+object a:
+  if (
+      cccccccccccccccccccc(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  then f
+  else g
+  if (
+      cccccccccccccccccccc(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  then f
+  else g
+  if (c) then f
+  if (c)
+  then f
+  while (
+      cccccccccccccccccccc(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  do f
+  while (
+      cccccccccccccccccccc(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  do f
+  while (c) do f
+  while (c)
+  do f
+  for (
+      x <- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    )
+  do f(x)
+  for (
+      x <- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    )
+  do f(x)
+  for (x <- xs) do f(x)
+  for (x <- xs)
+  do f(x)
+  if c then
+    (
+      ffffffffffffffffffff(
+        xxxxxxxxxxxxxxx
+      )
+  )
+  else g
+  if c then
+    (
+      ffffffffffffffffffff(
+        xxxxxxxxxxxxxxx
+      )
+  )
+  else g

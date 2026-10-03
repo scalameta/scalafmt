@@ -156,4 +156,17 @@ class ScalafmtConfigTest extends SharedFunSuiteBase {
     ),
   )
 
+  for {
+    source <- Seq("fold", "unfold")
+    param <- Seq("beforeBody", "keywordAfterCurly")
+  } test(s"newlines.$param = keep with newlines.source = $source")(
+    ScalafmtConfig.fromHoconString(
+      s"newlines.source = $source\nnewlines.$param = keep",
+    ) match {
+      case Configured.Ok(_) => fail("expected an error")
+      case Configured.NotOk(err) =>
+        assert(clue(err.msg).contains(s"newlines.$param=keep"))
+    },
+  )
+
 }

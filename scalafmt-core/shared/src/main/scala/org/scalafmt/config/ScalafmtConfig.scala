@@ -388,6 +388,7 @@ object ScalafmtConfig {
         def mustIgnoreSourceSplit(what: sourcecode.Text[Option[Newlines.IgnoreSourceSplit]]) = what.value
           .foreach(x => addIfDirect(!x.ignoreSourceSplit, s"${what.source}=$x"))
         mustIgnoreSourceSplit(newlines.beforeBody)
+        mustIgnoreSourceSplit(newlines.keywordAfterCurly)
         mustIgnoreSourceSplit(newlines.beforeMultilineDef)
         addIf(newlines.beforeTypeBounds eq Newlines.keep)
         addIf(binPack.parentConstructors eq BinPack.ParentCtors.keep)
