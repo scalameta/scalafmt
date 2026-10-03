@@ -14904,6 +14904,306 @@ object a {
     else 2
   def g = while (c) f
 }
+<<< #5418 body which fits, for-comprehension
+object a {
+  def h = for (x <- l) f
+  def i = for (x <- l) yield x
+}
+>>>
+object a {
+  def h =
+    for (x <- l)
+      f
+  def i =
+    for (x <- l)
+      yield x
+}
+<<< #5418 body which fits, for-comprehension, beforeBody = fold
+newlines.beforeBody = fold
+===
+object a {
+  def h = for (x <- l) f
+  def i = for (x <- l) yield x
+}
+>>>
+object a {
+  def h = for (x <- l) f
+  def i = for (x <- l) yield x
+}
+<<< #5418 body which fits, for-comprehension, beforeBody = unfold
+newlines.beforeBody = unfold
+===
+object a {
+  def h = for (x <- l) f
+  def i = for (x <- l) yield x
+}
+>>>
+object a {
+  def h =
+    for (x <- l)
+      f
+  def i =
+    for (x <- l)
+      yield x
+}
+<<< #5418 body which fits, for-comprehension, beforeBody = unfoldMultiline
+newlines.beforeBody = unfoldMultiline
+===
+object a {
+  def h = for (x <- l) f
+  def i = for (x <- l) yield x
+}
+>>>
+object a {
+  def h = for (x <- l) f
+  def i =
+    for (x <- l) yield x
+}
+<<< #5418 body too long, braced control
+object a {
+  def f = if (c) aaaaaaaaaaaaaaaaaaaaaa else b
+}
+>>>
+object a {
+  def f =
+    if (c)
+      aaaaaaaaaaaaaaaaaaaaaa
+    else
+      b
+}
+<<< #5418 body too long, braced control, beforeBody = fold
+newlines.beforeBody = fold
+===
+object a {
+  def f = if (c) aaaaaaaaaaaaaaaaaaaaaa else b
+}
+>>>
+object a {
+  def f =
+    if (c) aaaaaaaaaaaaaaaaaaaaaa
+    else b
+}
+<<< #5418 body too long, braced control, beforeBody = unfold
+newlines.beforeBody = unfold
+===
+object a {
+  def f = if (c) aaaaaaaaaaaaaaaaaaaaaa else b
+}
+>>>
+object a {
+  def f =
+    if (c)
+      aaaaaaaaaaaaaaaaaaaaaa
+    else
+      b
+}
+<<< #5418 body too long, braced control, beforeBody = unfoldMultiline
+newlines.beforeBody = unfoldMultiline
+===
+object a {
+  def f = if (c) aaaaaaaaaaaaaaaaaaaaaa else b
+}
+>>>
+object a {
+  def f =
+    if (c) aaaaaaaaaaaaaaaaaaaaaa
+    else b
+}
+<<< #5418 body too long, apply
+object a {
+  def f = fooooo(aaaaaaaa).baaaar(bbbbbbbbbbb)
+  def g = fooooo(aaaaaaaa)(bbbbbbbbbbbbbbbbbbbbbb)
+}
+>>>
+object a {
+  def f = fooooo(aaaaaaaa).baaaar(
+    bbbbbbbbbbb
+  )
+  def g =
+    fooooo(aaaaaaaa)(
+      bbbbbbbbbbbbbbbbbbbbbb
+    )
+}
+<<< #5418 body too long, apply, beforeBody = fold
+newlines.beforeBody = fold
+===
+object a {
+  def f = fooooo(aaaaaaaa).baaaar(bbbbbbbbbbb)
+  def g = fooooo(aaaaaaaa)(bbbbbbbbbbbbbbbbbbbbbb)
+}
+>>>
+object a {
+  def f =
+    fooooo(aaaaaaaa).baaaar(bbbbbbbbbbb)
+  def g = fooooo(aaaaaaaa)(
+    bbbbbbbbbbbbbbbbbbbbbb
+  )
+}
+<<< #5418 body too long, apply, beforeBody = unfold
+newlines.beforeBody = unfold
+===
+object a {
+  def f = fooooo(aaaaaaaa).baaaar(bbbbbbbbbbb)
+  def g = fooooo(aaaaaaaa)(bbbbbbbbbbbbbbbbbbbbbb)
+}
+>>>
+object a {
+  def f =
+    fooooo(aaaaaaaa).baaaar(bbbbbbbbbbb)
+  def g =
+    fooooo(aaaaaaaa)(
+      bbbbbbbbbbbbbbbbbbbbbb
+    )
+}
+<<< #5418 body too long, apply, beforeBody = unfoldMultiline
+newlines.beforeBody = unfoldMultiline
+===
+object a {
+  def f = fooooo(aaaaaaaa).baaaar(bbbbbbbbbbb)
+  def g = fooooo(aaaaaaaa)(bbbbbbbbbbbbbbbbbbbbbb)
+}
+>>>
+object a {
+  def f = fooooo(aaaaaaaa).baaaar(
+    bbbbbbbbbbb
+  )
+  def g =
+    fooooo(aaaaaaaa)(
+      bbbbbbbbbbbbbbbbbbbbbb
+    )
+}
+<<< #5418 body which fits, try-finally
+object a {
+  def t = try f finally g
+}
+>>>
+object a {
+  def t =
+    try f
+    finally g
+}
+<<< #5418 body which fits, try-finally, beforeBody = fold
+newlines.beforeBody = fold
+===
+object a {
+  def t = try f finally g
+}
+>>>
+object a {
+  def t =
+    try f
+    finally g
+}
+<<< #5418 body which fits, try-finally, beforeBody = unfold
+newlines.beforeBody = unfold
+===
+object a {
+  def t = try f finally g
+}
+>>>
+object a {
+  def t =
+    try
+      f
+    finally
+      g
+}
+<<< #5418 body which fits, try-finally, beforeBody = unfoldMultiline
+newlines.beforeBody = unfoldMultiline
+===
+object a {
+  def t = try f finally g
+}
+>>>
+object a {
+  def t =
+    try f
+    finally g
+}
+<<< #5418 body too long, select
+object a {
+  def s = aaaaaaaaaa.bbbbbbbbbb.cccccccccccc
+}
+>>>
+object a {
+  def s =
+    aaaaaaaaaa.bbbbbbbbbb.cccccccccccc
+}
+<<< #5418 body too long, select, beforeBody = fold
+newlines.beforeBody = fold
+===
+object a {
+  def s = aaaaaaaaaa.bbbbbbbbbb.cccccccccccc
+}
+>>>
+object a {
+  def s =
+    aaaaaaaaaa.bbbbbbbbbb.cccccccccccc
+}
+<<< #5418 body too long, select, beforeBody = unfold
+newlines.beforeBody = unfold
+===
+object a {
+  def s = aaaaaaaaaa.bbbbbbbbbb.cccccccccccc
+}
+>>>
+object a {
+  def s =
+    aaaaaaaaaa.bbbbbbbbbb.cccccccccccc
+}
+<<< #5418 body too long, select, beforeBody = unfoldMultiline
+newlines.beforeBody = unfoldMultiline
+===
+object a {
+  def s = aaaaaaaaaa.bbbbbbbbbb.cccccccccccc
+}
+>>>
+object a {
+  def s =
+    aaaaaaaaaa.bbbbbbbbbb.cccccccccccc
+}
+<<< #5418 body too long, infix
+object a {
+  def p = aaaaaaaaaa + bbbbbbbbbb + ccccccc
+}
+>>>
+object a {
+  def p =
+    aaaaaaaaaa + bbbbbbbbbb + ccccccc
+}
+<<< #5418 body too long, infix, beforeBody = fold
+newlines.beforeBody = fold
+===
+object a {
+  def p = aaaaaaaaaa + bbbbbbbbbb + ccccccc
+}
+>>>
+object a {
+  def p = aaaaaaaaaa + bbbbbbbbbb +
+    ccccccc
+}
+<<< #5418 body too long, infix, beforeBody = unfold
+newlines.beforeBody = unfold
+===
+object a {
+  def p = aaaaaaaaaa + bbbbbbbbbb + ccccccc
+}
+>>>
+object a {
+  def p =
+    aaaaaaaaaa + bbbbbbbbbb + ccccccc
+}
+<<< #5418 body too long, infix, beforeBody = unfoldMultiline
+newlines.beforeBody = unfoldMultiline
+===
+object a {
+  def p = aaaaaaaaaa + bbbbbbbbbb + ccccccc
+}
+>>>
+object a {
+  def p =
+    aaaaaaaaaa + bbbbbbbbbb + ccccccc
+}
 <<< #5418 body which fits, assignment
 object a {
   val v = 1 + 2
@@ -15381,4 +15681,248 @@ object O {
   def i =
     s"""a
     b"""
+}
+<<< try-catch-finally which fits
+object a {
+  try f finally g
+  try f catch { case _ => g }
+  try f catch { case _ => g } finally h
+}
+>>>
+object a {
+  try f
+  finally g
+  try f
+  catch {
+    case _ =>
+      g
+  }
+  try f
+  catch {
+    case _ =>
+      g
+  } finally h
+}
+<<< try-catch-finally too long
+object a {
+  try ffffffff catch { case _ => gggg } finally hhhh
+}
+>>>
+object a {
+  try ffffffff
+  catch {
+    case _ =>
+      gggg
+  } finally hhhh
+}
+<<< try-catch-finally too long, no braces
+object a {
+  try ffffffffff catch hhhhhhhhhh finally gggggggggg
+}
+>>>
+object a {
+  try ffffffffff
+  catch hhhhhhhhhh
+  finally gggggggggg
+}
+<<< try-catch-finally, break before catch
+object a {
+  try f
+  catch { case _ => g } finally h
+}
+>>>
+object a {
+  try f
+  catch {
+    case _ =>
+      g
+  } finally h
+}
+<<< try-catch-finally, break before finally
+object a {
+  try f catch { case _ => g }
+  finally h
+}
+>>>
+object a {
+  try f
+  catch {
+    case _ =>
+      g
+  } finally h
+}
+<<< try-catch-finally, break inside try body
+object a {
+  try f(
+    x
+  ) catch { case _ => g } finally h
+}
+>>>
+object a {
+  try f(x)
+  catch {
+    case _ =>
+      g
+  } finally h
+}
+<<< try-catch-finally, break after try
+object a {
+  try
+    f
+  catch { case _ => g } finally h
+}
+>>>
+object a {
+  try f
+  catch {
+    case _ =>
+      g
+  } finally h
+}
+<<< try-catch-finally, break only after try
+object a {
+  try
+    f catch { case _ => g } finally h
+}
+>>>
+object a {
+  try f
+  catch {
+    case _ =>
+      g
+  } finally h
+}
+<<< try-catch-finally, comment before catch
+object a {
+  try f /* c */ catch { case _ => g }
+}
+>>>
+object a {
+  try f /* c */
+  catch {
+    case _ =>
+      g
+  }
+}
+<<< try-catch-finally, line comment before catch
+object a {
+  try f // c
+  catch { case _ => g } finally h
+}
+>>>
+object a {
+  try f // c
+  catch {
+    case _ =>
+      g
+  } finally h
+}
+<<< try-catch-finally, block comment then break before catch
+object a {
+  try f /* c */
+  catch { case _ => g }
+}
+>>>
+object a {
+  try f /* c */
+  catch {
+    case _ =>
+      g
+  }
+}
+<<< try-catch-finally, break then block comment before catch
+object a {
+  try f
+  /* c */ catch { case _ => g }
+}
+>>>
+object a {
+  try f
+  /* c */
+  catch {
+    case _ =>
+      g
+  }
+}
+<<< try-catch-finally, block comment then break before finally
+object a {
+  try f catch g /* c */
+  finally h
+}
+>>>
+object a {
+  try f
+  catch g /* c */
+  finally h
+}
+<<< try-catch-finally, nested try
+object a {
+  try try f finally g finally h
+}
+>>>
+object a {
+  try
+    try f
+    finally g
+  finally h
+}
+<<< try-catch-finally, trailing line comment overflows
+object a {
+  try f catch { case _ => g } finally h // overflow
+}
+>>>
+object a {
+  try f
+  catch {
+    case _ =>
+      g
+  } finally h // overflow
+}
+<<< try-catch-finally, trailing line comment overflows, comments.wrap = trailing
+comments.wrap = trailing
+===
+object a {
+  try f catch { case _ => g } finally h // overflow
+}
+>>>
+object a {
+  try f
+  catch {
+    case _ =>
+      g
+  } finally h // overflow
+}
+<<< try-catch-finally, trailing block comment overflows
+object a {
+  try f catch { case _ => g } finally h /* overflow */
+}
+>>>
+object a {
+  try f
+  catch {
+    case _ =>
+      g
+  } finally h /* overflow */
+}
+<<< try-catch-finally, trailing block comment overflows, comments.wrap = trailing
+comments.wrap = trailing
+===
+object a {
+  try f catch { case _ => g } finally h /* overflow */
+}
+>>>
+object a {
+  try f
+  catch {
+    case _ =>
+      g
+  } finally h /* overflow */
+}
+<<< try without catch or finally
+object a {
+  try f
+}
+>>>
+object a {
+  try f
 }
