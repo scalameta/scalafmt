@@ -175,8 +175,9 @@ jobs:
         run: sbt communityTestsScala2/testFull
       # docs is Scala 2.12 (mdoc + yarn build); reuses the 2.12 core compiled
       # above. linkHygiene=true also fails the run on dead doc links.
+      # --server: through the thin client, docs.Main forks without the property.
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
-        run: sbt -Dmdoc.linkHygiene=true docs/docusaurusCreateSite
+        run: sbt --server -Dmdoc.linkHygiene=true docs/docusaurusCreateSite
 
   post-community-windows:  # Windows-only community coverage (line-ending handling differs)
     if: ${{ github.event_name == 'push' }}
