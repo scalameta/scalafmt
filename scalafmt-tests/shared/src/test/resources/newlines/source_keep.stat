@@ -14562,8 +14562,7 @@ object a {
 }
 >>>
 object a {
-  def t = try f
-  finally g
+  def t = try f finally g
 }
 <<< #5418 body which fits, try-finally, beforeBody = keep
 newlines.beforeBody = keep
@@ -14573,8 +14572,7 @@ object a {
 }
 >>>
 object a {
-  def t = try f
-  finally g
+  def t = try f finally g
 }
 <<< #5418 body which fits, try-finally, beforeBody = fold
 newlines.beforeBody = fold
@@ -14584,9 +14582,7 @@ object a {
 }
 >>>
 object a {
-  def t =
-    try f
-    finally g
+  def t = try f finally g
 }
 <<< #5418 body which fits, try-finally, beforeBody = unfold
 newlines.beforeBody = unfold
@@ -14610,9 +14606,7 @@ object a {
 }
 >>>
 object a {
-  def t =
-    try f
-    finally g
+  def t = try f finally g
 }
 <<< #5418 body too long, select
 object a {
@@ -14812,8 +14806,7 @@ object a {
 }
 >>>
 object a {
-  def f = try g
-  catch { case _: E => h }
+  def f = try g catch { case _: E => h }
 }
 <<< #5418 body which fits, try-catch, beforeBody = unfold
 newlines.beforeBody = unfold
@@ -14839,9 +14832,7 @@ object a {
 }
 >>>
 object a {
-  def f =
-    try g
-    catch { case _: E => h }
+  def f = try g catch { case _: E => h }
 }
 <<< #5418 body which fits, enumerator generator
 object a {
@@ -15138,13 +15129,9 @@ object a {
 }
 >>>
 object a {
-  try f
-  finally g
-  try f
-  catch { case _ => g }
-  try f
-  catch { case _ => g }
-  finally h
+  try f finally g
+  try f catch { case _ => g }
+  try f catch { case _ => g } finally h
 }
 <<< try-catch-finally too long
 object a {
@@ -15233,8 +15220,7 @@ object a {
 }
 >>>
 object a {
-  try f /* c */
-  catch { case _ => g }
+  try f /* c */ catch { case _ => g }
 }
 <<< try-catch-finally, line comment before catch
 object a {
@@ -15285,9 +15271,7 @@ object a {
 }
 >>>
 object a {
-  try try f
-    finally g
-  finally h
+  try try f finally g finally h
 }
 <<< try-catch-finally, trailing line comment overflows
 object a {

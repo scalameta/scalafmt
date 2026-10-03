@@ -3437,16 +3437,19 @@ object SplitsAfterCase extends Splits {
 object SplitsAfterTryCatchFinally {
   def getWithBodyFunc(
       f: Term.TryClause => Tree,
+      oneLineTry: Boolean = false,
   )(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig): Seq[Split] =
     ft.leftOwner match {
       case _: Term.Name => Nil // exclude end marker
-      case t: Term.TryClause => getWithBody(f(t))
-      case t => getWithBody(t)
+      case t: Term.TryClause => getWithBody(f(t), if (oneLineTry) t else null)
+      case t => getWithBody(t, null)
     }
 
-  private def getWithBody(
-      body: Tree,
-  )(implicit ft: FT, fo: FormatOps, cfg: ScalafmtConfig): Seq[Split] = {
+  private def getWithBody(body: Tree, oneLineTry: Term.TryClause)(implicit
+      ft: FT,
+      fo: FormatOps,
+      cfg: ScalafmtConfig,
+  ): Seq[Split] = {
     import fo._, tokens._
     val end = getLast(body)
     val nft = nextNonComment(ft)
@@ -3456,9 +3459,39 @@ object SplitsAfterTryCatchFinally {
     if (inBraces) Seq(Split(Space, 0))
     else {
       val indent = Indent(cfg.indent.main, end, ExpiresOn.After)
-      CtrlBodySplits.get(body, Seq(indent))(
+      val splits = CtrlBodySplits.get(body, Seq(indent))(
         Split(Space, 0).withSingleLineNoOptimal(end),
       )(Splits.lowRankNL(ft, _).withIndent(indent))
+      val oneLineSplit =
+        if (oneLineTry eq null) null else getOneLineTry(oneLineTry, end)
+      if (oneLineSplit eq null) splits else oneLineSplit +: splits
+    }
+  }
+
+  // keep the entire try, with catch and finally, on one line
+  private def getOneLineTry(t: Term.TryClause, end: FT)(implicit
+      fo: FormatOps,
+      cfg: ScalafmtConfig,
+  ): Split = {
+    import fo.tokens._
+    def spaceBefore(kw: FT)(implicit fl: FileLine) = {
+      val nkw = nextNonCommentSameLine(kw)
+      val nok = nkw.hasBreak &&
+        (cfg.newlines.keep || (kw ne nkw) || nkw.right.is[T.Comment])
+      if (nok) null else Policy.onlyFor(nkw, "TRY1L")(_ => Seq(Split(Space, 0)))
+    }
+    def split(policy: Policy)(implicit fl: FileLine) = Split(Space, 0)
+      .withSingleLine(getLast(t)).andPolicy(policy)
+    if (t.catchClause.isEmpty && t.finallyp.isEmpty) null
+    else {
+      val policy = spaceBefore(end)
+      if (policy eq null) null
+      else t.catchClause match {
+        case Some(c) if t.finallyp.isDefined =>
+          val policyFinally = spaceBefore(getLast(c))
+          if (policyFinally eq null) null else split(policy ==> policyFinally)
+        case _ => split(policy)
+      }
     }
   }
 }
@@ -3468,7 +3501,10 @@ object SplitsAfterTry extends Splits {
       ft: FT,
       fo: FormatOps,
       cfg: ScalafmtConfig,
-  ): Seq[Split] = SplitsAfterTryCatchFinally.getWithBodyFunc(_.expr)
+  ): Seq[Split] = SplitsAfterTryCatchFinally.getWithBodyFunc(
+    _.expr,
+    oneLineTry = cfg.newlines.fold || cfg.newlines.keep && ft.noBreak,
+  )
 }
 
 object SplitsBeforeCatchFinally extends Splits {

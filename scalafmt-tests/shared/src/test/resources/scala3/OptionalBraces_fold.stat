@@ -496,8 +496,7 @@ object a:
       try bar
       end try
 
-      try baz
-      finally qux
+      try baz finally qux
 
    class useThis:
       def this(foo: Foo) = this(foo)
@@ -3035,10 +3034,7 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try a
-    catch bar
-    finally a
+  def foo = try a catch bar finally a
 }
 <<< TryWithHandler: newline after catch, short
 maxColumn = 12
@@ -3125,10 +3121,7 @@ object a {
 }
 >>>
 object a {
-  def foo =
-    try a
-    catch /* c1 */ bar
-    finally a
+  def foo = try a catch /* c1 */ bar finally a
 }
 <<< #2019 infix
 newlines.infix.termSite.maxCountPerFileForKeep = 0
@@ -4281,9 +4274,7 @@ class Foo() {
 }
 >>>
 class Foo() {
-  def notOK: Boolean =
-    try { c; a + b }.foo
-    finally { c; a + b }.foo
+  def notOK: Boolean = try { c; a + b }.foo finally { c; a + b }.foo
 }
 <<< #3295 1
 maxColumn = 40
