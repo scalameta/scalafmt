@@ -284,10 +284,8 @@ object a {
 >>>
 object a {
   val ok1 = if (a > 10) Some(a) else None
-  val ok2 = if (a > 10) { Some(a) }
-  else { None }
-  val ok3 = if (aaaa > 10000) { Some(aaaa) }
-  else { None }
+  val ok2 = if (a > 10) { Some(a) } else { None }
+  val ok3 = if (aaaa > 10000) { Some(aaaa) } else { None }
 }
 <<< 2.7 #1747: one line without else
 maxColumn = 60
@@ -406,11 +404,9 @@ object a {
   val ok1 =
     if (a > 10) Some(a) else None
   val ok2 =
-    if (a > 10) { Some(a) }
-    else { None }
+    if (a > 10) { Some(a) } else { None }
   val ok3 =
-    if (aaaa > 10000) { Some(aaaa) }
-    else { None }
+    if (aaaa > 10000) { Some(aaaa) } else { None }
 }
 <<< 2.12 #1747: split on if without else
 maxColumn = 60
@@ -11481,8 +11477,7 @@ object a {
 }
 >>>
 object a {
-  if (s.costWithPenalty > 0) { preFork = false; false }
-  else true
+  if (s.costWithPenalty > 0) { preFork = false; false } else true
 
   if (s.costWithPenalty <= 0) true else { preFork = false; false }
 }
@@ -15144,8 +15139,7 @@ object a {
 >>>
 object a {
   try ffffffff
-  catch { case _ => gggg }
-  finally hhhh
+  catch { case _ => gggg } finally hhhh
 }
 <<< try-catch-finally too long, no braces
 object a {
@@ -15165,8 +15159,7 @@ object a {
 >>>
 object a {
   try f
-  catch { case _ => g }
-  finally h
+  catch { case _ => g } finally h
 }
 <<< try-catch-finally, break before finally
 object a {
@@ -15190,8 +15183,7 @@ object a {
   try f(
       x
     )
-  catch { case _ => g }
-  finally h
+  catch { case _ => g } finally h
 }
 <<< try-catch-finally, break after try
 object a {
@@ -15203,8 +15195,7 @@ object a {
 object a {
   try
     f
-  catch { case _ => g }
-  finally h
+  catch { case _ => g } finally h
 }
 <<< try-catch-finally, break only after try
 object a {
@@ -15215,8 +15206,7 @@ object a {
 object a {
   try
     f
-  catch { case _ => g }
-  finally h
+  catch { case _ => g } finally h
 }
 <<< try-catch-finally, comment before catch
 object a {
@@ -15234,8 +15224,7 @@ object a {
 >>>
 object a {
   try f // c
-  catch { case _ => g }
-  finally h
+  catch { case _ => g } finally h
 }
 <<< try-catch-finally, block comment then break before catch
 object a {
@@ -15296,8 +15285,8 @@ object a {
 >>>
 object a {
   try f
-  catch { case _ => g }
-  finally h // overflow
+  catch { case _ => g } finally h /*
+   * overflow */
 }
 <<< try-catch-finally, trailing block comment overflows
 object a {
@@ -15318,8 +15307,8 @@ object a {
 >>>
 object a {
   try f
-  catch { case _ => g }
-  finally h /* overflow */
+  catch { case _ => g } finally h /*
+   * overflow */
 }
 <<< try without catch or finally
 object a {
@@ -16364,8 +16353,7 @@ object a {
     h
   }
   do { f } while (c)
-  try { f }
-  catch { case _ => g }
+  try { f } catch { case _ => g }
 }
 <<< keyword after curly, whole construct, scala2, newlines.keywordAfterCurly = fold
 newlines.keywordAfterCurly = fold
@@ -16389,8 +16377,7 @@ object a {
     h
   }
   do { f } while (c)
-  try { f }
-  catch { case _ => g }
+  try { f } catch { case _ => g }
 }
 <<< keyword after curly, whole construct, scala2, newlines.keywordAfterCurly = unfold
 newlines.keywordAfterCurly = unfold
@@ -16442,8 +16429,7 @@ object a {
     h
   }
   do { f } while (c)
-  try { f }
-  catch { case _ => g }
+  try { f } catch { case _ => g }
 }
 <<< keyword after curly, whole construct, scala2, newlines.keywordAfterCurly = keep
 newlines.keywordAfterCurly = keep
@@ -16467,8 +16453,7 @@ object a {
     h
   }
   do { f } while (c)
-  try { f }
-  catch { case _ => g }
+  try { f } catch { case _ => g }
 }
 <<< single-line block before keyword
 object a {
@@ -16483,13 +16468,9 @@ object a {
 }
 >>>
 object a {
-  if (c) { f }
-  else { g }
-  try { f }
-  catch { case _ => g }
-  try { f }
-  catch { g }
-  finally { h }
+  if (c) { f } else { g }
+  try { f } catch { case _ => g }
+  try { f } catch { g } finally { h }
   if (c) { f }
   else { g }
   try { f }
@@ -16512,17 +16493,11 @@ object a {
 }
 >>>
 object a {
-  if (c) { f }
-  else { g }
-  try { f }
-  catch { case _ => g }
-  try { f }
-  catch { g }
-  finally { h }
-  if (c) { f }
-  else { g }
-  try { f }
-  catch { case _ => g }
+  if (c) { f } else { g }
+  try { f } catch { case _ => g }
+  try { f } catch { g } finally { h }
+  if (c) { f } else { g }
+  try { f } catch { case _ => g }
   if (c) { ffffffffff }
   else { gggggggggggggg }
 }
@@ -16570,17 +16545,11 @@ object a {
 }
 >>>
 object a {
-  if (c) { f }
-  else { g }
-  try { f }
-  catch { case _ => g }
-  try { f }
-  catch { g }
-  finally { h }
-  if (c) { f }
-  else { g }
-  try { f }
-  catch { case _ => g }
+  if (c) { f } else { g }
+  try { f } catch { case _ => g }
+  try { f } catch { g } finally { h }
+  if (c) { f } else { g }
+  try { f } catch { case _ => g }
   if (c) { ffffffffff }
   else { gggggggggggggg }
 }
@@ -16599,13 +16568,9 @@ object a {
 }
 >>>
 object a {
-  if (c) { f }
-  else { g }
-  try { f }
-  catch { case _ => g }
-  try { f }
-  catch { g }
-  finally { h }
+  if (c) { f } else { g }
+  try { f } catch { case _ => g }
+  try { f } catch { g } finally { h }
   if (c) { f }
   else { g }
   try { f }
@@ -16625,14 +16590,11 @@ object a {
 object a {
   try f catch { g } finally h
   try f
-  catch { g }
-  finally h
+  catch { g } finally h
   try { f }
-  catch { g }
-  finally hhhhhhhhhhhhhhhhh
+  catch { g } finally hhhhhhhhhhhhhhhhh
   if (c) { f }
-  else if (d) { g }
-  else { h }
+  else if (d) { g } else { h }
 }
 <<< single-line block before keyword, mixed, newlines.keywordAfterCurly = fold
 newlines.keywordAfterCurly = fold
@@ -16648,14 +16610,11 @@ object a {
 object a {
   try f catch { g } finally h
   try f
-  catch { g }
-  finally h
+  catch { g } finally h
   try { f }
-  catch { g }
-  finally hhhhhhhhhhhhhhhhh
+  catch { g } finally hhhhhhhhhhhhhhhhh
   if (c) { f }
-  else if (d) { g }
-  else { h }
+  else if (d) { g } else { h }
 }
 <<< single-line block before keyword, mixed, newlines.keywordAfterCurly = unfold
 newlines.keywordAfterCurly = unfold
@@ -16717,14 +16676,11 @@ object a {
 object a {
   try f catch { g } finally h
   try f
-  catch { g }
-  finally h
+  catch { g } finally h
   try { f }
-  catch { g }
-  finally hhhhhhhhhhhhhhhhh
+  catch { g } finally hhhhhhhhhhhhhhhhh
   if (c) { f }
-  else if (d) { g }
-  else { h }
+  else if (d) { g } else { h }
 }
 <<< single-line block before keyword, else-if chain
 object a {
@@ -16734,13 +16690,11 @@ object a {
 }
 >>>
 object a {
-  if (c) { f }
-  else if (d) g else h
+  if (c) { f } else if (d) g else h
   if (c) { ffffffffff }
   else if (d) g else h
   if (c) { ffffffffff }
-  else if (d) { g }
-  else h
+  else if (d) { g } else h
 }
 <<< single-line block before keyword, else-if chain, newlines.keywordAfterCurly = fold
 newlines.keywordAfterCurly = fold
@@ -16752,13 +16706,11 @@ object a {
 }
 >>>
 object a {
-  if (c) { f }
-  else if (d) g else h
+  if (c) { f } else if (d) g else h
   if (c) { ffffffffff }
   else if (d) g else h
   if (c) { ffffffffff }
-  else if (d) { g }
-  else h
+  else if (d) { g } else h
 }
 <<< single-line block before keyword, else-if chain, newlines.keywordAfterCurly = unfold
 newlines.keywordAfterCurly = unfold
@@ -16788,8 +16740,7 @@ object a {
 }
 >>>
 object a {
-  if (c) { f }
-  else if (d) g else h
+  if (c) { f } else if (d) g else h
   if (c) { ffffffffff }
   else if (d) g else h
   if (c) { ffffffffff }
@@ -16806,13 +16757,11 @@ object a {
 }
 >>>
 object a {
-  if (c) { f }
-  else if (d) g else h
+  if (c) { f } else if (d) g else h
   if (c) { ffffffffff }
   else if (d) g else h
   if (c) { ffffffffff }
-  else if (d) { g }
-  else h
+  else if (d) { g } else h
 }
 <<< keyword after curly, scala2, broken, newlines.keywordAfterCurly = fold
 newlines.keywordAfterCurly = fold

@@ -80,8 +80,7 @@ object Foo {
 <<< try/catch with handler
 try { foo()  } catch handler
 >>>
-try { foo() }
-catch handler
+try { foo() } catch handler
 <<< #350 assignment: short single line
 val template: String = try source.mkString finally source.close()
 >>>
@@ -114,8 +113,7 @@ val template: String = try foo catch { case e => bar } finally baz
 >>>
 val template: String =
   try foo
-  catch { case e => bar }
-  finally baz
+  catch { case e => bar } finally baz
 <<< #350 assignment: short single line with multi-catch and parens
 val template: String = ( try foo catch { case e => bar; case c => baz } )
 >>>
@@ -127,14 +125,12 @@ val template: String = try foo catch { case e => bar; case c => baz } finally qu
 >>>
 val template: String =
   try foo
-  catch { case e => bar; case c => baz }
-  finally qux
+  catch { case e => bar; case c => baz } finally qux
 <<< #350 statement: short single line with multi-catch and finally
 try foo catch { case e => bar; case c => baz } finally qux
 >>>
 try foo
-catch { case e => bar; case c => baz }
-finally qux
+catch { case e => bar; case c => baz } finally qux
 <<< #350 statement: short single line with multi-catch and comment
 try foo catch { case e => bar; case c if { true } => baz } // comment
 >>>

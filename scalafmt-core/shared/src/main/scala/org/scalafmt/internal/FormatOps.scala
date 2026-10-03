@@ -275,10 +275,16 @@ class FormatOps(
 
   def getBreaksBeforeElseChainPolicy(
       term: Term.If,
-  )(implicit cfg: ScalafmtConfig): Policy = getElseChain(term, Nil)
-    .foldLeft(Policy.noPolicy) { case (res, els) =>
-      getBreakBeforeElsePolicy(els) ==> res
+  )(implicit cfg: ScalafmtConfig): Policy = {
+    val chain = getElseChain(term, Nil)
+    lazy val first = chain.last
+    // under `keep`, an inner `else` breaks only after a curly
+    def skip(els: FT) = cfg.newlines.keep && (els ne first) &&
+      !(els.left.is[T.RightBrace] && isCurlyWithNextKeyword(els, els))
+    chain.foldLeft(Policy.noPolicy) { case (res, els) =>
+      if (skip(els)) res else getBreakBeforeElsePolicy(els) ==> res
     }
+  }
 
   private final def getElseToken(term: Term.If)(implicit
       cfg: ScalafmtConfig,

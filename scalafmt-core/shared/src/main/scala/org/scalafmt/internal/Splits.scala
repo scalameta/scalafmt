@@ -434,7 +434,11 @@ object SplitsAfterLeftBrace extends Splits {
             },
           )
         val sldPolicy = Policy ? (ownerIfNeedBreakAfterClose eq null) || {
-          if (cfg.newlines.fold) {
+          val nls = cfg.newlines
+          if (
+            nls.fold || nls.keywordAfterCurlyMultiline ||
+            !nls.keywordAfterCurlyBreaks(close.hasBreak)
+          ) {
             val pend = getSlbEndOnLeft(getLast(ownerIfNeedBreakAfterClose))
             def pendSlb(s: Split) = s
               .withSingleLine(pend, noSyntaxNL = true, extend = true)
@@ -3085,7 +3089,8 @@ object SplitsAfterIf extends Splits {
           else Space(cfg.spaces.isSpaceAfterKeyword(right))
         val slb = Split(mod.isNL, 0)(mod).withSingleLine(expire)
         val mlSplitBase = Split(mod, if (slb.isIgnored) 0 else 1).withPolicy(
-          if (isKeep) getBreakBeforeElsePolicy(t)
+          if (isKeep && !cfg.newlines.keywordAfterCurlyMultiline)
+            getBreakBeforeElsePolicy(t)
           else getBreaksBeforeElseChainPolicy(t),
         )
         val mlSplitOpt = OptionalBraces
