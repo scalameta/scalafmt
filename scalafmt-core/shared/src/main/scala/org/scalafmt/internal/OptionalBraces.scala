@@ -834,18 +834,19 @@ object OptionalBraces {
 
     val beg = getOnOrBeforeOwned(hft, tree)
     val end = getLastNonTrivial(tree)
-    val kw = next {
-      val close = getClosingIfWithinParens(end)(beg)
-      if (close eq null) end else next(close)
-    }
+    val close = getClosingIfWithinParens(end)(beg)
+    val kw = next(if (close eq null) end else next(close))
     if (!kw.left.is[A]) return null
 
     val indent = style.indent.ctrlSite.getOrElse(style.indent.getSignificant)
+    // after parens, keep the source break unless the source is ignored
+    val breakBeforeKw = style.danglingParentheses.ctrlSite &&
+      ((close eq null) || style.newlines.sourceIgnored)
     def policy =
       if (split.isNL) decideNewlinesOnlyBeforeClose(kw)
       else decideNewlinesOnlyBeforeCloseOnBreak(kw)
     split.withIndent(indent, kw, ExpiresOn.Before)
-      .andPolicy(if (style.danglingParentheses.ctrlSite) policy else null)
+      .andPolicy(if (breakBeforeKw) policy else null)
   }
 
 }

@@ -62,8 +62,7 @@ val sizes = for (row <- table) yield (
 )
 >>>
 val sizes =
-  for (row <- table)
-  yield (
+  for (row <- table) yield (
     for (cell <- row)
     yield
       if (cell == null) 0

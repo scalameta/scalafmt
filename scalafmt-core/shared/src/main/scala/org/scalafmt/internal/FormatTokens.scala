@@ -154,6 +154,13 @@ class FormatTokens(leftTok2tok: FormatTokens.TokenToIndexMap)(val arr: Array[FT]
     getClosingIfWithinParens(prevNonComment(last))(getHead(tree)) ?? last
   }
 
+  // a paren which closes the entire previous part, followed by its keyword
+  def isParenWithNextKeyword(ft: FT): Boolean = ft.left.is[T.RightParen] &&
+    ft.rightOwner.children.exists(x =>
+      (getClosingIfWithinParens(x) eq ft) || (getLastNonTrivial(x) eq ft) &&
+        isEnclosedInMatching(x),
+    )
+
   // `f` drives the scan: `Right(a)` stops with the found `a`, `Left(nextFt)`
   // advances to `nextFt` (may jump), `null` stops empty. Returns the found `a`,
   // or `null` if the scan stops empty or can no longer advance.
