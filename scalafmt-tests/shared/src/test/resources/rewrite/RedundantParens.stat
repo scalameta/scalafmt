@@ -1220,8 +1220,7 @@ object a {
   do (
     a
       + b
-  )
-  while (true)
+  ) while (true)
 }
 <<< body: do-while, braces
 object a {

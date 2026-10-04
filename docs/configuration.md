@@ -2465,6 +2465,10 @@ brace added by
 [inserting braces](#inserting-braces), `keep` behaves like `fold`, as the source
 had no brace to break after.
 
+After a parenthesis which encloses the entire preceding part, the keyword keeps
+the source break, or its absence, unless `newlines.source` is `fold` or
+`unfold`.
+
 ```scala mdoc:scalafmt
 newlines.keywordAfterCurly = keep
 ---
@@ -3231,7 +3235,9 @@ Forces dangling on open/close parens around control structures (`if`, `while`,
 `for`) when line breaks must occur.
 
 For optional braces in scala3, this parameter also controls whether to break
-before `then` or `do` in a multi-line condition.
+before `then` or `do` in a multi-line condition. After a condition enclosed in
+parentheses, the break follows the source unless `newlines.source` is `fold` or
+`unfold`.
 
 ```scala mdoc:defaults
 danglingParentheses.ctrlSite

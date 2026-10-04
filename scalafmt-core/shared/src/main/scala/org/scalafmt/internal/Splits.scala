@@ -3217,6 +3217,20 @@ object SplitsBeforeWhile extends Splits {
   }
 }
 
+// a keyword after a paren which closes the entire previous part
+object SplitsBeforeKeywordAfterParen {
+  // keep the source break, or `null` if not such a paren
+  def getOrNull(implicit
+      ft: FT,
+      fo: FormatOps,
+      cfg: ScalafmtConfig,
+  ): Seq[Split] =
+    if (cfg.newlines.sourceIgnored || !fo.tokens.isParenWithNextKeyword(ft))
+      null
+    else if (ft.hasBreak) Seq(Split(Newline2x(ft), 0))
+    else Seq(Split(Space, 0), Split(Newline, 1))
+}
+
 // a keyword after a curly which closes the entire previous part
 object SplitsBeforeKeywordAfterCurly {
   // `splits` are the ones without the parameter, `noSplit` first
@@ -3250,10 +3264,14 @@ object SplitsAfterDo extends Splits {
               .withIndents(indent)
             else {
               val exclude = insideBracesBlock(ft, eft, parens = true)
+              val keep = !cfg.newlines.sourceIgnored &&
+                isParenWithNextKeyword(prev(kwWhile))
               // break before `while` if a block inside the body spans lines
               Split(Space, 0)
                 .withSingleLine(getSlbEndOnLeft(eft), exclude = exclude)
-                .andPolicy(decideNewlinesOnlyBeforeCloseOnBreak(kwWhile))
+                .andPolicy(
+                  Policy ? keep || decideNewlinesOnlyBeforeCloseOnBreak(kwWhile),
+                )
             }
           val nlSplit = Split(Newline, 1, decideNewlinesOnlyBeforeToken(kwWhile))
             .withIndents(indent)
@@ -3363,7 +3381,7 @@ object SplitsBeforeElseYield extends Splits {
       if (right.is[T.KwYield] && isCurlyWithNextKeyword(ft, ft))
         SplitsBeforeKeywordAfterCurly.get(Seq(Split(Space, 0)))
       else Seq(Split(Space, 0))
-    else {
+    else SplitsBeforeKeywordAfterParen.getOrNull ?? {
       val noSplit =
         if (cfg.newlines.okSpaceForSource(newlinesBetween)) {
           val expire = getLast(rightOwner)
@@ -3587,7 +3605,8 @@ object SplitsBeforeCatchFinally extends Splits {
   ): Seq[Split] = {
     import ft._
     val nlSplit = Split(Newline2x(hasBlankLine), 0)
-    if (!(left.is[T.RightBrace] && isCurlyWithNextKeyword(ft, ft))) Seq(nlSplit)
+    if (!(left.is[T.RightBrace] && isCurlyWithNextKeyword(ft, ft)))
+      SplitsBeforeKeywordAfterParen.getOrNull ?? Seq(nlSplit)
     else if (cfg.newlines.keywordAfterCurlyMultiline) Seq(
       Split(Space, 0).withSingleLine(fo.tokens.getLast(rightOwner)),
       nlSplit.withPenalty(1),

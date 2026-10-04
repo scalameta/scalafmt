@@ -3945,8 +3945,7 @@ object a {
 >>>
 object a {
   if
-     ({ !Yield(2); false })
-  then {
+     ({ !Yield(2); false }) then {
     !Yield(3)
   } else {
     !Yield(4)
@@ -3974,8 +3973,7 @@ object a {
 >>>
 object a {
   while
-     ({ !Yield(2); false })
-  do {
+     ({ !Yield(2); false }) do {
     !Yield(3)
   }
 }

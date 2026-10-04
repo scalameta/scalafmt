@@ -291,14 +291,15 @@ class FormatOps(
   ): (FT, FT) = tokenJustBefore(term.elsep).nnMap { ftElsep =>
     val elsOpt = prevBeforeNonComment(ftElsep) match {
       case ft @ FT(_, _: T.KwElse, _) =>
-        val ok = cfg.newlines.keywordAfterCurlyBreaks(ft.hasBreak) || ! {
+        def ok = cfg.newlines.keywordAfterCurlyBreaks(ft.hasBreak) || ! {
           ft.leftOwner.is[Term.Block] && ft.left.is[T.RightBrace] &&
           !prevNonCommentSameLineBefore(ft).left.is[T.LeftBrace] && {
             val lb = matchingLeftOrNull(ft)
             (lb ne null) && prev(lb).left.start < term.thenp.begOffset
           }
         }
-        if (ok) ft else null
+        val keep = !cfg.newlines.sourceIgnored && isParenWithNextKeyword(ft)
+        if (if (keep) ft.hasBreak else ok) ft else null
       case _ => null
     }
     (ftElsep, elsOpt)

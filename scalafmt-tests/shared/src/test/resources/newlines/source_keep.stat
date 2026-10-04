@@ -15751,8 +15751,7 @@ object a {
     ffffffffffffffffffff(
       xxxxxxxxxxxxxxx
     )
-  )
-  else g
+  ) else g
   if (c) (
     ffffffffffffffffffff(
       xxxxxxxxxxxxxxx
@@ -15766,8 +15765,7 @@ object a {
       ffffffffffffffffffff(
         xxxxxxxxxxxxxxx
       )
-    )
-  catch { case _ => g }
+    ) catch { case _ => g }
   try (
       ffffffffffffffffffff(
         xxxxxxxxxxxxxxx
@@ -15782,8 +15780,7 @@ object a {
       gggggggggggggggggggg(
         xxxxxxxxxxxxxxx
       )
-    )
-  finally h
+    ) finally h
   try f
   catch (
       gggggggggggggggggggg(
@@ -15795,8 +15792,7 @@ object a {
     ffffffffffffffffffff(
       xxxxxxxxxxxxxxx
     )
-  )
-  while (c)
+  ) while (c)
   do (
     ffffffffffffffffffff(
       xxxxxxxxxxxxxxx
@@ -15854,8 +15850,7 @@ object a:
       cccccccccccccccccccc(
         xxxxxxxxxxxxxxx
       )
-    )
-  then f
+    ) then f
   else g
   if (
       cccccccccccccccccccc(
@@ -15871,8 +15866,7 @@ object a:
       cccccccccccccccccccc(
         xxxxxxxxxxxxxxx
       )
-    )
-  do f
+    ) do f
   while (
       cccccccccccccccccccc(
         xxxxxxxxxxxxxxx
@@ -15884,8 +15878,7 @@ object a:
   do f
   for (
       x <- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    )
-  do f(x)
+    ) do f(x)
   for (
       x <- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     )
@@ -15898,8 +15891,7 @@ object a:
       ffffffffffffffffffff(
         xxxxxxxxxxxxxxx
       )
-  )
-  else g
+  ) else g
   if c then
     (
       ffffffffffffffffffff(
@@ -18593,8 +18585,7 @@ object a {
     ffffffffffffffffffff(
       xxxxxxxxxxxxxxx
     )
-  )
-  else g
+  ) else g
   if (c) (
     ffffffffffffffffffff(
       xxxxxxxxxxxxxxx
@@ -18608,8 +18599,7 @@ object a {
       ffffffffffffffffffff(
         xxxxxxxxxxxxxxx
       )
-    )
-  catch { case _ => g }
+    ) catch { case _ => g }
   try (
       ffffffffffffffffffff(
         xxxxxxxxxxxxxxx
@@ -18624,8 +18614,7 @@ object a {
       gggggggggggggggggggg(
         xxxxxxxxxxxxxxx
       )
-    )
-  finally h
+    ) finally h
   try f
   catch (
       gggggggggggggggggggg(
@@ -18637,8 +18626,7 @@ object a {
     ffffffffffffffffffff(
       xxxxxxxxxxxxxxx
     )
-  )
-  while (c)
+  ) while (c)
   do (
     ffffffffffffffffffff(
       xxxxxxxxxxxxxxx
@@ -18697,8 +18685,7 @@ object a:
       cccccccccccccccccccc(
         xxxxxxxxxxxxxxx
       )
-    )
-  then f
+    ) then f
   else g
   if (
       cccccccccccccccccccc(
@@ -18714,8 +18701,7 @@ object a:
       cccccccccccccccccccc(
         xxxxxxxxxxxxxxx
       )
-    )
-  do f
+    ) do f
   while (
       cccccccccccccccccccc(
         xxxxxxxxxxxxxxx
@@ -18727,8 +18713,7 @@ object a:
   do f
   for (
       x <- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    )
-  do f(x)
+    ) do f(x)
   for (
       x <- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     )
@@ -18741,8 +18726,7 @@ object a:
       ffffffffffffffffffff(
         xxxxxxxxxxxxxxx
       )
-  )
-  else g
+  ) else g
   if c then
     (
       ffffffffffffffffffff(
@@ -18991,14 +18975,12 @@ object a:
       x <- foo(
         xs
       )
-    )
-  do f(x)
+    ) do f(x)
   for (
       x <- foo(
         xs
       )
-    )
-    yield x
+    ) yield x
 <<< keyword after the parens of a for, scala3, indent.yieldKeyword = false
 runner.dialect = scala3
 indent.yieldKeyword = false
@@ -19020,14 +19002,12 @@ object a:
       x <- foo(
         xs
       )
-    )
-  do f(x)
+    ) do f(x)
   for (
       x <- foo(
         xs
       )
-    )
-  yield x
+    ) yield x
 <<< keyword after the parens of a for, broken, scala2
 object a {
   for (
