@@ -178,6 +178,7 @@ class InfixSplits(
     fullInfix: Member.Infix,
     leftInfix: Member.Infix,
 )(implicit style: ScalafmtConfig, ftoks: FormatTokens) {
+
   private val isLeftInfix = leftInfix eq app
   private val isAfterOp = ft.meta.leftOwner eq app.op
   private val appPrecedence = app.precedence

@@ -13,6 +13,7 @@ import scala.util.control.NoStackTrace
 sealed abstract class Error(msg: String) extends Exception(msg)
 
 object Error {
+
   import LoggerOps._
 
   val cfgUrl = "https://scalameta.org/scalafmt/docs/configuration.html"

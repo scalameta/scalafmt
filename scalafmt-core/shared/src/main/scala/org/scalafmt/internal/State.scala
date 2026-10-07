@@ -395,6 +395,7 @@ final class State(
   private def prevNonCommentSameLine(implicit tokens: FormatTokens): State =
     if (split.isNL || !tokens(depth).left.is[T.Comment]) this
     else prev.prevNonCommentSameLine
+
 }
 
 object State {
@@ -609,4 +610,5 @@ object State {
     findTreeOrParentSimple(tree)(isInterpolation) ne null
 
   private val nullFT = FT(null, null, null)
+
 }

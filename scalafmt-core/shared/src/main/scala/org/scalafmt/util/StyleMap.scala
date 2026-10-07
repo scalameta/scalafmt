@@ -11,6 +11,7 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 class StyleMap(tokens: FormatTokens, initStyle: ScalafmtConfig) {
+
   import StyleMap._
   val literalR: FilterMatcher = initStyle.binPack.literalsRegex
   private val prefix = "\\s*scalafmt: ".r.pattern

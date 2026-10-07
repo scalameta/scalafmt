@@ -28,6 +28,7 @@ case class RunnerSettings(
     fatalWarnings: Boolean = false,
     dialectFeatures: Seq[RunnerSettings.DialectFeature] = Nil,
 ) {
+
   @inline
   private[scalafmt] def getDialect = dialect.value
   private[scalafmt] implicit lazy val getDialectForParser: Dialect = getDialect
@@ -70,6 +71,7 @@ case class RunnerSettings(
 }
 
 object RunnerSettings {
+
   implicit lazy val surface: generic.Surface[RunnerSettings] =
     generic.deriveSurface
 

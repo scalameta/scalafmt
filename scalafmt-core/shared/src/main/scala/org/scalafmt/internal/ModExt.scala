@@ -15,6 +15,7 @@ case class ModExt(
     alt: ModExt = null,
     noAltIndent: Boolean = false,
 ) {
+
   @inline
   def isNL: Boolean = mod.isNL
 

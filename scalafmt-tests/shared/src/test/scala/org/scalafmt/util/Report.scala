@@ -7,6 +7,7 @@ import scalatags.Text
 import scalatags.Text.all._
 
 object Report {
+
   val MaxVisits = 8 // 2 ** 6
 
   def heatmap(results: Seq[Result]): String = reportBody(div(
@@ -124,4 +125,5 @@ object Report {
     }
     sb.toString()
   }
+
 }

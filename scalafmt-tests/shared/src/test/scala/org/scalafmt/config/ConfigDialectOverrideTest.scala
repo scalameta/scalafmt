@@ -7,6 +7,7 @@ import scala.meta.dialects.Scala213
 import metaconfig.{ConfError, Configured}
 
 class ConfigDialectOverrideTest extends SharedFunSuiteBase {
+
   private val generatedMap = DialectMacro.dialectMap
 
   test("throws on an non-existent setting") {
@@ -101,4 +102,5 @@ class ConfigDialectOverrideTest extends SharedFunSuiteBase {
     generatedMap.keys.filter(!omittedMethods.contains(_))
       .foreach(key => generatedMap(key)(baseDialect, true))
   }
+
 }

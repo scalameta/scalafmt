@@ -30,6 +30,7 @@ import org.openjdk.jmh.annotations._
 @Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
 @BenchmarkMode(Array(Mode.AverageTime)) @OutputTimeUnit(TimeUnit.MILLISECONDS)
 abstract class MicroBenchmark(path: String*) extends FormatBenchmark {
+
   val classLoader = getClass.getClassLoader
   var code: String = _
 

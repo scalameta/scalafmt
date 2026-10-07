@@ -18,6 +18,7 @@ import scala.collection.mutable
 /** Stateless helper functions on `scala.meta.Tree`.
   */
 object TreeOps {
+
   import TokenOps._
 
   // Shared (allocated once) stable comparator for treeAt's children array,

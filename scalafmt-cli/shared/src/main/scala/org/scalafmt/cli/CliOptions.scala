@@ -101,6 +101,7 @@ case class CliOptions(
     check: Boolean = false,
     asyncFormat: Boolean = false,
 ) {
+
   val writeMode: WriteMode = writeModeOpt.getOrElse(WriteMode.Override)
 
   def cwd: AbsoluteFile = common.workingDirectory

@@ -166,6 +166,7 @@ object Extensions {
     private def jsRoots(version: String, ss: Seq[Def.SettingsDefinition]) = platformRoots(VirtualAxis.js, version, ss)
     private def nativeRoots(version: String, ss: Seq[Def.SettingsDefinition]) =
       platformRoots(VirtualAxis.native, version, ss)
+
   }
 
 }

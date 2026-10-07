@@ -16,6 +16,7 @@ import munit.Assertions._
 import munit.Location
 
 trait HasTests extends FormatAssertions {
+
   import HasTests._
 
   lazy val debugResults = mutable.ArrayBuilder.make[Result]
@@ -204,6 +205,7 @@ trait HasTests extends FormatAssertions {
   }
 
   private def trimmed(arg: String): String = arg.trim + "\n"
+
 }
 
 object HasTests {

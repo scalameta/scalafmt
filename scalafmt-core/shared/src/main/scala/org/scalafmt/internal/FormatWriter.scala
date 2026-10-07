@@ -21,6 +21,7 @@ import scala.collection.{AbstractIterator, mutable}
 /** Produces formatted output from sequence of splits.
   */
 class FormatWriter(formatOps: FormatOps) {
+
   import FormatWriter._
   import formatOps._
   import formatOps.tokens._
@@ -458,6 +459,7 @@ class FormatWriter(formatOps: FormatOps) {
       }
 
     class Entry(val i: Int) {
+
       val curr = locations(i)
       private implicit val style: ScalafmtConfig = curr.style
       def previous = locations(math.max(i - 1, 0))
@@ -870,6 +872,7 @@ class FormatWriter(formatOps: FormatOps) {
             if (style.docstrings.style eq Docstrings.SpaceAsterisk) 2 else 1,
             if (style.docstrings.style eq Docstrings.AsteriskSpace) 1 else 0,
           ) {
+
         def this(text: String)(implicit sb: StringBuilder) = this(
           if (curr.isStandalone) style.docstrings.wrap else Docstrings.Wrap.keep,
         )(text)
@@ -1194,6 +1197,7 @@ class FormatWriter(formatOps: FormatOps) {
           lastBreak = sb.length
           startNewLine(spaces).append('*')
         }
+
       }
 
     }
@@ -1478,6 +1482,7 @@ class FormatWriter(formatOps: FormatOps) {
       )
 
     private class ExtraBlankTokens {
+
       val extraBlankMap = new mutable.HashMap[Int, Int]
       val allowNonTop = initStyle.newlines.allowNonTopStatBlankLines
       def setIdx(idx: Int, cnt: Int) = extraBlankMap.updateWith(idx) {
@@ -1658,6 +1663,7 @@ class FormatWriter(formatOps: FormatOps) {
       private val traverseFunc: Tree => Boolean = traversePf.lift(_).isEmpty
 
       if (locations.length == tokens.length) traverse(topSourceTree)
+
     }
 
     lazy val extraBlankTokens: Map[Int, Int] =
@@ -1786,6 +1792,7 @@ object FormatWriter {
   }
 
   class AlignState(locations: Array[FormatLocation], isMultiline: Boolean) {
+
     // all blocks must be here, to get final flush
     private val blocks = new java.util.HashMap[Tree, AlignBlock]
 
@@ -1855,6 +1862,7 @@ object FormatWriter {
     }
 
     def flush(f: AlignBlock => Unit): Unit = blocks.values().forEach(f(_))
+
   }
 
   class AlignStopColumn(var column: Int = -1) {

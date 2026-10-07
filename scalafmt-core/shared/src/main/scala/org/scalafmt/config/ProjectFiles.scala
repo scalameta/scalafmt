@@ -102,6 +102,7 @@ object ProjectFiles {
   object Layout {
 
     case object StandardConvention extends Layout {
+
       private val mainLabels = Seq("main")
       private val testLabels = Seq("test", "it")
 
@@ -157,6 +158,7 @@ object ProjectFiles {
         case "scala-3" if !is3 => s3
         case _ => None
       }
+
     }
 
     implicit val reader: ConfCodecEx[Layout] = ConfCodecEx

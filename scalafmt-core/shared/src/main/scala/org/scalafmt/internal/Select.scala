@@ -11,6 +11,7 @@ import scala.annotation.tailrec
 class Select(val tree: Term, val qual: Term, val nameFt: FT) {}
 
 object Select {
+
   def apply(tree: Term.Select)(implicit ftoks: FormatTokens): Select =
     new Select(tree, tree.qual, ftoks.getHead(tree.name))
   def apply(tree: Term.SelectMatch, kw: FT): Select =

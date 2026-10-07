@@ -285,4 +285,5 @@ object Readme {
   }
   def image(url: String) =
     img(src := url, width := "100%", textAlign := "center")
+
 }
