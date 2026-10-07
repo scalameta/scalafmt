@@ -12,6 +12,7 @@ import scala.util.Try
 class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
     private[dynamic] val target: Object,
 ) {
+
   import ScalafmtReflectConfig._
   private val targetCls = target.getClass
 
@@ -112,6 +113,7 @@ class ScalafmtReflectConfig private[dynamic] (val fmtReflect: ScalafmtReflect)(
 
   private def withTarget(obj: Object): ScalafmtReflectConfig =
     new ScalafmtReflectConfig(fmtReflect)(obj)
+
 }
 
 private object ScalafmtReflectConfig {

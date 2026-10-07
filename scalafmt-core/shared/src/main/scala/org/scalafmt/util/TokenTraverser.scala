@@ -11,6 +11,7 @@ import scala.annotation.tailrec
 class TokenTraverser(tokens: Tokens, input: Input)(implicit
     style: ScalafmtConfig,
 ) {
+
   private[this] val (tok2idx, excludedTokens) = {
     val map = Map.newBuilder[T, Int]
     val excluded = Set.newBuilder[TokenOps.TokenHash]

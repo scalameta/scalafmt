@@ -358,6 +358,7 @@ object FormatTokensRewrite {
 
   private[rewrite] class Session(rules: Seq[Rule], arr: Array[FT])
       extends WithSpan {
+
     private implicit val implicitSession: Session = this
     // map FT index to index in tokens below
     private val claimed = new mutable.HashMap[Int, Int]()

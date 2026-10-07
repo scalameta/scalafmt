@@ -11,6 +11,7 @@ import scala.annotation.tailrec
 import scala.util.control.NoStackTrace
 
 class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
+
   private val exitCode = new AtomicReference(ExitCode.Ok)
   private val exitCodePerFile = new ConcurrentHashMap[String, ExitCode]()
 
@@ -57,6 +58,7 @@ class ScalafmtCliReporter(options: CliOptions) extends ScalafmtReporter {
 
   override def downloadOutputStreamWriter(): OutputStreamWriter =
     new OutputStreamWriter(options.common.info.outputStream)
+
 }
 
 private class FailedToFormat(filename: String, cause: Throwable)

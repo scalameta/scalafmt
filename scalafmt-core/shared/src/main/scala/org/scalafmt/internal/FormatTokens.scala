@@ -472,6 +472,7 @@ object FormatTokens {
     * so correctness never depends on the `sizeHint`.
     */
   final class TokenToIndexMap(sizeHint: Int) {
+
     private[this] var cap = {
       var c = 16
       val target = if (sizeHint > 0) sizeHint * 2 else 16
@@ -532,6 +533,7 @@ object FormatTokens {
         j += 1
       }
     }
+
   }
 
   class Offsets(val nonWs: Int, val width: Int, val nonWsNonPunct: Int) {

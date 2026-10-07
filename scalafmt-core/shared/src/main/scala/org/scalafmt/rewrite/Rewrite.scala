@@ -14,6 +14,7 @@ import scala.collection.mutable
 import metaconfig.ConfCodecEx
 
 case class RewriteCtx(style: ScalafmtConfig, input: Input, tree: Tree) {
+
   import RewriteCtx._
 
   implicit val dialect: Dialect = style.dialect

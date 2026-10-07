@@ -141,4 +141,5 @@ private class GitOpsImpl(val workingDirectory: AbsoluteFile) extends GitOps {
 
   private def getFileFromGitStatusLine(s: String): String =
     trimQuotes(extractPathPart(s))
+
 }

@@ -18,6 +18,7 @@ class DynamicSuite extends FunSuite {
   import DynamicSuite._
 
   class Format(name: String, cfgFunc: ScalafmtDynamic => ScalafmtDynamic) {
+
     val download = new ByteArrayOutputStream()
     def downloadLogs: String = download.toString()
     val out = new ByteArrayOutputStream()
@@ -119,6 +120,7 @@ class DynamicSuite extends FunSuite {
         s"Formatter shouldn't have produced plausible format ($path)",
       )
     }
+
   }
 
   def check(name: String, cfgFunc: ScalafmtDynamic => ScalafmtDynamic = identity)(

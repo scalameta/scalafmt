@@ -21,6 +21,7 @@ class FormatOps(
     baseStyle: ScalafmtConfig,
     val filename: String = "",
 ) {
+
   import FormatOps._
   import PolicyOps._
   import TokenOps._

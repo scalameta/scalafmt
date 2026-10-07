@@ -810,6 +810,7 @@ trait CliTestBehavior {
 }
 
 class CliTest extends AbstractCliTest with CliTestBehavior {
+
   if (PlatformCompat.isJVM) testCli("1.6.0-RC4") // test for runDynamic, incompatible with Scala Native
   testCli(stableVersion) // test for runScalafmt
 

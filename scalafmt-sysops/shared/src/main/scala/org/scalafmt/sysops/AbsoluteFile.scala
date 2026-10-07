@@ -8,6 +8,7 @@ import scala.io.Codec
 
 /** Wrapper around java.io.File with an absolute path. */
 final class AbsoluteFile(val path: Path) extends AnyVal {
+
   def exists: Boolean = PlatformFileOps.exists(path)
   def /(other: Path) = join(other)
   def /(other: String) = join(other)
@@ -48,6 +49,7 @@ final class AbsoluteFile(val path: Path) extends AnyVal {
   override def toString: String = path.toString
   @inline
   def getFileName: String = path.getFileName.toString
+
 }
 
 object AbsoluteFile {

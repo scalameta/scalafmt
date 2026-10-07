@@ -9,6 +9,7 @@ sealed class ScalafmtDynamicError(msg: String, cause: Throwable = null)
     extends Error(msg, cause)
 
 object ScalafmtDynamicError {
+
   sealed abstract class ConfigError(
       val configPath: Path,
       msg: String,

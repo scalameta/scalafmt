@@ -108,4 +108,5 @@ object PlatformFileOps {
     .toFuture
 
   def cwd() = js.Dynamic.global.process.cwd().asInstanceOf[String]
+
 }

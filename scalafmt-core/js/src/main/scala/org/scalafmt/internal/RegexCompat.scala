@@ -59,4 +59,5 @@ private[scalafmt] object RegexCompat {
       baseText: String,
       beforeText: String,
   ): Array[String] = baseText.split(s"(?=$beforeText)")
+
 }

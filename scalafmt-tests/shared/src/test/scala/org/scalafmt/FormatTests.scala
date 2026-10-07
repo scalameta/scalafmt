@@ -14,6 +14,7 @@ import munit.diff.Diff
 
 class FormatTests
     extends SharedFunSuiteBase with CanRunTests with FormatAssertions {
+
   import LoggerOps._
   lazy val onlyUnit = UnitTests.tests.exists(_.only.isDefined)
   lazy val onlyManual = !onlyUnit && ManualTests.tests.exists(_.only.isDefined)
@@ -165,4 +166,5 @@ class FormatTests
       Report.heatmap(debugResults.result()),
     )
   }
+
 }

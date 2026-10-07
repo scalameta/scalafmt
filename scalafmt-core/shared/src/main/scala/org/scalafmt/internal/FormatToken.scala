@@ -82,6 +82,7 @@ case class FormatToken(left: T, right: T, meta: FT.Meta) {
   def leftOwner: Tree = meta.leftOwner
   @inline
   def rightOwner: Tree = meta.rightOwner
+
 }
 
 object FormatToken {

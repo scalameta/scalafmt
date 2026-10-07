@@ -13,6 +13,7 @@ import scala.language.implicitConversions
   * Used by [[Policy]] to enforce non-local formatting.
   */
 abstract class Policy {
+
   import Policy._
 
   /** applied to every decision until expire */
@@ -55,6 +56,7 @@ abstract class Policy {
   final def nonEmpty: Boolean = this ne NoPolicy
 
   def toStringNested: String = s"($this)"
+
 }
 
 object Policy {
@@ -65,6 +67,7 @@ object Policy {
   def noPolicy: Policy = NoPolicy
 
   object NoPolicy extends Policy {
+
     override def toString: String = "NoPolicy"
     override def toStringNested: String = toString
     override def f: Pf = PartialFunction.empty
@@ -90,6 +93,7 @@ object Policy {
     override def filter(pred: Clause => Boolean): Policy = this
     override def exists(pred: Clause => Boolean): Boolean = false
     override def switch(trigger: T, on: Boolean): Policy = this
+
   }
 
   def apply(
@@ -154,6 +158,7 @@ object Policy {
     }
 
   abstract class Clause(implicit val fl: FileLine) extends Policy {
+
     def prefix: String
     def suffix: String = ""
 
@@ -189,6 +194,7 @@ object Policy {
 
     override def appliesOn(nextft: FT)(pred: Clause => Boolean): MaybeBool =
       MaybeBool(pred(this))
+
   }
 
   private class ClauseImpl(
@@ -247,6 +253,7 @@ object Policy {
   }
 
   private class OrElse(p1: Policy, p2: Policy) extends WithConv {
+
     override def toString: String =
       s"${p1.toStringNested} | ${p2.toStringNested}"
 
@@ -269,9 +276,11 @@ object Policy {
 
     override def exists(pred: Clause => Boolean): Boolean = p1.exists(pred) ||
       p2.exists(pred)
+
   }
 
   private class AndThen(p1: Policy, p2: Policy) extends WithConv {
+
     override def toString: String =
       s"${p1.toStringNested} & ${p2.toStringNested}"
 
@@ -300,6 +309,7 @@ object Policy {
 
     override def exists(pred: Clause => Boolean): Boolean = p1.exists(pred) ||
       p2.exists(pred)
+
   }
 
   private object Expire {
@@ -312,6 +322,7 @@ object Policy {
 
   private class Expire private (policy: Policy, endPolicy: End.WithPos)
       extends WithConv {
+
     override def toString: String = s"$policy <== $endPolicy"
     override def toStringNested: String = toString
 
@@ -346,6 +357,7 @@ object Policy {
       else policy.appliesOn(nextft)(pred)
 
     override def exists(pred: Clause => Boolean): Boolean = policy.exists(pred)
+
   }
 
   private object Delay {
@@ -358,6 +370,7 @@ object Policy {
 
   private class Delay private (val policy: Policy, val begPolicy: End.WithPos)
       extends Policy {
+
     override def toString: String = s"$begPolicy ==> $policy"
     override def toStringNested: String = toString
 
@@ -393,9 +406,11 @@ object Policy {
     override def appliesOn(nextft: FT)(pred: Clause => Boolean): MaybeBool =
       if (begPolicy.notExpiredBy(nextft)) MaybeBool.Maybe
       else policy.appliesOn(nextft)(pred)
+
   }
 
   abstract class WithBeforeAndAfter extends WithConv {
+
     def before: Policy
     def after: Policy
 
@@ -420,6 +435,7 @@ object Policy {
 
     override def exists(pred: Clause => Boolean): Boolean = before
       .exists(pred) || after.exists(pred)
+
   }
 
   private object Relay {
@@ -518,6 +534,7 @@ object Policy {
     def apply(exp: FT): End.WithPos
   }
   object End {
+
     def <(exp: FT): End.WithPos = BeforeLeft(exp)
     def <=(exp: FT): End.WithPos = OnLeft(exp)
     def >=(exp: FT): End.WithPos = OnRight(exp)
@@ -566,6 +583,7 @@ object Policy {
     case object Never extends WithPos {
       override val endIdx: Int = Int.MaxValue
     }
+
   }
 
   implicit def implicitOptionPolicyToPolicy(obj: Option[Policy]): Policy = obj

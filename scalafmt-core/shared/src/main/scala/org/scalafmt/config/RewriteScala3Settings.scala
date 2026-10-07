@@ -16,6 +16,7 @@ case class RewriteScala3Settings(
 )
 
 object RewriteScala3Settings {
+
   implicit val surface: generic.Surface[RewriteScala3Settings] =
     generic.deriveSurface
   implicit val encoder: ConfEncoder[RewriteScala3Settings] = generic

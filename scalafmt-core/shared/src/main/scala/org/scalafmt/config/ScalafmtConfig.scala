@@ -127,6 +127,7 @@ case class ScalafmtConfig(
     private val formatOn: List[String] = ScalafmtConfig.defaultFormatOn,
     private val formatOff: List[String] = ScalafmtConfig.defaultFormatOff,
 ) {
+
   import ScalafmtConfig._
 
   private[scalafmt] lazy val (
@@ -317,6 +318,7 @@ case class ScalafmtConfig(
 }
 
 object ScalafmtConfig {
+
   implicit lazy val surface: generic.Surface[ScalafmtConfig] =
     generic.deriveSurface
   implicit lazy val encoder: ConfEncoder[ScalafmtConfig] = generic

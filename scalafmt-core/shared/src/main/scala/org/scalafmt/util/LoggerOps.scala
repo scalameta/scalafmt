@@ -17,6 +17,7 @@ import sourcecode.Text
 /** Debugging utility.
   */
 object LoggerOps {
+
   private val loggerLike = new DynamicVariable[LoggerLike](Logger)
   def logger = loggerLike.value
   def logger(flag: Boolean): Unit =

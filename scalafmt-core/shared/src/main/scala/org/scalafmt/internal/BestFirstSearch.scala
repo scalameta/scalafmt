@@ -16,6 +16,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
     val formatOps: FormatOps,
     formatWriter: FormatWriter,
 ) {
+
   import BestFirstSearch._
   import LoggerOps._
   import TreeOps._
@@ -399,6 +400,7 @@ private class BestFirstSearch private (range: Set[Range])(implicit
       SearchResult(deepestYet, reachedEOF = false)
     }
   }
+
 }
 
 case class SearchResult(state: State, reachedEOF: Boolean)
@@ -480,6 +482,7 @@ object BestFirstSearch {
       runner: RunnerSettings,
       pruneSlowStates: ScalafmtOptimizer.PruneSlowStates,
   ) {
+
     var explored = 0
     var deepestYet = State.start
     // keyed by dense state depth; array (null = absent) avoids the per-state
@@ -552,6 +555,7 @@ object BestFirstSearch {
         Some(new StateStats(tokens, runner, ScalafmtOptimizer.PruneSlowStates.No))
       else None
     }
+
   }
 
 }

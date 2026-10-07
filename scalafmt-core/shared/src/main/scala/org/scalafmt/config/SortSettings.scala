@@ -9,6 +9,7 @@ import sourcecode.Text
 case class SortSettings(order: List[SortSettings.ModKey])
 
 object SortSettings {
+
   final case class ModKey(name: String, matches: Mod => Boolean)
 
   object ModKey {

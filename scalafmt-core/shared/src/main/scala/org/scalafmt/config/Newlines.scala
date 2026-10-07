@@ -214,6 +214,7 @@ case class Newlines(
     annotation: Boolean = true,
     selfAnnotation: Boolean = true,
 ) {
+
   if (
     implicitParamListModifierForce.nonEmpty &&
     implicitParamListModifierPrefer.nonEmpty
@@ -342,6 +343,7 @@ case class Newlines(
 }
 
 object Newlines {
+
   implicit lazy val surface: generic.Surface[Newlines] = generic.deriveSurface
   implicit lazy val codec: ConfCodecEx[Newlines] = generic
     .deriveCodecEx(Newlines()).noTypos.withSectionRenames(
@@ -441,6 +443,7 @@ object Newlines {
   }
 
   object Infix {
+
     private[Newlines] val default = Infix()
     implicit lazy val surface: generic.Surface[Infix] = generic.deriveSurface
     implicit lazy val codec: ConfCodecEx[Infix] = generic.deriveCodecEx(default)

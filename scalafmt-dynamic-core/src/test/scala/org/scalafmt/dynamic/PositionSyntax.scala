@@ -80,6 +80,7 @@ object PositionSyntax {
       case Position.None => ""
       case range: Position.Range => lineContent(range.startLine).text
     }
+
   }
 
 }

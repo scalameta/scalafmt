@@ -5,6 +5,7 @@ import java.io.PrintStream
 import java.nio.file.{Files, Paths, StandardOpenOption}
 
 package object website {
+
   def replaceMargin(s: String): String = {
     val buf = new StringBuilder
 

@@ -142,6 +142,7 @@ case class Align(
 }
 
 object Align {
+
   // no vertical alignment whatsoever, if you find any vertical alignment with
   // this settings, please report an issue.
   val none: Align = Align(

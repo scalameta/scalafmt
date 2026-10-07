@@ -34,6 +34,7 @@ package object scalafmt {
   private[scalafmt] implicit class ImplicitNullable[A >: Null <: AnyRef](
       private val obj: A,
   ) extends AnyVal {
+
     def ??(or: => A): A = if (obj != null) obj else or
     def &&&[B >: Null](or: => B): B = if (obj == null) null else or
     def ===(or: => A): Boolean = (obj ne null) && (obj eq or)
@@ -46,6 +47,7 @@ package object scalafmt {
     def nnFor(f: A => Unit): Unit = if (obj != null) f(obj)
     def nnFold[B](or: => B)(f: A => B): B = if (obj == null) or else f(obj)
     def nnMapOr[B](f: A => B)(or: => B): B = if (obj == null) or else f(obj)
+
   }
 
   sealed trait MaybeBool {

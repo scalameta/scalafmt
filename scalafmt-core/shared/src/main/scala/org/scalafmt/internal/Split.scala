@@ -59,6 +59,7 @@ case class Split(
     penalty: Int = 0,
     rank: Int = 0,
 )(implicit val fileLineStack: FileLineStack) {
+
   import PolicyOps._
 
   def withNoIndent: Split = mod match {
@@ -322,6 +323,7 @@ case class Split(
     val opt = if (optimalAt eq null) "" else s", opt=$optimalAt"
     s"""${prefix}c=$cost[$penalty] $modExt:[$fileLineStack]($policy$opt)"""
   }
+
 }
 
 object Split {

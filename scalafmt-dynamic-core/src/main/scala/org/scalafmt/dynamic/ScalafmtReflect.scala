@@ -15,6 +15,7 @@ case class ScalafmtReflect(
     version: ScalafmtVersion,
     ownedBy: ScalafmtModuleLoader = null,
 ) {
+
   def loadClass(name: String): Class[_] = classLoader.loadClass(name)
 
   // FIXME: the class does not exist for version old versions, e.g. v0.2.8
@@ -173,4 +174,5 @@ case class ScalafmtReflect(
     case x: Closeable if ownedBy eq loader => x.close()
     case _ =>
   }
+
 }

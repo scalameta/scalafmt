@@ -105,4 +105,5 @@ object PlatformFileOps {
   ): Future[Unit] = GranularPlatformAsyncOps.writeFileAsync(path, content)
 
   def cwd() = System.getProperty("user.dir")
+
 }
