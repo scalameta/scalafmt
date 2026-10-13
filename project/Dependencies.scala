@@ -13,9 +13,12 @@ object Dependencies {
 
   val metaconfigV = "0.18.8"
   val scalametaV = "4.17.4"
-  val coursier = "2.1.24"
   val munitV = "1.3.6"
   val mdocV = mdoc.BuildInfo.version
+
+  private val coursier212 = "2.1.24" // coursier does not publish Scala 2.12 artifacts after 2.1.24
+  private val coursier213 = "2.1.26"
+  val coursier = Def.setting(if (scalaBinaryVersion.value == "2.12") coursier212 else coursier213)
 
   val smorgN = "org.scalameta"
   val smpkgN = "scalameta"

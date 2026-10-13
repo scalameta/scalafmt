@@ -106,12 +106,7 @@ lazy val dynamicCore = projectMatrix("scalafmt-dynamic-core").settings(
 lazy val dynamic = projectMatrix("scalafmt-dynamic").settings(
   moduleName := "scalafmt-dynamic",
   description := "Implementation of scalafmt-dynamic using coursier",
-  libraryDependencies += {
-    val pkg = "io.get-coursier" %% "coursier" % coursier
-    if (isScala3.value) pkg.cross(CrossVersion.for3Use2_13)
-      .exclude("org.scala-lang.modules", "scala-collection-compat_2.13")
-    else pkg
-  },
+  libraryDependencies += "io.get-coursier" %% "coursier" % coursier.value,
   sharedTestSettings,
   scalacSettings,
 ).crossJvm(Mima.settings).dependsOn(dynamicCore).aggregate(dynamicCore)
@@ -361,7 +356,7 @@ def buildInfoSettings(pkg: String, obj: String): Seq[Def.Setting[?]] = Seq(
     "scala212" -> scala212,
     "scala213" -> scala213,
     "scala3" -> scala3,
-    "coursier" -> coursier,
+    "coursier" -> coursier.value,
     "commit" -> sys.process.Process("git rev-parse HEAD").lazyLines_!.head,
     "timestamp" -> System.currentTimeMillis().toString,
     scalaVersion,
