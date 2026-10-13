@@ -329,11 +329,8 @@ lazy val benchmarks = projectMatrix("scalafmt-benchmarks").settings(
   ),
 ).crossJvm().dependsOn(core, cli).enablePlugins(JmhPlugin)
 
-lazy val docs = projectMatrix(
-  "scalafmt-docs",
-  VirtualAxis.jvm,
-  VirtualAxis.scalaABIVersion(scala212),
-).settings(unpublished, mdoc := (Compile / run).evaluated).crossJvmAt(scala212)
+lazy val docs = projectMatrix("scalafmt-docs")
+  .settings(unpublished, mdoc := (Compile / run).evaluated).crossJvmAt(scala213)
   .dependsOn(cli, dynamic).enablePlugins(DocusaurusPlugin)
 
 val V = "\\d+\\.\\d+\\.\\d+"

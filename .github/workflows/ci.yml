@@ -24,6 +24,9 @@ permissions:
 #
 # Within a worker every command is its own `!cancelled()`-guarded step, so a
 # failure never masks its siblings — you see all of them in one run.
+#
+# The `~N` minutes in the job headers are one sample from a distribution that
+# moves. Measure them again before you rebalance the jobs.
 # ─────────────────────────────────────────────────────────────────────────
 
 jobs:
@@ -119,7 +122,7 @@ jobs:
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
         run: yarn install && yarn format-check
 
-  w2-intellij-jvm3:        # community Intellij (~8.1) + test-jvm 3.3 (~2.5)
+  w2-jvm3-intellij:        # community Intellij (~8.1) + test-jvm 3.3 (~2.5)
     runs-on: ubuntu-24.04
     steps:
       - *checkout
@@ -132,7 +135,7 @@ jobs:
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
         run: sbt communityTestsIntellij/testFull
 
-  w3-other-jvm213-asm:     # community Other (~7.1) + test-jvm 2.13 (~3.3) + assembly (~0.6)
+  w3-jvm213-other-asm-docs:  # community Other (~7.1) + test-jvm 2.13 (~3.3) + assembly (~0.6) + docs (~2.6)
     runs-on: ubuntu-24.04
     steps:
       - *checkout
@@ -145,8 +148,13 @@ jobs:
         run: sbt mima-2_13
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
         run: sbt communityTestsOther/testFull
+      # docs is Scala 2.13 (mdoc + yarn build); reuses the 2.13 projects compiled
+      # above. linkHygiene=true also fails the run on dead doc links.
+      # --server: through the thin client, docs.Main forks without the property.
+      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
+        run: sbt --server -Dmdoc.linkHygiene=true docs/docusaurusCreateSite
 
-  w4-scala3-js-nativecompile:  # community Scala3 (~7.0) + test-js 2.13 (~2.2) + native compile 2.13 (~1.0)
+  w4-js-scala3-nativecompile:  # community Scala3 (~7.0) + test-js 2.13 (~2.2) + native compile 2.13 (~1.0)
     runs-on: ubuntu-24.04
     steps:
       - *checkout
@@ -161,7 +169,7 @@ jobs:
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
         run: sbt communityTestsScala3/testFull
 
-  w5-scala2-jvm212-docs:   # community Scala2 (~5.3) + test-jvm 2.12 (~3.3) + docs (~2.6)  [the 2.12 cluster]
+  w5-jvm212-scala2:        # community Scala2 (~5.3) + test-jvm 2.12 (~3.3)  [the 2.12 cluster]
     runs-on: ubuntu-24.04
     steps:
       - *checkout
@@ -173,11 +181,6 @@ jobs:
         run: sbt mima-2_12
       - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
         run: sbt communityTestsScala2/testFull
-      # docs is Scala 2.12 (mdoc + yarn build); reuses the 2.12 core compiled
-      # above. linkHygiene=true also fails the run on dead doc links.
-      # --server: through the thin client, docs.Main forks without the property.
-      - if: ${{ !cancelled() && steps.env.outcome == 'success' }}
-        run: sbt --server -Dmdoc.linkHygiene=true docs/docusaurusCreateSite
 
   post-community-windows:  # Windows-only community coverage (line-ending handling differs)
     if: ${{ github.event_name == 'push' }}
