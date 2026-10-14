@@ -14998,3 +14998,287 @@ object a:
       xxxxxxxxxxxxxxx
     ))
   else g
+<<< keyword after curly, scala2, broken
+object a {
+  if (c) {
+    f
+  }
+  else {
+    g
+  }
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+  finally {
+    h
+  }
+  do {
+    f
+  }
+  while (c)
+  for {
+    x <- xs
+  }
+  yield x
+}
+>>>
+object a {
+  if (c) { f } else { g }
+  try { f }
+  catch { case _ => g } finally { h }
+  do { f } while (c)
+  for { x <- xs } yield x
+}
+<<< keyword after curly, scala2, broken, indent.yieldKeyword = false
+indent.yieldKeyword = false
+===
+object a {
+  if (c) {
+    f
+  }
+  else {
+    g
+  }
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+  finally {
+    h
+  }
+  do {
+    f
+  }
+  while (c)
+  for {
+    x <- xs
+  }
+  yield x
+}
+>>>
+object a {
+  if (c) { f } else { g }
+  try { f }
+  catch { case _ => g } finally { h }
+  do { f } while (c)
+  for { x <- xs } yield x
+}
+<<< keyword after curly, scala2, tucked
+object a {
+  if (c) {
+    f
+  } else {
+    g
+  }
+  try {
+    f
+  } catch {
+    case _ => g
+  } finally {
+    h
+  }
+  do {
+    f
+  } while (c)
+  for {
+    x <- xs
+  } yield x
+}
+>>>
+object a {
+  if (c) { f } else { g }
+  try { f }
+  catch { case _ => g } finally { h }
+  do { f } while (c)
+  for { x <- xs } yield x
+}
+<<< keyword after curly, scala2, tucked, indent.yieldKeyword = false
+indent.yieldKeyword = false
+===
+object a {
+  if (c) {
+    f
+  } else {
+    g
+  }
+  try {
+    f
+  } catch {
+    case _ => g
+  } finally {
+    h
+  }
+  do {
+    f
+  } while (c)
+  for {
+    x <- xs
+  } yield x
+}
+>>>
+object a {
+  if (c) { f } else { g }
+  try { f }
+  catch { case _ => g } finally { h }
+  do { f } while (c)
+  for { x <- xs } yield x
+}
+<<< keyword after curly, scala3, broken
+runner.dialect = scala3
+===
+object a:
+  if {
+    c
+  }
+  then f
+  else g
+  if c then {
+    f
+  }
+  else {
+    g
+  }
+  while {
+    c
+  }
+  do f
+  for {
+    x <- xs
+  }
+  do f(x)
+  for {
+    x <- xs
+  }
+  yield x
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+>>>
+object a:
+  if { c } then f else g
+  if c then { f } else { g }
+  while { c } do f
+  for { x <- xs } do f(x)
+  for { x <- xs } yield x
+  try { f } catch { case _ => g }
+<<< keyword after curly, scala3, broken, indent.yieldKeyword = false
+runner.dialect = scala3
+indent.yieldKeyword = false
+===
+object a:
+  if {
+    c
+  }
+  then f
+  else g
+  if c then {
+    f
+  }
+  else {
+    g
+  }
+  while {
+    c
+  }
+  do f
+  for {
+    x <- xs
+  }
+  do f(x)
+  for {
+    x <- xs
+  }
+  yield x
+  try {
+    f
+  }
+  catch {
+    case _ => g
+  }
+>>>
+object a:
+  if { c } then f else g
+  if c then { f } else { g }
+  while { c } do f
+  for { x <- xs } do f(x)
+  for { x <- xs } yield x
+  try { f } catch { case _ => g }
+<<< keyword after curly, scala3, tucked
+runner.dialect = scala3
+===
+object a:
+  if {
+    c
+  } then f
+  else g
+  if c then {
+    f
+  } else {
+    g
+  }
+  while {
+    c
+  } do f
+  for {
+    x <- xs
+  } do f(x)
+  for {
+    x <- xs
+  } yield x
+  try {
+    f
+  } catch {
+    case _ => g
+  }
+>>>
+object a:
+  if { c } then f else g
+  if c then { f } else { g }
+  while { c } do f
+  for { x <- xs } do f(x)
+  for { x <- xs } yield x
+  try { f } catch { case _ => g }
+<<< keyword after curly, scala3, tucked, indent.yieldKeyword = false
+runner.dialect = scala3
+indent.yieldKeyword = false
+===
+object a:
+  if {
+    c
+  } then f
+  else g
+  if c then {
+    f
+  } else {
+    g
+  }
+  while {
+    c
+  } do f
+  for {
+    x <- xs
+  } do f(x)
+  for {
+    x <- xs
+  } yield x
+  try {
+    f
+  } catch {
+    case _ => g
+  }
+>>>
+object a:
+  if { c } then f else g
+  if c then { f } else { g }
+  while { c } do f
+  for { x <- xs } do f(x)
+  for { x <- xs } yield x
+  try { f } catch { case _ => g }
