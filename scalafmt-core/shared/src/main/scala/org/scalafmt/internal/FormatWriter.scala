@@ -411,7 +411,8 @@ class FormatWriter(formatOps: FormatOps) {
           !endFt.meta.formatOff && eLoc.hasBreakAfter &&
           !eLoc.missingBracesIndent.contains(begIndent) && checkSpan
         ) {
-          val addLine = style.newlines.alwaysBeforeElseAfterCurlyIf ||
+          // an inserted brace has no source break to keep
+          val addLine = style.newlines.keywordAfterCurlyBreaks(false) ||
             (endFt.right match {
               case _: T.KwElse | _: T.KwCatch | _: T.KwFinally =>
                 !TreeOps.isCurlyWithNextKeyword(owner, endFt)

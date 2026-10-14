@@ -285,13 +285,13 @@ class FormatOps(
   ): (FT, FT) = tokenJustBefore(term.elsep).nnMap { ftElsep =>
     val elsOpt = prevBeforeNonComment(ftElsep) match {
       case ft @ FT(_, _: T.KwElse, _) =>
-        val ok = cfg.newlines.alwaysBeforeElseAfterCurlyIf || ! {
+        val ok = cfg.newlines.keywordAfterCurlyBreaks(ft.hasBreak) || ! {
           ft.leftOwner.is[Term.Block] && ft.left.is[T.RightBrace] &&
           !prevNonCommentSameLineBefore(ft).left.is[T.LeftBrace] && {
             val lb = matchingLeftOrNull(ft)
             (lb ne null) && prev(lb).left.start < term.thenp.begOffset
           }
-        } || !cfg.newlines.sourceIgnored && ft.hasBreak
+        }
         if (ok) ft else null
       case _ => null
     }

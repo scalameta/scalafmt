@@ -79,16 +79,6 @@ import metaconfig.annotation._
   *     xs.map { x => x + 1 }
   *     }}}
   *
-  * @param alwaysBeforeElseAfterCurlyIf
-  *   if true, add a new line between the end of a curly if and the following
-  *   else. For example
-  *   {{{
-  *   if(someCond) {
-  *     // ...
-  *   }
-  *   else //...
-  *   }}}
-  *
   * @param beforeMultilineDef
   *   If unfold (or true), add a newline before the body of a multiline def
   *   without curly braces. See #1126 for discussion. For example,
@@ -192,7 +182,6 @@ case class Newlines(
     implicitParamListModifierForce: Seq[BeforeAfter] = Seq.empty,
     @ExtraName("usingParamListModifierPrefer")
     implicitParamListModifierPrefer: Option[BeforeAfter] = None,
-    alwaysBeforeElseAfterCurlyIf: Boolean = false,
     private[config] val keywordAfterCurly: Option[IgnoreSourceSplit] = None,
     forceBeforeAssign: ForceBeforeMultilineAssign =
       ForceBeforeMultilineAssign.never,
@@ -279,6 +268,16 @@ case class Newlines(
     .getOrElse(beforeCurlyLambdaParams)
 
   lazy val getBeforeBody = beforeBody.getOrElse(source)
+  lazy val getKeywordAfterCurly = keywordAfterCurly
+    .getOrElse(if (sourceIgnored) Newlines.fold else Newlines.keep)
+  def keywordAfterCurlyBreaks(hasBreak: => Boolean): Boolean =
+    getKeywordAfterCurly match {
+      case Newlines.fold => false
+      case Newlines.keep => hasBreak
+      case _ => true
+    }
+  def keywordAfterCurlyMultiline: Boolean = getKeywordAfterCurly eq
+    Newlines.unfoldMultiline
   def beforeBodyUnfold = beforeBody.contains(Newlines.unfold)
   lazy val shouldForceBeforeMultilineAssign = forceBeforeMultilineAssign
     .getOrElse {
@@ -372,6 +371,9 @@ object Newlines {
         "beforeMultiline",
         "beforeBody",
       ),
+      SectionRename { case Conf.Bool(value) =>
+        if (value) Conf.Str("unfold") else Conf.Null()
+      }("alwaysBeforeElseAfterCurlyIf", "keywordAfterCurly"),
     )
 
   sealed abstract class IgnoreSourceSplit {

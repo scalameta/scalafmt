@@ -15335,13 +15335,17 @@ object a {
 }
 >>>
 object a {
-  do { f } while (
+  do { f }
+  while (
     cccccccccccccc && dddddddddddddd
   )
   try { f }
-  catch { case _ => g } finally { h }
-  do { f } while (c)
-  try { f } catch { case _ => g }
+  catch { case _ => g }
+  finally { h }
+  do { f }
+  while (c)
+  try { f }
+  catch { case _ => g }
 }
 <<< keyword after curly, whole construct, scala2, newlines.keywordAfterCurly = unfoldMultiline
 newlines.keywordAfterCurly = unfoldMultiline
@@ -15356,11 +15360,13 @@ object a {
 }
 >>>
 object a {
-  do { f } while (
+  do { f }
+  while (
     cccccccccccccc && dddddddddddddd
   )
   try { f }
-  catch { case _ => g } finally { h }
+  catch { case _ => g }
+  finally { h }
   do { f } while (c)
   try { f } catch { case _ => g }
 }
@@ -15424,10 +15430,14 @@ object a {
 >>>
 object a {
   if (c) { f } else { g }
-  try { f } catch { case _ => g }
-  try { f } catch { g } finally { h }
+  try { f }
+  catch { case _ => g }
+  try { f }
+  catch { g }
+  finally { h }
   if (c) { f } else { g }
-  try { f } catch { case _ => g }
+  try { f }
+  catch { case _ => g }
   if (c) { ffffffffff }
   else { gggggggggggggg }
 }
@@ -15505,9 +15515,11 @@ object a {
   try f catch { g } finally h
   try f catch { g } finally h
   try { f }
-  catch { g } finally hhhhhhhhhhhhhhhhh
+  catch { g }
+  finally hhhhhhhhhhhhhhhhh
   if (c) { f }
-  else if (d) { g } else { h }
+  else if (d) { g }
+  else { h }
 }
 <<< single-line block before keyword, mixed, newlines.keywordAfterCurly = unfoldMultiline
 newlines.keywordAfterCurly = unfoldMultiline
@@ -15524,9 +15536,11 @@ object a {
   try f catch { g } finally h
   try f catch { g } finally h
   try { f }
-  catch { g } finally hhhhhhhhhhhhhhhhh
+  catch { g }
+  finally hhhhhhhhhhhhhhhhh
   if (c) { f }
-  else if (d) { g } else { h }
+  else if (d) { g }
+  else { h }
 }
 <<< single-line block before keyword, else-if chain
 object a {
@@ -15569,10 +15583,12 @@ object a {
 >>>
 object a {
   if (c) { f } else if (d) g else h
-  if (c) { ffffffffff } else if (d) g
+  if (c) { ffffffffff }
+  else if (d) g
   else h
   if (c) { ffffffffff }
-  else if (d) { g } else h
+  else if (d) { g }
+  else h
 }
 <<< single-line block before keyword, else-if chain, newlines.keywordAfterCurly = unfoldMultiline
 newlines.keywordAfterCurly = unfoldMultiline
@@ -15585,10 +15601,12 @@ object a {
 >>>
 object a {
   if (c) { f } else if (d) g else h
-  if (c) { ffffffffff } else if (d) g
+  if (c) { ffffffffff }
+  else if (d) g
   else h
   if (c) { ffffffffff }
-  else if (d) { g } else h
+  else if (d) { g }
+  else h
 }
 <<< keyword after curly, scala2, broken, newlines.keywordAfterCurly = fold
 newlines.keywordAfterCurly = fold
@@ -15658,8 +15676,10 @@ object a {
 object a {
   if (c) { f } else { g }
   try { f }
-  catch { case _ => g } finally { h }
-  do { f } while (c)
+  catch { case _ => g }
+  finally { h }
+  do { f }
+  while (c)
   for { x <- xs } yield x
 }
 <<< keyword after curly, scala2, broken, newlines.keywordAfterCurly = unfoldMultiline
@@ -15694,7 +15714,8 @@ object a {
 object a {
   if (c) { f } else { g }
   try { f }
-  catch { case _ => g } finally { h }
+  catch { case _ => g }
+  finally { h }
   do { f } while (c)
   for { x <- xs } yield x
 }
@@ -15756,8 +15777,10 @@ object a {
 object a {
   if (c) { f } else { g }
   try { f }
-  catch { case _ => g } finally { h }
-  do { f } while (c)
+  catch { case _ => g }
+  finally { h }
+  do { f }
+  while (c)
   for { x <- xs } yield x
 }
 <<< keyword after curly, scala2, tucked, newlines.keywordAfterCurly = unfoldMultiline
@@ -15787,7 +15810,8 @@ object a {
 object a {
   if (c) { f } else { g }
   try { f }
-  catch { case _ => g } finally { h }
+  catch { case _ => g }
+  finally { h }
   do { f } while (c)
   for { x <- xs } yield x
 }
@@ -15874,7 +15898,8 @@ object a:
   while { c } do f
   for { x <- xs } do f(x)
   for { x <- xs } yield x
-  try { f } catch { case _ => g }
+  try { f }
+  catch { case _ => g }
 <<< keyword after curly, scala3, broken, newlines.keywordAfterCurly = unfoldMultiline
 runner.dialect = scala3
 newlines.keywordAfterCurly = unfoldMultiline
@@ -15988,7 +16013,8 @@ object a:
   while { c } do f
   for { x <- xs } do f(x)
   for { x <- xs } yield x
-  try { f } catch { case _ => g }
+  try { f }
+  catch { case _ => g }
 <<< keyword after curly, scala3, tucked, newlines.keywordAfterCurly = unfoldMultiline
 runner.dialect = scala3
 newlines.keywordAfterCurly = unfoldMultiline

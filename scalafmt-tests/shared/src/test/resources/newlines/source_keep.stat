@@ -16401,7 +16401,8 @@ object a {
 }
 >>>
 object a {
-  do { f } while (
+  do { f }
+  while (
     cccccccccccccc && dddddddddddddd
   )
   try { f }
@@ -16409,7 +16410,8 @@ object a {
   finally {
     h
   }
-  do { f } while (c)
+  do { f }
+  while (c)
   try { f }
   catch { case _ => g }
 }
@@ -16426,7 +16428,8 @@ object a {
 }
 >>>
 object a {
-  do { f } while (
+  do { f }
+  while (
     cccccccccccccc && dddddddddddddd
   )
   try { f }
@@ -16744,23 +16747,19 @@ object a {
 object a {
   if (c) {
     f
-  }
-  else {
+  } else {
     g
   }
   try {
     f
-  }
-  catch {
+  } catch {
     case _ => g
-  }
-  finally {
+  } finally {
     h
   }
   do {
     f
-  }
-  while (c)
+  } while (c)
   for {
     x <- xs
   } yield x
@@ -16986,19 +16985,23 @@ object a {
 object a {
   if (c) {
     f
-  } else {
+  }
+  else {
     g
   }
   try {
     f
-  } catch {
+  }
+  catch {
     case _ => g
-  } finally {
+  }
+  finally {
     h
   }
   do {
     f
-  } while (c)
+  }
+  while (c)
   for {
     x <- xs
   } yield x
@@ -17030,19 +17033,23 @@ object a {
 object a {
   if (c) {
     f
-  } else {
+  }
+  else {
     g
   }
   try {
     f
-  } catch {
+  }
+  catch {
     case _ => g
-  } finally {
+  }
+  finally {
     h
   }
   do {
     f
-  } while (c)
+  }
+  while (c)
   for {
     x <- xs
   } yield x
@@ -17090,8 +17097,7 @@ object a:
   else g
   if c then {
     f
-  }
-  else {
+  } else {
     g
   }
   while {
@@ -17107,8 +17113,7 @@ object a:
   } yield x
   try {
     f
-  }
-  catch {
+  } catch {
     case _ => g
   }
 <<< keyword after curly, scala3, broken, newlines.keywordAfterCurly = unfold
@@ -17381,7 +17386,8 @@ object a:
   else g
   if c then {
     f
-  } else {
+  }
+  else {
     g
   }
   while {
@@ -17395,7 +17401,8 @@ object a:
   } yield x
   try {
     f
-  } catch {
+  }
+  catch {
     case _ => g
   }
 <<< keyword after curly, scala3, tucked, newlines.keywordAfterCurly = unfoldMultiline
@@ -17434,7 +17441,8 @@ object a:
   else g
   if c then {
     f
-  } else {
+  }
+  else {
     g
   }
   while {
@@ -17448,7 +17456,8 @@ object a:
   } yield x
   try {
     f
-  } catch {
+  }
+  catch {
     case _ => g
   }
 <<< keyword after a brace inside the clause, scala2, tucked, newlines.keywordAfterCurly = keep
