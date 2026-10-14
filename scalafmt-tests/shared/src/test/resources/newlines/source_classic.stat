@@ -19175,3 +19175,415 @@ object a:
   if { c } then f else g
   while { c } do f
   for { x <- xs } yield x
+<<< keyword after the parens of a for, scala2
+object a {
+  for (
+    x <- foo(
+      xs
+    )
+  ) yield x
+}
+>>>
+object a {
+  for (
+    x <- foo(
+      xs
+    )
+  ) yield x
+}
+<<< keyword after the parens of a for, scala2, indent.yieldKeyword = false
+indent.yieldKeyword = false
+===
+object a {
+  for (
+    x <- foo(
+      xs
+    )
+  ) yield x
+}
+>>>
+object a {
+  for (
+    x <- foo(
+      xs
+    )
+  ) yield x
+}
+<<< keyword after the parens of a for, scala3
+runner.dialect = scala3
+===
+object a:
+  for (
+    x <- foo(
+      xs
+    )
+  ) do f(x)
+  for (
+    x <- foo(
+      xs
+    )
+  ) yield x
+>>>
+object a:
+  for (
+      x <- foo(
+        xs
+      )
+    )
+  do f(x)
+  for (
+      x <- foo(
+        xs
+      )
+    )
+    yield x
+<<< keyword after the parens of a for, scala3, indent.yieldKeyword = false
+runner.dialect = scala3
+indent.yieldKeyword = false
+===
+object a:
+  for (
+    x <- foo(
+      xs
+    )
+  ) do f(x)
+  for (
+    x <- foo(
+      xs
+    )
+  ) yield x
+>>>
+object a:
+  for (
+      x <- foo(
+        xs
+      )
+    )
+  do f(x)
+  for (
+      x <- foo(
+        xs
+      )
+    )
+  yield x
+<<< keyword after the parens of a for, broken, scala2
+object a {
+  for (
+    x <- foo(
+      xs
+    )
+  )
+  yield x
+  for (x <- xs)
+  yield x
+  for (x <- xs) yield x
+}
+>>>
+object a {
+  for (
+    x <- foo(
+      xs
+    )
+  )
+    yield x
+  for (x <- xs)
+    yield x
+  for (x <- xs) yield x
+}
+<<< keyword after the parens of a for, broken, scala2, indent.yieldKeyword = false
+indent.yieldKeyword = false
+===
+object a {
+  for (
+    x <- foo(
+      xs
+    )
+  )
+  yield x
+  for (x <- xs)
+  yield x
+  for (x <- xs) yield x
+}
+>>>
+object a {
+  for (
+    x <- foo(
+      xs
+    )
+  )
+  yield x
+  for (x <- xs)
+  yield x
+  for (x <- xs) yield x
+}
+<<< keyword after the parens of a for, broken, scala3
+runner.dialect = scala3
+===
+object a:
+  for (
+    x <- foo(
+      xs
+    )
+  )
+  do f(x)
+  for (
+    x <- foo(
+      xs
+    )
+  )
+  yield x
+  for (x <- xs)
+  yield x
+  for (x <- xs) yield x
+>>>
+object a:
+  for (
+      x <- foo(
+        xs
+      )
+    )
+  do f(x)
+  for (
+      x <- foo(
+        xs
+      )
+    )
+    yield x
+  for (x <- xs)
+    yield x
+  for (x <- xs) yield x
+<<< keyword after the parens of a for, broken, scala3, indent.yieldKeyword = false
+runner.dialect = scala3
+indent.yieldKeyword = false
+===
+object a:
+  for (
+    x <- foo(
+      xs
+    )
+  )
+  do f(x)
+  for (
+    x <- foo(
+      xs
+    )
+  )
+  yield x
+  for (x <- xs)
+  yield x
+  for (x <- xs) yield x
+>>>
+object a:
+  for (
+      x <- foo(
+        xs
+      )
+    )
+  do f(x)
+  for (
+      x <- foo(
+        xs
+      )
+    )
+  yield x
+  for (x <- xs)
+  yield x
+  for (x <- xs) yield x
+<<< keyword after parens with enumerators, scala2
+object a {
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  ) yield x
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  )
+  yield x
+}
+>>>
+object a {
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  ) yield x
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  )
+    yield x
+}
+<<< keyword after parens with enumerators, scala3
+runner.dialect = scala3
+===
+object a:
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  ) do f(x)
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  )
+  do f(x)
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  ) yield x
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  )
+  yield x
+>>>
+object a:
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  ) do f(x)
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  )
+  do f(x)
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  ) yield x
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  )
+    yield x
+<<< keyword after parens with enumerators, scala2, newlines.keywordAfterCurly = unfold
+newlines.keywordAfterCurly = unfold
+===
+object a {
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  ) yield x
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  )
+  yield x
+}
+>>>
+object a {
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  ) yield x
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  )
+    yield x
+}
+<<< keyword after parens with enumerators, scala3, newlines.keywordAfterCurly = unfold
+runner.dialect = scala3
+newlines.keywordAfterCurly = unfold
+===
+object a:
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  ) do f(x)
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  )
+  do f(x)
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  ) yield x
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  )
+  yield x
+>>>
+object a:
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  ) do f(x)
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  )
+  do f(x)
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  ) yield x
+  for (
+    x <- xxxxxxxxxxxxxxxx;
+    y <- yyyyyyyyyyyyyyyy
+  )
+    yield x
+<<< keyword after the parens of a for, broken, scala2, newlines.keywordAfterCurly = unfold
+newlines.keywordAfterCurly = unfold
+===
+object a {
+  for (
+    x <- foo(
+      xs
+    )
+  )
+  yield x
+  for (x <- xs)
+  yield x
+  for (x <- xs) yield x
+}
+>>>
+object a {
+  for (
+    x <- foo(
+      xs
+    )
+  )
+    yield x
+  for (x <- xs)
+    yield x
+  for (x <- xs) yield x
+}
+<<< keyword after the parens of a for, broken, scala3, newlines.keywordAfterCurly = unfold
+runner.dialect = scala3
+newlines.keywordAfterCurly = unfold
+===
+object a:
+  for (
+    x <- foo(
+      xs
+    )
+  )
+  do f(x)
+  for (
+    x <- foo(
+      xs
+    )
+  )
+  yield x
+  for (x <- xs)
+  yield x
+  for (x <- xs) yield x
+>>>
+object a:
+  for (
+      x <- foo(
+        xs
+      )
+    )
+  do f(x)
+  for (
+      x <- foo(
+        xs
+      )
+    )
+    yield x
+  for (x <- xs)
+    yield x
+  for (x <- xs) yield x
