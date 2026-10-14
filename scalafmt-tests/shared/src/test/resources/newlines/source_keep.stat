@@ -34,7 +34,8 @@ c
 object a {
   if (a) {
     println("bbb")
-  } else {
+  }
+  else {
     c
   }
 }
@@ -51,9 +52,11 @@ object a {
   if ('0' <= c && c <= '9') { c - '0' }
   else if ('A' <= c && c <= 'F') {
     c - 'A' + 10
-  } else if ('a' <= c && c <= 'f') {
+  }
+  else if ('a' <= c && c <= 'f') {
     c - 'a' + 10
-  } else {
+  }
+  else {
     -1
   }
 }
@@ -333,7 +336,8 @@ object a {
   }
   val ok3 = if (aaaa > 10000) {
     Some(aaaa)
-  } else {
+  }
+  else {
     None
   }
 }
@@ -15944,14 +15948,17 @@ object a {
 object a {
   if (c) {
     f
-  } else {
+  }
+  else {
     g
   }
   try {
     f
-  } catch {
+  }
+  catch {
     case _ => g
-  } finally {
+  }
+  finally {
     h
   }
   do {
@@ -15994,14 +16001,17 @@ object a {
 object a {
   if (c) {
     f
-  } else {
+  }
+  else {
     g
   }
   try {
     f
-  } catch {
+  }
+  catch {
     case _ => g
-  } finally {
+  }
+  finally {
     h
   }
   do {
@@ -16140,7 +16150,8 @@ object a:
   else g
   if c then {
     f
-  } else {
+  }
+  else {
     g
   }
   while {
@@ -16156,7 +16167,8 @@ object a:
   } yield x
   try {
     f
-  } catch {
+  }
+  catch {
     case _ => g
   }
 <<< keyword after curly, scala3, broken, indent.yieldKeyword = false
@@ -16202,7 +16214,8 @@ object a:
   else g
   if c then {
     f
-  } else {
+  }
+  else {
     g
   }
   while {
@@ -16218,7 +16231,8 @@ object a:
   } yield x
   try {
     f
-  } catch {
+  }
+  catch {
     case _ => g
   }
 <<< keyword after curly, scala3, tucked

@@ -790,7 +790,8 @@ object a {
         kinds contains VAR
         val isNamedDynamic =
           r.isDynamic && r.name == ResolvableReferenceExpression.APPLY_DYNAMIC_NAMED
-      } else kinds contains VAL
+      }
+      else kinds contains VAL
     }
   }
 }

@@ -3517,6 +3517,7 @@ object SplitsBeforeCatchFinally extends Splits {
   ): Seq[Split] = {
     import ft._
     val ok = cfg.newlines.alwaysBeforeElseAfterCurlyIf ||
+      !cfg.newlines.sourceIgnored && hasBreak ||
       !(left.is[T.RightBrace] && isCurlyWithNextKeyword(ft, ft))
     if (ok) Seq(Split(Newline2x(hasBlankLine), 0)) else Nil
   }

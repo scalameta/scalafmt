@@ -304,7 +304,8 @@ object a {
     for (sym <- imported.alternatives)
       if (isQualifyingImplicit(name, sym, pre, imported = true))
         f(sym)
-  } else if (isQualifyingImplicit(name, imported, pre, imported = true))
+  }
+  else if (isQualifyingImplicit(name, imported, pre, imported = true))
     f(imported)
 }
 <<< #4133 nested braces around expression ending with `if`-without-`else`
@@ -325,7 +326,8 @@ object a {
     for (sym <- imported.alternatives)
       if (isQualifyingImplicit(name, sym, pre, imported = true))
         f(sym)
-  } else if (isQualifyingImplicit(name, imported, pre, imported = true))
+  }
+  else if (isQualifyingImplicit(name, imported, pre, imported = true))
     f(imported)
 }
 <<< #4133 `else` after unrelated `if` with optional-braces, no end marker

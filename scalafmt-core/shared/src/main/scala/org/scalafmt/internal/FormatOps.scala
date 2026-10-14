@@ -291,7 +291,7 @@ class FormatOps(
             val lb = matchingLeftOrNull(ft)
             (lb ne null) && prev(lb).left.start < term.thenp.begOffset
           }
-        }
+        } || !cfg.newlines.sourceIgnored && ft.hasBreak
         if (ok) ft else null
       case _ => null
     }
