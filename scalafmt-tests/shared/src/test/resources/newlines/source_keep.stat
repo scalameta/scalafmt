@@ -15325,3 +15325,587 @@ object a {
 object a {
   try f
 }
+<<< keyword after a brace inside the clause, scala2, tucked
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar } catch { case _ => g }
+  try f catch { case _ => g } finally xs.map { x => x }
+  try f catch h + { i } finally j
+  do foo + { bar } while (c)
+}
+>>>
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar } catch { case _ => g }
+  try f
+  catch { case _ => g }
+  finally xs.map { x => x }
+  try f catch h + { i } finally j
+  do foo + { bar } while (c)
+}
+<<< keyword after a brace inside the clause, scala2, tucked, newlines.alwaysBeforeElseAfterCurlyIf = true
+newlines.alwaysBeforeElseAfterCurlyIf = true
+===
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar } catch { case _ => g }
+  try f catch { case _ => g } finally xs.map { x => x }
+  try f catch h + { i } finally j
+  do foo + { bar } while (c)
+}
+>>>
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar } catch { case _ => g }
+  try f
+  catch { case _ => g }
+  finally xs.map { x => x }
+  try f catch h + { i } finally j
+  do foo + { bar } while (c)
+}
+<<< keyword after a brace inside the clause, scala2, broken
+object a {
+  if (c) foo + { bar }
+  else g
+  try foo { bar }
+  catch { case _ => g }
+  try f catch h + { i }
+  finally j
+  do foo + { bar }
+  while (c)
+}
+>>>
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar }
+  catch { case _ => g }
+  try f
+  catch h + { i }
+  finally j
+  do foo + { bar }
+  while (c)
+}
+<<< keyword after a brace inside the clause, scala2, broken, newlines.alwaysBeforeElseAfterCurlyIf = true
+newlines.alwaysBeforeElseAfterCurlyIf = true
+===
+object a {
+  if (c) foo + { bar }
+  else g
+  try foo { bar }
+  catch { case _ => g }
+  try f catch h + { i }
+  finally j
+  do foo + { bar }
+  while (c)
+}
+>>>
+object a {
+  if (c) foo + { bar } else g
+  try foo { bar }
+  catch { case _ => g }
+  try f
+  catch h + { i }
+  finally j
+  do foo + { bar }
+  while (c)
+}
+<<< keyword after a brace inside the clause, scala3, tucked
+runner.dialect = scala3
+===
+object a:
+  if foo + { c } then f else g
+  if c then foo + { bar } else g
+  while foo + { c } do f
+  for x <- xs ++ { ys } do f(x)
+  for x <- xs ++ { ys } yield x
+>>>
+object a:
+  if foo + { c } then f else g
+  if c then foo + { bar } else g
+  while foo + { c } do f
+  for x <- xs ++ { ys } do f(x)
+  for x <- xs ++ { ys } yield x
+<<< keyword after a brace inside the clause, scala3, tucked, newlines.alwaysBeforeElseAfterCurlyIf = true
+runner.dialect = scala3
+newlines.alwaysBeforeElseAfterCurlyIf = true
+===
+object a:
+  if foo + { c } then f else g
+  if c then foo + { bar } else g
+  while foo + { c } do f
+  for x <- xs ++ { ys } do f(x)
+  for x <- xs ++ { ys } yield x
+>>>
+object a:
+  if foo + { c } then f else g
+  if c then foo + { bar } else g
+  while foo + { c } do f
+  for x <- xs ++ { ys } do f(x)
+  for x <- xs ++ { ys } yield x
+<<< keyword after a brace inside the clause, scala3, broken
+runner.dialect = scala3
+===
+object a:
+  if foo + { c }
+  then f
+  else g
+  if c then foo + { bar }
+  else g
+  while foo + { c }
+  do f
+  for x <- xs ++ { ys }
+  do f(x)
+  for x <- xs ++ { ys }
+  yield x
+>>>
+object a:
+  if foo + { c }
+  then f
+  else g
+  if c then foo + { bar } else g
+  while foo + { c }
+  do f
+  for x <- xs ++ { ys }
+  do f(x)
+  for x <- xs ++ { ys } yield x
+<<< keyword after a brace inside the clause, scala3, broken, newlines.alwaysBeforeElseAfterCurlyIf = true
+runner.dialect = scala3
+newlines.alwaysBeforeElseAfterCurlyIf = true
+===
+object a:
+  if foo + { c }
+  then f
+  else g
+  if c then foo + { bar }
+  else g
+  while foo + { c }
+  do f
+  for x <- xs ++ { ys }
+  do f(x)
+  for x <- xs ++ { ys }
+  yield x
+>>>
+object a:
+  if foo + { c }
+  then f
+  else g
+  if c then foo + { bar } else g
+  while foo + { c }
+  do f
+  for x <- xs ++ { ys }
+  do f(x)
+  for x <- xs ++ { ys } yield x
+<<< keyword after a brace inside the clause, scala2, multiline
+object a {
+  if (c) foo + {
+    bar
+  } else g
+  try foo {
+    bar
+  } catch { case _ => g }
+  try f catch h + {
+    i
+  } finally j
+  do foo + {
+    bar
+  } while (c)
+}
+>>>
+object a {
+  if (c) foo + {
+    bar
+  }
+  else g
+  try foo {
+      bar
+    }
+  catch { case _ => g }
+  try f
+  catch h + {
+      i
+    }
+  finally j
+  do foo + {
+    bar
+  } while (c)
+}
+<<< keyword after a brace inside the clause, scala2, multiline, newlines.alwaysBeforeElseAfterCurlyIf = true
+newlines.alwaysBeforeElseAfterCurlyIf = true
+===
+object a {
+  if (c) foo + {
+    bar
+  } else g
+  try foo {
+    bar
+  } catch { case _ => g }
+  try f catch h + {
+    i
+  } finally j
+  do foo + {
+    bar
+  } while (c)
+}
+>>>
+object a {
+  if (c) foo + {
+    bar
+  }
+  else g
+  try foo {
+      bar
+    }
+  catch { case _ => g }
+  try f
+  catch h + {
+      i
+    }
+  finally j
+  do foo + {
+    bar
+  } while (c)
+}
+<<< keyword after a brace inside the clause, scala3, multiline
+runner.dialect = scala3
+===
+object a:
+  if foo + {
+    c
+  } then f
+  else g
+  if c then foo + {
+    bar
+  } else g
+  while foo + {
+    c
+  } do f
+  for x <- xs ++ {
+    ys
+  } do f(x)
+  for x <- xs ++ {
+    ys
+  } yield x
+>>>
+object a:
+  if foo + {
+      c
+    }
+  then f
+  else g
+  if c then
+    foo + {
+      bar
+    }
+  else g
+  while foo + {
+      c
+    }
+  do f
+  for x <- xs ++ {
+      ys
+    }
+  do f(x)
+  for x <- xs ++ {
+      ys
+    }
+  yield x
+<<< keyword after a brace inside the clause, scala3, multiline, newlines.alwaysBeforeElseAfterCurlyIf = true
+runner.dialect = scala3
+newlines.alwaysBeforeElseAfterCurlyIf = true
+===
+object a:
+  if foo + {
+    c
+  } then f
+  else g
+  if c then foo + {
+    bar
+  } else g
+  while foo + {
+    c
+  } do f
+  for x <- xs ++ {
+    ys
+  } do f(x)
+  for x <- xs ++ {
+    ys
+  } yield x
+>>>
+object a:
+  if foo + {
+      c
+    }
+  then f
+  else g
+  if c then
+    foo + {
+      bar
+    }
+  else g
+  while foo + {
+      c
+    }
+  do f
+  for x <- xs ++ {
+      ys
+    }
+  do f(x)
+  for x <- xs ++ {
+      ys
+    }
+  yield x
+<<< keyword after a paren inside the clause, scala2, multiline
+object a {
+  if (c) foo(
+    a
+  ) else g
+  try foo(
+    a
+  ) catch { case _ => g }
+  do foo(
+    a
+  ) while (c)
+}
+>>>
+object a {
+  if (c) foo(
+    a
+  )
+  else g
+  try foo(
+      a
+    )
+  catch { case _ => g }
+  do foo(
+    a
+  ) while (c)
+}
+<<< keyword after a paren inside the clause, scala2, multiline, newlines.alwaysBeforeElseAfterCurlyIf = true
+newlines.alwaysBeforeElseAfterCurlyIf = true
+===
+object a {
+  if (c) foo(
+    a
+  ) else g
+  try foo(
+    a
+  ) catch { case _ => g }
+  do foo(
+    a
+  ) while (c)
+}
+>>>
+object a {
+  if (c) foo(
+    a
+  )
+  else g
+  try foo(
+      a
+    )
+  catch { case _ => g }
+  do foo(
+    a
+  ) while (c)
+}
+<<< keyword after parens, scala2
+object a {
+  if (c) (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  ) else g
+  if (c) (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  )
+  else g
+  if (c) (f) else g
+  if (c) (f)
+  else g
+  try (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  ) catch { case _ => g }
+  try (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  )
+  catch { case _ => g }
+  try (f) catch { case _ => g }
+  try (f)
+  catch { case _ => g }
+  try f catch (
+    gggggggggggggggggggg(xxxxxxxxxxxxxxx)
+  ) finally h
+  try f catch (
+    gggggggggggggggggggg(xxxxxxxxxxxxxxx)
+  )
+  finally h
+  do (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  ) while (c)
+  do (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  )
+  while (c)
+  do (f) while (c)
+  do (f)
+  while (c)
+}
+>>>
+object a {
+  if (c) (
+    ffffffffffffffffffff(
+      xxxxxxxxxxxxxxx
+    )
+  )
+  else g
+  if (c) (
+    ffffffffffffffffffff(
+      xxxxxxxxxxxxxxx
+    )
+  )
+  else g
+  if (c) (f) else g
+  if (c) (f)
+  else g
+  try (
+      ffffffffffffffffffff(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  catch { case _ => g }
+  try (
+      ffffffffffffffffffff(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  catch { case _ => g }
+  try (f) catch { case _ => g }
+  try (f)
+  catch { case _ => g }
+  try f
+  catch (
+      gggggggggggggggggggg(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  finally h
+  try f
+  catch (
+      gggggggggggggggggggg(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  finally h
+  do (
+    ffffffffffffffffffff(
+      xxxxxxxxxxxxxxx
+    )
+  ) while (c)
+  do (
+    ffffffffffffffffffff(
+      xxxxxxxxxxxxxxx
+    )
+  )
+  while (c)
+  do (f) while (c)
+  do (f)
+  while (c)
+}
+<<< keyword after parens, scala3
+runner.dialect = scala3
+===
+object a:
+  if (
+    cccccccccccccccccccc(xxxxxxxxxxxxxxx)
+  ) then f else g
+  if (
+    cccccccccccccccccccc(xxxxxxxxxxxxxxx)
+  )
+  then f else g
+  if (c) then f
+  if (c)
+  then f
+  while (
+    cccccccccccccccccccc(xxxxxxxxxxxxxxx)
+  ) do f
+  while (
+    cccccccccccccccccccc(xxxxxxxxxxxxxxx)
+  )
+  do f
+  while (c) do f
+  while (c)
+  do f
+  for (
+    x <- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  ) do f(x)
+  for (
+    x <- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  )
+  do f(x)
+  for (x <- xs) do f(x)
+  for (x <- xs)
+  do f(x)
+  if c then (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  ) else g
+  if c then (
+    ffffffffffffffffffff(xxxxxxxxxxxxxxx)
+  )
+  else g
+>>>
+object a:
+  if (
+      cccccccccccccccccccc(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  then f
+  else g
+  if (
+      cccccccccccccccccccc(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  then f
+  else g
+  if (c) then f
+  if (c)
+  then f
+  while (
+      cccccccccccccccccccc(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  do f
+  while (
+      cccccccccccccccccccc(
+        xxxxxxxxxxxxxxx
+      )
+    )
+  do f
+  while (c) do f
+  while (c)
+  do f
+  for (
+      x <- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    )
+  do f(x)
+  for (
+      x <- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    )
+  do f(x)
+  for (x <- xs) do f(x)
+  for (x <- xs)
+  do f(x)
+  if c then
+    (
+      ffffffffffffffffffff(
+        xxxxxxxxxxxxxxx
+      )
+  )
+  else g
+  if c then
+    (
+      ffffffffffffffffffff(
+        xxxxxxxxxxxxxxx
+      )
+  )
+  else g
