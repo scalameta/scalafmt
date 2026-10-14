@@ -17162,3 +17162,143 @@ object a:
     case _ =>
       g
   }
+<<< keyword after curly, whole construct, scala2
+object a {
+  do { f } while (cccccccccccccc && dddddddddddddd)
+  try { f } catch { case _ => g } finally {
+    h
+  }
+  do { f } while (c)
+  try { f } catch { case _ => g }
+}
+>>>
+object a {
+  do {
+    f
+  } while (
+    cccccccccccccc && dddddddddddddd
+  )
+  try {
+    f
+  } catch {
+    case _ =>
+      g
+  } finally {
+    h
+  }
+  do {
+    f
+  } while (c)
+  try {
+    f
+  } catch {
+    case _ =>
+      g
+  }
+}
+<<< single-line block before keyword
+object a {
+  if (c) { f } else { g }
+  try { f } catch { case _ => g }
+  try { f } catch { g } finally { h }
+  if (c) { f }
+  else { g }
+  try { f }
+  catch { case _ => g }
+  if (c) { ffffffffff } else { gggggggggggggg }
+}
+>>>
+object a {
+  if (c) {
+    f
+  } else {
+    g
+  }
+  try {
+    f
+  } catch {
+    case _ =>
+      g
+  }
+  try {
+    f
+  } catch {
+    g
+  } finally {
+    h
+  }
+  if (c) {
+    f
+  } else {
+    g
+  }
+  try {
+    f
+  } catch {
+    case _ =>
+      g
+  }
+  if (c) {
+    ffffffffff
+  } else {
+    gggggggggggggg
+  }
+}
+<<< single-line block before keyword, mixed
+object a {
+  try f catch { g } finally h
+  try f
+  catch { g } finally h
+  try { f } catch { g } finally hhhhhhhhhhhhhhhhh
+  if (c) { f } else if (d) { g } else { h }
+}
+>>>
+object a {
+  try f
+  catch {
+    g
+  } finally h
+  try f
+  catch {
+    g
+  } finally h
+  try {
+    f
+  } catch {
+    g
+  } finally hhhhhhhhhhhhhhhhh
+  if (c) {
+    f
+  } else if (d) {
+    g
+  } else {
+    h
+  }
+}
+<<< single-line block before keyword, else-if chain
+object a {
+  if (c) { f } else if (d) g else h
+  if (c) { ffffffffff } else if (d) g else h
+  if (c) { ffffffffff } else if (d) { g } else h
+}
+>>>
+object a {
+  if (c) {
+    f
+  } else if (d)
+    g
+  else
+    h
+  if (c) {
+    ffffffffff
+  } else if (d)
+    g
+  else
+    h
+  if (c) {
+    ffffffffff
+  } else if (d) {
+    g
+  } else
+    h
+}
