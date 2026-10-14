@@ -2435,34 +2435,100 @@ same values as [`newlines.source`](#newlinessource).
 - `fold`: uses a no-break if the next bound fits on the line
 - `unfold`: puts all bounds on the same line, or breaks before each
 
-### `newlines.alwaysBeforeElseAfterCurlyIf`
+### `newlines.keywordAfterCurly`
 
-If `false`, the break between a closing curly brace and a following `else`,
-`catch`, `finally` or `while` follows the source, unless `newlines.source` is
-`fold` or `unfold`.
+> Since v3.11.6
 
-```scala mdoc:defaults
-newlines.alwaysBeforeElseAfterCurlyIf
-```
+This parameter controls whether to break between a closing curly brace and a
+keyword which continues the same statement: `else` in `if`, `catch` and
+`finally` in `try`, and `while` in `do`. It applies only to a brace which
+encloses the entire preceding part, such as the `then` branch or the `try`
+body; after any other brace, the keyword is treated as following any other
+expression.
+
+It takes the following values:
+
+- `keep`: keeps the break before the keyword, or its absence, as in the source
+  - not allowed if `newlines.source` is `fold` or `unfold`
+- `fold`: keeps the keyword on the line of the brace
+- `unfold`: breaks before the keyword; before `else`, only if the `if`
+  statement spans multiple lines
+  - this value replaced deprecated `newlines.alwaysBeforeElseAfterCurlyIf=true`
+- `unfoldMultiline`: breaks before the keyword unless the entire statement fits
+  on one line
+
+If not set, it defaults to `fold` if `newlines.source` is `fold` or `unfold`,
+and to `keep` otherwise. Deprecated
+`newlines.alwaysBeforeElseAfterCurlyIf=false` selects the same default. After a
+brace added by
+[inserting braces](#inserting-braces), `keep` behaves like `fold`, as the source
+had no brace to break after.
 
 ```scala mdoc:scalafmt
-newlines.alwaysBeforeElseAfterCurlyIf = true
+newlines.keywordAfterCurly = keep
 ---
-if (someCond) {
-  foo()
-} else {
-  bar()
+object a {
+  if (c) {
+    foo()
+  } else {
+    bar()
+  }
+  try {
+    foo()
+  }
+  catch { case _ => bar() }
+  do { foo() } while (c)
 }
 ```
 
 ```scala mdoc:scalafmt
-newlines.alwaysBeforeElseAfterCurlyIf = false
+newlines.keywordAfterCurly = fold
 ---
-if (someCond) {
-  foo()
+object a {
+  if (c) {
+    foo()
+  } else {
+    bar()
+  }
+  try {
+    foo()
+  }
+  catch { case _ => bar() }
+  do { foo() } while (c)
 }
-else {
-  bar()
+```
+
+```scala mdoc:scalafmt
+newlines.keywordAfterCurly = unfold
+---
+object a {
+  if (c) {
+    foo()
+  } else {
+    bar()
+  }
+  try {
+    foo()
+  }
+  catch { case _ => bar() }
+  do { foo() } while (c)
+}
+```
+
+```scala mdoc:scalafmt
+newlines.keywordAfterCurly = unfoldMultiline
+---
+object a {
+  if (c) {
+    foo()
+  } else {
+    bar()
+  }
+  try {
+    foo()
+  }
+  catch { case _ => bar() }
+  do { foo() } while (c)
 }
 ```
 

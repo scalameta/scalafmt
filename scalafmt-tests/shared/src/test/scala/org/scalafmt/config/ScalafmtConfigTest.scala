@@ -169,4 +169,28 @@ class ScalafmtConfigTest extends SharedFunSuiteBase {
     },
   )
 
+  Seq(
+    "newlines.alwaysBeforeElseAfterCurlyIf = true" -> Newlines.unfold,
+    "newlines.alwaysBeforeElseAfterCurlyIf = false" -> Newlines.keep,
+    "newlines.source = fold\nnewlines.alwaysBeforeElseAfterCurlyIf = false" ->
+      Newlines.fold,
+  ).foreach { case (conf, expected) =>
+    test(conf)(assertEquals(
+      ScalafmtConfig.fromHoconString(conf).get.newlines.getKeywordAfterCurly,
+      expected,
+    ))
+  }
+
+  Seq(
+    "" -> Newlines.keep,
+    "newlines.source = keep" -> Newlines.keep,
+    "newlines.source = fold" -> Newlines.fold,
+    "newlines.source = unfold" -> Newlines.fold,
+  ).foreach { case (conf, expected) =>
+    test(s"newlines.keywordAfterCurly default: $conf")(assertEquals(
+      ScalafmtConfig.fromHoconString(conf).get.newlines.getKeywordAfterCurly,
+      expected,
+    ))
+  }
+
 }

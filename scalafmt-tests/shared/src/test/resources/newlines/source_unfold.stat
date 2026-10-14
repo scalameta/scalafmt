@@ -17247,23 +17247,28 @@ object a {
 object a {
   do {
     f
-  } while (
+  }
+  while (
     cccccccccccccc && dddddddddddddd
   )
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
-  } finally {
+  }
+  finally {
     h
   }
   do {
     f
-  } while (c)
+  }
+  while (c)
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
   }
@@ -17283,23 +17288,28 @@ object a {
 object a {
   do {
     f
-  } while (
+  }
+  while (
     cccccccccccccc && dddddddddddddd
   )
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
-  } finally {
+  }
+  finally {
     h
   }
   do {
     f
-  } while (c)
+  }
+  while (c)
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
   }
@@ -17431,21 +17441,27 @@ object a {
   try f
   catch {
     g
-  } finally h
+  }
+  finally h
   try f
   catch {
     g
-  } finally h
+  }
+  finally h
   try {
     f
-  } catch {
+  }
+  catch {
     g
-  } finally hhhhhhhhhhhhhhhhh
+  }
+  finally hhhhhhhhhhhhhhhhh
   if (c) {
     f
-  } else if (d) {
+  }
+  else if (d) {
     g
-  } else {
+  }
+  else {
     h
   }
 }
@@ -17464,21 +17480,27 @@ object a {
   try f
   catch {
     g
-  } finally h
+  }
+  finally h
   try f
   catch {
     g
-  } finally h
+  }
+  finally h
   try {
     f
-  } catch {
+  }
+  catch {
     g
-  } finally hhhhhhhhhhhhhhhhh
+  }
+  finally hhhhhhhhhhhhhhhhh
   if (c) {
     f
-  } else if (d) {
+  }
+  else if (d) {
     g
-  } else {
+  }
+  else {
     h
   }
 }
@@ -17550,21 +17572,25 @@ object a {
 object a {
   if (c) {
     f
-  } else if (d)
+  }
+  else if (d)
     g
   else
     h
   if (c) {
     ffffffffff
-  } else if (d)
+  }
+  else if (d)
     g
   else
     h
   if (c) {
     ffffffffff
-  } else if (d) {
+  }
+  else if (d) {
     g
-  } else
+  }
+  else
     h
 }
 <<< single-line block before keyword, else-if chain, newlines.keywordAfterCurly = unfoldMultiline
@@ -17579,21 +17605,25 @@ object a {
 object a {
   if (c) {
     f
-  } else if (d)
+  }
+  else if (d)
     g
   else
     h
   if (c) {
     ffffffffff
-  } else if (d)
+  }
+  else if (d)
     g
   else
     h
   if (c) {
     ffffffffff
-  } else if (d) {
+  }
+  else if (d) {
     g
-  } else
+  }
+  else
     h
 }
 <<< keyword after curly, scala2, broken, newlines.keywordAfterCurly = fold
@@ -17678,20 +17708,24 @@ object a {
 object a {
   if (c) {
     f
-  } else {
+  }
+  else {
     g
   }
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
-  } finally {
+  }
+  finally {
     h
   }
   do {
     f
-  } while (c)
+  }
+  while (c)
   for {
     x <- xs
   } yield x
@@ -17728,20 +17762,24 @@ object a {
 object a {
   if (c) {
     f
-  } else {
+  }
+  else {
     g
   }
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
-  } finally {
+  }
+  finally {
     h
   }
   do {
     f
-  } while (c)
+  }
+  while (c)
   for {
     x <- xs
   } yield x
@@ -17818,20 +17856,24 @@ object a {
 object a {
   if (c) {
     f
-  } else {
+  }
+  else {
     g
   }
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
-  } finally {
+  }
+  finally {
     h
   }
   do {
     f
-  } while (c)
+  }
+  while (c)
   for {
     x <- xs
   } yield x
@@ -17863,20 +17905,24 @@ object a {
 object a {
   if (c) {
     f
-  } else {
+  }
+  else {
     g
   }
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
-  } finally {
+  }
+  finally {
     h
   }
   do {
     f
-  } while (c)
+  }
+  while (c)
   for {
     x <- xs
   } yield x
@@ -17989,7 +18035,8 @@ object a:
     g
   if c then {
     f
-  } else {
+  }
+  else {
     g
   }
   while {
@@ -18005,7 +18052,8 @@ object a:
   } yield x
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
   }
@@ -18053,7 +18101,8 @@ object a:
     g
   if c then {
     f
-  } else {
+  }
+  else {
     g
   }
   while {
@@ -18069,7 +18118,8 @@ object a:
   } yield x
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
   }
@@ -18169,7 +18219,8 @@ object a:
     g
   if c then {
     f
-  } else {
+  }
+  else {
     g
   }
   while {
@@ -18185,7 +18236,8 @@ object a:
   } yield x
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
   }
@@ -18227,7 +18279,8 @@ object a:
     g
   if c then {
     f
-  } else {
+  }
+  else {
     g
   }
   while {
@@ -18243,7 +18296,8 @@ object a:
   } yield x
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
   }
@@ -18319,7 +18373,8 @@ object a {
   catch {
     case _ =>
       g
-  } finally xs.map { x =>
+  }
+  finally xs.map { x =>
       x
     }
   try f
@@ -18362,7 +18417,8 @@ object a {
   catch {
     case _ =>
       g
-  } finally xs.map { x =>
+  }
+  finally xs.map { x =>
       x
     }
   try f
@@ -19109,36 +19165,43 @@ object a {
 object a {
   if (c) {
     f
-  } else {
+  }
+  else {
     g
   }
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
   }
   try {
     f
-  } catch {
+  }
+  catch {
     g
-  } finally {
+  }
+  finally {
     h
   }
   if (c) {
     f
-  } else {
+  }
+  else {
     g
   }
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
   }
   if (c) {
     ffffffffff
-  } else {
+  }
+  else {
     gggggggggggggg
   }
 }
@@ -19159,36 +19222,43 @@ object a {
 object a {
   if (c) {
     f
-  } else {
+  }
+  else {
     g
   }
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
   }
   try {
     f
-  } catch {
+  }
+  catch {
     g
-  } finally {
+  }
+  finally {
     h
   }
   if (c) {
     f
-  } else {
+  }
+  else {
     g
   }
   try {
     f
-  } catch {
+  }
+  catch {
     case _ =>
       g
   }
   if (c) {
     ffffffffff
-  } else {
+  }
+  else {
     gggggggggggggg
   }
 }
