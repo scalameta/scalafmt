@@ -2437,6 +2437,10 @@ same values as [`newlines.source`](#newlinessource).
 
 ### `newlines.alwaysBeforeElseAfterCurlyIf`
 
+If `false`, the break between a closing curly brace and a following `else`,
+`catch`, `finally` or `while` follows the source, unless `newlines.source` is
+`fold` or `unfold`.
+
 ```scala mdoc:defaults
 newlines.alwaysBeforeElseAfterCurlyIf
 ```

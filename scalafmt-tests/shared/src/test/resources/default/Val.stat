@@ -144,7 +144,8 @@ val predefinedType = if (clazz.getTypeParameters.length == 1) {
 >>>
 val predefinedType = if (clazz.getTypeParameters.length == 1) {
   ScParameterizedType(ScDesignatorType(clazz), undefines)
-} else
+}
+else
   ScDesignatorType(clazz)
 <<< myRoute
   val myRoute =
