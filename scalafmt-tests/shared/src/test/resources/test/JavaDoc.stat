@@ -3681,3 +3681,97 @@ val a = 1
   * blank first line
   */
 val a = 1
+<<< fenced scala code block, file over the infix limit
+docstrings.style = Asterisk
+docstrings.wrap = yes
+newlines.source = fold
+newlines.infix.termSite.maxCountPerFile = 1
+===
+object a {
+  val x = aa && bb && cc
+  /** Code:
+    * ```scala
+    * val y = cccccccc ||
+    *   dddddddd
+    * foo(aaaaaaaa, bbbbbbbb, cccccccc, dddddddd, eeeeeeee, ffffffff, gggggggg)
+    * ```
+    */
+  val z = eeeeeeee
+}
+>>>
+object a {
+  val x = aa && bb && cc
+
+  /**
+   * Code:
+   * ```scala
+   * val y = cccccccc ||
+   *   dddddddd
+   * foo(aaaaaaaa, bbbbbbbb, cccccccc, dddddddd, eeeeeeee, ffffffff, gggggggg)
+   * ```
+   */
+  val z = eeeeeeee
+}
+<<< fenced scala code block, override before it
+docstrings.style = Asterisk
+docstrings.wrap = yes
+===
+object a {
+  // scalafmt: { maxColumn = 40 }
+  /** Code:
+    * ```scala
+    * foo(aaaaaaaa, bbbbbbbb, cccccccc, dddddddd, eeeeeeee, ffffffff)
+    * ```
+    */
+  val z = eeeeeeee
+}
+>>>
+object a {
+  // scalafmt: { maxColumn = 40 }
+  /**
+   * Code:
+   * ```scala
+   * foo(
+   *   aaaaaaaa,
+   *   bbbbbbbb,
+   *   cccccccc,
+   *   dddddddd,
+   *   eeeeeeee,
+   *   ffffffff
+   * )
+   * ```
+   */
+  val z = eeeeeeee
+}
+<<< fenced scala code block, infix override before it
+docstrings.style = Asterisk
+docstrings.wrap = yes
+newlines.source = fold
+newlines.infix.termSite.maxCountPerFile = 1
+===
+object a {
+  val x = aa && bb && cc
+  // scalafmt: { newlines.infix.termSite.maxCountPerFile = 0 }
+  /** Code:
+    * ```scala
+    * val y = cccccccc ||
+    *   dddddddd
+    * foo(aaaaaaaa, bbbbbbbb, cccccccc, dddddddd, eeeeeeee, ffffffff, gggggggg)
+    * ```
+    */
+  val z = eeeeeeee
+}
+>>>
+object a {
+  val x = aa && bb && cc
+  // scalafmt: { newlines.infix.termSite.maxCountPerFile = 0 }
+  /**
+   * Code:
+   * ```scala
+   * val y = cccccccc ||
+   *   dddddddd
+   * foo(aaaaaaaa, bbbbbbbb, cccccccc, dddddddd, eeeeeeee, ffffffff, gggggggg)
+   * ```
+   */
+  val z = eeeeeeee
+}
