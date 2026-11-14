@@ -395,7 +395,10 @@ object ScalafmtConfig {
         addIf(binPack.importSelectors.orNull eq ImportSelectors.keep)
         addIf(newlines.selectChains.style.orNull eq Newlines.keep)
         addIf(getTrailingCommas.eq(TrailingCommas.keep))
-        addIfDirect(!newlines.infix.sourceIgnoredIfSet, "newlines.infix.XXX.style is keep; reduce maxCountPerFile instead")
+        addIfDirect(
+          !newlines.infix.sourceIgnoredIfSet,
+          "newlines.infix.XXX.style is keep or none; reduce maxCountPerFileForKeep or maxCountPerFile instead",
+        )
       }
       if (newlines.source == Newlines.unfold) addIf(align.arrowEnumeratorGenerator)
       if (errors.nonEmpty) {

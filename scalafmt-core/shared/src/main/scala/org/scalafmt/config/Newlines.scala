@@ -472,18 +472,20 @@ object Newlines {
 
     /** @param style
       *   Controls how line breaks around infix operations are handled
-      *   - If `keep` (default for source=classic,keep), preserve existing
+      *   - If `none` (default for source=classic), preserve existing
+      *   - If `keep` (default for source=keep), preserve existing breaks and
+      *     break after some infix ops
       *   - If `some` (default for source=fold), break after some infix ops
       *   - If `many` (default for source=unfold), break after many infix ops
       * @param breakOnNested
       *   Force breaks around nested (enclosed in parentheses) expressions
       * @param maxCountPerFile
-      *   Switch to `keep` for a given file if the total number of infix
+      *   Switch to `none` for a given file if the total number of infix
       *   operations in that file exceeds this value
       * @param maxCountPerExprForSome
       *   Switch to `many` for a given expression (possibly nested) if the
-      *   number of operations in that expression exceeds this value AND
-      *   `afterInfix` had been set to `some`.
+      *   number of operations in that expression exceeds this value AND `style`
+      *   had been set to `some`.
       */
     case class Site(
         style: Style = null,

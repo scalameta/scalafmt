@@ -169,6 +169,21 @@ class ScalafmtConfigTest extends SharedFunSuiteBase {
     },
   )
 
+  for {
+    source <- Seq("fold", "unfold")
+    style <- Seq("keep", "none")
+  } test(
+    s"newlines.infix.termSite.style = $style with newlines.source = $source",
+  )(
+    ScalafmtConfig.fromHoconString(
+      s"newlines.source = $source\nnewlines.infix.termSite.style = $style",
+    ) match {
+      case Configured.Ok(_) => fail("expected an error")
+      case Configured.NotOk(err) =>
+        assert(clue(err.msg).contains("newlines.infix.XXX.style is keep or none; reduce maxCountPerFileForKeep or maxCountPerFile instead"))
+    },
+  )
+
   Seq(
     "newlines.alwaysBeforeElseAfterCurlyIf = true" -> Newlines.unfold,
     "newlines.alwaysBeforeElseAfterCurlyIf = false" -> Newlines.keep,
