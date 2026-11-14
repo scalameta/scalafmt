@@ -2834,6 +2834,9 @@ Otherwise, if the number of infix expressions exceeds `maxCountPerFileForKeep`,
 the formatter automatically switches to `newlines.infix.xxxSite.style=keep`.
 This optional parameter was added in v3.10.4.
 
+The formatter also compares a limit set in a `// scalafmt:` comment with the
+count of the entire file.
+
 #### `newlines.infix: maxCountPerExprForSome`
 
 ```scala mdoc:defaults

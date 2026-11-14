@@ -100,10 +100,8 @@ object a {
 >>>
 // scalafmt: { newlines.infix.termSite.maxCountPerFile = 10 }
 object a {
-  val x = aaaaaaaa &&
-    bbbbbbbb
-  val y = cccccccc ||
-    dddddddd
+  val x = aaaaaaaa && bbbbbbbb
+  val y = cccccccc || dddddddd
 }
 <<< infix maxCountPerFile, override in the middle, then reset
 newlines.source = fold
@@ -124,8 +122,7 @@ object a {
   val x = aaaaaaaa &&
     bbbbbbbb
   // scalafmt: { newlines.infix.termSite.maxCountPerFile = 10 }
-  val y = cccccccc ||
-    dddddddd
+  val y = cccccccc || dddddddd
   // scalafmt: {}
   val z = eeeeeeee &&
     ffffffff
@@ -144,7 +141,8 @@ object a {
 object a {
   val x = aaaaaaaa && bbbbbbbb
   // scalafmt: { newlines.infix.termSite.maxCountPerFile = 1 }
-  val y = cccccccc || dddddddd
+  val y = cccccccc ||
+    dddddddd
 }
 <<< infix maxCountPerFileForKeep, override below the count
 newlines.source = fold
@@ -160,7 +158,8 @@ object a {
 object a {
   val x = aaaaaaaa && bbbbbbbb
   // scalafmt: { newlines.infix.termSite.maxCountPerFileForKeep = 1 }
-  val y = cccccccc || dddddddd
+  val y = cccccccc ||
+    dddddddd
 }
 <<< infix maxCountPerFile, override of another setting
 newlines.source = fold
@@ -177,7 +176,9 @@ object a {
   val x = aaaaaaaa &&
     bbbbbbbb
   // scalafmt: { maxColumn = 20 }
-  function(aaaaaaaaaaa, bbbbbbb)
+  function(
+    aaaaaaaaaaa,
+    bbbbbbb)
 }
 <<< infix, override of newlines.source from keep to fold
 newlines.source = keep
@@ -194,8 +195,7 @@ object a {
   val x = aaaaaaaa &&
     bbbbbbbb
   // scalafmt: { newlines.source = fold }
-  val y = cccccccc ||
-    dddddddd
+  val y = cccccccc || dddddddd
 }
 <<< infix, override of newlines.source from fold to keep
 newlines.source = fold
@@ -211,7 +211,8 @@ object a {
 object a {
   val x = aaaaaaaa && bbbbbbbb
   // scalafmt: { newlines.source = keep }
-  val y = cccccccc || dddddddd
+  val y = cccccccc ||
+    dddddddd
 }
 <<< infix, override of termSite.style, type and pattern
 newlines.source = keep
@@ -230,11 +231,9 @@ object a {
 >>>
 object a {
   // scalafmt: { newlines.infix.termSite.style = some }
-  type T = Aaaaaaaa Map
-    Bbbbbbbb
+  type T = Aaaaaaaa Map Bbbbbbbb
   x match {
-    case aaaaaaaa ::
-        bbbbbbbb =>
+    case aaaaaaaa :: bbbbbbbb =>
   }
   val y = cccccccc || dddddddd
 }
@@ -276,7 +275,8 @@ object a {
   val x = aaaaaaaa &&
     bbbbbbbb
   // scalafmt: { newlines.infix.termSite.style = some }
-  val y = cccccccc || dddddddd
+  val y = cccccccc ||
+    dddddddd
 }
 <<< imports, override of newlines.source from keep to fold
 newlines.source = keep
@@ -329,12 +329,15 @@ object a {
 >>>
 object a {
   // scalafmt: { newlines.infix.termSite.maxCountPerFile = 1 }
-  type T = Aaaaaaaa Map Bbbbbbbb Map Cccccccc
-  x match { case aaaaaaaa :: bbbbbbbb :: cccccccc => }
+  type T = Aaaaaaaa Map Bbbbbbbb Map
+    Cccccccc
+  x match {
+    case aaaaaaaa :: bbbbbbbb ::
+        cccccccc =>
+  }
 }
 <<< infix, override of preset
 newlines.source = fold
-onTestFailure = "NullPointerException"
 ===
 object a {
   val x = aaaaaaaa &&
@@ -344,27 +347,19 @@ object a {
     dddddddd
 }
 >>>
-test failed: Cannot invoke "org.scalafmt.config.Newlines$Infix$Style.sourceIgnored()" because the return value of "org.scalafmt.config.Newlines$Infix$Site.style()" is null
+object a {
+  val x = aaaaaaaa && bbbbbbbb
+  // scalafmt: { preset = default }
+  val y = cccccccc ||
+    dddddddd
+}
 <<< binPack.literalsExclude, override at the top
 // scalafmt: { binPack.literalsExclude = ["String"] }
 val secret = List(aaaaa, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, bbbbbbb, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb)
 >>>
 // scalafmt: { binPack.literalsExclude = ["String"] }
-val secret = List(
-  aaaaa,
-  aaaaa,
-  bbbbbbb,
-  bbbbbbb,
-  bbbbbbb,
-  aaaaa,
-  bbbbbbb,
-  aaaaa,
-  bbbbbbb,
-  bbbbbbb,
-  bbbbbbb,
-  aaaaa,
-  aaaaa,
-  bbbbbbb)
+val secret = List(aaaaa, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, bbbbbbb, aaaaa, bbbbbbb, bbbbbbb,
+  bbbbbbb, aaaaa, aaaaa, bbbbbbb)
 <<< binPack.literalsExclude, config
 binPack.literalsExclude = ["String"]
 ===
@@ -387,11 +382,9 @@ object a {
 >>>
 // scalafmt: { newlines.infix.termSite.maxCountPerFile = 10 }
 object a {
-  val x = aaaaaaaa &&
-    bbbbbbbb
+  val x = aaaaaaaa && bbbbbbbb
   // scalafmt: {}
-  val y = cccccccc ||
-    dddddddd
+  val y = cccccccc || dddddddd
 }
 <<< infix maxCountPerFile, unfold, override of another setting
 newlines.source = unfold
@@ -409,7 +402,9 @@ object a {
     aaaaaaaa &&
       bbbbbbbb
   // scalafmt: { maxColumn = 20 }
-  function(aaaaaaaaaaa, bbbbbbb)
+  function(
+    aaaaaaaaaaa,
+    bbbbbbb)
 }
 <<< binPack.literalsExclude, override in the middle
 object a {
@@ -419,21 +414,8 @@ object a {
 >>>
 object a {
   // scalafmt: { binPack.literalsExclude = ["String"] }
-  val secret = List(
-    aaaaa,
-    aaaaa,
-    bbbbbbb,
-    bbbbbbb,
-    bbbbbbb,
-    aaaaa,
-    bbbbbbb,
-    aaaaa,
-    bbbbbbb,
-    bbbbbbb,
-    bbbbbbb,
-    aaaaa,
-    aaaaa,
-    bbbbbbb)
+  val secret = List(aaaaa, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, bbbbbbb, aaaaa, bbbbbbb,
+    bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb)
 }
 <<< binPack.literalsExclude, override, then reset
 object a {
@@ -445,21 +427,8 @@ object a {
 >>>
 object a {
   // scalafmt: { binPack.literalsExclude = ["String"] }
-  val secret = List(
-    aaaaa,
-    aaaaa,
-    bbbbbbb,
-    bbbbbbb,
-    bbbbbbb,
-    aaaaa,
-    bbbbbbb,
-    aaaaa,
-    bbbbbbb,
-    bbbbbbb,
-    bbbbbbb,
-    aaaaa,
-    aaaaa,
-    bbbbbbb)
+  val secret = List(aaaaa, aaaaa, bbbbbbb, bbbbbbb, bbbbbbb, aaaaa, bbbbbbb, aaaaa, bbbbbbb,
+    bbbbbbb, bbbbbbb, aaaaa, aaaaa, bbbbbbb)
   // scalafmt: {}
   val secret = List(
     aaaaa,
@@ -482,8 +451,26 @@ object a {
 val x = List(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0)
 >>>
 // scalafmt: { binPack.literalsInclude = ["Int"] }
-val x = List(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0,
-  17.0, 18.0, 19.0)
+val x = List(
+  1.0,
+  2.0,
+  3.0,
+  4.0,
+  5.0,
+  6.0,
+  7.0,
+  8.0,
+  9.0,
+  10.0,
+  11.0,
+  12.0,
+  13.0,
+  14.0,
+  15.0,
+  16.0,
+  17.0,
+  18.0,
+  19.0)
 <<< binPack.literalsInclude, config
 binPack.literalsInclude = ["Int"]
 ===
