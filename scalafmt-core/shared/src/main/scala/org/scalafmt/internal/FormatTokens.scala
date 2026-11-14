@@ -423,9 +423,11 @@ object FormatTokens {
     * Since tokens might be very large, we try to allocate as little memory as
     * possible.
     */
-  def apply(tokens: Tokens, owners: Array[Tree])(implicit
-      style: ScalafmtConfig,
-  ): (FormatTokens, StyleMap) = {
+  def apply(
+      tokens: Tokens,
+      owners: Array[Tree],
+      transform: ScalafmtConfig => ScalafmtConfig,
+  )(implicit style: ScalafmtConfig): (FormatTokens, StyleMap) = {
     var left: T = null
     var lmeta: FT.TokenMeta = null
     val result = Array.newBuilder[FT]
@@ -450,7 +452,7 @@ object FormatTokens {
     tokens.foreachWithIndex(process)
 
     val ftoks = new FormatTokens(result.result())
-    val styleMap = new StyleMap(ftoks, style)
+    val styleMap = new StyleMap(ftoks, style, transform)
 
     FormatTokensRewrite(ftoks, styleMap) -> styleMap
   }
@@ -585,8 +587,8 @@ object FormatTokens {
   def apply(
       topSourceTree: Tree,
   )(baseStyle: ScalafmtConfig): (FormatTokens, StyleMap) = {
-    val (initStyle, owners) = TreeOps.getStyleAndOwners(topSourceTree, baseStyle)
-    apply(topSourceTree.tokens, owners)(initStyle)
+    val (owners, transform) = TreeOps.getOwnersAndTransform(topSourceTree)
+    apply(topSourceTree.tokens, owners, transform)(baseStyle)
   }
 
 }

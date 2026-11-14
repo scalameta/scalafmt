@@ -851,10 +851,9 @@ object TreeOps {
     }
   }
 
-  def getStyleAndOwners(
+  def getOwnersAndTransform(
       topSourceTree: Tree,
-      baseStyle: ScalafmtConfig,
-  ): (ScalafmtConfig, Array[Tree]) = {
+  ): (Array[Tree], ScalafmtConfig => ScalafmtConfig) = {
     var termInfixCount = 0
     var typeInfixCount = 0
     var patInfixCount = 0
@@ -1002,15 +1001,16 @@ object TreeOps {
 
     treeAt(0, topSourceTree, allTokens.head, allTokens.last, 0)
 
-    val checkedNewlines = baseStyle.newlines
-      .checkInfixConfig(termInfixCount, typeInfixCount, patInfixCount)(baseStyle)
-    val checkedRunner = addDialectFeatures(baseStyle.runner, topSourceTree)
-    val ok = (checkedNewlines eq baseStyle.newlines) &&
-      (checkedRunner eq baseStyle.runner)
-    val initStyle =
-      if (ok) baseStyle
-      else baseStyle.copy(newlines = checkedNewlines, runner = checkedRunner)
-    (initStyle, ownersArr)
+    val features = getDialectFeatures(topSourceTree)
+    val transform = { (style: ScalafmtConfig) =>
+      val runner = addDialectFeatures(style.runner, features)
+      implicit val cfg: ScalafmtConfig =
+        if (runner eq style.runner) style else style.copy(runner = runner)
+      val infix = cfg.newlines.infix
+        .checkInfixCounts(termInfixCount, typeInfixCount, patInfixCount)
+      cfg.copy(newlines = cfg.newlines.copy(infix = infix))
+    }
+    (ownersArr, transform)
   }
 
   def isFewerBraces(
@@ -1193,10 +1193,16 @@ object TreeOps {
     case _ => false
   }
 
-  def addDialectFeatures(runner: RunnerSettings, tree: Tree): RunnerSettings = {
-    val res = mutable
-      .Set[RunnerSettings.DialectFeature](runner.dialectFeatures: _*)
-    val cnt = res.size
+  def addDialectFeatures(
+      runner: RunnerSettings,
+      features: Seq[RunnerSettings.DialectFeature],
+  ): RunnerSettings =
+    if (features.forall(runner.dialectFeatures.contains)) runner
+    else runner
+      .copy(dialectFeatures = (runner.dialectFeatures ++ features).distinct)
+
+  def getDialectFeatures(tree: Tree): Seq[RunnerSettings.DialectFeature] = {
+    val res = mutable.Set.empty[RunnerSettings.DialectFeature]
 
     def isSelectLanguageImport(t: Term.Select): Boolean = t.name.value ==
       "language" &&
@@ -1259,7 +1265,7 @@ object TreeOps {
       case _ =>
     }
 
-    if (res.size == cnt) runner else runner.copy(dialectFeatures = res.toSeq)
+    res.toSeq
   }
 
   def isCurlyWithNextKeyword(rbOwner: Tree, rft: FT): Boolean = rbOwner.parent

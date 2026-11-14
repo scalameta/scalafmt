@@ -238,10 +238,6 @@ case class Newlines(
   @inline
   def keepBreak(implicit ft: FT): Boolean = keepBreak(ft.hasBreak)
 
-  def checkInfixConfig(termCnt: Int, typeCnt: Int, patCnt: Int)(implicit
-      cfg: ScalafmtConfig,
-  ): Newlines = copy(infix = infix.checkInfixCounts(termCnt, typeCnt, patCnt))
-
   lazy val forceBeforeImplicitParamListModifier: Boolean =
     implicitParamListModifierForce.contains(before)
   lazy val forceAfterImplicitParamListModifier: Boolean =

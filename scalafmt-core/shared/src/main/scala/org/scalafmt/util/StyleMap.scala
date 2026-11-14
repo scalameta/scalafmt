@@ -10,70 +10,83 @@ import scala.meta.tokens.{Token => T}
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-class StyleMap(tokens: FormatTokens, initStyle: ScalafmtConfig) {
+/** @param initStyle
+  *   the initial configuration, before `transform`
+  * @param transform
+  *   applies any custom transformations to a configuration
+  */
+class StyleMap(
+    tokens: FormatTokens,
+    initStyle: ScalafmtConfig,
+    transform: ScalafmtConfig => ScalafmtConfig,
+) {
 
   import StyleMap._
-  val literalR: FilterMatcher = initStyle.binPack.literalsRegex
   private val prefix = "\\s*scalafmt: ".r.pattern
   val forcedBinPack: mutable.Set[Tree] = mutable.Set.empty
   private val (starts: Array[Int], styles: Array[ScalafmtConfig]) = {
     var init = initStyle
-    var curr = init
+    var initMapped = transform(init)
+    implicit var curr: ScalafmtConfig = initMapped
+    implicit var literalR: FilterMatcher = initMapped.binPack.literalsRegex
     val startBuilder = Array.newBuilder[Int]
     val styleBuilder = Array.newBuilder[ScalafmtConfig]
     startBuilder += 0
-    styleBuilder += init
+    styleBuilder += curr
     val disableBinPack = mutable.Map.empty[Int, BinPack.Site]
     def warn(err: String)(implicit fileLine: FileLine): Unit = logger.elem(err)
     tokens.arr.foreach { ft =>
-      def changeStyle(style: ScalafmtConfig): Option[ScalafmtConfig] = {
-        val changing = curr != style
-        if (!changing) None
+      def changeStyle(style: ScalafmtConfig): ScalafmtConfig =
+        if (curr == style) null
         else {
           startBuilder += ft.left.start
           styleBuilder += style
           val prev = curr
           curr = style
-          Some(prev)
+          prev
         }
-      }
       ft.left match {
         case T.Comment(c) if prefix.matcher(c).find() =>
           val res = ScalafmtConfig.fromHoconString(c, init, Some("scalafmt"))
-          res.foreach(logger.elem(_))(style =>
+          res.foreach(logger.elem(_)) { style =>
+            val mapped = transform(style)
+            literalR = mapped.binPack.literalsRegex
             if ((init eq initStyle) && tokens.prevNonCommentBefore(ft).idx == 0) {
               init = style // right after BOF
-              curr = style
+              initMapped = mapped
+              curr = mapped
             } else {
-              init.rewrite.rulesChanged(style.rewrite).foreach { x =>
+              initMapped.rewrite.rulesChanged(mapped.rewrite).foreach { x =>
                 val rules = x.mkString(",")
                 warn(s"May not override rewrite settings; changed=[$rules]: $c")
               }
-              changeStyle(style)
-            },
-          )
+              changeStyle(mapped)
+            }
+          }
         case _: T.LeftParen
             if curr.binPack.literalArgumentLists &&
-              opensLiteralArgumentList(ft)(curr) =>
+              opensLiteralArgumentList(ft) =>
           forcedBinPack += ft.meta.leftOwner
-          changeStyle(setBinPack(curr, callSite = BinPack.Site.Always))
-            .foreach { x =>
-              val y = tokens.matchingLeftOrNull(ft)
-              if (y ne null) disableBinPack.update(y.idx, x.binPack.callSite)
-            }
+          val prev = changeStyle(setBinPack(callSite = BinPack.Site.Always))
+          if (null ne prev) {
+            val y = tokens.matchingLeftOrNull(ft)
+            if (y ne null) disableBinPack.update(y.idx, prev.binPack.callSite)
+          }
         case _: T.RightParen => disableBinPack.remove(ft.idx)
-            .foreach(x => changeStyle(setBinPack(curr, callSite = x)))
+            .foreach(x => changeStyle(setBinPack(callSite = x)))
         case _ =>
       }
     }
     val styles = styleBuilder.result()
-    styles(0) = init
+    styles(0) = initMapped
     (startBuilder.result(), styles)
   }
 
   val init: ScalafmtConfig = styles(0)
 
-  private def isBasicLiteral(tree: Tree): Boolean = tree match {
+  private def isBasicLiteral(
+      tree: Tree,
+  )(implicit literalR: FilterMatcher): Boolean = tree match {
     case lit: Lit =>
       val strName = tree match {
         case t: Lit.Int
@@ -88,7 +101,9 @@ class StyleMap(tokens: FormatTokens, initStyle: ScalafmtConfig) {
   }
 
   @tailrec
-  private def isSimpleLiteral(tree: Tree): Boolean = tree match {
+  private def isSimpleLiteral(
+      tree: Tree,
+  )(implicit literalR: FilterMatcher): Boolean = tree match {
     case t: Term.SelectLike => isSimpleLiteral(t.qual)
     case t: Term.Assign => isSimpleLiteral(t.rhs)
     case _ => isBasicLiteral(tree) || {
@@ -98,7 +113,9 @@ class StyleMap(tokens: FormatTokens, initStyle: ScalafmtConfig) {
   }
 
   @tailrec
-  private def isComplexLiteral(tree: Tree): Boolean = tree match {
+  private def isComplexLiteral(
+      tree: Tree,
+  )(implicit literalR: FilterMatcher): Boolean = tree match {
     case t: Term.Assign => isComplexLiteral(t.rhs)
     case t: Term.Apply => isSimpleLiteral(t.fun) &&
       (t.argClause match {
@@ -118,9 +135,10 @@ class StyleMap(tokens: FormatTokens, initStyle: ScalafmtConfig) {
       }
   }
 
-  private def opensLiteralArgumentList(
-      ft: FT,
-  )(implicit style: ScalafmtConfig): Boolean = (ft.meta.leftOwner match {
+  private def opensLiteralArgumentList(ft: FT)(implicit
+      style: ScalafmtConfig,
+      literalR: FilterMatcher,
+  ): Boolean = (ft.meta.leftOwner match {
     case Member.Tuple(v) => Some(v)
     case Member.SyntaxValuesClause(v) => Some(v)
     case _ => None
@@ -158,7 +176,9 @@ class StyleMap(tokens: FormatTokens, initStyle: ScalafmtConfig) {
 
 object StyleMap {
 
-  def setBinPack(curr: ScalafmtConfig, callSite: BinPack.Site): ScalafmtConfig =
+  def setBinPack(
+      callSite: BinPack.Site,
+  )(implicit curr: ScalafmtConfig): ScalafmtConfig =
     if (curr.binPack.callSite == callSite) curr
     else curr.copy(binPack = curr.binPack.copy(callSite = callSite))
 
