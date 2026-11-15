@@ -137,7 +137,7 @@ class FormatTests
             val report = diff.createDiffOnlyReport()
             val eol = if (report.last == '\n') "" else "\n"
             val error = "Idempotency violated\n" + report + eol
-            if (error != t.expected) failComparison(error, code, obtained)
+            if (error != lf(t.expected)) failComparison(error, code, obtained)
           }
         }
     }
