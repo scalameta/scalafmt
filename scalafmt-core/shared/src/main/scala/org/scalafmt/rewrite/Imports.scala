@@ -735,27 +735,30 @@ object Imports extends RewriteFactory {
     * }}}
     */
   private class ExpandFull(implicit ctx: RewriteCtx) extends Fold {
-    override protected final def addSelectorsToGroup(
-        group: Grouping,
-        kw: String,
-        ref: String,
+    override protected final def getSelectorsToWrite(
+        clauses: IndexedSeq[Seq[Importee]],
+    ): Iterable[Selectors] = {
+      val res = new mutable.ListBuffer[Seq[Importee]]
+      foldImportees(clauses).foreach(expand(_, res))
+      res.map(getSelectors(_))
+    }
+
+    private def expand(
         importees: Seq[Importee],
-    ): Unit = {
-      def addSelectorToGroup(selector: Importee): Unit = group
-        .add(kw, ref, getSelector(selector))
+        dst: mutable.ListBuffer[Seq[Importee]],
+    ): Unit =
       // if there's a wildcard, unimports and renames must come with it, cannot be expanded
       if (
         importees.dropWhile(notWildcardOrRename).drop(1).exists(isAWildcard)
       ) {
         val filtered = importees.filter { x =>
           val expanding = notWildcardOrRename(x)
-          if (expanding) addSelectorToGroup(x)
+          if (expanding) dst += x :: Nil
           !expanding
         }
-        super.addSelectorsToGroup(group, kw, ref, filtered)
+        dst += filtered
       } else // expand all
-        importees.foreach(addSelectorToGroup)
-    }
+        importees.foreach(dst += _ :: Nil)
   }
 
   /** convert
@@ -803,22 +806,34 @@ object Imports extends RewriteFactory {
         ref: String,
         importers: Seq[Importer],
     ): Unit = {
+      val clauses = importers.map(_.importees).toIndexedSeq
+      getSelectorsToWrite(clauses).foreach(group.add(kw, ref, _))
+    }
+
+    /** The importers to write, from the importees of each importer. */
+    protected def getSelectorsToWrite(
+        clauses: IndexedSeq[Seq[Importee]],
+    ): Iterable[Selectors] = foldImportees(clauses).map(getSelectors(_))
+
+    protected final def foldImportees(
+        clauses: IndexedSeq[Seq[Importee]],
+    ): Seq[Seq[Importee]] = {
       type Importees = LinkedList[Importee]
-      def appendTo(src: Importer, dst: Importees): Importees = {
-        src.importees.foreach(dst.add)
+      def appendTo(src: Seq[Importee], dst: Importees): Importees = {
+        src.foreach(dst.add)
         dst
       }
       var globalWildcard: Importee.Wildcard = null
       var globalGivenAll: Importee.GivenAll = null
       // below: variable names refer to presence of renames and wildcards
       val neither = new Importees
-      val both = Seq.newBuilder[Importer]
+      val both = Seq.newBuilder[Seq[Importee]]
       val renamesOnly = new Importees
       val wildcardsOnly = Seq.newBuilder[Importee]
-      importers.foreach { importer =>
+      clauses.foreach { clause =>
         var hasRename = false
         var wildcard: Importee.Wildcard = null
-        val hasBoth = importer.importees.exists { // stop if has both
+        val hasBoth = clause.exists { // stop if has both
           case x: Importee.Wildcard =>
             if (wildcard eq null) wildcard = x; hasRename
           case _: Importee.Rename | _: Importee.Unimport =>
@@ -827,12 +842,12 @@ object Imports extends RewriteFactory {
             if (globalGivenAll eq null) globalGivenAll = x; false
           case _ => false
         }
-        if (hasBoth) both += importer
-        else if (hasRename) appendTo(importer, renamesOnly)
+        if (hasBoth) both += clause
+        else if (hasRename) appendTo(clause, renamesOnly)
         else if (wildcard ne null) {
           globalWildcard = wildcard
-          wildcardsOnly ++= importer.importees
-        } else appendTo(importer, neither)
+          wildcardsOnly ++= clause
+        } else appendTo(clause, neither)
       }
 
       val buffer = mutable.LinkedHashMap.empty[String, Importee]
@@ -886,8 +901,9 @@ object Imports extends RewriteFactory {
         case x => tryFold(x.text, x)(y => if (y.isEmpty) 1 else -1)
       }
 
+      val folded = new mutable.ListBuffer[Seq[Importee]]
       def flushFolded(): Unit = if (buffer.nonEmpty) {
-        addSelectorsToGroup(group, kw, ref, buffer.values.toSeq)
+        folded += buffer.values.toSeq
         buffer.clear()
       }
 
@@ -905,8 +921,8 @@ object Imports extends RewriteFactory {
         flushFolded()
       }
 
-      both.result().foreach { importer =>
-        importer.importees.foreach(fold(hasBoth = 1))
+      both.result().foreach { clause =>
+        clause.foreach(fold(hasBoth = 1))
         flushWithNoWildcards(hasBoth = -1)
       }
 
@@ -915,6 +931,7 @@ object Imports extends RewriteFactory {
       wildcardsOnly.result().foreach(fold(hasBoth = 0))
       neither.forEach(fold(hasBoth = 0))
       flushFolded()
+      folded.result()
     }
   }
 
