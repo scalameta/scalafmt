@@ -1146,33 +1146,41 @@ object Imports extends RewriteFactory {
         clauses: IndexedSeq[Seq[Importee]],
         sorting: Ordering[String],
     ): Iterable[Selectors] = {
+      val pairWildcards = mutable.HashSet.empty[Importee]
       val items = new mutable.ArrayBuffer[Seq[Importee]]
-      clauses.foreach(splitByMember(_, items))
-      val lineup =
-        if (null ne sorting) items.map(x => (x, getSelectors(x)))
-          .sortBy(_._2.raw)(sorting)
-        else sortImporters(items)(identity).map((_, null: Selectors))
+      clauses.foreach { x =>
+        if (x.hasPlainWildcard && x.hasGivenAll) pairWildcards ++=
+          x.filter(_.is[Importee.Wildcard])
+        splitByMember(x, items)
+      }
       val packed = new mutable.ArrayBuffer[mutable.ArrayBuffer[Importee]]
       // selectors of an output importer made of one item, else null
       val selectorsOf = new mutable.ArrayBuffer[Selectors]
-      lineup.foreach { case (item, selectors) =>
+      def place(item: Seq[Importee], selectors: Selectors): Unit = {
         val i = packed.indexWhere(!_.exists(x => item.exists(isConflict(x, _))))
         if (i < 0) {
           packed += mutable.ArrayBuffer(item: _*); selectorsOf += selectors
         } else { packed(i) ++= item; selectorsOf(i) = null }
       }
-      // duplicates keep the earliest
+      if (null ne sorting) items.map(getSelectors(_)).sortBy(_.raw)(sorting)
+        .foreach(x => place(x.importees, x))
+      else sortImporters(items)(identity).foreach(place(_, null)) // no selectors yet
+      // duplicates keep the earliest, or the wildcard paired with a plain given
+      def precedes(x: Importee, y: Importee): Boolean = {
+        val pair = pairWildcards.contains(x)
+        if (pair != pairWildcards.contains(y)) pair
+        else x.pos.start < y.pos.start
+      }
       packed.indices.map { i =>
         val selectors = selectorsOf(i)
         if (selectors ne null) selectors
         else {
           val duplicates = mutable.LinkedHashMap.empty[String, Importee]
-          packed(i).foreach(t =>
-            duplicates.updateWith(getDuplicateKey(t)) {
-              case Some(y) if y.pos.start < t.pos.start => Some(y)
-              case _ => Some(t)
-            },
-          )
+          packed(i).foreach { t =>
+            val key = getDuplicateKey(t)
+            val y = duplicates.getOrElse(key, null)
+            if ((y eq null) || !precedes(y, t)) duplicates.update(key, t)
+          }
           getSelectors(duplicates.values.toSeq)
         }
       }

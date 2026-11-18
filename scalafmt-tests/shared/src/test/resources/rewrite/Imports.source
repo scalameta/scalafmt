@@ -2748,7 +2748,7 @@ import i.{c => d}
 import j.{c => d}
 import j._
 import k._
-import m.{_, given}
+import m.{given, _}
 import n._
 import n.{c => d, given}
 import p.{c => d, _}
@@ -2821,7 +2821,7 @@ import i.{c => d}
 import j.{c => d}
 import j._
 import k._
-import m.{_, given}
+import m.{given, _}
 import n._
 import n.{c => d, given, _}
 import p.{c => d, _}
@@ -2894,7 +2894,7 @@ import i.{c => d}
 import j.{c => d}
 import j._
 import k._
-import m.{_, given}
+import m.{given, _}
 import n._
 import n.{c => d, given, _}
 import p.{c => d, _}
@@ -4084,7 +4084,7 @@ import i.{c => d}
 import j.{c => d}
 import j._
 import k._
-import m.{_, given}
+import m.{given, _}
 import n._
 import n.{c => d, given}
 import p.{c => d, _}
@@ -16378,7 +16378,7 @@ import a.{given, *}
 import b.*
 import b.{*, given}
 >>>
-import a.{*, given}
+import a.{given, *}
 import b.{*, given}
 <<< no sort, a wildcard and a given in two statements, fold
 runner.dialect = scala3
@@ -18591,7 +18591,7 @@ import i.{given, b, _}
 import a.{given, _}
 import b.{_, given}
 import c.{given, *}
-import d.{_, given}
+import d.{given, _}
 import e.{given, _}
 import f.{c => d, given}
 import f._
@@ -18623,7 +18623,7 @@ import i.{given, b, _}
 import a.{given, _}
 import b.{_, given}
 import c.{given, *}
-import d.{_, given}
+import d.{given, _}
 import e.{given, _}
 import f.{c => d, given}
 import f._
@@ -18824,7 +18824,7 @@ import i.{given, b, _}
 import a.{given, _}
 import b.{_, given}
 import c.{given, *}
-import d.{_, given}
+import d.{given, _}
 import e.{given, _}
 import f.{c => d, given, _}
 import f._
@@ -18856,7 +18856,7 @@ import i.{given, b, _}
 import a.{given, _}
 import b.{_, given}
 import c.{given, *}
-import d.{_, given}
+import d.{given, _}
 import e.{given, _}
 import f.{c => d, given, _}
 import f._
@@ -19066,7 +19066,7 @@ import i.{given, b, _}
 import a.{given, _}
 import b.{_, given}
 import c.{given, *}
-import d.{_, given}
+import d.{given, _}
 import e.{given, _}
 import f.{c => d, given}
 import f._
@@ -19099,7 +19099,7 @@ import i.{given, b, _}
 import a.{given, _}
 import b.{_, given}
 import c.{given, *}
-import d.{_, given}
+import d.{given, _}
 import e.{given, _}
 import f.{c => d, given}
 import f._
@@ -19250,7 +19250,7 @@ import b.{_, given}
 import c.{given, _}
 import c._
 >>>
-import a.{_, given}
+import a.{given, _}
 import b.{_, given}
 import c.{given, _}
 <<< a wildcard beside a wildcard with a plain given, fold, sort ascii, scala3
@@ -19283,7 +19283,7 @@ import b.{_, given}
 import c.{given, _}
 import c._
 >>>
-import a.{_, given}
+import a.{given, _}
 import b.{_, given}
 import c.{given, _}
 <<< a wildcard beside a wildcard with a plain given, fold, sort ascii, scala213source3
@@ -19317,7 +19317,7 @@ import b.{_, given}
 import c.{given, _}
 import c._
 >>>
-import a.{_, given}
+import a.{given, _}
 import b.{_, given}
 import c.{given, _}
 <<< a wildcard beside a wildcard with a plain given, fold, sort ascii, scala3 with allowGivenImports
