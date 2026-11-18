@@ -348,6 +348,19 @@ object Imports extends RewriteFactory {
   private final def isNamed(importee: Importee): Boolean = importee
     .isAny[Importee.Name, Importee.Rename, Importee.Unimport]
 
+  /** The key that duplicates share: `*` and `_` are duplicates, as are `b => x`
+    * and `b as x`.
+    */
+  private final def getDuplicateKey(importee: Importee): String = importee match {
+    case t: Importee.Name => t.name.value
+    case t: Importee.Rename => s"${t.name.value}\n${t.rename.value}"
+    case t: Importee.Unimport => s"${t.name.value}\n"
+    case _: Importee.Wildcard => ""
+    case t: Importee.Given => s"\n${t.tpe.text}"
+    case _: Importee.GivenAll => "\n"
+    case _ => null
+  }
+
   /** Returns the importers in the order of their earliest importee. */
   private final def sortImporters[A](
       importers: Iterable[A],
@@ -568,6 +581,21 @@ object Imports extends RewriteFactory {
         ref: String,
         importees: Seq[Importee],
     ): Unit = if (importees.nonEmpty) group.add(kw, ref, getSelectors(importees))
+
+    /** Returns each importer's importees without duplicates.
+      */
+    protected final def removeRedundant(
+        importers: Seq[Importer],
+    ): IndexedSeq[Seq[Importee]] = importers
+      .map(x => removeDuplicates(x.importees)).toIndexedSeq
+
+    /** Returns the importees without duplicates, keeping the earliest. */
+    private def removeDuplicates(importees: Seq[Importee]): Seq[Importee] =
+      if (importees.lengthCompare(1) <= 0) importees
+      else {
+        val keys = mutable.HashSet.empty[String]
+        importees.filter(x => keys.add(getDuplicateKey(x)))
+      }
 
     private def processImports(stats: Iterable[ImportExportStat]): String = {
       val indent = {
@@ -816,12 +844,12 @@ object Imports extends RewriteFactory {
         ref: String,
         importers: Seq[Importer],
     ): Unit = {
-      val clauses = importers.map(_.importees).toIndexedSeq
+      val clauses = removeRedundant(importers)
       sortImporters(getSelectorsToWrite(clauses))(_.importees)
         .foreach(group.add(kw, ref, _))
     }
 
-    /** The importers to write, from the importees of each importer. */
+    /** Returns the selectors to write for the importees left after removal. */
     protected def getSelectorsToWrite(
         clauses: IndexedSeq[Seq[Importee]],
     ): Iterable[Selectors] = foldImportees(clauses).map(getSelectors(_))
