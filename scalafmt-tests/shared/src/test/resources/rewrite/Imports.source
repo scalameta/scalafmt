@@ -16114,14 +16114,14 @@ rewrite.imports.removeRedundantSelectors = true
 ===
 import a.{b, b => z, *}
 >>>
-import a.{b => z, *}
+import a.{b, b => z, *}
 <<< a name twice, its rename and a wildcard, removeRedundantSelectors only
 runner.dialect = scala3
 rewrite.imports.removeRedundantSelectors = true
 ===
 import a.{b, b, b => z, *}
 >>>
-import a.{b => z, *}
+import a.{b, b => z, *}
 <<< sort ascii, a wildcard before a given, then names, groups
 runner.dialect = scala3
 rewrite.imports {

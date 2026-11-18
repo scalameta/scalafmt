@@ -594,8 +594,10 @@ object Imports extends RewriteFactory {
             if (!hadWildcard) { res += x; hadWildcard = true }
           case x: Importee.GivenAll =>
             if (!hadGivenAll) { res += x; hadGivenAll = true }
+          // a wildcard does not import a name that its importer hides
           case x: Importee.Name =>
-            if (!hasOwnWildcard) names.update(x.name.value, x)
+            val name = x.name.value
+            if (!hasOwnWildcard || importees.hides(name)) names.update(name, x)
           case x: Importee.Given => if (!hasOwnGivenAll) givens.update(x.text, x)
           case x => res += x
         }
