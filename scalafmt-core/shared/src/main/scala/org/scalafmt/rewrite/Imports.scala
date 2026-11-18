@@ -400,6 +400,11 @@ object Imports extends RewriteFactory {
       * or unimports that limit the wildcard.
       */
     def isWildcardUnit: Boolean = hasWildcard && hasRename
+
+    /** Whether the importer is a given unit: it has given importees and
+      * unimports that limit them.
+      */
+    def isGivenUnit: Boolean = hasGiven && hasUnimport
     def importsName(member: String): Boolean = obj.exists {
       case t: Importee.Name => t.name.value == member
       case _ => false
@@ -414,6 +419,12 @@ object Imports extends RewriteFactory {
     }
     def hides(member: String): Boolean = obj
       .exists(getRenamedMember(_) == member)
+
+    /** The renames and unimports that belong to a wildcard or given unit. */
+    def unitRenames: Seq[Importee] =
+      if (isWildcardUnit) obj.filter(isARename)
+      else if (isGivenUnit) obj.filter(isUnimport)
+      else Nil
 
   }
 
@@ -647,6 +658,7 @@ object Imports extends RewriteFactory {
         clauses = removeUnimports(clauses)
         clauses = replaceUnimports(clauses)
       }
+      clauses = removeRepeatedRenames(clauses)
       clauses.filter(_.nonEmpty)
     }
 
@@ -726,6 +738,24 @@ object Imports extends RewriteFactory {
           },
         )
       }
+
+    /** Returns the importers without each rename or unimport outside units that
+      * repeats one inside a unit.
+      */
+    private def removeRepeatedRenames(
+        clauses: IndexedSeq[Seq[Importee]],
+    ): IndexedSeq[Seq[Importee]] = {
+      val unitRenames = clauses.map(_.unitRenames)
+      val keys = mutable.HashSet.empty[String]
+      unitRenames.foreach(_.foreach(keys += getDuplicateKey(_)))
+      if (keys.isEmpty) clauses
+      else clauses.zip(unitRenames).map { case (x, inUnit) =>
+        x.filter(t =>
+          !isARename(t) || inUnit.contains(t) ||
+            !keys.contains(getDuplicateKey(t)),
+        )
+      }
+    }
 
     private def processImports(stats: Iterable[ImportExportStat]): String = {
       val indent = {
