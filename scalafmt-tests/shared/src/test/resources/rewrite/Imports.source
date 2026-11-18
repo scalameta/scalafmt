@@ -9929,7 +9929,7 @@ import a.{b => _, c => d, given, _}
 import a.{b => x}
 >>>
 import a.{b => x, given, _}
-import a.{b => _, c => d, _}
+import a.{c => d, b => x, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in two units, fold, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -9942,7 +9942,7 @@ import a.{b => _, c => d, given, _}
 import a.{b => x}
 >>>
 import a.{b => x, given, _}
-import a.{b => _, c => d, _}
+import a.{c => d, b => x, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in two units, fold, scala213source3, sort ascii
 runner.dialect = scala213source3
 rewrite.imports {
@@ -9955,7 +9955,7 @@ import a.{b => _, given, _}
 import a.{b => _, c => d, given, _}
 import a.{b => x}
 >>>
-import a.{b => _, c => d, _}
+import a.{b => x, c => d, _}
 import a.{b => x, given, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in two units, fold, scala212source3
 runner.dialect = scala212source3
@@ -9969,7 +9969,7 @@ import a.{b => _, c => d, given, _}
 import a.{b => x}
 >>>
 import a.{b => x, given, _}
-import a.{b => _, c => d, _}
+import a.{c => d, b => x, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in two units, fold, scala212source3, sort ascii
 runner.dialect = scala212source3
 rewrite.imports {
@@ -9982,7 +9982,7 @@ import a.{b => _, given, _}
 import a.{b => _, c => d, given, _}
 import a.{b => x}
 >>>
-import a.{b => _, c => d, _}
+import a.{b => x, c => d, _}
 import a.{b => x, given, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in two units, unfold, scala3
 runner.dialect = scala3
@@ -9996,7 +9996,7 @@ import a.{b => _, c => d, given, _}
 import a.{b => x}
 >>>
 import a.{b => x, given, _}
-import a.{b => _, c => d, _}
+import a.{c => d, b => x, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in two units, unfold, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -10009,7 +10009,7 @@ import a.{b => _, c => d, given, _}
 import a.{b => x}
 >>>
 import a.{b => x, given, _}
-import a.{b => _, c => d, _}
+import a.{c => d, b => x, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in two units, unfold, scala213source3, sort ascii
 runner.dialect = scala213source3
 rewrite.imports {
@@ -10022,7 +10022,7 @@ import a.{b => _, given, _}
 import a.{b => _, c => d, given, _}
 import a.{b => x}
 >>>
-import a.{b => _, c => d, _}
+import a.{b => x, c => d, _}
 import a.{b => x, given, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in two units, unfold, scala212source3
 runner.dialect = scala212source3
@@ -10036,7 +10036,7 @@ import a.{b => _, c => d, given, _}
 import a.{b => x}
 >>>
 import a.{b => x, given, _}
-import a.{b => _, c => d, _}
+import a.{c => d, b => x, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in two units, unfold, scala212source3, sort ascii
 runner.dialect = scala212source3
 rewrite.imports {
@@ -10049,7 +10049,7 @@ import a.{b => _, given, _}
 import a.{b => _, c => d, given, _}
 import a.{b => x}
 >>>
-import a.{b => _, c => d, _}
+import a.{b => x, c => d, _}
 import a.{b => x, given, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in three units, groups, scala3
 runner.dialect = scala3
@@ -10146,8 +10146,8 @@ import a.{b => _, e => f, given, _}
 import a.{b => x}
 >>>
 import a.{b => x, given, _}
-import a.{b => _, c => d, _}
-import a.{b => _, e => f, _}
+import a.{c => d, b => x, _}
+import a.{e => f, b => x, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in three units, fold, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -10161,8 +10161,8 @@ import a.{b => _, e => f, given, _}
 import a.{b => x}
 >>>
 import a.{b => x, given, _}
-import a.{b => _, c => d, _}
-import a.{b => _, e => f, _}
+import a.{c => d, b => x, _}
+import a.{e => f, b => x, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in three units, fold, scala213source3, sort ascii
 runner.dialect = scala213source3
 rewrite.imports {
@@ -10176,8 +10176,8 @@ import a.{b => _, c => d, given, _}
 import a.{b => _, e => f, given, _}
 import a.{b => x}
 >>>
-import a.{b => _, c => d, _}
-import a.{b => _, e => f, _}
+import a.{b => x, c => d, _}
+import a.{b => x, e => f, _}
 import a.{b => x, given, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in three units, fold, scala212source3
 runner.dialect = scala212source3
@@ -10192,8 +10192,8 @@ import a.{b => _, e => f, given, _}
 import a.{b => x}
 >>>
 import a.{b => x, given, _}
-import a.{b => _, c => d, _}
-import a.{b => _, e => f, _}
+import a.{c => d, b => x, _}
+import a.{e => f, b => x, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in three units, fold, scala212source3, sort ascii
 runner.dialect = scala212source3
 rewrite.imports {
@@ -10207,8 +10207,8 @@ import a.{b => _, c => d, given, _}
 import a.{b => _, e => f, given, _}
 import a.{b => x}
 >>>
-import a.{b => _, c => d, _}
-import a.{b => _, e => f, _}
+import a.{b => x, c => d, _}
+import a.{b => x, e => f, _}
 import a.{b => x, given, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in three units, unfold, scala3
 runner.dialect = scala3
@@ -10223,8 +10223,8 @@ import a.{b => _, e => f, given, _}
 import a.{b => x}
 >>>
 import a.{b => x, given, _}
-import a.{b => _, c => d, _}
-import a.{b => _, e => f, _}
+import a.{c => d, b => x, _}
+import a.{e => f, b => x, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in three units, unfold, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -10238,8 +10238,8 @@ import a.{b => _, e => f, given, _}
 import a.{b => x}
 >>>
 import a.{b => x, given, _}
-import a.{b => _, c => d, _}
-import a.{b => _, e => f, _}
+import a.{c => d, b => x, _}
+import a.{e => f, b => x, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in three units, unfold, scala213source3, sort ascii
 runner.dialect = scala213source3
 rewrite.imports {
@@ -10253,8 +10253,8 @@ import a.{b => _, c => d, given, _}
 import a.{b => _, e => f, given, _}
 import a.{b => x}
 >>>
-import a.{b => _, c => d, _}
-import a.{b => _, e => f, _}
+import a.{b => x, c => d, _}
+import a.{b => x, e => f, _}
 import a.{b => x, given, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in three units, unfold, scala212source3
 runner.dialect = scala212source3
@@ -10269,8 +10269,8 @@ import a.{b => _, e => f, given, _}
 import a.{b => x}
 >>>
 import a.{b => x, given, _}
-import a.{b => _, c => d, _}
-import a.{b => _, e => f, _}
+import a.{c => d, b => x, _}
+import a.{e => f, b => x, _}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in three units, unfold, scala212source3, sort ascii
 runner.dialect = scala212source3
 rewrite.imports {
@@ -10284,8 +10284,8 @@ import a.{b => _, c => d, given, _}
 import a.{b => _, e => f, given, _}
 import a.{b => x}
 >>>
-import a.{b => _, c => d, _}
-import a.{b => _, e => f, _}
+import a.{b => x, c => d, _}
+import a.{b => x, e => f, _}
 import a.{b => x, given, _}
 <<< repeated importees without removeRedundantSelectors, groups
 runner.dialect = scala3

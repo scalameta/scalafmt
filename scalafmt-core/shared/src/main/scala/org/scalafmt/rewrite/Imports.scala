@@ -394,6 +394,12 @@ object Imports extends RewriteFactory {
     def hasUnimport: Boolean = obj.exists(isUnimport)
     def hasGiven: Boolean = obj.exists(isAGiven)
     def hasGivenAll: Boolean = obj.exists(isGivenAll)
+    def hasRename: Boolean = obj.exists(isARename)
+
+    /** Whether the importer is a wildcard unit: it has a wildcard and renames
+      * or unimports that limit the wildcard.
+      */
+    def isWildcardUnit: Boolean = hasWildcard && hasRename
     def importsName(member: String): Boolean = obj.exists {
       case t: Importee.Name => t.name.value == member
       case _ => false
@@ -639,6 +645,7 @@ object Imports extends RewriteFactory {
         if (clauses.hasGivenAll)
           clauses = clauses.map(_.filterNot(_.is[Importee.Given]))
         clauses = removeUnimports(clauses)
+        clauses = replaceUnimports(clauses)
       }
       clauses.filter(_.nonEmpty)
     }
@@ -679,6 +686,45 @@ object Imports extends RewriteFactory {
             case _ => true
           }
         }
+      }
+
+    /** Returns the importers with each unimport in a wildcard unit replaced by
+      * the earliest rename of its member outside units, and without that rename
+      * in its own importer.
+      */
+    private def replaceUnimports(
+        clauses: IndexedSeq[Seq[Importee]],
+    ): IndexedSeq[Seq[Importee]] =
+      if (!clauses.exists(x => x.hasUnimport && x.hasWildcard)) clauses
+      else {
+        val unimported = mutable.HashSet.empty[String]
+        clauses.foreach(x =>
+          if (x.isWildcardUnit) x.foreach {
+            case t: Importee.Unimport => unimported += t.name.value
+            case _ =>
+          },
+        )
+        // importers are in source order, so the first rename is the earliest
+        val replacements = mutable.HashMap.empty[String, Importee]
+        clauses.foreach(x =>
+          if (!x.isWildcardUnit) x.foreach {
+            case t: Importee.Rename if unimported.contains(t.name.value) =>
+              replacements.getOrElseUpdate(t.name.value, t)
+            case _ =>
+          },
+        )
+        if (replacements.isEmpty) clauses
+        else clauses.map(x =>
+          if (x.isWildcardUnit) x.map {
+            case t: Importee.Unimport => replacements.getOrElse(t.name.value, t)
+            case t => t
+          }
+          else x.filter {
+            case t: Importee.Rename => replacements
+                .getOrElse(t.name.value, null) ne t
+            case _ => true
+          },
+        )
       }
 
     private def processImports(stats: Iterable[ImportExportStat]): String = {
@@ -1014,8 +1060,6 @@ object Imports extends RewriteFactory {
             case _ => 0
           }
         case x: Importee.Rename => tryFold(x.name.value, x) {
-            case Some(_: Importee.Unimport)
-                if settings.removeRedundantSelectors => 1
             case Some(y: Importee.Rename) if x.rename.value == y.rename.value =>
               -1
             case None if hasBoth >= 0 => 1
