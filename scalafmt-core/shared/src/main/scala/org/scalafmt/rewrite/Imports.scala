@@ -7,7 +7,6 @@ import org.scalafmt.util._
 import scala.meta._
 import scala.meta.tokens.{Token => T}
 
-import java.util.LinkedList
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
@@ -350,9 +349,6 @@ object Imports extends RewriteFactory {
 
   private final def inGivenUnit(importee: Importee): Boolean =
     isAGiven(importee) || isUnimport(importee)
-
-  private final def notWildcardOrRename(importee: Importee): Boolean =
-    !isAWildcard(importee) && !isARename(importee)
 
   private final def isNamed(importee: Importee): Boolean = importee
     .isAny[Importee.Name, Importee.Rename, Importee.Unimport]
@@ -999,27 +995,33 @@ object Imports extends RewriteFactory {
         clauses: IndexedSeq[Seq[Importee]],
         group: Grouping,
     ): Iterable[Selectors] = {
-      val res = new mutable.ListBuffer[Seq[Importee]]
-      foldImportees(clauses).foreach(expand(_, res))
-      res.map(getSelectors(_))
+      val parts = new mutable.ArrayBuffer[Seq[Importee]]
+      clauses.foreach(splitByMember(_, parts))
+      val res = new mutable.ArrayBuffer[Selectors]
+      parts.foreach(expand(_, res))
+      res
     }
 
+    /** Appends to `dst` each importee as an importer of its own, except those
+      * that must stay together.
+      */
     private def expand(
-        importees: Seq[Importee],
-        dst: mutable.ListBuffer[Seq[Importee]],
-    ): Unit =
-      // if there's a wildcard, unimports and renames must come with it, cannot be expanded
-      if (
-        importees.dropWhile(notWildcardOrRename).drop(1).exists(isAWildcard)
-      ) {
-        val filtered = importees.filter { x =>
-          val expanding = notWildcardOrRename(x)
-          if (expanding) dst += x :: Nil
-          !expanding
-        }
-        dst += filtered
-      } else // expand all
-        importees.foreach(dst += _ :: Nil)
+        clause: Seq[Importee],
+        dst: mutable.ArrayBuffer[Selectors],
+    ): Unit = {
+      val wildcards = clause.count(isAWildcard)
+      val keepTogether = wildcards > 1 || wildcards != 0 && clause.hasRename
+      val givenUnit = clause.isGivenUnit
+      if (!keepTogether && !givenUnit) clause.foreach(x => dst += getSelector(x))
+      else {
+        val (core, others) = clause.partition(x =>
+          keepTogether && (isAWildcard(x) || isARename(x)) ||
+            givenUnit && inGivenUnit(x),
+        )
+        dst += getSelectors(core)
+        others.foreach(x => dst += getSelector(x))
+      }
+    }
   }
 
   /** convert
@@ -1161,114 +1163,6 @@ object Imports extends RewriteFactory {
           getSelectors(duplicates.values.toSeq)
         }
       }
-    }
-
-    protected final def foldImportees(
-        clauses: IndexedSeq[Seq[Importee]],
-    ): Seq[Seq[Importee]] = {
-      type Importees = LinkedList[Importee]
-      def appendTo(src: Seq[Importee], dst: Importees): Importees = {
-        src.foreach(dst.add)
-        dst
-      }
-      var globalWildcard: Importee.Wildcard = null
-      var globalGivenAll: Importee.GivenAll = null
-      // below: variable names refer to presence of renames and wildcards
-      val neither = new Importees
-      val both = Seq.newBuilder[Seq[Importee]]
-      val renamesOnly = new Importees
-      val wildcardsOnly = Seq.newBuilder[Importee]
-      clauses.foreach { clause =>
-        var hasRename = false
-        var wildcard: Importee.Wildcard = null
-        val hasBoth = clause.exists { // stop if has both
-          case x: Importee.Wildcard =>
-            if (wildcard eq null) wildcard = x; hasRename
-          case _: Importee.Rename | _: Importee.Unimport =>
-            hasRename = true; wildcard ne null
-          case x: Importee.GivenAll =>
-            if (globalGivenAll eq null) globalGivenAll = x; false
-          case _ => false
-        }
-        if (hasBoth) both += clause
-        else if (hasRename) appendTo(clause, renamesOnly)
-        else if (wildcard ne null) {
-          globalWildcard = wildcard
-          wildcardsOnly ++= clause
-        } else appendTo(clause, neither)
-      }
-
-      val buffer = mutable.LinkedHashMap.empty[String, Importee]
-      def tryFold(name: String, owner: Importee)(
-          f: Option[Importee] => Int,
-      ): Boolean = {
-        var res = 0
-        buffer.updateWith(name) { xOpt =>
-          res = f(xOpt)
-          if (res > 0) Some(owner) else xOpt
-        }
-        res != 0
-      }
-
-      def fold(
-          hasBoth: Int, // 0 no, 1 part of importer with both, -1 both folded previously
-      )(importee: Importee): Boolean = importee match {
-        case x: Importee.Name => tryFold(x.name.value, x) {
-            case Some(_: Importee.Name) => -1
-            case None => 1
-            case _ => 0
-          }
-        case x: Importee.Rename => tryFold(x.name.value, x) {
-            case Some(y: Importee.Rename) if x.rename.value == y.rename.value =>
-              -1
-            case None if hasBoth >= 0 => 1
-            case _ => 0
-          }
-        case x: Importee.Unimport => tryFold(x.name.value, x) {
-            case Some(_: Importee.Unimport) => -1
-            case None if hasBoth >= 0 => 1
-            case _ => 0
-          }
-        case x: Importee.Wildcard =>
-          ((globalWildcard eq null) || (globalWildcard eq x)) &&
-          tryFold("_", x)(y => if (y.isEmpty) 1 else -1)
-        case x: Importee.GivenAll =>
-          ((globalGivenAll eq null) || (globalGivenAll eq x)) &&
-          tryFold("given", x)(y => if (y.isEmpty) 1 else -1)
-        case x => tryFold(x.text, x)(y => if (y.isEmpty) 1 else -1)
-      }
-
-      val folded = new mutable.ListBuffer[Seq[Importee]]
-      def flushFolded(): Unit = if (buffer.nonEmpty) {
-        folded += buffer.values.toSeq
-        buffer.clear()
-      }
-
-      def foldNoWildcards(list: Importees, hasBoth: Int): Unit = {
-        val iter = list.listIterator()
-        while (iter.hasNext) {
-          val elem = iter.next()
-          if (fold(hasBoth = hasBoth)(elem)) iter.remove()
-        }
-      }
-
-      def flushWithNoWildcards(hasBoth: Int): Unit = {
-        foldNoWildcards(neither, hasBoth = hasBoth)
-        foldNoWildcards(renamesOnly, hasBoth = hasBoth)
-        flushFolded()
-      }
-
-      both.result().foreach { clause =>
-        clause.foreach(fold(hasBoth = 1))
-        flushWithNoWildcards(hasBoth = -1)
-      }
-
-      while (!renamesOnly.isEmpty) flushWithNoWildcards(hasBoth = 0)
-
-      wildcardsOnly.result().foreach(fold(hasBoth = 0))
-      neither.forEach(fold(hasBoth = 0))
-      flushFolded()
-      folded.result()
     }
 
   }
