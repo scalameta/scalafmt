@@ -8361,13 +8361,10 @@ import nb.{x, c => _, given}
 import z.{b => _, given, _}
 import z.{b => _, c => d, _}
 import ga.{b => _, given, _}
-import ga.given
-import gb.given
 import gb.{b => _, given, _}
 import gc.{y => z}
 import gc.{_, given}
 import gd.{c => d, x, given}
-import ge.given
 import ge.{b => _, given, _}
 import gf.given
 import gg.given
@@ -8420,13 +8417,10 @@ import nb.{x, c => _, given}
 import z.{b => _, given, _}
 import z.{b => _, c => d, _}
 import ga.{b => _, given, _}
-import ga.given
-import gb.given
 import gb.{b => _, given, _}
 import gc.{y => z}
 import gc.{_, given}
 import gd.{c => d, x, given}
-import ge.given
 import ge.{b => _, given, _}
 import gf.given
 import gg.given
@@ -8535,15 +8529,12 @@ import nb.{x, c => _, given}
 import z.{b => _, given, _}
 import z.{b => _, c => d, _}
 import ga.{b => _, given, _}
-import ga.given
-import gb.given
 import gb.{b => _, given, _}
 import gc.{y => z}
 import gc.{_, given}
 import gd.{c => d}
 import gd.x
 import gd.given
-import ge.given
 import ge.{b => _, given, _}
 import gf.given
 import gg.given
@@ -8603,15 +8594,12 @@ import nb.{x, c => _, given}
 import z.{b => _, given, _}
 import z.{b => _, c => d, _}
 import ga.{b => _, given, _}
-import ga.given
-import gb.given
 import gb.{b => _, given, _}
 import gc.{y => z}
 import gc.{_, given}
 import gd.{c => d}
 import gd.x
 import gd.given
-import ge.given
 import ge.{b => _, given, _}
 import gf.given
 import gg.given
@@ -8868,14 +8856,11 @@ import na.{x, c => y}
 import nb.{x, b => _, given}
 import nb.{x, c => _, given}
 >>>
-import ga.given
 import ga.{b => _, given, _}
-import gb.given
 import gb.{b => _, given, _}
 import gc.{_, given}
 import gc.{y => z}
 import gd.{c => d, given, x}
-import ge.given
 import ge.{b => _, given, _}
 import gf.given
 import gg.given
@@ -8928,14 +8913,11 @@ import na.{x, c => y}
 import nb.{x, b => _, given}
 import nb.{x, c => _, given}
 >>>
-import ga.given
 import ga.{b => _, given, _}
-import gb.given
 import gb.{b => _, given, _}
 import gc.{_, given}
 import gc.{y => z}
 import gd.{c => d, given, x}
-import ge.given
 import ge.{b => _, given, _}
 import gf.given
 import gg.given
@@ -8988,16 +8970,13 @@ import na.{x, c => y}
 import nb.{x, b => _, given}
 import nb.{x, c => _, given}
 >>>
-import ga.given
 import ga.{b => _, given, _}
-import gb.given
 import gb.{b => _, given, _}
 import gc.{_, given}
 import gc.{y => z}
 import gd.given
 import gd.x
 import gd.{c => d}
-import ge.given
 import ge.{b => _, given, _}
 import gf.given
 import gg.given
@@ -9057,16 +9036,13 @@ import na.{x, c => y}
 import nb.{x, b => _, given}
 import nb.{x, c => _, given}
 >>>
-import ga.given
 import ga.{b => _, given, _}
-import gb.given
 import gb.{b => _, given, _}
 import gc.{_, given}
 import gc.{y => z}
 import gd.given
 import gd.x
 import gd.{c => d}
-import ge.given
 import ge.{b => _, given, _}
 import gf.given
 import gg.given
@@ -9575,10 +9551,13 @@ import a.{b, b => z, *}
 import c.{b, b => z, *}
 import c.b
 >>>
-import a.b
-import a.{b => z, *}
-import c.{b => z, *}
-import c.b
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,2 +1,2 @@
+-import a.{b, *}
+-import c.{b, *}
++import a.*
++import c.*
 <<< removeRedundantSelectors, repeated importees, a name that its importer hides, unfold
 runner.dialect = scala3
 rewrite.imports {
@@ -9591,10 +9570,13 @@ import a.{b, b => z, *}
 import c.{b, b => z, *}
 import c.b
 >>>
-import a.b
-import a.{b => z, *}
-import c.{b => z, *}
-import c.b
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,4 +1,2 @@
+-import a.b
+ import a.*
+-import c.b
+ import c.*
 <<< removeRedundantSelectors, repeated importees, a later unit, groups, scala3
 runner.dialect = scala3
 rewrite.imports {
@@ -15328,8 +15310,11 @@ rewrite.imports {
 import a.b // c1
 import a.{b, b => z, *} // c2
 >>>
-import a.b // c1
-import a.{b => z, *} // c2
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,1 +1,1 @@
+-import a.{b, *} // c2
++import a.* // c2
 <<< removeRedundantSelectors, a wildcard, then a name after a comment beside another qualifier, fold
 rewrite.imports {
   selectors = fold
