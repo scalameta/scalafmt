@@ -657,6 +657,7 @@ object Imports extends RewriteFactory {
           clauses = clauses.map(_.filterNot(_.is[Importee.Given]))
         clauses = removeUnimports(clauses)
         clauses = replaceUnimports(clauses)
+        clauses = removeNamesUnderWildcard(clauses)
       }
       clauses = removeRepeatedRenames(clauses)
       clauses.filter(_.nonEmpty)
@@ -755,6 +756,18 @@ object Imports extends RewriteFactory {
             !keys.contains(getDuplicateKey(t)),
         )
       }
+    }
+
+    /** Returns the importers without the names that a wildcard imports. */
+    private def removeNamesUnderWildcard(
+        clauses: IndexedSeq[Seq[Importee]],
+    ): IndexedSeq[Seq[Importee]] = {
+      val wildcards = clauses.filter(_.hasWildcard)
+      if (wildcards.isEmpty) clauses
+      else clauses.map(_.filter {
+        case t: Importee.Name => wildcards.forall(_.hides(t.name.value))
+        case _ => true
+      })
     }
 
     private def processImports(stats: Iterable[ImportExportStat]): String = {
@@ -1083,9 +1096,6 @@ object Imports extends RewriteFactory {
       )(importee: Importee): Boolean = importee match {
         case x: Importee.Name => tryFold(x.name.value, x) {
             case Some(_: Importee.Name) => -1
-            case None
-                if settings.removeRedundantSelectors &&
-                  (hasBoth != 0 || (globalWildcard ne null)) => -1
             case None => 1
             case _ => 0
           }
