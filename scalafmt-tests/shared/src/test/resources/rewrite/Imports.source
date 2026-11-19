@@ -840,7 +840,7 @@ import a.{x, given, given Z, _}
 >>>
 import a.given Z
 import a.x
-import a.{*, given}
+import a.{given, *}
 import a.{given, _}
 import a.{y => z, given}
 <<< #3189 ascii !expand
@@ -852,7 +852,7 @@ import a.{*, given}
 import a.{x, given, given Z}
 >>>
 import a.{x, y => z, given}
-import a.{*, given}
+import a.{given, *}
 import a.{x, given Z, given}
 <<< #3189 original
 rewrite.imports.sort = original
@@ -862,7 +862,7 @@ import a.{x, y => z, given}
 import a.{*, given}
 import a.{x, given, given Z}
 >>>
-import a.{*, given}
+import a.{given, *}
 import a.{y => z, given}
 import a.given
 import a.given Z
@@ -876,7 +876,7 @@ import a.{*, given}
 import a.{x, given, given Z}
 >>>
 import a.{x, y => z, given}
-import a.{*, given}
+import a.{given, *}
 import a.{x, given Z, given}
 <<< #3189 scalastyle
 rewrite.imports.sort = scalastyle
@@ -886,7 +886,7 @@ import a.{x, y => z, given}
 import a.{*, given}
 import a.{x, given, given Z}
 >>>
-import a.{*, given}
+import a.{given, *}
 import a.{y => z, given}
 import a.given
 import a.given Z
@@ -900,7 +900,7 @@ import a.{*, given}
 import a.{x, given, given Z}
 >>>
 import a.{x, y => z, given}
-import a.{*, given}
+import a.{given, *}
 import a.{x, given Z, given}
 <<< #3240 expand
 rewrite.imports.sort = ascii
@@ -1322,7 +1322,7 @@ import a.{*, given}
 import a.{x, given, given Z}
 >>>
 import a.{x, y => z, given}
-import a.{*, given}
+import a.{given, *}
 import a.{x, given}
 <<< avoid conflicting names when folding
 rewrite.imports {
@@ -3039,7 +3039,7 @@ import i.{c => d}
 import j._
 import j.{c => d}
 import k._
-import m.{_, given}
+import m.{given, _}
 import n._
 import n.{c => d, given}
 import p.{c => d, _}
@@ -3113,7 +3113,7 @@ import i.{c => d}
 import j._
 import j.{c => d}
 import k._
-import m.{_, given}
+import m.{given, _}
 import n._
 import n.{c => d, given}
 import p.{c => d, _}
@@ -3187,7 +3187,7 @@ import i.{c => d}
 import j._
 import j.{c => d}
 import k._
-import m.{_, given}
+import m.{given, _}
 import n._
 import n.{c => d, given}
 import p.{c => d, _}
@@ -3263,7 +3263,7 @@ import i.{c => d}
 import j.{c => d}
 import j._
 import k._
-import m.{_, given}
+import m.{given, _}
 import n._
 import n.{c => d, given}
 import p.{c => d, _}
@@ -3339,7 +3339,7 @@ import i.{c => d}
 import j._
 import j.{c => d}
 import k._
-import m.{_, given}
+import m.{given, _}
 import n._
 import n.{c => d, given}
 import p.{c => d, _}
@@ -4375,7 +4375,7 @@ import i.{c => d}
 import j._
 import j.{c => d}
 import k._
-import m.{_, given}
+import m.{given, _}
 import n._
 import n.{c => d, given, _}
 import p.{c => d, _}
@@ -4449,7 +4449,7 @@ import i.{c => d}
 import j._
 import j.{c => d}
 import k._
-import m.{_, given}
+import m.{given, _}
 import n._
 import n.{c => d, given, _}
 import p.{c => d, _}
@@ -10121,7 +10121,7 @@ import ga.given
 import ga.{b => _, given, _}
 import gb.given
 import gb.{b => _, given, _}
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z, given}
 import gd.{c => d, x, given}
 import ge.{b => _, given, _}
@@ -10182,7 +10182,7 @@ import ga.{b => _, given, _}
 import ga.given
 import gb.{b => _, given, _}
 import gb.given
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z, given}
 import gd.{c => d, x, given}
 import ge.{b => _, given, _}
@@ -10243,7 +10243,7 @@ import ga.{b => _, given, _}
 import ga.given
 import gb.{b => _, given, _}
 import gb.given
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z, given}
 import gd.{c => d, x, given}
 import ge.{b => _, given, _}
@@ -10309,7 +10309,7 @@ import ga.given
 import gb.given
 import gb.{b => _, given, _}
 import gc.{y => z, given}
-import gc.{_, given}
+import gc.{given, _}
 import gd.{c => d, x, given}
 import ge.{b => _, given}
 import ge.{b => _, given, _}
@@ -10369,7 +10369,7 @@ import ga.given
 import ga.{b => _, given, _}
 import gb.given
 import gb.{b => _, given, _}
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z, given}
 import gd.{c => d, x, given}
 import ge.{b => _, given, _}
@@ -10694,7 +10694,7 @@ import ga.given
 import ga.{b => _, given, _}
 import gb.given
 import gb.{b => _, given, _}
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z, given}
 import gd.given
 import gd.x
@@ -10764,7 +10764,7 @@ import ga.{b => _, given, _}
 import ga.given
 import gb.{b => _, given, _}
 import gb.given
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z, given}
 import gd.{c => d, given}
 import gd.given
@@ -10834,7 +10834,7 @@ import ga.{b => _, given, _}
 import ga.given
 import gb.{b => _, given, _}
 import gb.given
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z, given}
 import gd.{c => d, given}
 import gd.given
@@ -10909,7 +10909,7 @@ import ga.given
 import gb.given
 import gb.{b => _, given, _}
 import gc.{y => z, given}
-import gc.{_, given}
+import gc.{given, _}
 import gd.{c => d, given}
 import gd.x
 import gd.given
@@ -10978,7 +10978,7 @@ import ga.given
 import ga.{b => _, given, _}
 import gb.given
 import gb.{b => _, given, _}
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z, given}
 import gd.given
 import gd.x
@@ -11177,7 +11177,7 @@ import z.{b => _, c => d}
 import z.{b => _, given, _}
 import ga.{b => _, given, _}
 import gb.{b => _, given, _}
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z}
 import gd.{c => d}
 import gd.{given, x}
@@ -11244,7 +11244,7 @@ import z.{b => _, c => d}
 import z.{b => _, given, _}
 import ga.{b => _, given, _}
 import gb.{b => _, given, _}
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z}
 import gd.{c => d}
 import gd.{given, x}
@@ -11309,7 +11309,7 @@ import nb.{x, c => _, given}
 >>>
 import ga.{b => _, given, _}
 import gb.{b => _, given, _}
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z}
 import gd.{c => d, given, x}
 import ge.{b => _, given, _}
@@ -11366,7 +11366,7 @@ import nb.{x, c => _, given}
 >>>
 import ga.{b => _, given, _}
 import gb.{b => _, given, _}
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z}
 import gd.{c => d, given, x}
 import ge.{b => _, given, _}
@@ -11423,7 +11423,7 @@ import nb.{x, c => _, given}
 >>>
 import ga.{b => _, given, _}
 import gb.{b => _, given, _}
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z}
 import gd.given
 import gd.x
@@ -11489,7 +11489,7 @@ import nb.{x, c => _, given}
 >>>
 import ga.{b => _, given, _}
 import gb.{b => _, given, _}
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z}
 import gd.given
 import gd.x
@@ -12997,7 +12997,7 @@ import ga.given
 import ga.{b => _, given, _}
 import gb.given
 import gb.{b => _, given, _}
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z, given}
 import gd.{c => d, given}
 import gd.{x, given}
@@ -13313,7 +13313,7 @@ import ga.given
 import ga.{b => _, given, _}
 import gb.given
 import gb.{b => _, given, _}
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z, given}
 import gd.{c => d, x, given}
 import ge.{b => _, given, _}
@@ -13735,7 +13735,7 @@ import ga.given
 import ga.{b => _, given, _}
 import gb.given
 import gb.{b => _, given, _}
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z, given}
 import gd.given
 import gd.x
@@ -14083,7 +14083,7 @@ import ga.given
 import ga.{b => _, given, _}
 import gb.given
 import gb.{b => _, given, _}
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z, given}
 import gd.{c => d, x, given}
 import ge.{b => _, given, _}
@@ -14501,7 +14501,7 @@ import ga.given
 import ga.{b => _, given, _}
 import gb.given
 import gb.{b => _, given, _}
-import gc.{_, given}
+import gc.{given, _}
 import gc.{y => z, given}
 import gd.given
 import gd.x
@@ -14854,7 +14854,7 @@ import ga.given
 import gb.given
 import gb.{b => _, given, _}
 import gc.{y => z, given}
-import gc.{_, given}
+import gc.{given, _}
 import gd.{c => d, given}
 import gd.{x, given}
 import ge.{b => _, given}
@@ -16421,8 +16421,8 @@ rewrite.imports {
 import foo.{*, given}
 import foo.{Bar, Baz}
 >>>
-import foo.{*, given}
 import foo.{Bar, Baz}
+import foo.{given, *}
 <<< sort ascii, a wildcard before a given, then a rename, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -16433,8 +16433,8 @@ rewrite.imports {
 import a.{*, given}
 import a.{d => z}
 >>>
-import a.{*, given}
 import a.{d => z}
+import a.{given, *}
 <<< sort ascii, a wildcard before a given, then a rename, unfold
 runner.dialect = scala3
 rewrite.imports {
@@ -16445,8 +16445,8 @@ rewrite.imports {
 import a.{*, given}
 import a.{d => z}
 >>>
-import a.{*, given}
 import a.{d => z}
+import a.{given, *}
 <<< sort ascii, a wildcard before a given, no selectors
 runner.dialect = scala3
 rewrite.imports.sort = ascii
@@ -16454,8 +16454,8 @@ rewrite.imports.sort = ascii
 import a.{*, given}
 import b.{c, _, given}
 >>>
-import a.{*, given}
-import b.{c, _, given}
+import a.{given, *}
+import b.{c, given, _}
 <<< sort ascii, a given with a wildcard in two orders, groups
 runner.dialect = scala3
 rewrite.imports {
@@ -16466,7 +16466,6 @@ rewrite.imports {
 import a.{given, *}
 import a.{*, given}
 >>>
-import a.{*, given}
 import a.{given, *}
 <<< removeRedundantSelectors, an unimport with a given, then a wildcard, fold
 runner.dialect = scala3
@@ -16512,7 +16511,7 @@ rewrite.imports {
 ===
 import a.{c => y, given X, *, given}
 >>>
-import a.{c => y, *, given}
+import a.{c => y, given, *}
 <<< no sort, an unimport or a rename with a given by type, unfold
 runner.dialect = scala3
 rewrite.imports.selectors = unfold
@@ -17840,7 +17839,6 @@ rewrite.imports {
 import a.{given, *} // c1
 import a.{*, given} // c2
 >>>
-import a.{*, given} // c2
 import a.{given, *} // c1
 <<< removeRedundantSelectors, an unimport beside a wildcard, then the name, each with a trailing comment, fold
 rewrite.imports {
@@ -18473,7 +18471,7 @@ import h.{b => _, given, _}
 import i.{given, b, _}
 >>>
 import a.{given, _}
-import b.{_, given}
+import b.{given, _}
 import c.{given, *}
 import d._
 import d.{given, _}
@@ -18541,7 +18539,7 @@ import h.{b => _, given, _}
 import i.{given, b, _}
 >>>
 import a.{given, _}
-import b.{_, given}
+import b.{given, _}
 import c.{given, *}
 import d.{given, _}
 import e.{given, _}
@@ -18702,7 +18700,7 @@ import h.{b => _, given, _}
 import i.{given, b, _}
 >>>
 import a.{given, _}
-import b.{_, given}
+import b.{given, _}
 import c.{given, *}
 import d._
 import d.{given, _}
@@ -18770,7 +18768,7 @@ import h.{b => _, given, _}
 import i.{given, b, _}
 >>>
 import a.{given, _}
-import b.{_, given}
+import b.{given, _}
 import c.{given, *}
 import d.{given, _}
 import e.{given, _}
@@ -18937,7 +18935,7 @@ import h.{b => _, given, _}
 import i.{given, b, _}
 >>>
 import a.{given, _}
-import b.{_, given}
+import b.{given, _}
 import c.{given, *}
 import d._
 import d.{given, _}
@@ -19007,7 +19005,7 @@ import h.{b => _, given, _}
 import i.{given, b, _}
 >>>
 import a.{given, _}
-import b.{_, given}
+import b.{given, _}
 import c.{given, *}
 import d.{given, _}
 import e.{given, _}
@@ -19143,7 +19141,7 @@ export c.*
 export c.{given, *}
 >>>
 export a.{given, *}
-export b.{*, given}
+export b.{given, *}
 export c.*
 export c.{given, *}
 <<< exports of plain givens beside wildcards, removeRedundantSelectors, unfold, scala3
@@ -19191,7 +19189,7 @@ export c.*
 export c.{given, *}
 >>>
 export a.{given, *}
-export b.{*, given}
+export b.{given, *}
 export c.*
 export c.{given, *}
 <<< exports of plain givens beside wildcards, removeRedundantSelectors, unfold, scala3 with allowGivenImports
@@ -19240,9 +19238,9 @@ import b.{_, given}
 import c.{given, _}
 import c._
 >>>
-import a.{_, given}
-import b.{_, given}
-import c.{_, given}
+import a.{given, _}
+import b.{given, _}
+import c.{given, _}
 <<< a wildcard beside a wildcard with a plain given, fold, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -19273,9 +19271,9 @@ import b.{_, given}
 import c.{given, _}
 import c._
 >>>
-import a.{_, given}
-import b.{_, given}
-import c.{_, given}
+import a.{given, _}
+import b.{given, _}
+import c.{given, _}
 <<< a wildcard beside a wildcard with a plain given, fold, scala3 with allowGivenImports
 runner.dialect = scala3
 runner.dialectOverride.allowGivenImports = true
@@ -19308,6 +19306,6 @@ import b.{_, given}
 import c.{given, _}
 import c._
 >>>
-import a.{_, given}
-import b.{_, given}
-import c.{_, given}
+import a.{given, _}
+import b.{given, _}
+import c.{given, _}

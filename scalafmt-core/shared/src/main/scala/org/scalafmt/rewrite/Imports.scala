@@ -249,18 +249,20 @@ object Imports extends RewriteFactory {
         // https://docs.scala-lang.org/scala3/reference/contextual/given-imports.html
         val others = new mutable.ListBuffer[Selector]
         val givens = new mutable.ListBuffer[Selector]
+        val givenAlls = new mutable.ListBuffer[Selector]
         val wildcards = new mutable.ListBuffer[Selector]
         buf.foreach(x =>
           (x match {
             case _: Importee.Given => givens
-            case _: Importee.Wildcard | _: Importee.GivenAll => wildcards
+            case _: Importee.GivenAll => givenAlls
+            case _: Importee.Wildcard => wildcards
             case _ => others
           }) += toSelector(x),
         )
         def sorted(obj: mutable.ListBuffer[Selector]) = obj.result()
           .sortBy(_.text)(selectorOrdering)
         // don't sort wildcards
-        sorted(others) ++ sorted(givens) ++ wildcards
+        sorted(others) ++ sorted(givens) ++ givenAlls ++ wildcards
       }
 
       def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] = buf
