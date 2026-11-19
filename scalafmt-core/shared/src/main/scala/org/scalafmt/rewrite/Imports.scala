@@ -159,33 +159,33 @@ object Imports extends RewriteFactory {
     lazy val labels = ref.split('.') :+ selectors.raw
   }
 
+  class Selector(val tree: Importee, val text: String) {
+    def this(tree: Importee) = this(tree, tree.text)
+  }
+
   sealed abstract class Sort {
-    protected def sortSelectors(
-        buf: Seq[(Importee, String)],
-    ): Iterable[(Importee, String)]
+    protected def sortSelectors(buf: Seq[Selector]): Iterable[Selector]
     def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry]
     def sortGroupingTail(buf: Seq[GroupingEntry]): Iterable[GroupingEntry]
 
-    def sortSelector(buf: Seq[Importee]): Iterable[(Importee, String)] = {
+    def sortSelector(buf: Seq[Importee]): Iterable[Selector] = {
       // https://docs.scala-lang.org/scala3/reference/contextual/given-imports.html
-      val others = new mutable.ListBuffer[(Importee, String)]
-      val givens = new mutable.ListBuffer[(Importee, String)]
-      val wildcards = new mutable.ListBuffer[(Importee, String)]
+      val others = new mutable.ListBuffer[Selector]
+      val givens = new mutable.ListBuffer[Selector]
+      val wildcards = new mutable.ListBuffer[Selector]
       buf.foreach(x =>
         (x match {
           case _: Importee.Given => givens
           case _: Importee.Wildcard | _: Importee.GivenAll => wildcards
           case _ => others
-        }) += selectorToTuple(x),
+        }) += toSelector(x),
       )
-      def sorted(obj: mutable.ListBuffer[(Importee, String)]) =
-        sortSelectors(obj.result())
+      def sorted(obj: mutable.ListBuffer[Selector]) = sortSelectors(obj.result())
       // don't sort wildcards
-      Iterable.concat(sorted(others), sorted(givens), wildcards)
+      sorted(others) ++ sorted(givens) ++ wildcards
     }
 
-    protected final def selectorToTuple(tree: Importee): (Importee, String) =
-      (tree, tree.text)
+    protected final def toSelector(tree: Importee): Selector = new Selector(tree)
   }
 
   private[scalafmt] object Sort {
@@ -193,29 +193,20 @@ object Imports extends RewriteFactory {
     implicit val reader: ConfCodecEx[Sort] = ConfCodecEx
       .oneOf[Sort](none, ascii, original, scalastyle)
 
-    case object none extends Sort {
-      override def sortSelector(
-          buf: Seq[Importee],
-      ): Iterable[(Importee, String)] = buf.map(selectorToTuple)
-
-      protected def sortSelectors(
-          buf: Seq[(Importee, String)],
-      ): Iterable[(Importee, String)] = buf
+    sealed abstract class SortNone extends Sort {
+      protected def sortSelectors(buf: Seq[Selector]): Iterable[Selector] = buf
 
       def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] = buf
       def sortGroupingTail(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] =
         buf
     }
 
-    case object fold extends Sort {
-      protected def sortSelectors(
-          buf: Seq[(Importee, String)],
-      ): Iterable[(Importee, String)] = buf
-
-      def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] = buf
-      def sortGroupingTail(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] =
-        buf
+    case object none extends SortNone {
+      override def sortSelector(buf: Seq[Importee]): Iterable[Selector] = buf
+        .map(toSelector)
     }
+
+    case object fold extends SortNone
 
     abstract class SortBase extends Sort {
       val selectorOrdering: Ordering[String]
@@ -265,9 +256,8 @@ object Imports extends RewriteFactory {
         iter(0)
       }
 
-      protected def sortSelectors(
-          buf: Seq[(Importee, String)],
-      ): Iterable[(Importee, String)] = buf.sortBy(_._2)(selectorOrdering)
+      protected def sortSelectors(buf: Seq[Selector]): Iterable[Selector] = buf
+        .sortBy(_.text)(selectorOrdering)
 
       def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] = buf
         .view.sorted(GroupingEntryOrdering)
@@ -435,15 +425,17 @@ object Imports extends RewriteFactory {
         var hadComments = false
         sb.append('{')
         var index = 0
-        tuples.foreach { case (selector, selectorString) =>
+        val iter = tuples.iterator
+        while (iter.hasNext) {
+          val selector = iter.next()
           index += 1
-          val (commentBefore, commentAfter) = getCommentsAround(selector)
+          val (commentBefore, commentAfter) = getCommentsAround(selector.tree)
+          if (commentBefore.nonEmpty) hadComments = true
           commentBefore.foreach { x =>
-            hadComments = true
             if (!sb.lastOption.contains('\n')) sb.appendNL
             sb.append(x).appendNL
           }
-          sb.append(selectorString)
+          sb.append(selector.text)
           if (index != selectorCount) sb.append(',')
           if (commentAfter ne null) {
             hadComments = true
@@ -451,12 +443,10 @@ object Imports extends RewriteFactory {
           }
         }
         val pretty = sb.append('}').result()
-        Selectors(
-          pretty,
-          if (hadComments && needRaw) tuples.map(_._2).mkString("{", ",", "}")
-          else pretty,
-          selectors,
-        )
+        val raw =
+          if (hadComments && needRaw) tuples.map(_.text).mkString("{", ",", "}")
+          else pretty
+        Selectors(pretty, raw, selectors)
       }
     }
 
@@ -470,7 +460,8 @@ object Imports extends RewriteFactory {
         var hadGivenAll = false
         val names = mutable.HashMap.empty[String, Importee.Name]
         val givens = mutable.HashMap.empty[String, Importee.Given]
-        importees.foreach {
+        val iter = importees.iterator
+        while (iter.hasNext) iter.next() match {
           case x: Importee.Wildcard =>
             if (!hadWildcard) { res += x; hadWildcard = true }
           case x: Importee.GivenAll =>
