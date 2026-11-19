@@ -2741,27 +2741,27 @@ import e.{c => d, _}
 import f.{c => _, _}
 import f.{c => d, _}
 import g._
-import h.{c => d, _}
+import h.{c => d}
 import h._
 import i._
-import i.{c => d, _}
-import j.{c => d, _}
+import i.{c => d}
+import j.{c => d}
 import j._
 import k._
 import m.{_, given}
 import n._
-import n.{c => d, given, _}
+import n.{c => d, given}
 import p.{c => d, _}
 import p.{c => d, given, _}
-import r.{b => _, given, _}
+import r.{b => _, given}
 import r._
-import s.{c => d, _}
+import s.{c => d}
 import s._
 import t.{b => x, _}
 import u.given
 import v.{given, _}
 import w.{given, _}
-import w.{c => d, given, _}
+import w.{c => d, given}
 <<< removeRedundantSelectors, covering wildcards, fold, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -2814,11 +2814,11 @@ import e.{c => d, _}
 import f.{c => _, _}
 import f.{c => d, _}
 import g._
-import h.{c => d, _}
+import h.{c => d}
 import h._
 import i._
-import i.{c => d, _}
-import j.{c => d, _}
+import i.{c => d}
+import j.{c => d}
 import j._
 import k._
 import m.{_, given}
@@ -2828,7 +2828,7 @@ import p.{c => d, _}
 import p.{c => d, given, _}
 import r.{b => _, given, _}
 import r._
-import s.{c => d, _}
+import s.{c => d}
 import s._
 import t.{b => x, _}
 import u.given
@@ -2887,11 +2887,11 @@ import e.{c => d, _}
 import f.{c => _, _}
 import f.{c => d, _}
 import g._
-import h.{c => d, _}
+import h.{c => d}
 import h._
 import i._
-import i.{c => d, _}
-import j.{c => d, _}
+import i.{c => d}
+import j.{c => d}
 import j._
 import k._
 import m.{_, given}
@@ -2901,7 +2901,7 @@ import p.{c => d, _}
 import p.{c => d, given, _}
 import r.{b => _, given, _}
 import r._
-import s.{c => d, _}
+import s.{c => d}
 import s._
 import t.{b => x, _}
 import u.given
@@ -2960,25 +2960,25 @@ import e.{c => d, _}
 import f.{c => _, _}
 import f.{c => d, _}
 import g._
-import h.{c => d, _}
+import h.{c => d}
 import h._
 import i._
-import i.{c => d, _}
-import j.{c => d, _}
+import i.{c => d}
+import j.{c => d}
 import j._
 import k._
 import m._
 import n._
-import n.{c => d, _}
+import n.{c => d}
 import p.{c => d, _}
 import r._
-import s.{c => d, _}
+import s.{c => d}
 import s._
 import t.{b => x, _}
 import u.given
 import v._
 import w._
-import w.{c => d, _}
+import w.{c => d}
 <<< removeRedundantSelectors, covering wildcards, fold, sort ascii
 runner.dialect = scala3
 rewrite.imports {
@@ -3033,25 +3033,25 @@ import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
-import h.{c => d, _}
+import h.{c => d}
 import i._
-import i.{c => d, _}
+import i.{c => d}
 import j._
-import j.{c => d, _}
+import j.{c => d}
 import k._
 import m.{_, given}
 import n._
-import n.{c => d, given, _}
+import n.{c => d, given}
 import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
-import r.{b => _, given, _}
+import r.{b => _, given}
 import s._
-import s.{c => d, _}
+import s.{c => d}
 import t.{b => x, _}
 import u.given
 import v.{given, _}
-import w.{c => d, given, _}
+import w.{c => d, given}
 import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, fold, sort original
 runner.dialect = scala3
@@ -3107,25 +3107,25 @@ import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
-import h.{c => d, _}
+import h.{c => d}
 import i._
-import i.{c => d, _}
+import i.{c => d}
 import j._
-import j.{c => d, _}
+import j.{c => d}
 import k._
 import m.{_, given}
 import n._
-import n.{c => d, given, _}
+import n.{c => d, given}
 import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
-import r.{b => _, given, _}
+import r.{b => _, given}
 import s._
-import s.{c => d, _}
+import s.{c => d}
 import t.{b => x, _}
 import u.given
 import v.{given, _}
-import w.{c => d, given, _}
+import w.{c => d, given}
 import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, fold, sort scalastyle
 runner.dialect = scala3
@@ -3181,25 +3181,25 @@ import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
-import h.{c => d, _}
+import h.{c => d}
 import i._
-import i.{c => d, _}
+import i.{c => d}
 import j._
-import j.{c => d, _}
+import j.{c => d}
 import k._
 import m.{_, given}
 import n._
-import n.{c => d, given, _}
+import n.{c => d, given}
 import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
-import r.{b => _, given, _}
+import r.{b => _, given}
 import s._
-import s.{c => d, _}
+import s.{c => d}
 import t.{b => x, _}
 import u.given
 import v.{given, _}
-import w.{c => d, given, _}
+import w.{c => d, given}
 import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, fold, sort ascii, groups, sortCatchallGroup none
 runner.dialect = scala3
@@ -3256,27 +3256,27 @@ import e.{c => d, _}
 import f.{c => _, _}
 import f.{c => d, _}
 import g._
-import h.{c => d, _}
+import h.{c => d}
 import h._
 import i._
-import i.{c => d, _}
-import j.{c => d, _}
+import i.{c => d}
+import j.{c => d}
 import j._
 import k._
 import m.{_, given}
 import n._
-import n.{c => d, given, _}
+import n.{c => d, given}
 import p.{c => d, _}
 import p.{c => d, given, _}
-import r.{b => _, given, _}
+import r.{b => _, given}
 import r._
-import s.{c => d, _}
+import s.{c => d}
 import s._
 import t.{b => x, _}
 import u.given
 import v.{given, _}
 import w.{given, _}
-import w.{c => d, given, _}
+import w.{c => d, given}
 <<< removeRedundantSelectors, covering wildcards, fold, sort ascii, groups, sortCatchallGroup full
 runner.dialect = scala3
 rewrite.imports {
@@ -3333,25 +3333,25 @@ import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
-import h.{c => d, _}
+import h.{c => d}
 import i._
-import i.{c => d, _}
+import i.{c => d}
 import j._
-import j.{c => d, _}
+import j.{c => d}
 import k._
 import m.{_, given}
 import n._
-import n.{c => d, given, _}
+import n.{c => d, given}
 import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
-import r.{b => _, given, _}
+import r.{b => _, given}
 import s._
-import s.{c => d, _}
+import s.{c => d}
 import t.{b => x, _}
 import u.given
 import v.{given, _}
-import w.{c => d, given, _}
+import w.{c => d, given}
 import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, unfold, scala3
 runner.dialect = scala3
@@ -3405,28 +3405,28 @@ import e.{c => d, _}
 import f.{c => _, _}
 import f.{c => d, _}
 import g._
-import h.{c => d, _}
+import h.{c => d}
 import h._
 import i._
-import i.{c => d, _}
-import j.{c => d, _}
+import i.{c => d}
+import j.{c => d}
 import j._
 import k._
 import m._
 import m.{given, _}
 import n._
-import n.{c => d, given, _}
+import n.{c => d, given}
 import p.{c => d, _}
 import p.{c => d, given, _}
-import r.{b => _, given, _}
+import r.{b => _, given}
 import r._
-import s.{c => d, _}
+import s.{c => d}
 import s._
 import t.{b => x, _}
 import u.given
 import v.{given, _}
 import w.{given, _}
-import w.{c => d, given, _}
+import w.{c => d, given}
 <<< removeRedundantSelectors, covering wildcards, unfold, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -3479,11 +3479,11 @@ import e.{c => d, _}
 import f.{c => _, _}
 import f.{c => d, _}
 import g._
-import h.{c => d, _}
+import h.{c => d}
 import h._
 import i._
-import i.{c => d, _}
-import j.{c => d, _}
+import i.{c => d}
+import j.{c => d}
 import j._
 import k._
 import m._
@@ -3494,7 +3494,7 @@ import p.{c => d, _}
 import p.{c => d, given, _}
 import r.{b => _, given, _}
 import r._
-import s.{c => d, _}
+import s.{c => d}
 import s._
 import t.{b => x, _}
 import u.given
@@ -3553,11 +3553,11 @@ import e.{c => d, _}
 import f.{c => _, _}
 import f.{c => d, _}
 import g._
-import h.{c => d, _}
+import h.{c => d}
 import h._
 import i._
-import i.{c => d, _}
-import j.{c => d, _}
+import i.{c => d}
+import j.{c => d}
 import j._
 import k._
 import m._
@@ -3568,7 +3568,7 @@ import p.{c => d, _}
 import p.{c => d, given, _}
 import r.{b => _, given, _}
 import r._
-import s.{c => d, _}
+import s.{c => d}
 import s._
 import t.{b => x, _}
 import u.given
@@ -3627,25 +3627,25 @@ import e.{c => d, _}
 import f.{c => _, _}
 import f.{c => d, _}
 import g._
-import h.{c => d, _}
+import h.{c => d}
 import h._
 import i._
-import i.{c => d, _}
-import j.{c => d, _}
+import i.{c => d}
+import j.{c => d}
 import j._
 import k._
 import m._
 import n._
-import n.{c => d, _}
+import n.{c => d}
 import p.{c => d, _}
 import r._
-import s.{c => d, _}
+import s.{c => d}
 import s._
 import t.{b => x, _}
 import u.given
 import v._
 import w._
-import w.{c => d, _}
+import w.{c => d}
 <<< removeRedundantSelectors, covering wildcards, unfold, sort ascii
 runner.dialect = scala3
 rewrite.imports {
@@ -3700,26 +3700,26 @@ import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
-import h.{c => d, _}
+import h.{c => d}
 import i._
-import i.{c => d, _}
+import i.{c => d}
 import j._
-import j.{c => d, _}
+import j.{c => d}
 import k._
 import m._
 import m.{given, _}
 import n._
-import n.{c => d, given, _}
+import n.{c => d, given}
 import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
-import r.{b => _, given, _}
+import r.{b => _, given}
 import s._
-import s.{c => d, _}
+import s.{c => d}
 import t.{b => x, _}
 import u.given
 import v.{given, _}
-import w.{c => d, given, _}
+import w.{c => d, given}
 import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, unfold, sort original
 runner.dialect = scala3
@@ -3775,26 +3775,26 @@ import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
-import h.{c => d, _}
+import h.{c => d}
 import i._
-import i.{c => d, _}
+import i.{c => d}
 import j._
-import j.{c => d, _}
+import j.{c => d}
 import k._
 import m._
 import m.{given, _}
 import n._
-import n.{c => d, given, _}
+import n.{c => d, given}
 import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
-import r.{b => _, given, _}
+import r.{b => _, given}
 import s._
-import s.{c => d, _}
+import s.{c => d}
 import t.{b => x, _}
 import u.given
 import v.{given, _}
-import w.{c => d, given, _}
+import w.{c => d, given}
 import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, unfold, sort scalastyle
 runner.dialect = scala3
@@ -3850,26 +3850,26 @@ import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
-import h.{c => d, _}
+import h.{c => d}
 import i._
-import i.{c => d, _}
+import i.{c => d}
 import j._
-import j.{c => d, _}
+import j.{c => d}
 import k._
 import m._
 import m.{given, _}
 import n._
-import n.{c => d, given, _}
+import n.{c => d, given}
 import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
-import r.{b => _, given, _}
+import r.{b => _, given}
 import s._
-import s.{c => d, _}
+import s.{c => d}
 import t.{b => x, _}
 import u.given
 import v.{given, _}
-import w.{c => d, given, _}
+import w.{c => d, given}
 import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, unfold, sort ascii, groups, sortCatchallGroup none
 runner.dialect = scala3
@@ -3926,28 +3926,28 @@ import e.{c => d, _}
 import f.{c => _, _}
 import f.{c => d, _}
 import g._
-import h.{c => d, _}
+import h.{c => d}
 import h._
 import i._
-import i.{c => d, _}
-import j.{c => d, _}
+import i.{c => d}
+import j.{c => d}
 import j._
 import k._
 import m._
 import m.{given, _}
 import n._
-import n.{c => d, given, _}
+import n.{c => d, given}
 import p.{c => d, _}
 import p.{c => d, given, _}
-import r.{b => _, given, _}
+import r.{b => _, given}
 import r._
-import s.{c => d, _}
+import s.{c => d}
 import s._
 import t.{b => x, _}
 import u.given
 import v.{given, _}
 import w.{given, _}
-import w.{c => d, given, _}
+import w.{c => d, given}
 <<< removeRedundantSelectors, covering wildcards, unfold, sort ascii, groups, sortCatchallGroup full
 runner.dialect = scala3
 rewrite.imports {
@@ -4004,26 +4004,26 @@ import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
-import h.{c => d, _}
+import h.{c => d}
 import i._
-import i.{c => d, _}
+import i.{c => d}
 import j._
-import j.{c => d, _}
+import j.{c => d}
 import k._
 import m._
 import m.{given, _}
 import n._
-import n.{c => d, given, _}
+import n.{c => d, given}
 import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
-import r.{b => _, given, _}
+import r.{b => _, given}
 import s._
-import s.{c => d, _}
+import s.{c => d}
 import t.{b => x, _}
 import u.given
 import v.{given, _}
-import w.{c => d, given, _}
+import w.{c => d, given}
 import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, newlines.source = fold
 runner.dialect = scala3
@@ -4077,27 +4077,27 @@ import e.{c => d, _}
 import f.{c => _, _}
 import f.{c => d, _}
 import g._
-import h.{c => d, _}
+import h.{c => d}
 import h._
 import i._
-import i.{c => d, _}
-import j.{c => d, _}
+import i.{c => d}
+import j.{c => d}
 import j._
 import k._
 import m.{_, given}
 import n._
-import n.{c => d, given, _}
+import n.{c => d, given}
 import p.{c => d, _}
 import p.{c => d, given, _}
-import r.{b => _, given, _}
+import r.{b => _, given}
 import r._
-import s.{c => d, _}
+import s.{c => d}
 import s._
 import t.{b => x, _}
 import u.given
 import v.{given, _}
 import w.{given, _}
-import w.{c => d, given, _}
+import w.{c => d, given}
 <<< removeRedundantSelectors, covering wildcards, newlines.source = unfold
 runner.dialect = scala3
 newlines.source = unfold
@@ -4150,28 +4150,28 @@ import e.{c => d, _}
 import f.{c => _, _}
 import f.{c => d, _}
 import g._
-import h.{c => d, _}
+import h.{c => d}
 import h._
 import i._
-import i.{c => d, _}
-import j.{c => d, _}
+import i.{c => d}
+import j.{c => d}
 import j._
 import k._
 import m._
 import m.{given, _}
 import n._
-import n.{c => d, given, _}
+import n.{c => d, given}
 import p.{c => d, _}
 import p.{c => d, given, _}
-import r.{b => _, given, _}
+import r.{b => _, given}
 import r._
-import s.{c => d, _}
+import s.{c => d}
 import s._
 import t.{b => x, _}
 import u.given
 import v.{given, _}
 import w.{given, _}
-import w.{c => d, given, _}
+import w.{c => d, given}
 <<< removeRedundantSelectors, covering wildcards, groups, sort ascii, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -4378,11 +4378,11 @@ import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
-import h.{c => d, _}
+import h.{c => d}
 import i._
-import i.{c => d, _}
+import i.{c => d}
 import j._
-import j.{c => d, _}
+import j.{c => d}
 import k._
 import m.{_, given}
 import n._
@@ -4392,7 +4392,7 @@ import p.{c => d, given, _}
 import r._
 import r.{b => _, given, _}
 import s._
-import s.{c => d, _}
+import s.{c => d}
 import t.{b => x, _}
 import u.given
 import v.{given, _}
@@ -4452,11 +4452,11 @@ import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
-import h.{c => d, _}
+import h.{c => d}
 import i._
-import i.{c => d, _}
+import i.{c => d}
 import j._
-import j.{c => d, _}
+import j.{c => d}
 import k._
 import m.{_, given}
 import n._
@@ -4466,7 +4466,7 @@ import p.{c => d, given, _}
 import r._
 import r.{b => _, given, _}
 import s._
-import s.{c => d, _}
+import s.{c => d}
 import t.{b => x, _}
 import u.given
 import v.{given, _}
@@ -4526,11 +4526,11 @@ import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
-import h.{c => d, _}
+import h.{c => d}
 import i._
-import i.{c => d, _}
+import i.{c => d}
 import j._
-import j.{c => d, _}
+import j.{c => d}
 import k._
 import m._
 import m.{given, _}
@@ -4541,7 +4541,7 @@ import p.{c => d, given, _}
 import r._
 import r.{b => _, given, _}
 import s._
-import s.{c => d, _}
+import s.{c => d}
 import t.{b => x, _}
 import u.given
 import v.{given, _}
@@ -4601,11 +4601,11 @@ import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
-import h.{c => d, _}
+import h.{c => d}
 import i._
-import i.{c => d, _}
+import i.{c => d}
 import j._
-import j.{c => d, _}
+import j.{c => d}
 import k._
 import m._
 import m.{given, _}
@@ -4616,7 +4616,7 @@ import p.{c => d, given, _}
 import r._
 import r.{b => _, given, _}
 import s._
-import s.{c => d, _}
+import s.{c => d}
 import t.{b => x, _}
 import u.given
 import v.{given, _}
@@ -5845,10 +5845,10 @@ import r.{c => d, e => f}
 import s.{c => d, k, given}
 import t.{c => d, given, _}
 import t.{k => l}
-import u.{c => d, _}
+import u.{c => d}
 import u._
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w.{c => d}
 import w._
 <<< removeRedundantSelectors, repeated statements, fold, scala213source3
@@ -5949,10 +5949,10 @@ import r.{c => d, e => f}
 import s.{c => d, given, k}
 import t.{c => d, given, _}
 import t.{k => l}
-import u.{c => d, _}
+import u.{c => d}
 import u._
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w.{c => d}
 import w._
 <<< removeRedundantSelectors, repeated statements, fold, scala212source3
@@ -6053,10 +6053,10 @@ import r.{c => d, e => f}
 import s.{c => d, given, k}
 import t.{c => d, given, _}
 import t.{k => l}
-import u.{c => d, _}
+import u.{c => d}
 import u._
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w.{c => d}
 import w._
 <<< removeRedundantSelectors, repeated statements, fold, scala213
@@ -6157,10 +6157,10 @@ import r.{c => d, e => f}
 import s.{c => d, given, k}
 import t.{c => d, _}
 import t.{k => l}
-import u.{c => d, _}
+import u.{c => d}
 import u._
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w.{c => d}
 import w._
 <<< removeRedundantSelectors, repeated statements, fold, sort ascii
@@ -6261,9 +6261,9 @@ import s.{c => d, k, given}
 import t.{c => d, given, _}
 import t.{k => l}
 import u._
-import u.{c => d, _}
+import u.{c => d}
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
@@ -6367,9 +6367,9 @@ import s.{c => d, k, given}
 import t.{c => d, given, _}
 import t.{k => l}
 import u._
-import u.{c => d, _}
+import u.{c => d}
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
@@ -6473,9 +6473,9 @@ import s.{c => d, k, given}
 import t.{c => d, given, _}
 import t.{k => l}
 import u._
-import u.{c => d, _}
+import u.{c => d}
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
@@ -6583,10 +6583,10 @@ import r.{c => d, e => f}
 import s.{c => d, k, given}
 import t.{c => d, given, _}
 import t.{k => l}
-import u.{c => d, _}
+import u.{c => d}
 import u._
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w.{c => d}
 import w._
 <<< removeRedundantSelectors, repeated statements, fold, sort ascii, groups, sortCatchallGroup full
@@ -6689,9 +6689,9 @@ import s.{c => d, k, given}
 import t.{c => d, given, _}
 import t.{k => l}
 import u._
-import u.{c => d, _}
+import u.{c => d}
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
@@ -6805,10 +6805,10 @@ import s.{c => d, given}
 import s.k
 import t.{c => d, given, _}
 import t.{k => l}
-import u.{c => d, _}
+import u.{c => d}
 import u._
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w.{c => d}
 import w._
 <<< removeRedundantSelectors, repeated statements, unfold, scala213source3
@@ -6921,10 +6921,10 @@ import s.given
 import s.k
 import t.{c => d, given, _}
 import t.{k => l}
-import u.{c => d, _}
+import u.{c => d}
 import u._
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w.{c => d}
 import w._
 <<< removeRedundantSelectors, repeated statements, unfold, scala212source3
@@ -7037,10 +7037,10 @@ import s.given
 import s.k
 import t.{c => d, given, _}
 import t.{k => l}
-import u.{c => d, _}
+import u.{c => d}
 import u._
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w.{c => d}
 import w._
 <<< removeRedundantSelectors, repeated statements, unfold, scala213
@@ -7153,10 +7153,10 @@ import s.given
 import s.k
 import t.{c => d, _}
 import t.{k => l}
-import u.{c => d, _}
+import u.{c => d}
 import u._
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w.{c => d}
 import w._
 <<< removeRedundantSelectors, repeated statements, unfold, sort ascii
@@ -7266,9 +7266,9 @@ import s.{c => d, given}
 import t.{c => d, given, _}
 import t.{k => l}
 import u._
-import u.{c => d, _}
+import u.{c => d}
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
@@ -7381,9 +7381,9 @@ import s.k
 import t.{c => d, given, _}
 import t.{k => l}
 import u._
-import u.{c => d, _}
+import u.{c => d}
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
@@ -7496,9 +7496,9 @@ import s.k
 import t.{c => d, given, _}
 import t.{k => l}
 import u._
-import u.{c => d, _}
+import u.{c => d}
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
@@ -7615,10 +7615,10 @@ import s.{c => d, given}
 import s.k
 import t.{c => d, given, _}
 import t.{k => l}
-import u.{c => d, _}
+import u.{c => d}
 import u._
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w.{c => d}
 import w._
 <<< removeRedundantSelectors, repeated statements, unfold, sort ascii, groups, sortCatchallGroup full
@@ -7730,9 +7730,9 @@ import s.{c => d, given}
 import t.{c => d, given, _}
 import t.{k => l}
 import u._
-import u.{c => d, _}
+import u.{c => d}
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
@@ -7837,10 +7837,10 @@ import r.{c => d, e => f}
 import s.{c => d, k, given}
 import t.{c => d, given, _}
 import t.{k => l}
-import u.{c => d, _}
+import u.{c => d}
 import u._
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w.{c => d}
 import w._
 <<< removeRedundantSelectors, repeated statements, newlines.source = unfold
@@ -7951,10 +7951,10 @@ import s.{c => d, given}
 import s.k
 import t.{c => d, given, _}
 import t.{k => l}
-import u.{c => d, _}
+import u.{c => d}
 import u._
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w.{c => d}
 import w._
 <<< removeRedundantSelectors, repeated statements, groups, sort ascii, scala213source3
@@ -8302,9 +8302,9 @@ import s.{c => d, given, k}
 import t.{c => d, given, _}
 import t.{k => l}
 import u._
-import u.{c => d, _}
+import u.{c => d}
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
@@ -8407,9 +8407,9 @@ import s.{c => d, given, k}
 import t.{c => d, given, _}
 import t.{k => l}
 import u._
-import u.{c => d, _}
+import u.{c => d}
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
@@ -8524,9 +8524,9 @@ import s.{c => d}
 import t.{c => d, given, _}
 import t.{k => l}
 import u._
-import u.{c => d, _}
+import u.{c => d}
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
@@ -8641,9 +8641,9 @@ import s.{c => d}
 import t.{c => d, given, _}
 import t.{k => l}
 import u._
-import u.{c => d, _}
+import u.{c => d}
 import v._
-import v.{c => d, _}
+import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
@@ -12071,7 +12071,7 @@ import e.{c => d, given, _}
 import e.{given, _}
 >>>
 import a.{c => d, b => _, given}
-import e.{c => d, given, _}
+import e.{c => d, given}
 import e.{given, _}
 <<< removeRedundantSelectors, repeated importees, a later unit, fold, scala213source3
 runner.dialect = scala213source3
@@ -12111,7 +12111,7 @@ import e.{given, _}
 >>>
 import a.{c => d}
 import a.{c => d, b => _, given}
-import e.{c => d, given, _}
+import e.{c => d, given}
 import e.{given, _}
 <<< removeRedundantSelectors, repeated importees, a later unit, unfold, scala213source3
 runner.dialect = scala213source3
@@ -14941,7 +14941,7 @@ import a.{c => d, _}
 import a.{c => _, _}
 import e.{c => d, x => _, _}
 import e.{c => d, _}
-import h.{c => d, _}
+import h.{c => d}
 import h._
 <<< covering wildcards without removeRedundantSelectors, unfold
 runner.dialect = scala3
@@ -15090,7 +15090,7 @@ import a.{c => d, _}
 import a.{c => _, _}
 import e.{c => d, x => _, _}
 import e.{c => d, _}
-import h.{c => d, _}
+import h.{c => d}
 import h._
 <<< covering wildcards without removeRedundantSelectors, fold, scala212source3
 runner.dialect = scala212source3
@@ -15109,7 +15109,7 @@ import a.{c => d, _}
 import a.{c => _, _}
 import e.{c => d, x => _, _}
 import e.{c => d, _}
-import h.{c => d, _}
+import h.{c => d}
 import h._
 <<< covering wildcards without removeRedundantSelectors, fold, scala213
 runner.dialect = scala213
@@ -15128,7 +15128,7 @@ import a.{c => d, _}
 import a.{c => _, _}
 import e.{c => d, x => _, _}
 import e.{c => d, _}
-import h.{c => d, _}
+import h.{c => d}
 import h._
 <<< covering wildcards without removeRedundantSelectors, fold, sort ascii
 runner.dialect = scala3
@@ -15149,7 +15149,7 @@ import a.{c => d, _}
 import e.{c => d, _}
 import e.{c => d, x => _, _}
 import h._
-import h.{c => d, _}
+import h.{c => d}
 <<< covering wildcards without removeRedundantSelectors, unfold, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -15297,7 +15297,7 @@ import a.{c => d, _}
 import e.{c => d, _}
 import e.{c => d, x => _, _}
 import h._
-import h.{c => d, _}
+import h.{c => d}
 <<< covering wildcards without removeRedundantSelectors, newlines.source = unfold, scala213source3
 runner.dialect = scala213source3
 newlines.source = unfold
@@ -15487,7 +15487,7 @@ import a.x
 import a.{c => d, *}
 import a.*
 >>>
-import a.{x, c => d, *}
+import a.{x, c => d}
 import a.*
 <<< no sort, a wildcard before a given, fold
 runner.dialect = scala3
@@ -15925,7 +15925,7 @@ import a.b
 import a.{c => d, *}
 >>>
 import a.*
-import a.{c => d, *}
+import a.{c => d}
 <<< removeRedundantSelectors, unimport, the name, then a rename with a wildcard, scala3, unfold
 runner.dialect = scala3
 rewrite.imports {
@@ -15938,7 +15938,7 @@ import a.b
 import a.{c => d, *}
 >>>
 import a.*
-import a.{c => d, *}
+import a.{c => d}
 <<< removeRedundantSelectors, a rename with a wildcard, then unimport and the name, scala3, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -15950,7 +15950,7 @@ import a.{c => d, *}
 import a.{b => _, *}
 import a.b
 >>>
-import a.{c => d, *}
+import a.{c => d}
 import a.*
 <<< removeRedundantSelectors, a rename with a wildcard, then unimport and the name, scala3, unfold
 runner.dialect = scala3
@@ -15963,7 +15963,7 @@ import a.{c => d, *}
 import a.{b => _, *}
 import a.b
 >>>
-import a.{c => d, *}
+import a.{c => d}
 import a.*
 <<< two renames with a wildcard and another wildcard, scala3, fold
 runner.dialect = scala3
@@ -15973,8 +15973,7 @@ import a.{b as c, *}
 import a.{d as e, *}
 import a.*
 >>>
-import a.{b as c, *}
-import a.{d as e, *}
+import a.{b as c, d as e}
 import a.*
 <<< two renames with a wildcard and another wildcard, scala3, unfold
 runner.dialect = scala3
@@ -15995,8 +15994,7 @@ import a.{c => d, *}
 import a.{e => f}
 import a.*
 >>>
-import a.{c => d, *}
-import a.{e => f}
+import a.{c => d, e => f}
 import a.*
 <<< a rename with a wildcard, a rename and another wildcard, scala3, unfold
 runner.dialect = scala3
@@ -16040,8 +16038,7 @@ import a.{b as c, *}
 import a.{d as e, *}
 import a.*
 >>>
-import a.{b as c, *}
-import a.{d as e, *}
+import a.{b as c, d as e}
 import a.*
 <<< removeRedundantSelectors, two renames with a wildcard and another wildcard, scala3, unfold
 runner.dialect = scala3
@@ -16054,8 +16051,8 @@ import a.{b as c, *}
 import a.{d as e, *}
 import a.*
 >>>
-import a.{b as c, *}
-import a.{d as e, *}
+import a.b as c
+import a.d as e
 import a.*
 <<< removeRedundantSelectors, a rename with a wildcard, a rename and another wildcard, scala3, fold
 runner.dialect = scala3
@@ -16068,8 +16065,7 @@ import a.{c => d, *}
 import a.{e => f}
 import a.*
 >>>
-import a.{c => d, *}
-import a.{e => f}
+import a.{c => d, e => f}
 import a.*
 <<< removeRedundantSelectors, a rename with a wildcard, a rename and another wildcard, scala3, unfold
 runner.dialect = scala3
@@ -16082,7 +16078,7 @@ import a.{c => d, *}
 import a.{e => f}
 import a.*
 >>>
-import a.{c => d, *}
+import a.{c => d}
 import a.{e => f}
 import a.*
 <<< two unimports with a wildcard and another wildcard, scala3, fold
@@ -16093,8 +16089,7 @@ import a.{b => _, *}
 import a.{c => _, *}
 import a.*
 >>>
-import a.{b => _, *}
-import a.{c => _, *}
+import a.{b => _, c => _}
 import a.*
 <<< a rename and an unimport with wildcards and another wildcard, scala3, fold
 runner.dialect = scala3
@@ -16104,8 +16099,7 @@ import a.{b as c, *}
 import a.{d => _, *}
 import a.*
 >>>
-import a.{b as c, *}
-import a.{d => _, *}
+import a.{b as c, d => _}
 import a.*
 <<< an unimport with a wildcard, another wildcard and the name, scala3, fold
 runner.dialect = scala3
@@ -16115,7 +16109,7 @@ import a.{b => _, *}
 import a.*
 import a.b
 >>>
-import a.{b => _, *}
+import a.{b => _}
 import a.{b, *}
 <<< two renames with a given and a wildcard, and another wildcard, scala3, fold
 runner.dialect = scala3
@@ -16125,8 +16119,7 @@ import a.{b => c, given, *}
 import a.{d => e, given, *}
 import a.*
 >>>
-import a.{b => c, given, *}
-import a.{d => e, given, *}
+import a.{b => c, d => e, given}
 import a.*
 <<< removeRedundantSelectors, two renames with a given and a wildcard, and another wildcard, scala3, fold
 runner.dialect = scala3
@@ -16139,8 +16132,7 @@ import a.{b => c, given, *}
 import a.{d => e, given, *}
 import a.*
 >>>
-import a.{b => c, given, *}
-import a.{d => e, given, *}
+import a.{b => c, d => e, given}
 import a.*
 <<< removeRedundantSelectors, two renames with a given and a wildcard, and another wildcard, scala3, unfold
 runner.dialect = scala3
@@ -16153,8 +16145,8 @@ import a.{b => c, given, *}
 import a.{d => e, given, *}
 import a.*
 >>>
-import a.{b => c, given, *}
-import a.{d => e, given, *}
+import a.{b => c, given}
+import a.{d => e, given}
 import a.*
 <<< a rename with a given and a wildcard, a given and another wildcard, scala3, fold
 runner.dialect = scala3
@@ -16164,7 +16156,7 @@ import a.{b as c, given Y, *}
 import a.given X
 import a.*
 >>>
-import a.{b as c, given Y, *, given X}
+import a.{b as c, given Y, given X}
 import a.*
 <<< removeRedundantSelectors, a rename with a wildcard and an unimport with a wildcard, scala3, fold
 runner.dialect = scala3
@@ -16176,7 +16168,7 @@ rewrite.imports {
 import a.{c => d, *}
 import a.{b => _, *}
 >>>
-import a.{c => d, *}
+import a.{c => d}
 import a.*
 <<< removeRedundantSelectors, a rename with a wildcard and an unimport with a wildcard, scala3, unfold
 runner.dialect = scala3
@@ -16188,7 +16180,7 @@ rewrite.imports {
 import a.{c => d, *}
 import a.{b => _, *}
 >>>
-import a.{c => d, *}
+import a.{c => d}
 import a.*
 <<< removeRedundantSelectors, two unimports with a wildcard, scala3, fold
 runner.dialect = scala3
@@ -16220,7 +16212,7 @@ import a.{c => d, *}
 import a.x
 import a.*
 >>>
-import a.{c => d, x, *}
+import a.{c => d, x}
 import a.*
 <<< removeRedundantSelectors, a given and a wildcard in two statements, unfold
 runner.dialect = scala3
@@ -16510,7 +16502,7 @@ import a.{d => _, _}
 import a.{c => y, _}
 >>>
 import a._
-import a.{c => y, _}
+import a.{c => y}
 <<< no sort, removeRedundantSelectors, a given by type beside a plain given, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -16573,7 +16565,7 @@ rewrite.imports.selectors = fold
 import a.{c => d, *}
 import a.*
 >>>
-import a.{c => d, *}
+import a.{c => d}
 import a.*
 <<< removeRedundantSelectors, a rename with a wildcard, then a wildcard, unfold
 runner.dialect = scala3
@@ -16585,7 +16577,7 @@ rewrite.imports {
 import a.{c => d, *}
 import a.*
 >>>
-import a.{c => d, *}
+import a.{c => d}
 import a.*
 <<< a given, then a name with a wildcard, fold, scala213source3
 runner.dialect = scala213source3
@@ -18535,10 +18527,10 @@ import d._
 import d.{given, _}
 import e.{given, _}
 import e._
-import f.{c => d, given, _}
+import f.{c => d, given}
 import f._
 import g._
-import g.{c => d, given, _}
+import g.{c => d, given}
 import h.{b => _, given, _}
 import i.{given, _}
 <<< plain givens beside wildcards, removeRedundantSelectors, unfold, sort ascii, scala3
@@ -18571,9 +18563,9 @@ import d.{given, _}
 import e._
 import e.{given, _}
 import f._
-import f.{c => d, given, _}
+import f.{c => d, given}
 import g._
-import g.{c => d, given, _}
+import g.{c => d, given}
 import h.{b => _, given, _}
 import i.{given, _}
 <<< plain givens beside wildcards, fold, scala3
@@ -18601,10 +18593,10 @@ import b.{_, given}
 import c.{given, *}
 import d.{_, given}
 import e.{given, _}
-import f.{c => d, given, _}
+import f.{c => d, given}
 import f._
 import g._
-import g.{c => d, given, _}
+import g.{c => d, given}
 import h.{b => _, given, _}
 import i.{b, given, _}
 <<< plain givens beside wildcards, removeRedundantSelectors, fold, scala3
@@ -18633,10 +18625,10 @@ import b.{_, given}
 import c.{given, *}
 import d.{_, given}
 import e.{given, _}
-import f.{c => d, given, _}
+import f.{c => d, given}
 import f._
 import g._
-import g.{c => d, given, _}
+import g.{c => d, given}
 import h.{b => _, given, _}
 import i.{given, _}
 <<< plain givens beside wildcards, removeRedundantSelectors and groups, scala3
@@ -19008,10 +19000,10 @@ import d._
 import d.{given, _}
 import e.{given, _}
 import e._
-import f.{c => d, given, _}
+import f.{c => d, given}
 import f._
 import g._
-import g.{c => d, given, _}
+import g.{c => d, given}
 import h.{b => _, given, _}
 import i.{given, _}
 <<< plain givens beside wildcards, removeRedundantSelectors, unfold, sort ascii, scala3 with allowGivenImports
@@ -19045,9 +19037,9 @@ import d.{given, _}
 import e._
 import e.{given, _}
 import f._
-import f.{c => d, given, _}
+import f.{c => d, given}
 import g._
-import g.{c => d, given, _}
+import g.{c => d, given}
 import h.{b => _, given, _}
 import i.{given, _}
 <<< plain givens beside wildcards, fold, scala3 with allowGivenImports
@@ -19076,10 +19068,10 @@ import b.{_, given}
 import c.{given, *}
 import d.{_, given}
 import e.{given, _}
-import f.{c => d, given, _}
+import f.{c => d, given}
 import f._
 import g._
-import g.{c => d, given, _}
+import g.{c => d, given}
 import h.{b => _, given, _}
 import i.{b, given, _}
 <<< plain givens beside wildcards, removeRedundantSelectors, fold, scala3 with allowGivenImports
@@ -19109,10 +19101,10 @@ import b.{_, given}
 import c.{given, *}
 import d.{_, given}
 import e.{given, _}
-import f.{c => d, given, _}
+import f.{c => d, given}
 import f._
 import g._
-import g.{c => d, given, _}
+import g.{c => d, given}
 import h.{b => _, given, _}
 import i.{given, _}
 <<< plain givens beside wildcards, removeRedundantSelectors and groups, scala3 with allowGivenImports
