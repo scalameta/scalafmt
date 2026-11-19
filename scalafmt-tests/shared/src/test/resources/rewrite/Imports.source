@@ -14139,7 +14139,7 @@ rewrite.imports {
 ===
 import a.{c => y, given X, *, given}
 >>>
-import a.{c => y, given X, *, given}
+import a.{c => y, *, given}
 <<< sort ascii, removeRedundantSelectors, a given by type beside a plain given, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -14150,7 +14150,7 @@ rewrite.imports {
 ===
 import a.{c => y, given X, *, given}
 >>>
-import a.{c => y, given X, *, given}
+import a.{c => y, *, given}
 <<< no sort, an unimport or a rename with a given by type, unfold
 runner.dialect = scala3
 rewrite.imports.selectors = unfold
