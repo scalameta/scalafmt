@@ -1041,7 +1041,7 @@ package a
 // comment
 import a.{b, c, f, g}
 import h.{k, l, a, b}
-import d.e.{d, f => g, g => _, a, b, _}
+import d.e.{a, b, d, f => g, g => _, _}
 export d.e.{f, g}
 //package b
 export h.{f, g}
@@ -1092,7 +1092,7 @@ import h.{
   a,
   b
 } // h0
-import d.e.{d, f => g, g => _, a, b, _}
+import d.e.{a, b, d, f => g, g => _, _}
 import d.e.{f, g} // d0
 import x.{y, _}
 import z._
@@ -1229,7 +1229,7 @@ package a
 import a.{b, c, f, g}
 
 import h.{k, l, a, b}
-import d.e.{d, f => g, g => _, a, b, _}
+import d.e.{a, b, d, f => g, g => _, _}
 export d.e.{f, g}
 //package b
 export h.{f, g}
@@ -6029,15 +6029,15 @@ import c.{given, k => l}
 import d.{k => l}
 import d.{given, _}
 import g.{b, given, k}
-import ka.{k, c => d}
+import ka.{c => d, k}
 import l.{c => d, _}
 import l.{k => l}
 import m.{b => _, _}
 import m.{k => l}
-import n.{k, given}
+import n.{given, k}
 import p.{c => d, given}
 import r.{c => d, e => f}
-import s.{k, c => d, given}
+import s.{c => d, given, k}
 import t.{c => d, given, _}
 import t.{c => d, _}
 import t.{k => l}
@@ -6137,15 +6137,15 @@ import c.{given, k => l}
 import d.{k => l}
 import d.{given, _}
 import g.{b, given, k}
-import ka.{k, c => d}
+import ka.{c => d, k}
 import l.{c => d, _}
 import l.{k => l}
 import m.{b => _, _}
 import m.{k => l}
-import n.{k, given}
+import n.{given, k}
 import p.{c => d, given}
 import r.{c => d, e => f}
-import s.{k, c => d, given}
+import s.{c => d, given, k}
 import t.{c => d, given, _}
 import t.{c => d, _}
 import t.{k => l}
@@ -6242,15 +6242,15 @@ import c.{given, k => l}
 import d.{k => l}
 import d._
 import g.{b, given, k}
-import ka.{k, c => d}
+import ka.{c => d, k}
 import l.{c => d, _}
 import l.{k => l}
 import m.{b => _, _}
 import m.{k => l}
-import n.{k, given}
+import n.{given, k}
 import p.{c => d, given}
 import r.{c => d, e => f}
-import s.{k, c => d, given}
+import s.{c => d, given, k}
 import t.{c => d, _}
 import t.{k => l}
 import u.{c => d}
@@ -8503,7 +8503,7 @@ import gb.{b => _, given, _}
 import gb.given
 import gc.{y => z}
 import gc.{_, given}
-import gd.{x, given, c => d}
+import gd.{c => d, x, given}
 import ge.{b => _, given, _}
 import ge.given
 import gf.given
@@ -8562,7 +8562,7 @@ import gb.{b => _, given, _}
 import gb.given
 import gc.{y => z}
 import gc.{_, given}
-import gd.{x, given, c => d}
+import gd.{c => d, x, given}
 import ge.{b => _, given, _}
 import ge.given
 import gf.given
@@ -8619,7 +8619,7 @@ import ga.{b => _, _}
 import gb.{b => _, _}
 import gc.{y => z}
 import gc._
-import gd.{x, given, c => d}
+import gd.{c => d, x, given}
 import ge.{b => _, _}
 import gf.given
 import gg.given
@@ -9898,7 +9898,7 @@ import c.{b => _, given, *}
 import c.{b => x}
 >>>
 import a.{b => x, given, *}
-import c.{b => x, *, given}
+import c.{b => x, given, *}
 <<< removeRedundantSelectors, repeated importees, a rename for an unimport, fold, sort ascii
 runner.dialect = scala3
 rewrite.imports {
@@ -9931,7 +9931,7 @@ import c.{b => _, given, *}
 import c.{b => x}
 >>>
 import a.{b => x, given, *}
-import c.{b => x, *, given}
+import c.{b => x, given, *}
 <<< removeRedundantSelectors, repeated importees, a rename for an unimport, unfold, sort ascii
 runner.dialect = scala3
 rewrite.imports {
@@ -10630,7 +10630,7 @@ import ga.given
 import gb.given
 import gb.{b => _, given, _}
 import gc.{y => z, given}
-import gc.{_, given}
+import gc.{given, _}
 import gd.{c => d, given}
 import gd.{x, given}
 import ge.{b => _, given}
@@ -10736,7 +10736,7 @@ import ta.{b => _, given T}
 import ta.{b => _, c => _, given T}
 import tb.{b => _, given T, _}
 import tb.given T
-import tc.{b => _, given T, x}
+import tc.{b => _, x, given T}
 import tc.{b => _, given T}
 <<< repeated importees without removeRedundantSelectors, fold, scala213source3
 runner.dialect = scala213source3
@@ -10781,7 +10781,7 @@ import gb.{b => _, given, _}
 import gb.given
 import gc.{y => z, given}
 import gc.{_, given}
-import gd.{x, given, c => d}
+import gd.{c => d, x, given}
 import ge.{b => _, given, _}
 import ge.given
 import gf.{b => _, given, c => _}
@@ -10837,7 +10837,7 @@ import gb.{b => _, given, _}
 import gb.given
 import gc.{y => z, given}
 import gc.{_, given}
-import gd.{x, given, c => d}
+import gd.{c => d, x, given}
 import ge.{b => _, given, _}
 import ge.given
 import gf.{b => _, given, c => _}
@@ -10891,7 +10891,7 @@ import ga.{b => _, given, _}
 import gb.{b => _, given, _}
 import gc.{y => z, given}
 import gc.{given, _}
-import gd.{x, given, c => d}
+import gd.{c => d, x, given}
 import ge.{b => _, given, _}
 import gf.{b => _, given, c => _}
 import gg.{b => _, given, c => _}
@@ -11592,7 +11592,7 @@ import ga.given
 import gb.given
 import gb.{b => _, given, _}
 import gc.{y => z, given}
-import gc.{_, given}
+import gc.{given, _}
 import gd.{c => d, given}
 import gd.{x, given}
 import ge.{b => _, given}
@@ -11630,7 +11630,7 @@ import ta.{b => _, given T}
 import ta.{b => _, c => _, given T}
 import tb.{b => _, given T, _}
 import tb.given T
-import tc.{b => _, given T, x}
+import tc.{b => _, x, given T}
 import tc.{b => _, given T}
 <<< repeated importees without removeRedundantSelectors, newlines.source = unfold
 runner.dialect = scala3
@@ -12984,7 +12984,7 @@ rewrite.imports.selectors = fold
 import a.x
 import a.{c => d, *}
 >>>
-import a.{c => d, x, *}
+import a.{x, c => d, *}
 <<< no sort, a name before a rename with a wildcard and another wildcard, fold
 runner.dialect = scala3
 rewrite.imports.selectors = fold
@@ -12993,7 +12993,7 @@ import a.x
 import a.{c => d, *}
 import a.*
 >>>
-import a.{c => d, x}
+import a.{x, c => d}
 import a.*
 <<< no sort, a wildcard before a given, fold
 runner.dialect = scala3
@@ -13001,7 +13001,7 @@ rewrite.imports.selectors = fold
 ===
 import a.{*, given X}
 >>>
-import a.{given X, *}
+import a.{*, given X}
 <<< no sort, a wildcard before a given, removeRedundantSelectors, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -13011,7 +13011,7 @@ rewrite.imports {
 ===
 import a.{*, given X}
 >>>
-import a.{given X, *}
+import a.{*, given X}
 <<< no sort, names in two statements, removeRedundantSelectors, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -13068,7 +13068,7 @@ rewrite.imports.selectors = fold
 import a.{c => y, b => x}
 import a.c
 >>>
-import a.{c, b => x}
+import a.{b => x, c}
 import a.{c => y}
 <<< no sort, a rename, a name and a wildcard, scala2, unfold
 runner.dialect = scala213
@@ -13084,7 +13084,7 @@ rewrite.imports.removeRedundantSelectors = true
 ===
 import a.{*, given X}
 >>>
-import a.{given X, *}
+import a.{*, given X}
 <<< no sort, a wildcard before a given, removeRedundantSelectors and groups
 runner.dialect = scala3
 rewrite.imports {
@@ -13094,7 +13094,7 @@ rewrite.imports {
 ===
 import a.{*, given X}
 >>>
-import a.{given X, *}
+import a.{*, given X}
 <<< catch-all unsorted, a given beside a wildcard, removeRedundantSelectors, unfold
 runner.dialect = scala3
 rewrite.imports {
@@ -13151,7 +13151,7 @@ rewrite.imports.groups = [["x\\..*"]]
 import a.*
 import a.b
 >>>
-import a.{*, b}
+import a.{b, *}
 <<< no sort, a wildcard before a name in one import, newlines.source = fold
 runner.dialect = scala3
 newlines.source = fold
@@ -13159,8 +13159,8 @@ newlines.source = fold
 import a.*, a.b
 import c.given, c.x
 >>>
-import a.{*, b}
-import c.{given, x}
+import a.{b, *}
+import c.{x, given}
 <<< removeRedundantSelectors, given and wildcard, scala3, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -13185,9 +13185,9 @@ import a.{_, given}
 import b.{given, _}
 import c.{*, given}
 import d.{given, *}
-import e.{given E, _}
+import e.{_, given E}
 import f.{given F, _}
-import g.{given G, *}
+import g.{*, given G}
 import h.{given H, *}
 <<< removeRedundantSelectors, given and wildcard, scala3, unfold
 runner.dialect = scala3
@@ -13850,7 +13850,7 @@ import b.*
 >>>
 import a.*
 import a.given X
-import b.{*, given}
+import b.{given, *}
 <<< no sort, a name, a name with a wildcard, then names, fold
 runner.dialect = scala3
 rewrite.imports.selectors = fold
@@ -13859,7 +13859,7 @@ import a.c
 import a.{b, *}
 import a.{c, d}
 >>>
-import a.{b, c, d, *}
+import a.{c, b, d, *}
 <<< whole statements with renames and wildcards, fold
 runner.dialect = scala3
 rewrite.imports.selectors = fold
@@ -13989,7 +13989,7 @@ rewrite.imports {
 import a.{b => _, c => y, *}
 import a.{b => x}
 >>>
-import a.{b => x, c => y, *}
+import a.{c => y, b => x, *}
 <<< no sort, a wildcard, then a given with a wildcard, fold
 runner.dialect = scala3
 rewrite.imports.selectors = fold
@@ -14011,7 +14011,7 @@ import b.given
 import b.*
 >>>
 import a.{*, given}
-import b.{*, given}
+import b.{given, *}
 <<< no sort, two wildcards, fold
 runner.dialect = scala3
 rewrite.imports.selectors = fold
@@ -14027,7 +14027,7 @@ rewrite.imports.selectors = fold
 import a.{b, d}
 import a.{d => e, *}
 >>>
-import a.{d => e, b, *}
+import a.{b, d => e, *}
 import a.d
 <<< a name, its rename and a wildcard, removeRedundantSelectors only
 runner.dialect = scala3
@@ -14115,7 +14115,7 @@ Idempotency violated
 @@ -1,2 +1,1 @@
 -import a.given
 -import a.*
-+import a.{*, given}
++import a.{given, *}
 <<< removeRedundantSelectors, an unimport with a wildcard, then a rename with a wildcard, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -14213,7 +14213,11 @@ rewrite.imports.selectors = fold
 import a.given
 import a.{b, _}
 >>>
-import a.{b, given, _}
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,1 +1,1 @@
+-import a.{given, b, _}
++import a.{b, given, _}
 <<< a given beside a name and a wildcard, fold, scala213
 runner.dialect = scala213
 rewrite.imports.selectors = fold
@@ -14267,7 +14271,7 @@ import d.{b => _, given}
 >>>
 import a.given
 import b.{b => _, given, _}
-import c.{_, given}
+import c.{given, _}
 import d.{b => _, given}
 <<< plain givens apart from a wildcard, fold, scala3 with allowGivenImports
 runner.dialect = scala3
@@ -14283,7 +14287,7 @@ import d.{b => _, given}
 >>>
 import a.given
 import b.{b => _, given, _}
-import c.{_, given}
+import c.{given, _}
 import d.{b => _, given}
 <<< plain givens apart from a wildcard, unfold, scala213source3
 runner.dialect = scala213source3
