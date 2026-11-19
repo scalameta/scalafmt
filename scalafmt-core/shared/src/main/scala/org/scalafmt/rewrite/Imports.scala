@@ -348,11 +348,20 @@ object Imports extends RewriteFactory {
   private final def isAGiven(importee: Importee): Boolean = isGiven(importee) ||
     isGivenAll(importee)
 
+  private final def inGivenUnit(importee: Importee): Boolean =
+    isAGiven(importee) || isUnimport(importee)
+
   private final def notWildcardOrRename(importee: Importee): Boolean =
     !isAWildcard(importee) && !isARename(importee)
 
   private final def isNamed(importee: Importee): Boolean = importee
     .isAny[Importee.Name, Importee.Rename, Importee.Unimport]
+
+  /** The member that a named importee refers to, else null. */
+  private final def getMember(importee: Importee): String = importee match {
+    case t: Importee.Name => t.name.value
+    case _ => getRenamedMember(importee)
+  }
 
   private final def getRenamedMemberName(importee: Importee): Name =
     importee match {
@@ -363,6 +372,12 @@ object Imports extends RewriteFactory {
 
   private final def getRenamedMember(importee: Importee): String =
     getRenamedMemberName(importee).nnMap(_.value)
+
+  private final def getRename(importee: Importee): String = importee match {
+    case t: Importee.Rename => t.rename.value
+    case _: Importee.Unimport => "_"
+    case _ => null
+  }
 
   /** The key that duplicates share: `*` and `_` are duplicates, as are `b => x`
     * and `b as x`.
@@ -375,6 +390,23 @@ object Imports extends RewriteFactory {
     case t: Importee.Given => s"\n${t.tpe.text}"
     case _: Importee.GivenAll => "\n"
     case _ => null
+  }
+
+  /** Whether two importees of different importers must not share an importer,
+    * because in one importer they would mean something else.
+    */
+  private final def isConflict(a: Importee, b: Importee): Boolean = a match {
+    /* scalameta reads a `Scala213Source3` `given` without a wildcard as a
+     * name, so it can join a wildcard here. Beside a wildcard, scalameta
+     * reads it as a plain `given` on the next pass, and the output changes.
+     */
+    case _: Importee.Wildcard => isARename(b)
+    case _: Importee.Given | _: Importee.GivenAll => b.is[Importee.Unimport]
+    case _ => b match {
+        case _: Importee.Wildcard => isARename(a)
+        case _: Importee.Given | _: Importee.GivenAll => a.is[Importee.Unimport]
+        case _ => getMember(a) == getMember(b) && getRename(a) != getRename(b)
+      }
   }
 
   /** Returns the importers in the order of their earliest importee. */
@@ -965,6 +997,7 @@ object Imports extends RewriteFactory {
   private class ExpandFull(implicit ctx: RewriteCtx) extends Fold {
     override protected final def getSelectorsToWrite(
         clauses: IndexedSeq[Seq[Importee]],
+        group: Grouping,
     ): Iterable[Selectors] = {
       val res = new mutable.ListBuffer[Seq[Importee]]
       foldImportees(clauses).foreach(expand(_, res))
@@ -1028,6 +1061,7 @@ object Imports extends RewriteFactory {
     * }}}
     */
   private class Fold(implicit ctx: RewriteCtx) extends ExpandBase {
+
     override protected final def addClausesToGroup(
         group: Grouping,
         kw: String,
@@ -1035,14 +1069,99 @@ object Imports extends RewriteFactory {
         importers: Seq[Importer],
     ): Unit = {
       val clauses = removeRedundant(importers)
-      sortImporters(getSelectorsToWrite(clauses))(_.importees)
+      sortImporters(getSelectorsToWrite(clauses, group))(_.importees)
         .foreach(group.add(kw, ref, _))
     }
 
     /** Returns the selectors to write for the importees left after removal. */
     protected def getSelectorsToWrite(
         clauses: IndexedSeq[Seq[Importee]],
-    ): Iterable[Selectors] = foldImportees(clauses).map(getSelectors(_))
+        group: Grouping,
+    ): Iterable[Selectors] = {
+      val sorting = settings.sort match {
+        case x: Sort.SortBase
+            if settings.numGroups == 0 || (group ne groups.last) ||
+              (settings.sortCatchallGroup ne SortCatchallGroup.none) =>
+          x.groupingOrdering
+        case _ => null
+      }
+      pack(clauses, sorting)
+    }
+
+    /** Appends to `dst` the importer, or its parts if it holds two importees of
+      * one member and no wildcard. No part holds two importees of one member,
+      * and a given unit stays whole in the first part.
+      */
+    protected final def splitByMember(
+        clause: Seq[Importee],
+        dst: mutable.ArrayBuffer[Seq[Importee]],
+    ): Unit = {
+      val repeats = clause.lengthCompare(1) > 0 && !clause.hasWildcard && {
+        val members = mutable.HashSet.empty[String]
+        clause.exists { x =>
+          val member = getMember(x)
+          (member ne null) && !members.add(member)
+        }
+      }
+      if (!repeats) dst += clause
+      else {
+        val parts = new mutable.ArrayBuffer[mutable.ListBuffer[Importee]]
+        val givenUnit = clause.isGivenUnit
+        if (givenUnit) parts +=
+          mutable.ListBuffer(clause.filter(inGivenUnit): _*)
+        clause.foreach { x =>
+          val member = getMember(x)
+          if (!givenUnit || !inGivenUnit(x)) {
+            val part = parts.findOrNull(p =>
+              (member eq null) || !p.exists(getMember(_) == member),
+            )
+            if (part eq null) parts += mutable.ListBuffer(x) else part += x
+          }
+        }
+        parts.foreach(dst += _.toList)
+      }
+    }
+
+    /** Returns the selectors of the output importers. An output importer holds
+      * input importers that do not conflict.
+      * @param sorting
+      *   the order of the importers' text, or null for source order
+      */
+    private def pack(
+        clauses: IndexedSeq[Seq[Importee]],
+        sorting: Ordering[String],
+    ): Iterable[Selectors] = {
+      val items = new mutable.ArrayBuffer[Seq[Importee]]
+      clauses.foreach(splitByMember(_, items))
+      val lineup =
+        if (null ne sorting) items.map(x => (x, getSelectors(x)))
+          .sortBy(_._2.raw)(sorting)
+        else sortImporters(items)(identity).map((_, null: Selectors))
+      val packed = new mutable.ArrayBuffer[mutable.ArrayBuffer[Importee]]
+      // selectors of an output importer made of one item, else null
+      val selectorsOf = new mutable.ArrayBuffer[Selectors]
+      lineup.foreach { case (item, selectors) =>
+        val i = packed.indexWhere(!_.exists(x => item.exists(isConflict(x, _))))
+        if (i < 0) {
+          packed += mutable.ArrayBuffer(item: _*); selectorsOf += selectors
+        } else { packed(i) ++= item; selectorsOf(i) = null }
+      }
+      // duplicates keep the earliest
+      packed.indices.map { i =>
+        val selectors = selectorsOf(i)
+        if (selectors ne null) selectors
+        else {
+          val duplicates = mutable.LinkedHashMap.empty[String, Importee]
+          packed(i).foreach(t =>
+            duplicates.updateWith(getDuplicateKey(t)) {
+              case Some(y) if y.pos.start < t.pos.start => Some(y)
+              case _ => Some(t)
+            },
+          )
+          getSelectors(duplicates.values.toSeq)
+        }
+      }
+    }
 
     protected final def foldImportees(
         clauses: IndexedSeq[Seq[Importee]],
@@ -1151,6 +1270,7 @@ object Imports extends RewriteFactory {
       flushFolded()
       folded.result()
     }
+
   }
 
   /** convert
