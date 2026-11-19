@@ -1009,10 +1009,26 @@ object Imports extends RewriteFactory {
         group: Grouping,
     ): Iterable[Selectors] = {
       val parts = new mutable.ArrayBuffer[Seq[Importee]]
-      clauses.foreach(splitByMember(_, parts))
+      removeRepeatedWildcards(clauses).foreach(splitByMember(_, parts))
       val res = new mutable.ArrayBuffer[Selectors]
       parts.foreach(expand(_, res))
       res
+    }
+
+    /** Returns the importers with one plain wildcard: that of the earliest
+      * importer with a plain `given` and a plain wildcard, else the earliest. A
+      * plain `given` beside a removed wildcard goes too.
+      */
+    private def removeRepeatedWildcards(
+        clauses: IndexedSeq[Seq[Importee]],
+    ): IndexedSeq[Seq[Importee]] = {
+      val pair = clauses.indexWhere(x => x.hasGivenAll && x.hasPlainWildcard)
+      val keep = if (pair >= 0) pair else clauses.indexWhere(_.hasPlainWildcard)
+      if (keep < 0) clauses
+      else clauses.indices.map { i =>
+        val x = clauses(i)
+        if (i == keep || !x.hasPlainWildcard) x else x.filterNot(isAWildcard)
+      }
     }
 
     /** Appends to `dst` each importee as an importer of its own, except those

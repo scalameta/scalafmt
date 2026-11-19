@@ -3412,7 +3412,6 @@ import i.{c => d}
 import j.{c => d}
 import j._
 import k._
-import m._
 import m.{given, _}
 import n._
 import n.{c => d, given}
@@ -3486,7 +3485,6 @@ import i.{c => d}
 import j.{c => d}
 import j._
 import k._
-import m._
 import m.{given, _}
 import n._
 import n.{c => d, given, _}
@@ -3560,7 +3558,6 @@ import i.{c => d}
 import j.{c => d}
 import j._
 import k._
-import m._
 import m.{given, _}
 import n._
 import n.{c => d, given, _}
@@ -3706,7 +3703,6 @@ import i.{c => d}
 import j._
 import j.{c => d}
 import k._
-import m._
 import m.{given, _}
 import n._
 import n.{c => d, given}
@@ -3781,7 +3777,6 @@ import i.{c => d}
 import j._
 import j.{c => d}
 import k._
-import m._
 import m.{given, _}
 import n._
 import n.{c => d, given}
@@ -3856,7 +3851,6 @@ import i.{c => d}
 import j._
 import j.{c => d}
 import k._
-import m._
 import m.{given, _}
 import n._
 import n.{c => d, given}
@@ -3933,7 +3927,6 @@ import i.{c => d}
 import j.{c => d}
 import j._
 import k._
-import m._
 import m.{given, _}
 import n._
 import n.{c => d, given}
@@ -4010,7 +4003,6 @@ import i.{c => d}
 import j._
 import j.{c => d}
 import k._
-import m._
 import m.{given, _}
 import n._
 import n.{c => d, given}
@@ -4157,7 +4149,6 @@ import i.{c => d}
 import j.{c => d}
 import j._
 import k._
-import m._
 import m.{given, _}
 import n._
 import n.{c => d, given}
@@ -4532,7 +4523,6 @@ import i.{c => d}
 import j._
 import j.{c => d}
 import k._
-import m._
 import m.{given, _}
 import n._
 import n.{c => d, given, _}
@@ -4607,7 +4597,6 @@ import i.{c => d}
 import j._
 import j.{c => d}
 import k._
-import m._
 import m.{given, _}
 import n._
 import n.{c => d, given, _}
@@ -16999,7 +16988,6 @@ import a._
 import a.*
 >>>
 import a._
-import a.*
 <<< removeRedundantSelectors, a name beside a wildcard, with a trailing comment, fold
 rewrite.imports {
   selectors = fold
@@ -17843,7 +17831,6 @@ import a._ // c1
 import a.* // c2
 >>>
 import a._ // c1
-import a.* // c2
 <<< sort ascii, a given beside a star in two orders, each with a trailing comment, groups
 rewrite.imports {
   sort = ascii
@@ -18523,10 +18510,8 @@ import i.{given, b, _}
 import a.{given, _}
 import b.{_, given}
 import c.{given, *}
-import d._
 import d.{given, _}
 import e.{given, _}
-import e._
 import f.{c => d, given}
 import f._
 import g._
@@ -18558,9 +18543,7 @@ import i.{given, b, _}
 import a.{given, _}
 import b.{_, given}
 import c.{given, *}
-import d._
 import d.{given, _}
-import e._
 import e.{given, _}
 import f._
 import f.{c => d, given}
@@ -18756,10 +18739,8 @@ import i.{given, b, _}
 import a.{given, _}
 import b.{_, given}
 import c.{given, *}
-import d._
 import d.{given, _}
 import e.{given, _}
-import e._
 import f.{c => d, given, _}
 import f._
 import g._
@@ -18791,9 +18772,7 @@ import i.{given, b, _}
 import a.{given, _}
 import b.{_, given}
 import c.{given, *}
-import d._
 import d.{given, _}
-import e._
 import e.{given, _}
 import f._
 import f.{c => d, given, _}
@@ -18996,10 +18975,8 @@ import i.{given, b, _}
 import a.{given, _}
 import b.{_, given}
 import c.{given, *}
-import d._
 import d.{given, _}
 import e.{given, _}
-import e._
 import f.{c => d, given}
 import f._
 import g._
@@ -19032,9 +19009,7 @@ import i.{given, b, _}
 import a.{given, _}
 import b.{_, given}
 import c.{given, *}
-import d._
 import d.{given, _}
-import e._
 import e.{given, _}
 import f._
 import f.{c => d, given}
@@ -19185,7 +19160,6 @@ export c.{given, *}
 >>>
 export a.{given, *}
 export b.{*, given}
-export c.*
 export c.{given, *}
 <<< exports of plain givens beside wildcards, unfold, scala3 with allowGivenImports
 runner.dialect = scala3
@@ -19235,7 +19209,6 @@ export c.{given, *}
 >>>
 export a.{given, *}
 export b.{*, given}
-export c.*
 export c.{given, *}
 <<< a wildcard beside a wildcard with a plain given, fold, scala3
 runner.dialect = scala3
