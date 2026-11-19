@@ -2732,43 +2732,34 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,31 +1,30 @@
- import a.{c => d, _}
- import a.{c => _, _}
- import b.{c => d, _}
- import e.{c => d, x => _, _}
- import e.{c => d, _}
- import f.{c => _, _}
- import f.{c => d, _}
--import g.{b, _}
-+import g._
- import h.{c => d}
- import h._
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
--import k.{b => _}
- import k._
- import m.{given, _}
- import n._
- import n.{c => d, given}
- import p.{c => d, _}
- import p.{c => d, given, _}
--import r.{b => _, given}
-+import r.given
- import r._
- import s.{c => d, _}
- import s.{b => _, _}
- import t.{b => x, _}
- import u.given
--import v.{b => _, given}
-+import v.given
- import v._
- import w.{given, _}
- import w.{c => d}
+import a.{c => d, _}
+import a.{c => _, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h.{c => d}
+import h._
+import i._
+import i.{c => d}
+import j.{c => d}
+import j._
+import k._
+import m.{given, _}
+import n._
+import n.{c => d, given}
+import p.{c => d, _}
+import p.{c => d, given, _}
+import r.{b => _, given}
+import r._
+import s.{c => d}
+import s._
+import t.{b => x, _}
+import u.given
+import v.{given, _}
+import w.{given, _}
+import w.{c => d}
 <<< removeRedundantSelectors, covering wildcards, fold, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -2816,23 +2807,14 @@ import w.{c => d, given, _}
 >>>
 Idempotency violated
 => Diff (- expected, + obtained)
-@@ -1,31 +1,28 @@
- import a.{c => d, _}
- import a.{c => _, _}
- import b.{c => d, _}
- import e.{c => d, x => _, _}
- import e.{c => d, _}
- import f.{c => _, _}
- import f.{c => d, _}
--import g.{b, _}
-+import g._
+@@ -7,22 +7,21 @@
+ import g._
  import h.{c => d}
  import h._
  import i._
  import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
--import k.{b => _}
+ import j.{c => d}
+ import j._
  import k._
  import m.{given, _}
  import n._
@@ -2842,12 +2824,11 @@ Idempotency violated
  import p.{c => d, given, _}
 -import r.{b => _, given}
  import r._
- import s.{c => d, _}
- import s.{b => _, _}
+ import s.{c => d}
+ import s._
  import t.{b => x, _}
  import u.given
--import v.{b => _, given}
- import v._
+ import v.{given, _}
  import w.{given, _}
  import w.{c => d}
 <<< removeRedundantSelectors, covering wildcards, fold, scala212source3
@@ -2897,23 +2878,14 @@ import w.{c => d, given, _}
 >>>
 Idempotency violated
 => Diff (- expected, + obtained)
-@@ -1,31 +1,28 @@
- import a.{c => d, _}
- import a.{c => _, _}
- import b.{c => d, _}
- import e.{c => d, x => _, _}
- import e.{c => d, _}
- import f.{c => _, _}
- import f.{c => d, _}
--import g.{b, _}
-+import g._
+@@ -7,22 +7,21 @@
+ import g._
  import h.{c => d}
  import h._
  import i._
  import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
--import k.{b => _}
+ import j.{c => d}
+ import j._
  import k._
  import m.{given, _}
  import n._
@@ -2923,12 +2895,11 @@ Idempotency violated
  import p.{c => d, given, _}
 -import r.{b => _, given}
  import r._
- import s.{c => d, _}
- import s.{b => _, _}
+ import s.{c => d}
+ import s._
  import t.{b => x, _}
  import u.given
--import v.{b => _, given}
- import v._
+ import v.{given, _}
  import w.{given, _}
  import w.{c => d}
 <<< removeRedundantSelectors, covering wildcards, fold, scala213
@@ -2976,40 +2947,32 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,30 +1,27 @@
- import a.{c => d, _}
- import a.{c => _, _}
- import b.{c => d, _}
- import e.{c => d, x => _, _}
- import e.{c => d, _}
- import f.{c => _, _}
- import f.{c => d, _}
--import g.{b, _}
-+import g._
- import h.{c => d}
- import h._
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
--import k.{b => _}
- import k._
- import m._
- import n._
- import n.{c => d}
- import p.{c => d, _}
--import r.{b => _}
- import r._
- import s.{c => d, _}
- import s.{b => _, _}
- import t.{b => x, _}
- import u.given
--import v.{b => _}
- import v._
- import w._
- import w.{c => d}
+import a.{c => d, _}
+import a.{c => _, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h.{c => d}
+import h._
+import i._
+import i.{c => d}
+import j.{c => d}
+import j._
+import k._
+import m._
+import n._
+import n.{c => d}
+import p.{c => d, _}
+import r._
+import s.{c => d}
+import s._
+import t.{b => x, _}
+import u.given
+import v._
+import w._
+import w.{c => d}
 <<< removeRedundantSelectors, covering wildcards, fold, sort ascii
 runner.dialect = scala3
 rewrite.imports {
@@ -3056,43 +3019,34 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,31 +1,30 @@
- import a.{c => _, _}
- import a.{c => d, _}
- import b.{c => d, _}
- import e.{c => d, _}
- import e.{c => d, x => _, _}
- import f.{c => _, _}
- import f.{c => d, _}
--import g.{b, _}
-+import g._
- import h._
- import h.{c => d}
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
- import k._
--import k.{b => _}
- import m.{given, _}
- import n._
- import n.{c => d, given}
- import p.{c => d, _}
- import p.{c => d, given, _}
- import r._
--import r.{b => _, given}
-+import r.given
- import s.{b => _, _}
- import s.{c => d, _}
- import t.{b => x, _}
- import u.given
- import v._
--import v.{b => _, given}
-+import v.given
- import w.{c => d}
- import w.{given, _}
+import a.{c => _, _}
+import a.{c => d, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h._
+import h.{c => d}
+import i._
+import i.{c => d}
+import j._
+import j.{c => d}
+import k._
+import m.{given, _}
+import n._
+import n.{c => d, given}
+import p.{c => d, _}
+import p.{c => d, given, _}
+import r._
+import r.{b => _, given}
+import s._
+import s.{c => d}
+import t.{b => x, _}
+import u.given
+import v.{given, _}
+import w.{c => d}
+import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, fold, sort original
 runner.dialect = scala3
 rewrite.imports {
@@ -3139,43 +3093,34 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,31 +1,30 @@
- import a.{c => _, _}
- import a.{c => d, _}
- import b.{c => d, _}
- import e.{c => d, _}
- import e.{c => d, x => _, _}
- import f.{c => _, _}
- import f.{c => d, _}
--import g.{b, _}
-+import g._
- import h._
- import h.{c => d}
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
- import k._
--import k.{b => _}
- import m.{given, _}
- import n._
- import n.{c => d, given}
- import p.{c => d, _}
- import p.{c => d, given, _}
- import r._
--import r.{b => _, given}
-+import r.given
- import s.{b => _, _}
- import s.{c => d, _}
- import t.{b => x, _}
- import u.given
- import v._
--import v.{b => _, given}
-+import v.given
- import w.{c => d}
- import w.{given, _}
+import a.{c => _, _}
+import a.{c => d, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h._
+import h.{c => d}
+import i._
+import i.{c => d}
+import j._
+import j.{c => d}
+import k._
+import m.{given, _}
+import n._
+import n.{c => d, given}
+import p.{c => d, _}
+import p.{c => d, given, _}
+import r._
+import r.{b => _, given}
+import s._
+import s.{c => d}
+import t.{b => x, _}
+import u.given
+import v.{given, _}
+import w.{c => d}
+import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, fold, sort scalastyle
 runner.dialect = scala3
 rewrite.imports {
@@ -3222,43 +3167,34 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,31 +1,30 @@
- import a.{c => _, _}
- import a.{c => d, _}
- import b.{c => d, _}
- import e.{c => d, _}
- import e.{c => d, x => _, _}
- import f.{c => _, _}
- import f.{c => d, _}
--import g.{b, _}
-+import g._
- import h._
- import h.{c => d}
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
- import k._
--import k.{b => _}
- import m.{given, _}
- import n._
- import n.{c => d, given}
- import p.{c => d, _}
- import p.{c => d, given, _}
- import r._
--import r.{b => _, given}
-+import r.given
- import s.{b => _, _}
- import s.{c => d, _}
- import t.{b => x, _}
- import u.given
- import v._
--import v.{b => _, given}
-+import v.given
- import w.{c => d}
- import w.{given, _}
+import a.{c => _, _}
+import a.{c => d, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h._
+import h.{c => d}
+import i._
+import i.{c => d}
+import j._
+import j.{c => d}
+import k._
+import m.{given, _}
+import n._
+import n.{c => d, given}
+import p.{c => d, _}
+import p.{c => d, given, _}
+import r._
+import r.{b => _, given}
+import s._
+import s.{c => d}
+import t.{b => x, _}
+import u.given
+import v.{given, _}
+import w.{c => d}
+import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, fold, sort ascii, groups, sortCatchallGroup none
 runner.dialect = scala3
 rewrite.imports {
@@ -3307,43 +3243,34 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,31 +1,30 @@
- import a.{c => d, _}
- import a.{c => _, _}
- import b.{c => d, _}
- import e.{c => d, x => _, _}
- import e.{c => d, _}
- import f.{c => _, _}
- import f.{c => d, _}
--import g.{b, _}
-+import g._
- import h.{c => d}
- import h._
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
--import k.{b => _}
- import k._
- import m.{given, _}
- import n._
- import n.{c => d, given}
- import p.{c => d, _}
- import p.{c => d, given, _}
--import r.{b => _, given}
-+import r.given
- import r._
- import s.{c => d, _}
- import s.{b => _, _}
- import t.{b => x, _}
- import u.given
--import v.{b => _, given}
-+import v.given
- import v._
- import w.{given, _}
- import w.{c => d}
+import a.{c => d, _}
+import a.{c => _, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h.{c => d}
+import h._
+import i._
+import i.{c => d}
+import j.{c => d}
+import j._
+import k._
+import m.{given, _}
+import n._
+import n.{c => d, given}
+import p.{c => d, _}
+import p.{c => d, given, _}
+import r.{b => _, given}
+import r._
+import s.{c => d}
+import s._
+import t.{b => x, _}
+import u.given
+import v.{given, _}
+import w.{given, _}
+import w.{c => d}
 <<< removeRedundantSelectors, covering wildcards, fold, sort ascii, groups, sortCatchallGroup full
 runner.dialect = scala3
 rewrite.imports {
@@ -3392,43 +3319,34 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,31 +1,30 @@
- import a.{c => _, _}
- import a.{c => d, _}
- import b.{c => d, _}
- import e.{c => d, _}
- import e.{c => d, x => _, _}
- import f.{c => _, _}
- import f.{c => d, _}
--import g.{b, _}
-+import g._
- import h._
- import h.{c => d}
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
- import k._
--import k.{b => _}
- import m.{given, _}
- import n._
- import n.{c => d, given}
- import p.{c => d, _}
- import p.{c => d, given, _}
- import r._
--import r.{b => _, given}
-+import r.given
- import s.{b => _, _}
- import s.{c => d, _}
- import t.{b => x, _}
- import u.given
- import v._
--import v.{b => _, given}
-+import v.given
- import w.{c => d}
- import w.{given, _}
+import a.{c => _, _}
+import a.{c => d, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h._
+import h.{c => d}
+import i._
+import i.{c => d}
+import j._
+import j.{c => d}
+import k._
+import m.{given, _}
+import n._
+import n.{c => d, given}
+import p.{c => d, _}
+import p.{c => d, given, _}
+import r._
+import r.{b => _, given}
+import s._
+import s.{c => d}
+import t.{b => x, _}
+import u.given
+import v.{given, _}
+import w.{c => d}
+import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, unfold, scala3
 runner.dialect = scala3
 rewrite.imports {
@@ -3474,43 +3392,34 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,32 +1,30 @@
- import a.{c => d, _}
- import a.{c => _, _}
- import b.{c => d, _}
- import e.{c => d, x => _, _}
- import e.{c => d, _}
- import f.{c => _, _}
- import f.{c => d, _}
- import g._
--import g.b
- import h.{c => d}
- import h._
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
--import k.{b => _}
- import k._
- import m.{given, _}
- import n._
- import n.{c => d, given}
- import p.{c => d, _}
- import p.{c => d, given, _}
--import r.{b => _, given}
-+import r.given
- import r._
- import s.{c => d, _}
- import s.{b => _, _}
- import t.{b => x, _}
- import u.given
--import v.{b => _, given}
-+import v.given
- import v._
- import w.{given, _}
- import w.{c => d}
+import a.{c => d, _}
+import a.{c => _, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h.{c => d}
+import h._
+import i._
+import i.{c => d}
+import j.{c => d}
+import j._
+import k._
+import m.{given, _}
+import n._
+import n.{c => d, given}
+import p.{c => d, _}
+import p.{c => d, given, _}
+import r.{b => _, given}
+import r._
+import s.{c => d}
+import s._
+import t.{b => x, _}
+import u.given
+import v.{given, _}
+import w.{given, _}
+import w.{c => d}
 <<< removeRedundantSelectors, covering wildcards, unfold, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -3558,23 +3467,14 @@ import w.{c => d, given, _}
 >>>
 Idempotency violated
 => Diff (- expected, + obtained)
-@@ -1,32 +1,28 @@
- import a.{c => d, _}
- import a.{c => _, _}
- import b.{c => d, _}
- import e.{c => d, x => _, _}
- import e.{c => d, _}
- import f.{c => _, _}
- import f.{c => d, _}
+@@ -7,22 +7,21 @@
  import g._
--import g.b
  import h.{c => d}
  import h._
  import i._
  import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
--import k.{b => _}
+ import j.{c => d}
+ import j._
  import k._
  import m.{given, _}
  import n._
@@ -3584,12 +3484,11 @@ Idempotency violated
  import p.{c => d, given, _}
 -import r.{b => _, given}
  import r._
- import s.{c => d, _}
- import s.{b => _, _}
+ import s.{c => d}
+ import s._
  import t.{b => x, _}
  import u.given
--import v.{b => _, given}
- import v._
+ import v.{given, _}
  import w.{given, _}
  import w.{c => d}
 <<< removeRedundantSelectors, covering wildcards, unfold, scala212source3
@@ -3639,23 +3538,14 @@ import w.{c => d, given, _}
 >>>
 Idempotency violated
 => Diff (- expected, + obtained)
-@@ -1,32 +1,28 @@
- import a.{c => d, _}
- import a.{c => _, _}
- import b.{c => d, _}
- import e.{c => d, x => _, _}
- import e.{c => d, _}
- import f.{c => _, _}
- import f.{c => d, _}
+@@ -7,22 +7,21 @@
  import g._
--import g.b
  import h.{c => d}
  import h._
  import i._
  import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
--import k.{b => _}
+ import j.{c => d}
+ import j._
  import k._
  import m.{given, _}
  import n._
@@ -3665,12 +3555,11 @@ Idempotency violated
  import p.{c => d, given, _}
 -import r.{b => _, given}
  import r._
- import s.{c => d, _}
- import s.{b => _, _}
+ import s.{c => d}
+ import s._
  import t.{b => x, _}
  import u.given
--import v.{b => _, given}
- import v._
+ import v.{given, _}
  import w.{given, _}
  import w.{c => d}
 <<< removeRedundantSelectors, covering wildcards, unfold, scala213
@@ -3718,40 +3607,32 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,31 +1,27 @@
- import a.{c => d, _}
- import a.{c => _, _}
- import b.{c => d, _}
- import e.{c => d, x => _, _}
- import e.{c => d, _}
- import f.{c => _, _}
- import f.{c => d, _}
- import g._
--import g.b
- import h.{c => d}
- import h._
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
--import k.{b => _}
- import k._
- import m._
- import n._
- import n.{c => d}
- import p.{c => d, _}
--import r.{b => _}
- import r._
- import s.{c => d, _}
- import s.{b => _, _}
- import t.{b => x, _}
- import u.given
--import v.{b => _}
- import v._
- import w._
- import w.{c => d}
+import a.{c => d, _}
+import a.{c => _, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h.{c => d}
+import h._
+import i._
+import i.{c => d}
+import j.{c => d}
+import j._
+import k._
+import m._
+import n._
+import n.{c => d}
+import p.{c => d, _}
+import r._
+import s.{c => d}
+import s._
+import t.{b => x, _}
+import u.given
+import v._
+import w._
+import w.{c => d}
 <<< removeRedundantSelectors, covering wildcards, unfold, sort ascii
 runner.dialect = scala3
 rewrite.imports {
@@ -3798,43 +3679,34 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,32 +1,30 @@
- import a.{c => _, _}
- import a.{c => d, _}
- import b.{c => d, _}
- import e.{c => d, _}
- import e.{c => d, x => _, _}
- import f.{c => _, _}
- import f.{c => d, _}
- import g._
--import g.b
- import h._
- import h.{c => d}
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
- import k._
--import k.{b => _}
- import m.{given, _}
- import n._
- import n.{c => d, given}
- import p.{c => d, _}
- import p.{c => d, given, _}
- import r._
--import r.{b => _, given}
-+import r.given
- import s.{b => _, _}
- import s.{c => d, _}
- import t.{b => x, _}
- import u.given
- import v._
--import v.{b => _, given}
-+import v.given
- import w.{c => d}
- import w.{given, _}
+import a.{c => _, _}
+import a.{c => d, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h._
+import h.{c => d}
+import i._
+import i.{c => d}
+import j._
+import j.{c => d}
+import k._
+import m.{given, _}
+import n._
+import n.{c => d, given}
+import p.{c => d, _}
+import p.{c => d, given, _}
+import r._
+import r.{b => _, given}
+import s._
+import s.{c => d}
+import t.{b => x, _}
+import u.given
+import v.{given, _}
+import w.{c => d}
+import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, unfold, sort original
 runner.dialect = scala3
 rewrite.imports {
@@ -3881,43 +3753,34 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,32 +1,30 @@
- import a.{c => _, _}
- import a.{c => d, _}
- import b.{c => d, _}
- import e.{c => d, _}
- import e.{c => d, x => _, _}
- import f.{c => _, _}
- import f.{c => d, _}
- import g._
--import g.b
- import h._
- import h.{c => d}
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
- import k._
--import k.{b => _}
- import m.{given, _}
- import n._
- import n.{c => d, given}
- import p.{c => d, _}
- import p.{c => d, given, _}
- import r._
--import r.{b => _, given}
-+import r.given
- import s.{b => _, _}
- import s.{c => d, _}
- import t.{b => x, _}
- import u.given
- import v._
--import v.{b => _, given}
-+import v.given
- import w.{c => d}
- import w.{given, _}
+import a.{c => _, _}
+import a.{c => d, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h._
+import h.{c => d}
+import i._
+import i.{c => d}
+import j._
+import j.{c => d}
+import k._
+import m.{given, _}
+import n._
+import n.{c => d, given}
+import p.{c => d, _}
+import p.{c => d, given, _}
+import r._
+import r.{b => _, given}
+import s._
+import s.{c => d}
+import t.{b => x, _}
+import u.given
+import v.{given, _}
+import w.{c => d}
+import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, unfold, sort scalastyle
 runner.dialect = scala3
 rewrite.imports {
@@ -3964,43 +3827,34 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,32 +1,30 @@
- import a.{c => _, _}
- import a.{c => d, _}
- import b.{c => d, _}
- import e.{c => d, _}
- import e.{c => d, x => _, _}
- import f.{c => _, _}
- import f.{c => d, _}
- import g._
--import g.b
- import h._
- import h.{c => d}
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
- import k._
--import k.{b => _}
- import m.{given, _}
- import n._
- import n.{c => d, given}
- import p.{c => d, _}
- import p.{c => d, given, _}
- import r._
--import r.{b => _, given}
-+import r.given
- import s.{b => _, _}
- import s.{c => d, _}
- import t.{b => x, _}
- import u.given
- import v._
--import v.{b => _, given}
-+import v.given
- import w.{c => d}
- import w.{given, _}
+import a.{c => _, _}
+import a.{c => d, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h._
+import h.{c => d}
+import i._
+import i.{c => d}
+import j._
+import j.{c => d}
+import k._
+import m.{given, _}
+import n._
+import n.{c => d, given}
+import p.{c => d, _}
+import p.{c => d, given, _}
+import r._
+import r.{b => _, given}
+import s._
+import s.{c => d}
+import t.{b => x, _}
+import u.given
+import v.{given, _}
+import w.{c => d}
+import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, unfold, sort ascii, groups, sortCatchallGroup none
 runner.dialect = scala3
 rewrite.imports {
@@ -4049,43 +3903,34 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,32 +1,30 @@
- import a.{c => d, _}
- import a.{c => _, _}
- import b.{c => d, _}
- import e.{c => d, x => _, _}
- import e.{c => d, _}
- import f.{c => _, _}
- import f.{c => d, _}
- import g._
--import g.b
- import h.{c => d}
- import h._
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
--import k.{b => _}
- import k._
- import m.{given, _}
- import n._
- import n.{c => d, given}
- import p.{c => d, _}
- import p.{c => d, given, _}
--import r.{b => _, given}
-+import r.given
- import r._
- import s.{c => d, _}
- import s.{b => _, _}
- import t.{b => x, _}
- import u.given
--import v.{b => _, given}
-+import v.given
- import v._
- import w.{given, _}
- import w.{c => d}
+import a.{c => d, _}
+import a.{c => _, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h.{c => d}
+import h._
+import i._
+import i.{c => d}
+import j.{c => d}
+import j._
+import k._
+import m.{given, _}
+import n._
+import n.{c => d, given}
+import p.{c => d, _}
+import p.{c => d, given, _}
+import r.{b => _, given}
+import r._
+import s.{c => d}
+import s._
+import t.{b => x, _}
+import u.given
+import v.{given, _}
+import w.{given, _}
+import w.{c => d}
 <<< removeRedundantSelectors, covering wildcards, unfold, sort ascii, groups, sortCatchallGroup full
 runner.dialect = scala3
 rewrite.imports {
@@ -4134,43 +3979,34 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,32 +1,30 @@
- import a.{c => _, _}
- import a.{c => d, _}
- import b.{c => d, _}
- import e.{c => d, _}
- import e.{c => d, x => _, _}
- import f.{c => _, _}
- import f.{c => d, _}
- import g._
--import g.b
- import h._
- import h.{c => d}
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
- import k._
--import k.{b => _}
- import m.{given, _}
- import n._
- import n.{c => d, given}
- import p.{c => d, _}
- import p.{c => d, given, _}
- import r._
--import r.{b => _, given}
-+import r.given
- import s.{b => _, _}
- import s.{c => d, _}
- import t.{b => x, _}
- import u.given
- import v._
--import v.{b => _, given}
-+import v.given
- import w.{c => d}
- import w.{given, _}
+import a.{c => _, _}
+import a.{c => d, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h._
+import h.{c => d}
+import i._
+import i.{c => d}
+import j._
+import j.{c => d}
+import k._
+import m.{given, _}
+import n._
+import n.{c => d, given}
+import p.{c => d, _}
+import p.{c => d, given, _}
+import r._
+import r.{b => _, given}
+import s._
+import s.{c => d}
+import t.{b => x, _}
+import u.given
+import v.{given, _}
+import w.{c => d}
+import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, newlines.source = fold
 runner.dialect = scala3
 newlines.source = fold
@@ -4216,43 +4052,34 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,31 +1,30 @@
- import a.{c => d, _}
- import a.{c => _, _}
- import b.{c => d, _}
- import e.{c => d, x => _, _}
- import e.{c => d, _}
- import f.{c => _, _}
- import f.{c => d, _}
--import g.{b, _}
-+import g._
- import h.{c => d}
- import h._
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
--import k.{b => _}
- import k._
- import m.{given, _}
- import n._
- import n.{c => d, given}
- import p.{c => d, _}
- import p.{c => d, given, _}
--import r.{b => _, given}
-+import r.given
- import r._
- import s.{c => d, _}
- import s.{b => _, _}
- import t.{b => x, _}
- import u.given
--import v.{b => _, given}
-+import v.given
- import v._
- import w.{given, _}
- import w.{c => d}
+import a.{c => d, _}
+import a.{c => _, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h.{c => d}
+import h._
+import i._
+import i.{c => d}
+import j.{c => d}
+import j._
+import k._
+import m.{given, _}
+import n._
+import n.{c => d, given}
+import p.{c => d, _}
+import p.{c => d, given, _}
+import r.{b => _, given}
+import r._
+import s.{c => d}
+import s._
+import t.{b => x, _}
+import u.given
+import v.{given, _}
+import w.{given, _}
+import w.{c => d}
 <<< removeRedundantSelectors, covering wildcards, newlines.source = unfold
 runner.dialect = scala3
 newlines.source = unfold
@@ -4298,43 +4125,34 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,32 +1,30 @@
- import a.{c => d, _}
- import a.{c => _, _}
- import b.{c => d, _}
- import e.{c => d, x => _, _}
- import e.{c => d, _}
- import f.{c => _, _}
- import f.{c => d, _}
- import g._
--import g.b
- import h.{c => d}
- import h._
- import i._
- import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
--import k.{b => _}
- import k._
- import m.{given, _}
- import n._
- import n.{c => d, given}
- import p.{c => d, _}
- import p.{c => d, given, _}
--import r.{b => _, given}
-+import r.given
- import r._
- import s.{c => d, _}
- import s.{b => _, _}
- import t.{b => x, _}
- import u.given
--import v.{b => _, given}
-+import v.given
- import v._
- import w.{given, _}
- import w.{c => d}
+import a.{c => d, _}
+import a.{c => _, _}
+import b.{c => d, _}
+import e.{c => d, _}
+import f.{c => _, _}
+import f.{c => d, _}
+import g._
+import h.{c => d}
+import h._
+import i._
+import i.{c => d}
+import j.{c => d}
+import j._
+import k._
+import m.{given, _}
+import n._
+import n.{c => d, given}
+import p.{c => d, _}
+import p.{c => d, given, _}
+import r.{b => _, given}
+import r._
+import s.{c => d}
+import s._
+import t.{b => x, _}
+import u.given
+import v.{given, _}
+import w.{given, _}
+import w.{c => d}
 <<< removeRedundantSelectors, covering wildcards, groups, sort ascii, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -4535,24 +4353,15 @@ import w.{c => d, given, _}
 >>>
 Idempotency violated
 => Diff (- expected, + obtained)
-@@ -1,31 +1,28 @@
- import a.{c => _, _}
- import a.{c => d, _}
- import b.{c => d, _}
- import e.{c => d, _}
- import e.{c => d, x => _, _}
- import f.{c => _, _}
- import f.{c => d, _}
--import g.{b, _}
-+import g._
+@@ -7,22 +7,21 @@
+ import g._
  import h._
  import h.{c => d}
  import i._
  import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
+ import j._
+ import j.{c => d}
  import k._
--import k.{b => _}
  import m.{given, _}
  import n._
 -import n.{c => d, given}
@@ -4561,12 +4370,11 @@ Idempotency violated
  import p.{c => d, given, _}
  import r._
 -import r.{b => _, given}
- import s.{b => _, _}
- import s.{c => d, _}
+ import s._
+ import s.{c => d}
  import t.{b => x, _}
  import u.given
- import v._
--import v.{b => _, given}
+ import v.{given, _}
  import w.{c => d}
  import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, fold, sort ascii, scala212source3
@@ -4617,24 +4425,15 @@ import w.{c => d, given, _}
 >>>
 Idempotency violated
 => Diff (- expected, + obtained)
-@@ -1,31 +1,28 @@
- import a.{c => _, _}
- import a.{c => d, _}
- import b.{c => d, _}
- import e.{c => d, _}
- import e.{c => d, x => _, _}
- import f.{c => _, _}
- import f.{c => d, _}
--import g.{b, _}
-+import g._
+@@ -7,22 +7,21 @@
+ import g._
  import h._
  import h.{c => d}
  import i._
  import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
+ import j._
+ import j.{c => d}
  import k._
--import k.{b => _}
  import m.{given, _}
  import n._
 -import n.{c => d, given}
@@ -4643,12 +4442,11 @@ Idempotency violated
  import p.{c => d, given, _}
  import r._
 -import r.{b => _, given}
- import s.{b => _, _}
- import s.{c => d, _}
+ import s._
+ import s.{c => d}
  import t.{b => x, _}
  import u.given
- import v._
--import v.{b => _, given}
+ import v.{given, _}
  import w.{c => d}
  import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, unfold, sort ascii, scala213source3
@@ -4699,24 +4497,15 @@ import w.{c => d, given, _}
 >>>
 Idempotency violated
 => Diff (- expected, + obtained)
-@@ -1,32 +1,28 @@
- import a.{c => _, _}
- import a.{c => d, _}
- import b.{c => d, _}
- import e.{c => d, _}
- import e.{c => d, x => _, _}
- import f.{c => _, _}
- import f.{c => d, _}
+@@ -7,22 +7,21 @@
  import g._
--import g.b
  import h._
  import h.{c => d}
  import i._
  import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
+ import j._
+ import j.{c => d}
  import k._
--import k.{b => _}
  import m.{given, _}
  import n._
 -import n.{c => d, given}
@@ -4725,12 +4514,11 @@ Idempotency violated
  import p.{c => d, given, _}
  import r._
 -import r.{b => _, given}
- import s.{b => _, _}
- import s.{c => d, _}
+ import s._
+ import s.{c => d}
  import t.{b => x, _}
  import u.given
- import v._
--import v.{b => _, given}
+ import v.{given, _}
  import w.{c => d}
  import w.{given, _}
 <<< removeRedundantSelectors, covering wildcards, unfold, sort ascii, scala212source3
@@ -4781,24 +4569,15 @@ import w.{c => d, given, _}
 >>>
 Idempotency violated
 => Diff (- expected, + obtained)
-@@ -1,32 +1,28 @@
- import a.{c => _, _}
- import a.{c => d, _}
- import b.{c => d, _}
- import e.{c => d, _}
- import e.{c => d, x => _, _}
- import f.{c => _, _}
- import f.{c => d, _}
+@@ -7,22 +7,21 @@
  import g._
--import g.b
  import h._
  import h.{c => d}
  import i._
  import i.{c => d}
- import j.{c => d, _}
- import j.{x => _, _}
+ import j._
+ import j.{c => d}
  import k._
--import k.{b => _}
  import m.{given, _}
  import n._
 -import n.{c => d, given}
@@ -4807,12 +4586,11 @@ Idempotency violated
  import p.{c => d, given, _}
  import r._
 -import r.{b => _, given}
- import s.{b => _, _}
- import s.{c => d, _}
+ import s._
+ import s.{c => d}
  import t.{b => x, _}
  import u.given
- import v._
--import v.{b => _, given}
+ import v.{given, _}
  import w.{c => d}
  import w.{given, _}
 <<< removeRedundantSelectors, repeated statements, groups, scala3
@@ -7523,9 +7301,9 @@ import s.{given T, _}
 import s.{k => l}
 import s.{given T, _}
 >>>
-import j.given T
-import l.given T
-import m.given T
+import j.{b => _, given T}
+import l.{b => _, c => _, given T}
+import m.{b => _, given T}
 import p.{c => d, given T}
 import s.{given T, _}
 import s.{k => l}
@@ -7549,9 +7327,9 @@ import s.{given T, _}
 import s.{k => l}
 import s.{given T, _}
 >>>
-import j.given T
-import l.given T
-import m.given T
+import j.{b => _, given T}
+import l.{b => _, c => _, given T}
+import m.{b => _, given T}
 import p.{c => d, given T}
 import s.{given T, _}
 import s.{k => l}
@@ -7575,9 +7353,9 @@ import s.{given T, _}
 import s.{k => l}
 import s.{given T, _}
 >>>
-import j.given T
-import l.given T
-import m.given T
+import j.{b => _, given T}
+import l.{b => _, c => _, given T}
+import m.{b => _, given T}
 import p.{c => d, given T}
 import s.{given T, _}
 import s.{k => l}
@@ -7601,9 +7379,9 @@ import s.{given T, _}
 import s.{k => l}
 import s.{given T, _}
 >>>
-import j.given T
-import l.given T
-import m.given T
+import j.{b => _, given T}
+import l.{b => _, c => _, given T}
+import m.{b => _, given T}
 import p.{c => d, given T}
 import s.{given T, _}
 import s.{k => l}
@@ -7629,9 +7407,9 @@ import s.{given T, _}
 import s.{k => l}
 import s.{given T, _}
 >>>
-import j.given T
-import l.given T
-import m.given T
+import j.{b => _, given T}
+import l.{b => _, c => _, given T}
+import m.{b => _, given T}
 import p.{c => d, given T}
 import s.{given T, _}
 import s.{k => l}
@@ -7657,9 +7435,9 @@ import s.{given T, _}
 import s.{k => l}
 import s.{given T, _}
 >>>
-import j.given T
-import l.given T
-import m.given T
+import j.{b => _, given T}
+import l.{b => _, c => _, given T}
+import m.{b => _, given T}
 import p.{c => d, given T}
 import s.{given T, _}
 import s.{k => l}
@@ -7682,14 +7460,21 @@ import s.{given T, _}
 import s.{k => l}
 import s.{given T, _}
 >>>
-import j.given T
-import l.given T
-import m.given T
-import p.{c => d}
-import p.given T
-import s.given T
-import s.{k => l}
-import s._
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,12 +1,8 @@
+-import j.{b => _}
+ import j.given T
+-import l.{b => _}
+ import l.given T
+-import l.{c => _}
+ import m.given T
+-import m.{b => _}
+ import p.{c => d}
+ import p.given T
+ import s.given T
+ import s.{k => l}
+ import s._
 <<< removeRedundantSelectors, repeated given T, unfold, sort ascii
 runner.dialect = scala3
 rewrite.imports {
@@ -7710,14 +7495,21 @@ import s.{given T, _}
 import s.{k => l}
 import s.{given T, _}
 >>>
-import j.given T
-import l.given T
-import m.given T
-import p.given T
-import p.{c => d}
-import s._
-import s.given T
-import s.{k => l}
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,12 +1,8 @@
+ import j.given T
+-import j.{b => _}
+ import l.given T
+-import l.{b => _}
+-import l.{c => _}
+ import m.given T
+-import m.{b => _}
+ import p.given T
+ import p.{c => d}
+ import s._
+ import s.given T
+ import s.{k => l}
 <<< removeRedundantSelectors, repeated given T, unfold, sort original
 runner.dialect = scala3
 rewrite.imports {
@@ -7738,14 +7530,21 @@ import s.{given T, _}
 import s.{k => l}
 import s.{given T, _}
 >>>
-import j.given T
-import l.given T
-import m.given T
-import p.{c => d}
-import p.given T
-import s._
-import s.{k => l}
-import s.given T
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,12 +1,8 @@
+-import j.{b => _}
+ import j.given T
+-import l.{b => _}
+-import l.{c => _}
+ import l.given T
+-import m.{b => _}
+ import m.given T
+ import p.{c => d}
+ import p.given T
+ import s._
+ import s.{k => l}
+ import s.given T
 <<< removeRedundantSelectors, repeated given T, unfold, sort scalastyle
 runner.dialect = scala3
 rewrite.imports {
@@ -7766,14 +7565,21 @@ import s.{given T, _}
 import s.{k => l}
 import s.{given T, _}
 >>>
-import j.given T
-import l.given T
-import m.given T
-import p.{c => d}
-import p.given T
-import s._
-import s.{k => l}
-import s.given T
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,12 +1,8 @@
+-import j.{b => _}
+ import j.given T
+-import l.{b => _}
+-import l.{c => _}
+ import l.given T
+-import m.{b => _}
+ import m.given T
+ import p.{c => d}
+ import p.given T
+ import s._
+ import s.{k => l}
+ import s.given T
 <<< removeRedundantSelectors, repeated given T, unfold, sort ascii, groups, sortCatchallGroup none
 runner.dialect = scala3
 rewrite.imports {
@@ -7796,14 +7602,21 @@ import s.{given T, _}
 import s.{k => l}
 import s.{given T, _}
 >>>
-import j.given T
-import l.given T
-import m.given T
-import p.{c => d}
-import p.given T
-import s.given T
-import s.{k => l}
-import s._
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,12 +1,8 @@
+-import j.{b => _}
+ import j.given T
+-import l.{b => _}
+ import l.given T
+-import l.{c => _}
+ import m.given T
+-import m.{b => _}
+ import p.{c => d}
+ import p.given T
+ import s.given T
+ import s.{k => l}
+ import s._
 <<< removeRedundantSelectors, repeated given T, unfold, sort ascii, groups, sortCatchallGroup full
 runner.dialect = scala3
 rewrite.imports {
@@ -7826,14 +7639,21 @@ import s.{given T, _}
 import s.{k => l}
 import s.{given T, _}
 >>>
-import j.given T
-import l.given T
-import m.given T
-import p.given T
-import p.{c => d}
-import s._
-import s.given T
-import s.{k => l}
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,12 +1,8 @@
+ import j.given T
+-import j.{b => _}
+ import l.given T
+-import l.{b => _}
+-import l.{c => _}
+ import m.given T
+-import m.{b => _}
+ import p.given T
+ import p.{c => d}
+ import s._
+ import s.given T
+ import s.{k => l}
 <<< removeRedundantSelectors, repeated given T, newlines.source = fold
 runner.dialect = scala3
 newlines.source = fold
@@ -7853,9 +7673,9 @@ import s.{given T, _}
 import s.{k => l}
 import s.{given T, _}
 >>>
-import j.given T
-import l.given T
-import m.given T
+import j.{b => _, given T}
+import l.{b => _, c => _, given T}
+import m.{b => _, given T}
 import p.{c => d, given T}
 import s.{given T, _}
 import s.{k => l}
@@ -7878,14 +7698,21 @@ import s.{given T, _}
 import s.{k => l}
 import s.{given T, _}
 >>>
-import j.given T
-import l.given T
-import m.given T
-import p.{c => d}
-import p.given T
-import s.given T
-import s.{k => l}
-import s._
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,12 +1,8 @@
+-import j.{b => _}
+ import j.given T
+-import l.{b => _}
+ import l.given T
+-import l.{c => _}
+ import m.given T
+-import m.{b => _}
+ import p.{c => d}
+ import p.given T
+ import s.given T
+ import s.{k => l}
+ import s._
 <<< removeRedundantSelectors, repeated importees, groups, scala3
 runner.dialect = scala3
 rewrite.imports {
@@ -9401,9 +9228,9 @@ import tb.given T
 import tc.{b => _, given T, x}
 import tc.{b => _, given T}
 >>>
-import ta.given T
+import ta.{b => _, c => _, given T}
 import tb.{b => _, given T, _}
-import tc.{x, given T}
+import tc.{b => _, x, given T}
 <<< removeRedundantSelectors, repeated importees, given T, fold, sort ascii
 runner.dialect = scala3
 rewrite.imports {
@@ -9419,9 +9246,9 @@ import tb.given T
 import tc.{b => _, given T, x}
 import tc.{b => _, given T}
 >>>
-import ta.given T
+import ta.{b => _, c => _, given T}
 import tb.{b => _, given T, _}
-import tc.{x, given T}
+import tc.{b => _, x, given T}
 <<< removeRedundantSelectors, repeated importees, given T, fold, sort original
 runner.dialect = scala3
 rewrite.imports {
@@ -9437,9 +9264,9 @@ import tb.given T
 import tc.{b => _, given T, x}
 import tc.{b => _, given T}
 >>>
-import ta.given T
+import ta.{b => _, c => _, given T}
 import tb.{b => _, given T, _}
-import tc.{x, given T}
+import tc.{b => _, x, given T}
 <<< removeRedundantSelectors, repeated importees, given T, fold, sort scalastyle
 runner.dialect = scala3
 rewrite.imports {
@@ -9455,9 +9282,9 @@ import tb.given T
 import tc.{b => _, given T, x}
 import tc.{b => _, given T}
 >>>
-import ta.given T
+import ta.{b => _, c => _, given T}
 import tb.{b => _, given T, _}
-import tc.{x, given T}
+import tc.{b => _, x, given T}
 <<< removeRedundantSelectors, repeated importees, given T, fold, sort ascii, groups, sortCatchallGroup none
 runner.dialect = scala3
 rewrite.imports {
@@ -9475,9 +9302,9 @@ import tb.given T
 import tc.{b => _, given T, x}
 import tc.{b => _, given T}
 >>>
-import ta.given T
+import ta.{b => _, c => _, given T}
 import tb.{b => _, given T, _}
-import tc.{x, given T}
+import tc.{b => _, x, given T}
 <<< removeRedundantSelectors, repeated importees, given T, fold, sort ascii, groups, sortCatchallGroup full
 runner.dialect = scala3
 rewrite.imports {
@@ -9495,9 +9322,9 @@ import tb.given T
 import tc.{b => _, given T, x}
 import tc.{b => _, given T}
 >>>
-import ta.given T
+import ta.{b => _, c => _, given T}
 import tb.{b => _, given T, _}
-import tc.{x, given T}
+import tc.{b => _, x, given T}
 <<< removeRedundantSelectors, repeated importees, given T, unfold, scala3
 runner.dialect = scala3
 rewrite.imports {
@@ -9512,11 +9339,17 @@ import tb.given T
 import tc.{b => _, given T, x}
 import tc.{b => _, given T}
 >>>
-import ta.given T
-import tb.{b => _, _}
-import tb.given T
-import tc.given T
-import tc.x
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,8 +1,5 @@
+-import ta.{b => _}
+ import ta.given T
+-import ta.{c => _}
+ import tb.{b => _, _}
+ import tb.given T
+-import tc.{b => _}
+ import tc.given T
+ import tc.x
 <<< removeRedundantSelectors, repeated importees, given T, unfold, sort ascii
 runner.dialect = scala3
 rewrite.imports {
@@ -9532,11 +9365,17 @@ import tb.given T
 import tc.{b => _, given T, x}
 import tc.{b => _, given T}
 >>>
-import ta.given T
-import tb.given T
-import tb.{b => _, _}
-import tc.given T
-import tc.x
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,8 +1,5 @@
+ import ta.given T
+-import ta.{b => _}
+-import ta.{c => _}
+ import tb.given T
+ import tb.{b => _, _}
+ import tc.given T
+ import tc.x
+-import tc.{b => _}
 <<< removeRedundantSelectors, repeated importees, given T, unfold, sort original
 runner.dialect = scala3
 rewrite.imports {
@@ -9552,11 +9391,17 @@ import tb.given T
 import tc.{b => _, given T, x}
 import tc.{b => _, given T}
 >>>
-import ta.given T
-import tb.{b => _, _}
-import tb.given T
-import tc.given T
-import tc.x
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,8 +1,5 @@
+-import ta.{b => _}
+-import ta.{c => _}
+ import ta.given T
+ import tb.{b => _, _}
+ import tb.given T
+-import tc.{b => _}
+ import tc.given T
+ import tc.x
 <<< removeRedundantSelectors, repeated importees, given T, unfold, sort scalastyle
 runner.dialect = scala3
 rewrite.imports {
@@ -9572,11 +9417,17 @@ import tb.given T
 import tc.{b => _, given T, x}
 import tc.{b => _, given T}
 >>>
-import ta.given T
-import tb.{b => _, _}
-import tb.given T
-import tc.given T
-import tc.x
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,8 +1,5 @@
+-import ta.{b => _}
+-import ta.{c => _}
+ import ta.given T
+ import tb.{b => _, _}
+ import tb.given T
+-import tc.{b => _}
+ import tc.given T
+ import tc.x
 <<< removeRedundantSelectors, repeated importees, given T, unfold, sort ascii, groups, sortCatchallGroup none
 runner.dialect = scala3
 rewrite.imports {
@@ -9594,11 +9445,17 @@ import tb.given T
 import tc.{b => _, given T, x}
 import tc.{b => _, given T}
 >>>
-import ta.given T
-import tb.{b => _, _}
-import tb.given T
-import tc.given T
-import tc.x
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,8 +1,5 @@
+-import ta.{b => _}
+ import ta.given T
+-import ta.{c => _}
+ import tb.{b => _, _}
+ import tb.given T
+-import tc.{b => _}
+ import tc.given T
+ import tc.x
 <<< removeRedundantSelectors, repeated importees, given T, unfold, sort ascii, groups, sortCatchallGroup full
 runner.dialect = scala3
 rewrite.imports {
@@ -9616,11 +9473,17 @@ import tb.given T
 import tc.{b => _, given T, x}
 import tc.{b => _, given T}
 >>>
-import ta.given T
-import tb.given T
-import tb.{b => _, _}
-import tc.given T
-import tc.x
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,8 +1,5 @@
+ import ta.given T
+-import ta.{b => _}
+-import ta.{c => _}
+ import tb.given T
+ import tb.{b => _, _}
+ import tc.given T
+ import tc.x
+-import tc.{b => _}
 <<< removeRedundantSelectors, repeated importees, given T, newlines.source = fold
 runner.dialect = scala3
 newlines.source = fold
@@ -9635,9 +9498,9 @@ import tb.given T
 import tc.{b => _, given T, x}
 import tc.{b => _, given T}
 >>>
-import ta.given T
+import ta.{b => _, c => _, given T}
 import tb.{b => _, given T, _}
-import tc.{x, given T}
+import tc.{b => _, x, given T}
 <<< removeRedundantSelectors, repeated importees, given T, newlines.source = unfold
 runner.dialect = scala3
 newlines.source = unfold
@@ -9652,11 +9515,17 @@ import tb.given T
 import tc.{b => _, given T, x}
 import tc.{b => _, given T}
 >>>
-import ta.given T
-import tb.{b => _, _}
-import tb.given T
-import tc.given T
-import tc.x
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,8 +1,5 @@
+-import ta.{b => _}
+ import ta.given T
+-import ta.{c => _}
+ import tb.{b => _, _}
+ import tb.given T
+-import tc.{b => _}
+ import tc.given T
+ import tc.x
 <<< removeRedundantSelectors, repeated importees, contiguousGroups only
 runner.dialect = scala3
 rewrite.imports {
@@ -9775,7 +9644,7 @@ import a.{c => d, b => _, given}
 import e.{c => d, given, _}
 import e.{given, _}
 >>>
-import a.{c => d, given}
+import a.{c => d, b => _, given}
 import e.{c => d, given}
 import e._
 <<< removeRedundantSelectors, repeated importees, a later unit, fold, scala213source3
@@ -9822,7 +9691,7 @@ import a.{c => d, b => _, given}
 import e.{c => d, given, _}
 import e.{given, _}
 >>>
-import a.{c => d, given}
+import a.{c => d, b => _, given}
 import e.{c => d, given}
 import e._
 <<< removeRedundantSelectors, repeated importees, a later unit, unfold, scala213source3
@@ -13367,11 +13236,7 @@ rewrite.imports {
 import a.{b => _, *}
 import a.b
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,1 +1,1 @@
--import a.{b, *}
-+import a.*
+import a.*
 <<< removeRedundantSelectors, unimport and import of a name, scala3, unfold
 runner.dialect = scala3
 rewrite.imports {
@@ -13382,11 +13247,7 @@ rewrite.imports {
 import a.{b => _, *}
 import a.b
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,2 +1,1 @@
- import a.*
--import a.b
+import a.*
 <<< removeRedundantSelectors, unimport, import and another wildcard, scala3, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -13398,11 +13259,7 @@ import a.{b => _, *}
 import a.b
 import a.*
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,2 +1,1 @@
--import a.b
- import a.*
+import a.*
 <<< removeRedundantSelectors, unimport, import and another wildcard, scala3, unfold
 runner.dialect = scala3
 rewrite.imports {
@@ -13414,11 +13271,7 @@ import a.{b => _, *}
 import a.b
 import a.*
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,2 +1,1 @@
--import a.b
- import a.*
+import a.*
 <<< removeRedundantSelectors, unimport and another wildcard, scala3, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -13429,11 +13282,7 @@ rewrite.imports {
 import a.{b => _, *}
 import a.*
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,2 +1,1 @@
--import a.{b => _}
- import a.*
+import a.*
 <<< removeRedundantSelectors, unimport and another wildcard, scala3, unfold
 runner.dialect = scala3
 rewrite.imports {
@@ -13444,11 +13293,7 @@ rewrite.imports {
 import a.{b => _, *}
 import a.*
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,2 +1,1 @@
--import a.{b => _}
- import a.*
+import a.*
 <<< removeRedundantSelectors, unimport, then the name beside a rename, scala3, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -13459,12 +13304,8 @@ rewrite.imports {
 import a.{b => _, *}
 import a.{b, c => d}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,2 +1,2 @@
--import a.{b, *}
-+import a.*
- import a.{c => d}
+import a.*
+import a.{c => d}
 <<< removeRedundantSelectors, unimport, then the name beside a rename, scala3, unfold
 runner.dialect = scala3
 rewrite.imports {
@@ -13475,12 +13316,8 @@ rewrite.imports {
 import a.{b => _, *}
 import a.{b, c => d}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,3 +1,2 @@
- import a.*
--import a.b
- import a.{c => d}
+import a.*
+import a.{c => d}
 <<< removeRedundantSelectors, unimport, the name, then a rename with a wildcard, scala3, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -13492,13 +13329,8 @@ import a.{b => _, *}
 import a.b
 import a.{c => d, *}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,2 +1,2 @@
--import a.{b, *}
--import a.{c => d, *}
-+import a.*
-+import a.{c => d}
+import a.*
+import a.{c => d}
 <<< removeRedundantSelectors, unimport, the name, then a rename with a wildcard, scala3, unfold
 runner.dialect = scala3
 rewrite.imports {
@@ -13510,13 +13342,8 @@ import a.{b => _, *}
 import a.b
 import a.{c => d, *}
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,3 +1,2 @@
- import a.*
--import a.b
--import a.{c => d, *}
-+import a.{c => d}
+import a.*
+import a.{c => d}
 <<< removeRedundantSelectors, a rename with a wildcard, then unimport and the name, scala3, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -13528,8 +13355,8 @@ import a.{c => d, *}
 import a.{b => _, *}
 import a.b
 >>>
-import a.{c => d, *}
-import a.{b => _, *}
+import a.{c => d}
+import a.*
 <<< removeRedundantSelectors, a rename with a wildcard, then unimport and the name, scala3, unfold
 runner.dialect = scala3
 rewrite.imports {
@@ -13541,8 +13368,8 @@ import a.{c => d, *}
 import a.{b => _, *}
 import a.b
 >>>
-import a.{c => d, *}
-import a.{b => _, *}
+import a.{c => d}
+import a.*
 <<< two renames with a wildcard and another wildcard, scala3, fold
 runner.dialect = scala3
 rewrite.imports.selectors = fold
@@ -13790,8 +13617,8 @@ rewrite.imports {
 import a.{c => d, *}
 import a.{b => _, *}
 >>>
-import a.{c => d, *}
-import a.{b => _, *}
+import a.{c => d}
+import a.*
 <<< removeRedundantSelectors, a rename with a wildcard and an unimport with a wildcard, scala3, unfold
 runner.dialect = scala3
 rewrite.imports {
@@ -13802,8 +13629,8 @@ rewrite.imports {
 import a.{c => d, *}
 import a.{b => _, *}
 >>>
-import a.{c => d, *}
-import a.{b => _, *}
+import a.{c => d}
+import a.*
 <<< removeRedundantSelectors, two unimports with a wildcard, scala3, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -13814,8 +13641,7 @@ rewrite.imports {
 import a.{b => _, *}
 import a.{c => _, *}
 >>>
-import a.{b => _, *}
-import a.{c => _, *}
+import a.*
 <<< removeRedundantSelectors, two unimports with a wildcard, scala3, unfold
 runner.dialect = scala3
 rewrite.imports {
@@ -13826,8 +13652,7 @@ rewrite.imports {
 import a.{b => _, *}
 import a.{c => _, *}
 >>>
-import a.{b => _, *}
-import a.{c => _, *}
+import a.*
 <<< a rename with a wildcard, a name and another wildcard, scala3, fold
 runner.dialect = scala3
 rewrite.imports.selectors = fold
@@ -14112,12 +13937,8 @@ rewrite.imports {
 import a.{b => _, given}
 import a.*
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,2 +1,1 @@
--import a.given
--import a.*
-+import a.{given, *}
+import a.{b => _, given}
+import a.*
 <<< removeRedundantSelectors, an unimport with a wildcard, then a rename with a wildcard, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -14128,8 +13949,8 @@ rewrite.imports {
 import a.{d => _, _}
 import a.{c => y, _}
 >>>
-import a.{d => _, _}
-import a.{c => y, _}
+import a._
+import a.{c => y}
 <<< no sort, removeRedundantSelectors, a given by type beside a plain given, fold
 runner.dialect = scala3
 rewrite.imports {
@@ -14177,7 +13998,11 @@ rewrite.imports {
 ===
 import a.{b => _, given X}
 >>>
-import a.given X
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,2 +1,1 @@
+-import a.{b => _}
+ import a.given X
 <<< a rename with a given and a wildcard, then a wildcard, fold, scala213source3
 runner.dialect = scala213source3
 rewrite.imports.selectors = fold
@@ -15280,11 +15105,7 @@ rewrite.imports {
 import a.{b => _, *} // c
 import a.b
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,1 +1,1 @@
--import a.{b, *} // c
-+import a.* // c
+import a.* // c
 <<< removeRedundantSelectors, an unimport beside a wildcard, with a trailing comment, then the name, unfold
 rewrite.imports {
   selectors = unfold
@@ -15294,11 +15115,7 @@ rewrite.imports {
 import a.{b => _, *} // c
 import a.b
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,2 +1,1 @@
- import a.* // c
--import a.b
+import a.* // c
 <<< removeRedundantSelectors and groups, an unimport beside a wildcard, with a trailing comment, then the name
 rewrite.imports {
   removeRedundantSelectors = true
@@ -15377,15 +15194,7 @@ rewrite.imports {
 import a.{b => _, *} // c1
 import a.b // c2
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,5 +1,2 @@
- // c1
--import a.{
--  b, // c2
--  *
--} // c2
-+import a.* // c2
+import a.* // c1
 <<< removeRedundantSelectors, an unimport beside a wildcard, then the name, each with a trailing comment, unfold
 rewrite.imports {
   selectors = unfold
@@ -15395,11 +15204,7 @@ rewrite.imports {
 import a.{b => _, *} // c1
 import a.b // c2
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,2 +1,1 @@
- import a.* // c1
--import a.b // c2
+import a.* // c1
 <<< removeRedundantSelectors, an unimport beside a wildcard, then a wildcard, each with a trailing comment, fold
 rewrite.imports {
   selectors = fold
@@ -15409,11 +15214,7 @@ rewrite.imports {
 import a.{b => _, *} // c1
 import a.* // c2
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,2 +1,1 @@
--import a.{b => _} // c1
- import a.* // c2
+import a.* // c2
 <<< removeRedundantSelectors, an unimport beside a wildcard, then a wildcard, each with a trailing comment, unfold
 rewrite.imports {
   selectors = unfold
@@ -15423,11 +15224,7 @@ rewrite.imports {
 import a.{b => _, *} // c1
 import a.* // c2
 >>>
-Idempotency violated
-=> Diff (- expected, + obtained)
-@@ -1,2 +1,1 @@
--import a.{b => _} // c1
- import a.* // c2
+import a.* // c2
 <<< removeRedundantSelectors, two unimports beside wildcards, each with a trailing comment, fold
 rewrite.imports {
   selectors = fold
@@ -15437,8 +15234,7 @@ rewrite.imports {
 import a.{b => _, *} // c1
 import a.{c => _, *} // c2
 >>>
-import a.{b => _, *} // c1
-import a.{c => _, *} // c2
+import a.* // c2
 <<< removeRedundantSelectors, two unimports beside wildcards, each with a trailing comment, unfold
 rewrite.imports {
   selectors = unfold
@@ -15448,8 +15244,7 @@ rewrite.imports {
 import a.{b => _, *} // c1
 import a.{c => _, *} // c2
 >>>
-import a.{b => _, *} // c1
-import a.{c => _, *} // c2
+import a.* // c2
 <<< removeRedundantSelectors and groups, a wildcard, then a plain given beside a wildcard, each with a trailing comment, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
