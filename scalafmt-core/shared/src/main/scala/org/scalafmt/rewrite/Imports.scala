@@ -164,26 +164,9 @@ object Imports extends RewriteFactory {
   }
 
   sealed abstract class Sort {
-    protected def sortSelectors(buf: Seq[Selector]): Iterable[Selector]
     def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry]
     def sortGroupingTail(buf: Seq[GroupingEntry]): Iterable[GroupingEntry]
-
-    def sortSelector(buf: Seq[Importee]): Iterable[Selector] = {
-      // https://docs.scala-lang.org/scala3/reference/contextual/given-imports.html
-      val others = new mutable.ListBuffer[Selector]
-      val givens = new mutable.ListBuffer[Selector]
-      val wildcards = new mutable.ListBuffer[Selector]
-      buf.foreach(x =>
-        (x match {
-          case _: Importee.Given => givens
-          case _: Importee.Wildcard | _: Importee.GivenAll => wildcards
-          case _ => others
-        }) += toSelector(x),
-      )
-      def sorted(obj: mutable.ListBuffer[Selector]) = sortSelectors(obj.result())
-      // don't sort wildcards
-      sorted(others) ++ sorted(givens) ++ wildcards
-    }
+    def sortSelector(buf: Seq[Importee]): Iterable[Selector]
 
     protected final def toSelector(tree: Importee): Selector = new Selector(tree)
   }
@@ -193,20 +176,27 @@ object Imports extends RewriteFactory {
     implicit val reader: ConfCodecEx[Sort] = ConfCodecEx
       .oneOf[Sort](none, ascii, original, scalastyle)
 
-    sealed abstract class SortNone extends Sort {
-      protected def sortSelectors(buf: Seq[Selector]): Iterable[Selector] = buf
+    abstract class ByPosition extends Sort {
+
+      /** Returns the named importees, then the others, each in source order. */
+      override final def sortSelector(buf: Seq[Importee]): Iterable[Selector] =
+        buf.sorted(NamedFirstOrdering).map(toSelector)
 
       def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] = buf
       def sortGroupingTail(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] =
         buf
+
     }
 
-    case object none extends SortNone {
-      override def sortSelector(buf: Seq[Importee]): Iterable[Selector] = buf
-        .map(toSelector)
-    }
+    case object none extends ByPosition
+    case object fold extends ByPosition
 
-    case object fold extends SortNone
+    private object NamedFirstOrdering extends Ordering[Importee] {
+      override def compare(x: Importee, y: Importee): Int = {
+        val cmp = Ordering.Boolean.compare(isNamed(y), isNamed(x))
+        if (cmp != 0) cmp else Ordering.Int.compare(x.pos.start, y.pos.start)
+      }
+    }
 
     abstract class SortBase extends Sort {
       val selectorOrdering: Ordering[String]
@@ -256,8 +246,23 @@ object Imports extends RewriteFactory {
         iter(0)
       }
 
-      protected def sortSelectors(buf: Seq[Selector]): Iterable[Selector] = buf
-        .sortBy(_.text)(selectorOrdering)
+      def sortSelector(buf: Seq[Importee]): Iterable[Selector] = {
+        // https://docs.scala-lang.org/scala3/reference/contextual/given-imports.html
+        val others = new mutable.ListBuffer[Selector]
+        val givens = new mutable.ListBuffer[Selector]
+        val wildcards = new mutable.ListBuffer[Selector]
+        buf.foreach(x =>
+          (x match {
+            case _: Importee.Given => givens
+            case _: Importee.Wildcard | _: Importee.GivenAll => wildcards
+            case _ => others
+          }) += toSelector(x),
+        )
+        def sorted(obj: mutable.ListBuffer[Selector]) = obj.result()
+          .sortBy(_.text)(selectorOrdering)
+        // don't sort wildcards
+        sorted(others) ++ sorted(givens) ++ wildcards
+      }
 
       def sortGrouping(buf: Seq[GroupingEntry]): Iterable[GroupingEntry] = buf
         .view.sorted(GroupingEntryOrdering)
@@ -319,6 +324,7 @@ object Imports extends RewriteFactory {
           .compareToIgnoreCase(y)
       }
     }
+
   }
 
   private final def isUnimport(importee: Importee): Boolean = importee
@@ -338,6 +344,9 @@ object Imports extends RewriteFactory {
 
   private final def notWildcardOrRename(importee: Importee): Boolean =
     !isAWildcard(importee) && !isARename(importee)
+
+  private final def isNamed(importee: Importee): Boolean = importee
+    .isAny[Importee.Name, Importee.Rename, Importee.Unimport]
 
   private final def filterWithImporteesToKeep(
       importeesToKeep: Set[Importee],
