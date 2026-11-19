@@ -423,6 +423,7 @@ object Imports extends RewriteFactory {
     def hasGiven: Boolean = obj.exists(isAGiven)
     def hasGivenAll: Boolean = obj.exists(isGivenAll)
     def hasRename: Boolean = obj.exists(isARename)
+    def hasPlainWildcard: Boolean = hasWildcard && !hasRename
 
     /** Whether the importer is a wildcard unit: it has a wildcard and renames
       * or unimports that limit the wildcard.
@@ -684,9 +685,14 @@ object Imports extends RewriteFactory {
         if (clauses.hasGivenAll)
           clauses = clauses.map(_.filterNot(_.is[Importee.Given]))
         clauses = removeUnimports(clauses)
-        clauses = replaceUnimports(clauses)
-        clauses = removeNamesUnderWildcard(clauses)
       }
+      // beside a plain wildcard, a unit's wildcard imports nothing more
+      if (clauses.exists(_.hasPlainWildcard)) clauses = clauses.map(x =>
+        if (x.isWildcardUnit && !keepsWildcard(x)) x
+          .filterNot(_.is[Importee.Wildcard])
+        else x,
+      )
+      if (removing) clauses = removeNamesUnderWildcard(replaceUnimports(clauses))
       clauses = removeRepeatedRenames(clauses)
       clauses.filter(_.nonEmpty)
     }
@@ -698,6 +704,13 @@ object Imports extends RewriteFactory {
         val keys = mutable.HashSet.empty[String]
         importees.filter(x => keys.add(getDuplicateKey(x)))
       }
+
+    /** Whether a wildcard unit keeps its wildcard beside any other wildcard. It
+      * does where its plain `given` reads as `given` only beside a wildcard, as
+      * in a dialect without `allowGivenUsing` (scala/scala#9736).
+      */
+    private def keepsWildcard(clause: Seq[Importee]): Boolean =
+      !ctx.dialect.allowGivenUsing && clause.hasGivenAll
 
     /** Returns the importers, keeping an unimport only if they would import
       * more without it.
