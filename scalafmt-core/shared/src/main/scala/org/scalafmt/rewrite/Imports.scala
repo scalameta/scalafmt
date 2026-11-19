@@ -371,6 +371,18 @@ object Imports extends RewriteFactory {
       .sortBy(_._1).map(_._2)
   }
 
+  private implicit class ImplicitImportees(private val obj: Seq[Importee])
+      extends AnyVal {
+
+    def hasGivenAll: Boolean = obj.exists(isGivenAll)
+
+  }
+
+  private implicit class ImplicitClauses(private val obj: Seq[Seq[Importee]])
+      extends AnyVal {
+    def hasGivenAll: Boolean = obj.exists(_.hasGivenAll)
+  }
+
   private final def filterWithImporteesToKeep(
       importeesToKeep: Set[Importee],
   )(someImportees: Seq[Importee]): Seq[Importee] =
@@ -582,12 +594,21 @@ object Imports extends RewriteFactory {
         importees: Seq[Importee],
     ): Unit = if (importees.nonEmpty) group.add(kw, ref, getSelectors(importees))
 
-    /** Returns each importer's importees without duplicates.
+    /** Returns the importees of each importer that keeps any, without
+      * duplicates and without those that other importers make redundant.
       */
     protected final def removeRedundant(
         importers: Seq[Importer],
-    ): IndexedSeq[Seq[Importee]] = importers
-      .map(x => removeDuplicates(x.importees)).toIndexedSeq
+    ): IndexedSeq[Seq[Importee]] = {
+      val removing = settings.removeRedundantSelectors
+      var clauses: IndexedSeq[Seq[Importee]] = importers.iterator
+        .map(x => removeDuplicates(x.importees)).toIndexedSeq
+      if (removing)
+        // a plain `given` covers every `given T`
+        if (clauses.hasGivenAll)
+          clauses = clauses.map(_.filterNot(_.is[Importee.Given]))
+      clauses.filter(_.nonEmpty)
+    }
 
     /** Returns the importees without duplicates, keeping the earliest. */
     private def removeDuplicates(importees: Seq[Importee]): Seq[Importee] =
@@ -934,9 +955,6 @@ object Imports extends RewriteFactory {
         case x: Importee.GivenAll =>
           ((globalGivenAll eq null) || (globalGivenAll eq x)) &&
           tryFold("given", x)(y => if (y.isEmpty) 1 else -1)
-        case _: Importee.Given
-            if settings.removeRedundantSelectors && (globalGivenAll ne null) =>
-          true
         case x => tryFold(x.text, x)(y => if (y.isEmpty) 1 else -1)
       }
 
