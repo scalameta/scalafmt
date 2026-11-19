@@ -348,6 +348,16 @@ object Imports extends RewriteFactory {
   private final def isNamed(importee: Importee): Boolean = importee
     .isAny[Importee.Name, Importee.Rename, Importee.Unimport]
 
+  /** Returns the importers in the order of their earliest importee. */
+  private final def sortImporters[A](
+      importers: Iterable[A],
+  )(importees: A => Seq[Importee]): Seq[A] = {
+    val seq = importers.toSeq
+    if (seq.lengthCompare(1) <= 0) seq
+    else seq.map(x => (importees(x).foldLeft(Int.MaxValue)(_ min _.pos.start), x))
+      .sortBy(_._1).map(_._2)
+  }
+
   private final def filterWithImporteesToKeep(
       importeesToKeep: Set[Importee],
   )(someImportees: Seq[Importee]): Seq[Importee] =
@@ -807,7 +817,8 @@ object Imports extends RewriteFactory {
         importers: Seq[Importer],
     ): Unit = {
       val clauses = importers.map(_.importees).toIndexedSeq
-      getSelectorsToWrite(clauses).foreach(group.add(kw, ref, _))
+      sortImporters(getSelectorsToWrite(clauses))(_.importees)
+        .foreach(group.add(kw, ref, _))
     }
 
     /** The importers to write, from the importees of each importer. */
