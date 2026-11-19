@@ -336,17 +336,33 @@ object Imports extends RewriteFactory {
   private final def isGivenAll(importee: Importee): Boolean = importee
     .is[Importee.GivenAll]
 
+  private final def isGiven(importee: Importee): Boolean = importee
+    .is[Importee.Given]
+
   private final def isARename(importee: Importee): Boolean =
     isUnimport(importee) || importee.is[Importee.Rename]
 
   private final def isAWildcard(importee: Importee): Boolean =
     isWildcard(importee) || isGivenAll(importee)
 
+  private final def isAGiven(importee: Importee): Boolean = isGiven(importee) ||
+    isGivenAll(importee)
+
   private final def notWildcardOrRename(importee: Importee): Boolean =
     !isAWildcard(importee) && !isARename(importee)
 
   private final def isNamed(importee: Importee): Boolean = importee
     .isAny[Importee.Name, Importee.Rename, Importee.Unimport]
+
+  private final def getRenamedMemberName(importee: Importee): Name =
+    importee match {
+      case t: Importee.Rename => t.name
+      case t: Importee.Unimport => t.name
+      case _ => null
+    }
+
+  private final def getRenamedMember(importee: Importee): String =
+    getRenamedMemberName(importee).nnMap(_.value)
 
   /** The key that duplicates share: `*` and `_` are duplicates, as are `b => x`
     * and `b as x`.
@@ -374,12 +390,30 @@ object Imports extends RewriteFactory {
   private implicit class ImplicitImportees(private val obj: Seq[Importee])
       extends AnyVal {
 
+    def hasWildcard: Boolean = obj.exists(isWildcard)
+    def hasUnimport: Boolean = obj.exists(isUnimport)
+    def hasGiven: Boolean = obj.exists(isAGiven)
     def hasGivenAll: Boolean = obj.exists(isGivenAll)
+    def importsName(member: String): Boolean = obj.exists {
+      case t: Importee.Name => t.name.value == member
+      case _ => false
+    }
+    def renames(member: String): Boolean = obj.exists {
+      case t: Importee.Rename => t.name.value == member
+      case _ => false
+    }
+    def unimports(member: String): Boolean = obj.exists {
+      case t: Importee.Unimport => t.name.value == member
+      case _ => false
+    }
+    def hides(member: String): Boolean = obj
+      .exists(getRenamedMember(_) == member)
 
   }
 
   private implicit class ImplicitClauses(private val obj: Seq[Seq[Importee]])
       extends AnyVal {
+    def hasUnimport: Boolean = obj.exists(_.hasUnimport)
     def hasGivenAll: Boolean = obj.exists(_.hasGivenAll)
   }
 
@@ -525,15 +559,12 @@ object Imports extends RewriteFactory {
       filterWithImporteesToKeep(getImporteesToKeep(seq))(seq)
     }
 
-    private final def mustUseBraces(tree: Importee): Boolean = (tree match {
-      case t: Importee.Rename => Some(t.name)
-      case t: Importee.Unimport => Some(t.name)
-      case _ => None
-    }).exists(x =>
-      // in scala3, `as` doesn't need braces
-      ctx.tokenTraverser.nextNonTrivialToken(TreeOps.lastTokenOrNull(x))
-        .is[T.RightArrow],
-    )
+    private final def mustUseBraces(tree: Importee): Boolean = {
+      val name = getRenamedMemberName(tree)
+      (null ne name) && // in scala3, `as` doesn't need braces
+      ctx.tokenTraverser.nextNonTrivialToken(TreeOps.lastTokenOrNull(name))
+        .is[T.RightArrow]
+    }
 
     protected final def getCommentsAround(tree: Tree): (Seq[T], T) =
       getCommentsBefore(tree) -> getCommentAfter(tree)
@@ -603,10 +634,12 @@ object Imports extends RewriteFactory {
       val removing = settings.removeRedundantSelectors
       var clauses: IndexedSeq[Seq[Importee]] = importers.iterator
         .map(x => removeDuplicates(x.importees)).toIndexedSeq
-      if (removing)
+      if (removing) {
         // a plain `given` covers every `given T`
         if (clauses.hasGivenAll)
           clauses = clauses.map(_.filterNot(_.is[Importee.Given]))
+        clauses = removeUnimports(clauses)
+      }
       clauses.filter(_.nonEmpty)
     }
 
@@ -616,6 +649,36 @@ object Imports extends RewriteFactory {
       else {
         val keys = mutable.HashSet.empty[String]
         importees.filter(x => keys.add(getDuplicateKey(x)))
+      }
+
+    /** Returns the importers, keeping an unimport only if they would import
+      * more without it.
+      */
+    private def removeUnimports(
+        clauses: IndexedSeq[Seq[Importee]],
+    ): IndexedSeq[Seq[Importee]] =
+      if (!clauses.hasUnimport) clauses
+      else clauses.indices.map { i =>
+        val clause = clauses(i)
+        if (!clause.hasUnimport) clause
+        else {
+          val hasOwnWildcard = clause.hasWildcard
+          val hasOwnGiven = clause.hasGiven
+          def existsOther(f: Seq[Importee] => Boolean): Boolean = clauses
+            .indices.exists(j => j != i && f(clauses(j)))
+          clause.filter {
+            case x: Importee.Unimport =>
+              val member = x.name.value
+              !clause.importsName(member) && !clause.renames(member) &&
+              (hasOwnWildcard && !existsOther(y =>
+                y.importsName(member) || y.hasWildcard && !y.hides(member),
+              ) || hasOwnGiven && !existsOther(y =>
+                y.importsName(member) || y.renames(member) ||
+                  y.hasGivenAll && !y.unimports(member),
+              ))
+            case _ => true
+          }
+        }
       }
 
     private def processImports(stats: Iterable[ImportExportStat]): String = {
@@ -943,8 +1006,6 @@ object Imports extends RewriteFactory {
           hasBoth: Int, // 0 no, 1 part of importer with both, -1 both folded previously
       )(importee: Importee): Boolean = importee match {
         case x: Importee.Name => tryFold(x.name.value, x) {
-            case Some(_: Importee.Unimport)
-                if settings.removeRedundantSelectors => 1
             case Some(_: Importee.Name) => -1
             case None
                 if settings.removeRedundantSelectors &&
@@ -960,8 +1021,7 @@ object Imports extends RewriteFactory {
             case None if hasBoth >= 0 => 1
             case _ => 0
           }
-        case x: Importee.Unimport => settings.removeRedundantSelectors &&
-          hasBoth <= 0 || tryFold(x.name.value, x) {
+        case x: Importee.Unimport => tryFold(x.name.value, x) {
             case Some(_: Importee.Unimport) => -1
             case None if hasBoth >= 0 => 1
             case _ => 0
