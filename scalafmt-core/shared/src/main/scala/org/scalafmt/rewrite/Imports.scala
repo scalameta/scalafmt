@@ -681,8 +681,23 @@ object Imports extends RewriteFactory {
     ): IndexedSeq[Seq[Importee]] = {
       val clauses = importers.iterator.map(x => removeDuplicates(x.importees))
         .toIndexedSeq
-      removeRedundantImportees(clauses)
+      removeRedundantImportees(
+        if (settings.removeRedundantSelectors) removeRepeatedImporters(clauses)
+        else clauses,
+      )
     }
+
+    /** Returns the importers without those that repeat an earlier one, whatever
+      * the order of their importees.
+      */
+    private def removeRepeatedImporters(
+        clauses: IndexedSeq[Seq[Importee]],
+    ): IndexedSeq[Seq[Importee]] =
+      if (clauses.lengthCompare(1) <= 0) clauses
+      else {
+        val seen = mutable.HashSet.empty[Set[String]]
+        clauses.filter(x => seen.add(x.iterator.map(getDuplicateKey).toSet))
+      }
 
     /** Returns the importers without the importees that other importers make
       * redundant, and without the importers left empty. An importer must not
