@@ -10,6 +10,7 @@ import scala.meta.tokens.{Token => T}
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
+import scala.collection.immutable.BitSet
 import scala.collection.mutable
 
 import metaconfig._
@@ -713,15 +714,59 @@ object Imports extends RewriteFactory {
         if (res.hasGivenAll) res = res.map(_.filterNot(isGiven))
         res = removeUnimports(res)
       }
-      // beside a plain wildcard, a unit's wildcard imports nothing more
-      if (res.exists(_.hasPlainWildcard)) res = res.map(x =>
-        if (x.isWildcardUnit && !keepsWildcard(x)) x
-          .filterNot(_.is[Importee.Wildcard])
-        else x,
-      )
+      // drop the wildcard of a unit that another wildcard covers
+      val withWildcards = res
+      val covered = getCoveredWildcards(withWildcards, removing)
+      if (covered.nonEmpty) res = withWildcards.indices.map { i =>
+        val x = withWildcards(i)
+        if (!covered(i) || !x.hasRename) x // keep a plain wildcard
+        // without its wildcard, an unimport limits only given importees
+        else if (removing && !x.hasGiven) x
+          .filterNot(_.isAny[Importee.Wildcard, Importee.Unimport])
+        else x.filterNot(isWildcard)
+      }
       if (removing) res = removeNamesUnderWildcard(replaceUnimports(res))
       res = removeRepeatedRenames(res)
       res.filter(_.nonEmpty)
+    }
+
+    /** Returns the indices of the importers whose wildcard another wildcard
+      * covers. Wildcard A covers wildcard B if A's importer hides only members
+      * that B's importer hides too. Of two wildcards whose importers hide the
+      * same members, at most one covers the other. An importer that
+      * `keepsWildcard` keeps its wildcard.
+      * @param removing
+      *   unless set, A's importer must not hide a member
+      */
+    private def getCoveredWildcards(
+        clauses: IndexedSeq[Seq[Importee]],
+        removing: Boolean,
+    ): BitSet = {
+      val wildcards = clauses.indices.filter(clauses(_).hasWildcard)
+      if (
+        wildcards.lengthCompare(2) < 0 ||
+        !removing && wildcards.forall(clauses(_).hasRename)
+      ) BitSet.empty
+      else {
+        val hidden = wildcards.map { i =>
+          val set = Set.newBuilder[String]
+          clauses(i).foreach(getRenamedMember(_).nnFor(set += _))
+          set.result()
+        }
+        val res = BitSet.newBuilder
+        wildcards.indices.foreach { a =>
+          val i = wildcards(a)
+          val h = hidden(a)
+          if (
+            !keepsWildcard(clauses(i)) && wildcards.indices.exists { b =>
+              val hb = hidden(b)
+              b != a && (removing || hb.isEmpty) && hb.subsetOf(h) &&
+              (hb.size < h.size || keepsWildcard(clauses(wildcards(b))) || b < a)
+            }
+          ) res += i
+        }
+        res.result()
+      }
     }
 
     /** Returns the importees without duplicates, keeping the earliest. */
@@ -732,7 +777,7 @@ object Imports extends RewriteFactory {
         importees.filter(x => keys.add(getDuplicateKey(x)))
       }
 
-    /** Whether a wildcard unit keeps its wildcard beside any other wildcard. It
+    /** Whether the importer keeps its wildcard beside any other wildcard. It
       * does where its plain `given` reads as `given` only beside a wildcard, as
       * in a dialect without `allowGivenUsing` (scala/scala#9736).
       */
