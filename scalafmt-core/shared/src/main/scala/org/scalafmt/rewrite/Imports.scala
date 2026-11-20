@@ -577,12 +577,13 @@ object Imports extends RewriteFactory {
       }
     }
 
-    protected final def getImporteesToKeep(
-        importees: => Iterable[Importee],
-    ): Set[Importee] =
+    protected final def getImporteesToKeep(importer: Importer): Set[Importee] =
       if (!settings.removeRedundantSelectors) Set.empty
       else {
+        val importees = importer.importees
         val res = Set.newBuilder[Importee]
+        val hasOwnWildcard = importees.hasWildcard
+        val hasOwnGivenAll = importees.hasGivenAll
         var hadWildcard = false
         var hadGivenAll = false
         val names = mutable.HashMap.empty[String, Importee.Name]
@@ -594,19 +595,17 @@ object Imports extends RewriteFactory {
           case x: Importee.GivenAll =>
             if (!hadGivenAll) { res += x; hadGivenAll = true }
           case x: Importee.Name =>
-            if (!hadWildcard) names.update(x.name.value, x)
-          case x: Importee.Given => if (!hadGivenAll) givens.update(x.text, x)
+            if (!hasOwnWildcard) names.update(x.name.value, x)
+          case x: Importee.Given => if (!hasOwnGivenAll) givens.update(x.text, x)
           case x => res += x
         }
-        if (!hadWildcard) res ++= names.values
-        if (!hadGivenAll) res ++= givens.values
+        res ++= names.values
+        res ++= givens.values
         res.result()
       }
 
-    protected final def filterImportees(importer: Importer): Seq[Importee] = {
-      val seq = importer.importees
-      filterWithImporteesToKeep(getImporteesToKeep(seq))(seq)
-    }
+    protected final def filterImportees(importer: Importer): Seq[Importee] =
+      filterWithImporteesToKeep(getImporteesToKeep(importer))(importer.importees)
 
     private final def mustUseBraces(tree: Importee): Boolean = {
       val name = getRenamedMemberName(tree)
