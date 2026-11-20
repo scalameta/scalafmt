@@ -679,24 +679,34 @@ object Imports extends RewriteFactory {
     protected final def removeRedundant(
         importers: Seq[Importer],
     ): IndexedSeq[Seq[Importee]] = {
+      val clauses = importers.iterator.map(x => removeDuplicates(x.importees))
+        .toIndexedSeq
+      removeRedundantImportees(clauses)
+    }
+
+    /** Returns the importers without the importees that other importers make
+      * redundant, and without the importers left empty. An importer must not
+      * repeat an importee of its own.
+      */
+    private def removeRedundantImportees(
+        clauses: IndexedSeq[Seq[Importee]],
+    ): IndexedSeq[Seq[Importee]] = {
       val removing = settings.removeRedundantSelectors
-      var clauses: IndexedSeq[Seq[Importee]] = importers.iterator
-        .map(x => removeDuplicates(x.importees)).toIndexedSeq
+      var res = clauses
       if (removing) {
         // a plain `given` covers every `given T`
-        if (clauses.hasGivenAll)
-          clauses = clauses.map(_.filterNot(_.is[Importee.Given]))
-        clauses = removeUnimports(clauses)
+        if (res.hasGivenAll) res = res.map(_.filterNot(isGiven))
+        res = removeUnimports(res)
       }
       // beside a plain wildcard, a unit's wildcard imports nothing more
-      if (clauses.exists(_.hasPlainWildcard)) clauses = clauses.map(x =>
+      if (res.exists(_.hasPlainWildcard)) res = res.map(x =>
         if (x.isWildcardUnit && !keepsWildcard(x)) x
           .filterNot(_.is[Importee.Wildcard])
         else x,
       )
-      if (removing) clauses = removeNamesUnderWildcard(replaceUnimports(clauses))
-      clauses = removeRepeatedRenames(clauses)
-      clauses.filter(_.nonEmpty)
+      if (removing) res = removeNamesUnderWildcard(replaceUnimports(res))
+      res = removeRepeatedRenames(res)
+      res.filter(_.nonEmpty)
     }
 
     /** Returns the importees without duplicates, keeping the earliest. */
