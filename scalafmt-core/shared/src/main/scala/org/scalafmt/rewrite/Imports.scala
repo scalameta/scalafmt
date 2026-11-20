@@ -464,6 +464,7 @@ object Imports extends RewriteFactory {
       extends AnyVal {
     def hasUnimport: Boolean = obj.exists(_.hasUnimport)
     def hasGivenAll: Boolean = obj.exists(_.hasGivenAll)
+    def hasRename: Boolean = obj.exists(_.hasRename)
   }
 
   private final def filterWithImporteesToKeep(
@@ -692,9 +693,9 @@ object Imports extends RewriteFactory {
         if (!writesEachImporter && removing) removeRepeatedImporters(clauses)
         else clauses,
       )
-      if (!writesEachImporter || !removing) kept
+      if (!removing) kept
       else {
-        val deduped = removeRepeatedGivens(kept)
+        val deduped = removeRepeatedGivens(kept, writesEachImporter)
         // an importer that lost a given may now hold redundant importees
         if (deduped eq kept) kept else removeRedundantImportees(deduped)
       }
@@ -702,41 +703,53 @@ object Imports extends RewriteFactory {
 
     /** Returns the importers without the given importees that another importer
       * makes redundant, or the importers themselves if there are none.
+      * @param keepsLastGivenT
+      *   whether the last of a `given T` and its duplicates stays, else the
+      *   earliest.
       */
     private def removeRepeatedGivens(
         clauses: IndexedSeq[Seq[Importee]],
+        keepsLastGivenT: Boolean,
     ): IndexedSeq[Seq[Importee]] = {
-      val drop = mutable.HashSet.empty[Importee]
-      val givenAll = clauses.indexWhere(_.hasGivenAll)
-      val givens = mutable.HashMap
-        .empty[String, mutable.ArrayBuffer[(Int, Importee.Given)]]
-      clauses.indices.foreach(i =>
-        clauses(i).foreach {
-          case t: Importee.GivenAll => if (i > givenAll) drop += t
-          case t: Importee.Given => givens
-              .getOrElseUpdate(t.text, new mutable.ArrayBuffer) += i -> t
-          case _ =>
-        },
-      )
-      val unimports = mutable.HashMap.empty[Int, Set[String]]
-      def unimportsOf(i: Int) = unimports.getOrElseUpdate(
-        i,
-        clauses(i).collect { case t: Importee.Unimport => t.name.value }.toSet,
-      )
-      givens.valuesIterator.foreach(seq =>
-        if (seq.lengthCompare(1) > 0) seq.indices.foreach { a =>
-          val u = unimportsOf(seq(a)._1)
-          if (
-            seq.indices.exists { b =>
-              val ub = unimportsOf(seq(b)._1)
-              b != a && ub.subsetOf(u) && (ub.size < u.size || b > a)
+      val first = clauses.indexWhere(_.hasGiven)
+      if (first < 0 || clauses.indexWhere(_.hasGiven, first + 1) < 0) clauses
+      else {
+        val givens = mutable.HashMap
+          .empty[String, mutable.ArrayBuffer[(Int, Importee)]]
+        (first until clauses.length).foreach(i =>
+          clauses(i).foreach(t =>
+            if (isAGiven(t)) givens
+              .getOrElseUpdate(getDuplicateKey(t), new mutable.ArrayBuffer) +=
+              i -> t,
+          ),
+        )
+        val unimports = new Array[Set[String]](clauses.length)
+        def unimportsOf(i: Int): Set[String] = {
+          if (unimports(i) eq null) unimports(i) = clauses(i)
+            .collect { case t: Importee.Unimport => t.name.value }.toSet
+          unimports(i)
+        }
+        val dropped = mutable.HashSet.empty[Importee]
+        givens.valuesIterator.foreach(seq =>
+          if (seq.lengthCompare(1) > 0) {
+            val keepsLast = keepsLastGivenT && isGiven(seq.head._2)
+            seq.foreach { case (i, t) =>
+              val u = unimportsOf(i)
+              if (
+                seq.exists { case (j, _) =>
+                  val uj = unimportsOf(j)
+                  j != i && uj.subsetOf(u) &&
+                  (uj.size < u.size || (if (keepsLast) j > i else j < i))
+                }
+              ) dropped += t
             }
-          ) drop += seq(a)._2
-        },
-      )
-      if (drop.isEmpty) clauses
-      else clauses
-        .map(x => if (x.exists(drop.contains)) x.filterNot(drop.contains) else x)
+          },
+        )
+        if (dropped.isEmpty) clauses
+        else clauses.map(x =>
+          if (x.exists(dropped.contains)) x.filterNot(dropped.contains) else x,
+        )
+      }
     }
 
     /** Returns the importers without those that repeat an earlier one, whatever
@@ -777,7 +790,7 @@ object Imports extends RewriteFactory {
         else x.filterNot(isWildcard)
       }
       if (removing) res = removeNamesUnderWildcard(replaceUnimports(res))
-      res = removeRepeatedRenames(res)
+      res = removeRepeatedRenames(res, removing)
       res.filter(_.nonEmpty)
     }
 
@@ -906,21 +919,36 @@ object Imports extends RewriteFactory {
 
     /** Returns the importers without each rename or unimport outside units that
       * repeats one inside a unit.
+      * @param removing
+      *   whether the importers also lose each rename or unimport outside units
+      *   that repeats an earlier one outside units
       */
     private def removeRepeatedRenames(
         clauses: IndexedSeq[Seq[Importee]],
-    ): IndexedSeq[Seq[Importee]] = {
-      val unitRenames = clauses.map(_.unitRenames)
-      val keys = mutable.HashSet.empty[String]
-      unitRenames.foreach(_.foreach(keys += getDuplicateKey(_)))
-      if (keys.isEmpty) clauses
-      else clauses.zip(unitRenames).map { case (x, inUnit) =>
-        x.filter(t =>
-          !isARename(t) || inUnit.contains(t) ||
-            !keys.contains(getDuplicateKey(t)),
-        )
+        removing: Boolean,
+    ): IndexedSeq[Seq[Importee]] =
+      if (!clauses.hasRename) clauses
+      else {
+        val unitRenames = clauses.map(_.unitRenames)
+        val keys = mutable.HashSet.empty[String]
+        unitRenames.foreach(_.foreach(keys += getDuplicateKey(_)))
+        if (keys.isEmpty && !removing) clauses
+        else {
+          val outside = mutable.HashSet.empty[String]
+          // after `replaceUnimports`, two units can have the same rename
+          def repeats(t: Importee, i: Int): Boolean = isARename(t) &&
+            !unitRenames(i).contains(t) && {
+              val key = getDuplicateKey(t)
+              keys.contains(key) || removing && !outside.add(key)
+            }
+          if (!clauses.indices.exists(i => clauses(i).exists(repeats(_, i))))
+            clauses
+          else {
+            outside.clear()
+            clauses.indices.map(i => clauses(i).filterNot(repeats(_, i)))
+          }
+        }
       }
-    }
 
     /** Returns the importers without the names that a wildcard imports. */
     private def removeNamesUnderWildcard(
@@ -1253,10 +1281,37 @@ object Imports extends RewriteFactory {
         ref: String,
         importers: Seq[Importer],
     ): Unit = {
-      val clauses = removeRedundant(importers, writesEachImporter = false)
+      val clauses = removeRepeatedNames(
+        removeRedundant(importers, writesEachImporter = false),
+      )
       sortImporters(getSelectorsToWrite(clauses, group))(_.importees)
         .foreach(group.add(kw, ref, _))
     }
+
+    /** Under `rewrite.imports.removeRedundantSelectors`, returns the importers
+      * without the names that an earlier importer imports, and without those
+      * left empty.
+      */
+    private def removeRepeatedNames(
+        clauses: IndexedSeq[Seq[Importee]],
+    ): IndexedSeq[Seq[Importee]] =
+      if (!settings.removeRedundantSelectors || clauses.lengthCompare(1) <= 0)
+        clauses
+      else {
+        val names = mutable.HashSet.empty[String]
+        val repeats = clauses.exists(_.exists {
+          case t: Importee.Name => !names.add(t.name.value)
+          case _ => false
+        })
+        if (!repeats) clauses
+        else {
+          names.clear()
+          clauses.map(_.filter {
+            case t: Importee.Name => names.add(t.name.value)
+            case _ => true
+          }).filter(_.nonEmpty)
+        }
+      }
 
     /** Returns the selectors to write for the importees left after removal. */
     protected def getSelectorsToWrite(
