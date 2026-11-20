@@ -2735,10 +2735,8 @@ import w.{given, _}
 import w.{c => d, given, _}
 >>>
 import a.{c => d, _}
-import a.{c => _, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h.{c => d}
@@ -2751,8 +2749,7 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given}
-import p.{c => d, _}
-import p.{c => d, given, _}
+import p.{c => d, _, given}
 import r.{b => _, given}
 import r._
 import s.{c => d}
@@ -2808,10 +2805,8 @@ import w.{given, _}
 import w.{c => d, given, _}
 >>>
 import a.{c => d, _}
-import a.{c => _, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h.{c => d}
@@ -2824,7 +2819,6 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given, _}
-import p.{c => d, _}
 import p.{c => d, given, _}
 import r.{b => _, given, _}
 import r._
@@ -2881,10 +2875,8 @@ import w.{given, _}
 import w.{c => d, given, _}
 >>>
 import a.{c => d, _}
-import a.{c => _, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h.{c => d}
@@ -2897,7 +2889,6 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given, _}
-import p.{c => d, _}
 import p.{c => d, given, _}
 import r.{b => _, given, _}
 import r._
@@ -2954,10 +2945,8 @@ import w.{given, _}
 import w.{c => d, given, _}
 >>>
 import a.{c => d, _}
-import a.{c => _, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h.{c => d}
@@ -3025,11 +3014,9 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-import a.{c => _, _}
 import a.{c => d, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
@@ -3042,7 +3029,6 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given}
-import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
 import r.{b => _, given}
@@ -3099,11 +3085,9 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-import a.{c => _, _}
 import a.{c => d, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
@@ -3116,7 +3100,6 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given}
-import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
 import r.{b => _, given}
@@ -3173,11 +3156,9 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-import a.{c => _, _}
 import a.{c => d, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
@@ -3190,7 +3171,6 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given}
-import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
 import r.{b => _, given}
@@ -3250,10 +3230,8 @@ import w.{given, _}
 import w.{c => d, given, _}
 >>>
 import a.{c => d, _}
-import a.{c => _, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h.{c => d}
@@ -3266,7 +3244,6 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given}
-import p.{c => d, _}
 import p.{c => d, given, _}
 import r.{b => _, given}
 import r._
@@ -3325,11 +3302,9 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-import a.{c => _, _}
 import a.{c => d, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
@@ -3342,7 +3317,6 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given}
-import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
 import r.{b => _, given}
@@ -3399,10 +3373,8 @@ import w.{given, _}
 import w.{c => d, given, _}
 >>>
 import a.{c => d, _}
-import a.{c => _, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h.{c => d}
@@ -3416,7 +3388,7 @@ import m.{given, _}
 import n._
 import n.{c => d, given}
 import p.{c => d, _}
-import p.{c => d, given, _}
+import p.given
 import r.{b => _, given}
 import r._
 import s.{c => d}
@@ -3472,10 +3444,8 @@ import w.{given, _}
 import w.{c => d, given, _}
 >>>
 import a.{c => d, _}
-import a.{c => _, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h.{c => d}
@@ -3488,7 +3458,6 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given, _}
-import p.{c => d, _}
 import p.{c => d, given, _}
 import r.{b => _, given, _}
 import r._
@@ -3545,10 +3514,8 @@ import w.{given, _}
 import w.{c => d, given, _}
 >>>
 import a.{c => d, _}
-import a.{c => _, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h.{c => d}
@@ -3561,7 +3528,6 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given, _}
-import p.{c => d, _}
 import p.{c => d, given, _}
 import r.{b => _, given, _}
 import r._
@@ -3618,10 +3584,8 @@ import w.{given, _}
 import w.{c => d, given, _}
 >>>
 import a.{c => d, _}
-import a.{c => _, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h.{c => d}
@@ -3689,11 +3653,9 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-import a.{c => _, _}
 import a.{c => d, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
@@ -3706,8 +3668,8 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given}
+import p.given
 import p.{c => d, _}
-import p.{c => d, given, _}
 import r._
 import r.{b => _, given}
 import s._
@@ -3763,11 +3725,9 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-import a.{c => _, _}
 import a.{c => d, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
@@ -3781,7 +3741,7 @@ import m.{given, _}
 import n._
 import n.{c => d, given}
 import p.{c => d, _}
-import p.{c => d, given, _}
+import p.given
 import r._
 import r.{b => _, given}
 import s._
@@ -3837,11 +3797,9 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-import a.{c => _, _}
 import a.{c => d, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
@@ -3855,7 +3813,7 @@ import m.{given, _}
 import n._
 import n.{c => d, given}
 import p.{c => d, _}
-import p.{c => d, given, _}
+import p.given
 import r._
 import r.{b => _, given}
 import s._
@@ -3914,10 +3872,8 @@ import w.{given, _}
 import w.{c => d, given, _}
 >>>
 import a.{c => d, _}
-import a.{c => _, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h.{c => d}
@@ -3931,7 +3887,7 @@ import m.{given, _}
 import n._
 import n.{c => d, given}
 import p.{c => d, _}
-import p.{c => d, given, _}
+import p.given
 import r.{b => _, given}
 import r._
 import s.{c => d}
@@ -3989,11 +3945,9 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-import a.{c => _, _}
 import a.{c => d, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
@@ -4006,8 +3960,8 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given}
+import p.given
 import p.{c => d, _}
-import p.{c => d, given, _}
 import r._
 import r.{b => _, given}
 import s._
@@ -4063,10 +4017,8 @@ import w.{given, _}
 import w.{c => d, given, _}
 >>>
 import a.{c => d, _}
-import a.{c => _, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h.{c => d}
@@ -4079,8 +4031,7 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given}
-import p.{c => d, _}
-import p.{c => d, given, _}
+import p.{c => d, _, given}
 import r.{b => _, given}
 import r._
 import s.{c => d}
@@ -4136,10 +4087,8 @@ import w.{given, _}
 import w.{c => d, given, _}
 >>>
 import a.{c => d, _}
-import a.{c => _, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h.{c => d}
@@ -4153,7 +4102,7 @@ import m.{given, _}
 import n._
 import n.{c => d, given}
 import p.{c => d, _}
-import p.{c => d, given, _}
+import p.given
 import r.{b => _, given}
 import r._
 import s.{c => d}
@@ -4361,11 +4310,9 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-import a.{c => _, _}
 import a.{c => d, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
@@ -4378,7 +4325,6 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given, _}
-import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
 import r.{b => _, given, _}
@@ -4435,11 +4381,9 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-import a.{c => _, _}
 import a.{c => d, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
@@ -4452,7 +4396,6 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given, _}
-import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
 import r.{b => _, given, _}
@@ -4509,11 +4452,9 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-import a.{c => _, _}
 import a.{c => d, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
@@ -4526,7 +4467,6 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given, _}
-import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
 import r.{b => _, given, _}
@@ -4583,11 +4523,9 @@ import v.{given, _}
 import w.{given, _}
 import w.{c => d, given, _}
 >>>
-import a.{c => _, _}
 import a.{c => d, _}
 import b.{c => d, _}
 import e.{c => d, _}
-import f.{c => _, _}
 import f.{c => d, _}
 import g._
 import h._
@@ -4600,7 +4538,6 @@ import k._
 import m.{given, _}
 import n._
 import n.{c => d, given, _}
-import p.{c => d, _}
 import p.{c => d, given, _}
 import r._
 import r.{b => _, given, _}
@@ -5812,7 +5749,7 @@ import o.{b => _, given}
 import q.{c => d, given, _}
 import y.{b => _, given, _}
 import z.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import e.{b, c}
 import f.{b, x, c}
 import h.{b => _, given, _}
@@ -6124,7 +6061,7 @@ import o.given
 import q.{c => d, _}
 import y.{b => _, _}
 import z.{b => _, _}
-import z.{b => _, c => d, _}
+import z.{c => d}
 import e.{b, c}
 import f.{b, x, c}
 import h.{b => _, _}
@@ -6254,7 +6191,7 @@ import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated statements, fold, sort original
 runner.dialect = scala3
@@ -6359,7 +6296,7 @@ import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated statements, fold, sort scalastyle
 runner.dialect = scala3
@@ -6464,7 +6401,7 @@ import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated statements, fold, sort ascii, groups, sortCatchallGroup none
 runner.dialect = scala3
@@ -6546,7 +6483,7 @@ import o.{b => _, given}
 import q.{c => d, given, _}
 import y.{b => _, given, _}
 import z.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import e.{b, c}
 import f.{b, c, x}
 import h.{b => _, given, _}
@@ -6678,7 +6615,7 @@ import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated statements, unfold, scala3
 runner.dialect = scala3
@@ -6757,7 +6694,7 @@ import o.{b => _, given}
 import q.{c => d, given, _}
 import y.{b => _, given, _}
 import z.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import e.b
 import e.c
 import f.b
@@ -7103,7 +7040,7 @@ import o.given
 import q.{c => d, _}
 import y.{b => _, _}
 import z.{b => _, _}
-import z.{b => _, c => d, _}
+import z.{c => d}
 import e.b
 import e.c
 import f.b
@@ -7255,7 +7192,7 @@ import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated statements, unfold, sort original
 runner.dialect = scala3
@@ -7370,7 +7307,7 @@ import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated statements, unfold, sort scalastyle
 runner.dialect = scala3
@@ -7485,7 +7422,7 @@ import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated statements, unfold, sort ascii, groups, sortCatchallGroup none
 runner.dialect = scala3
@@ -7567,7 +7504,7 @@ import o.{b => _, given}
 import q.{c => d, given, _}
 import y.{b => _, given, _}
 import z.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import e.b
 import e.c
 import f.b
@@ -7719,7 +7656,7 @@ import v.{c => d}
 import w._
 import w.{c => d}
 import y.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated statements, newlines.source = fold
 runner.dialect = scala3
@@ -7798,7 +7735,7 @@ import o.{b => _, given}
 import q.{c => d, given, _}
 import y.{b => _, given, _}
 import z.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import e.{b, c}
 import f.{b, x, c}
 import h.{b => _, given, _}
@@ -7902,7 +7839,7 @@ import o.{b => _, given}
 import q.{c => d, given, _}
 import y.{b => _, given, _}
 import z.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import e.b
 import e.c
 import f.b
@@ -9882,7 +9819,7 @@ import nb.{x, b => _, given}
 import nb.{x, c => _, given}
 >>>
 import z.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import ga.{b => _, given, _}
 import ga.given
 import gb.given
@@ -10054,7 +9991,7 @@ import nb.{x, b => _, given}
 import nb.{x, c => _, given}
 >>>
 import z.{b => _, _}
-import z.{b => _, c => d, _}
+import z.{c => d}
 import ga.{b => _, _}
 import gb.{b => _, _}
 import gc.{y => z}
@@ -10130,7 +10067,7 @@ import rc.{c => d, x}
 import rd.{b => _, c => d, given}
 import re.given
 import re.{c => d, x => _, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated importees, fold, sort original
 runner.dialect = scala3
@@ -10191,7 +10128,7 @@ import rc.{c => d, x}
 import rd.{b => _, c => d, given}
 import re.{c => d, x => _, _}
 import re.given
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated importees, fold, sort scalastyle
 runner.dialect = scala3
@@ -10252,7 +10189,7 @@ import rc.{c => d, x}
 import rd.{b => _, c => d, given}
 import re.{c => d, x => _, _}
 import re.given
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated importees, fold, sort ascii, groups, sortCatchallGroup none
 runner.dialect = scala3
@@ -10296,7 +10233,7 @@ import nb.{x, b => _, given}
 import nb.{x, c => _, given}
 >>>
 import z.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import ga.{b => _, given, _}
 import ga.given
 import gb.given
@@ -10378,7 +10315,7 @@ import rc.{c => d, x}
 import rd.{b => _, c => d, given}
 import re.given
 import re.{c => d, x => _, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated importees, unfold, scala3
 runner.dialect = scala3
@@ -10419,7 +10356,7 @@ import nb.{x, b => _, given}
 import nb.{x, c => _, given}
 >>>
 import z.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import ga.{b => _, given, _}
 import ga.given
 import gb.given
@@ -10618,7 +10555,7 @@ import nb.{x, b => _, given}
 import nb.{x, c => _, given}
 >>>
 import z.{b => _, _}
-import z.{b => _, c => d, _}
+import z.{c => d}
 import ga.{b => _, _}
 import gb.{b => _, _}
 import gc.{y => z}
@@ -10712,7 +10649,7 @@ import rd.{b => _, c => d, given}
 import rd.{c => d}
 import re.given
 import re.{c => d, x => _, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated importees, unfold, sort original
 runner.dialect = scala3
@@ -10782,7 +10719,7 @@ import rd.{b => _, c => d, given}
 import rd.{c => d}
 import re.{c => d, x => _, _}
 import re.given
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated importees, unfold, sort scalastyle
 runner.dialect = scala3
@@ -10852,7 +10789,7 @@ import rd.{b => _, c => d, given}
 import rd.{c => d}
 import re.{c => d, x => _, _}
 import re.given
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated importees, unfold, sort ascii, groups, sortCatchallGroup none
 runner.dialect = scala3
@@ -10896,7 +10833,7 @@ import nb.{x, b => _, given}
 import nb.{x, c => _, given}
 >>>
 import z.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import ga.{b => _, given, _}
 import ga.given
 import gb.given
@@ -10996,7 +10933,7 @@ import rd.{b => _, c => d, given}
 import rd.{c => d}
 import re.given
 import re.{c => d, x => _, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import z.{b => _, given, _}
 <<< removeRedundantSelectors, repeated importees, newlines.source = fold
 runner.dialect = scala3
@@ -11037,7 +10974,7 @@ import nb.{x, b => _, given}
 import nb.{x, c => _, given}
 >>>
 import z.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import ga.{b => _, given, _}
 import ga.given
 import gb.given
@@ -11097,7 +11034,7 @@ import nb.{x, b => _, given}
 import nb.{x, c => _, given}
 >>>
 import z.{b => _, given, _}
-import z.{b => _, c => d, given, _}
+import z.{b => _, c => d, given}
 import ga.{b => _, given, _}
 import ga.given
 import gb.given
@@ -11966,7 +11903,7 @@ export na.{x, c}
 export na.{x, c => y}
 >>>
 export z.{b => _, given, _}
-export z.{b => _, c => d, given, _}
+export z.{b => _, c => d, given}
 export ga.{b => _, given, _}
 export ga.given
 export na.{x, c}
@@ -12325,8 +12262,12 @@ import a.{b => _, given, _}
 import a.{b => _, c => d, given, _}
 import a.{b => x}
 >>>
-import a.{b => x, given, _}
-import a.{c => d, b => x, given, _}
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,2 +1,2 @@
+ import a.{b => x, given, _}
+-import a.{b => _, c => d, given}
++import a.{c => d, given}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in two units, fold, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -12392,8 +12333,12 @@ import a.{b => _, given, _}
 import a.{b => _, c => d, given, _}
 import a.{b => x}
 >>>
-import a.{b => x, given, _}
-import a.{c => d, b => x, given, _}
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,2 +1,2 @@
+ import a.{b => x, given, _}
+-import a.{b => _, c => d, given}
++import a.{c => d, given}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in two units, unfold, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -12542,9 +12487,13 @@ import a.{b => _, c => d, given, _}
 import a.{b => _, e => f, given, _}
 import a.{b => x}
 >>>
-import a.{b => x, given, _}
-import a.{c => d, b => x, given, _}
-import a.{e => f, b => x, given, _}
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,3 +1,2 @@
+ import a.{b => x, given, _}
+-import a.{b => _, c => d, given}
+-import a.{b => _, e => f, given}
++import a.{c => d, e => f, given}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in three units, fold, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -12619,9 +12568,14 @@ import a.{b => _, c => d, given, _}
 import a.{b => _, e => f, given, _}
 import a.{b => x}
 >>>
-import a.{b => x, given, _}
-import a.{c => d, b => x, given, _}
-import a.{e => f, b => x, given, _}
+Idempotency violated
+=> Diff (- expected, + obtained)
+@@ -1,3 +1,3 @@
+ import a.{b => x, given, _}
+-import a.{b => _, c => d, given}
+-import a.{b => _, e => f, given}
++import a.{c => d, given}
++import a.{e => f, given}
 <<< removeRedundantSelectors, repeated importees, a rename for unimports in three units, unfold, scala213source3
 runner.dialect = scala213source3
 rewrite.imports {
@@ -17722,7 +17676,6 @@ import a.{c => d, *}
 import a.{c => _, *} // e
 >>>
 import a.{c => d, *}
-import a.{c => _, *} // e
 <<< removeRedundantSelectors, a rename beside a wildcard, then an unimport of it beside a wildcard, with a trailing comment, unfold
 rewrite.imports {
   selectors = unfold
@@ -17733,7 +17686,6 @@ import a.{c => d, *}
 import a.{c => _, *} // e
 >>>
 import a.{c => d, *}
-import a.{c => _, *} // e
 <<< removeRedundantSelectors and groups, a rename beside a wildcard, then an unimport of it beside a wildcard, with a trailing comment
 rewrite.imports {
   removeRedundantSelectors = true
