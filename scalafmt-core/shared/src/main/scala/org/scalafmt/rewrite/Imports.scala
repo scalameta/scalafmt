@@ -395,10 +395,6 @@ object Imports extends RewriteFactory {
     * because in one importer they would mean something else.
     */
   private final def isConflict(a: Importee, b: Importee): Boolean = a match {
-    /* scalameta reads a `Scala213Source3` `given` without a wildcard as a
-     * name, so it can join a wildcard here. Beside a wildcard, scalameta
-     * reads it as a plain `given` on the next pass, and the output changes.
-     */
     case _: Importee.Wildcard => isARename(b)
     case _: Importee.Given | _: Importee.GivenAll => b.is[Importee.Unimport]
     case _ => b match {
@@ -841,12 +837,21 @@ object Imports extends RewriteFactory {
         importees.filter(x => keys.add(getDuplicateKey(x)))
       }
 
-    /** Whether the importer keeps its wildcard beside any other wildcard. It
-      * does where its plain `given` reads as `given` only beside a wildcard, as
-      * in a dialect without `allowGivenUsing` (scala/scala#9736).
-      */
+    /** Whether the importer keeps its wildcard beside any other wildcard. */
     private def keepsWildcard(clause: Seq[Importee]): Boolean =
-      !ctx.dialect.allowGivenUsing && clause.hasGivenAll
+      ctx.dialect.allowGivenImports && clause.hasGivenAll
+
+    /** Returns the index of the importer whose plain wildcard stays, or -1 if
+      * none has one.
+      */
+    protected final def getKeptWildcard(
+        clauses: IndexedSeq[Seq[Importee]],
+    ): Int = {
+      val pair =
+        if (!ctx.dialect.allowGivenImports) -1
+        else clauses.indexWhere(x => x.hasGivenAll && x.hasPlainWildcard)
+      if (pair >= 0) pair else clauses.indexWhere(_.hasPlainWildcard)
+    }
 
     /** Returns the importers, keeping an unimport only if they would import
       * more without it.
@@ -1166,19 +1171,20 @@ object Imports extends RewriteFactory {
       res
     }
 
-    /** Returns the importers with one plain wildcard: that of the earliest
-      * importer with a plain `given` and a plain wildcard, else the earliest. A
-      * plain `given` beside a removed wildcard goes too.
+    /** Returns the importers without their plain wildcards, except that of
+      * `getKeptWildcard`. If the dialect has `allowGivenImports`, the importers
+      * also lose the plain `given` beside each removed wildcard.
       */
     private def removeRepeatedWildcards(
         clauses: IndexedSeq[Seq[Importee]],
     ): IndexedSeq[Seq[Importee]] = {
-      val pair = clauses.indexWhere(x => x.hasGivenAll && x.hasPlainWildcard)
-      val keep = if (pair >= 0) pair else clauses.indexWhere(_.hasPlainWildcard)
-      if (keep < 0) clauses
+      val isRemoved: Importee => Boolean =
+        if (ctx.dialect.allowGivenImports) isAWildcard else isWildcard
+      val kept = getKeptWildcard(clauses)
+      if (kept < 0) clauses
       else clauses.indices.map { i =>
         val x = clauses(i)
-        if (i == keep || !x.hasPlainWildcard) x else x.filterNot(isAWildcard)
+        if (i == kept || !x.hasPlainWildcard) x else x.filterNot(isRemoved)
       }
     }
 
@@ -1190,7 +1196,8 @@ object Imports extends RewriteFactory {
         dst: mutable.ArrayBuffer[Selectors],
     ): Unit = {
       val wildcards = clause.count(isAWildcard)
-      val keepTogether = wildcards > 1 || wildcards != 0 && clause.hasRename
+      val keepTogether = wildcards > 1 && ctx.dialect.allowGivenImports ||
+        wildcards != 0 && clause.hasRename
       val givenUnit = clause.isGivenUnit
       if (!keepTogether && !givenUnit) clause.foreach(x => dst += getSelector(x))
       else {
@@ -1232,19 +1239,13 @@ object Imports extends RewriteFactory {
     }
 
     /** Returns the importers without the importees that repeat those of another
-      * importer. One plain wildcard stays: the one beside the plain `given` in
-      * a Source3 dialect, else the earliest. Of each name, the last stays.
+      * importer. One plain wildcard stays, that of `getKeptWildcard`. Of each
+      * name, the last stays.
       */
     private def removeRepeats(
         clauses: IndexedSeq[Seq[Importee]],
     ): IndexedSeq[Seq[Importee]] = {
-      // in Source3, a plain `given` reads as one only beside a wildcard
-      val givenAll =
-        if (ctx.dialect.allowGivenUsing) -1
-        else clauses.indexWhere(_.hasGivenAll)
-      val plain =
-        if (givenAll >= 0 && clauses(givenAll).hasPlainWildcard) givenAll
-        else clauses.indexWhere(_.hasPlainWildcard)
+      val kept = getKeptWildcard(clauses)
       val last = mutable.HashMap.empty[String, Importee.Name]
       clauses.foreach(_.foreach {
         case t: Importee.Name => last.update(t.name.value, t)
@@ -1252,7 +1253,7 @@ object Imports extends RewriteFactory {
       })
       clauses.indices.map { i =>
         val x = clauses(i)
-        val dropsWildcard = i != plain && x.hasPlainWildcard
+        val dropsWildcard = i != kept && x.hasPlainWildcard
         x.filter {
           case _: Importee.Wildcard => !dropsWildcard
           case t: Importee.Name => last.getOrElse(t.name.value, null) eq t
@@ -1371,13 +1372,8 @@ object Imports extends RewriteFactory {
         clauses: IndexedSeq[Seq[Importee]],
         sorting: Ordering[String],
     ): Iterable[Selectors] = {
-      val pairWildcards = mutable.HashSet.empty[Importee]
       val items = new mutable.ArrayBuffer[Seq[Importee]]
-      clauses.foreach { x =>
-        if (x.hasPlainWildcard && x.hasGivenAll) pairWildcards ++=
-          x.filter(_.is[Importee.Wildcard])
-        splitByMember(x, items)
-      }
+      clauses.foreach(splitByMember(_, items))
       val packed = new mutable.ArrayBuffer[mutable.ArrayBuffer[Importee]]
       // selectors of an output importer made of one item, else null
       val selectorsOf = new mutable.ArrayBuffer[Selectors]
@@ -1390,12 +1386,7 @@ object Imports extends RewriteFactory {
       if (null ne sorting) items.map(getSelectors(_)).sortBy(_.raw)(sorting)
         .foreach(x => place(x.importees, x))
       else sortImporters(items)(identity).foreach(place(_, null)) // no selectors yet
-      // duplicates keep the earliest, or the wildcard paired with a plain given
-      def precedes(x: Importee, y: Importee): Boolean = {
-        val pair = pairWildcards.contains(x)
-        if (pair != pairWildcards.contains(y)) pair
-        else x.pos.start < y.pos.start
-      }
+      // duplicates keep the earliest
       packed.indices.map { i =>
         val selectors = selectorsOf(i)
         if (selectors ne null) selectors
@@ -1404,7 +1395,8 @@ object Imports extends RewriteFactory {
           packed(i).foreach { t =>
             val key = getDuplicateKey(t)
             val y = duplicates.getOrElse(key, null)
-            if ((y eq null) || !precedes(y, t)) duplicates.update(key, t)
+            if ((y eq null) || t.pos.start < y.pos.start) duplicates
+              .update(key, t)
           }
           getSelectors(duplicates.values.toSeq)
         }
