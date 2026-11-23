@@ -14525,7 +14525,7 @@ rewrite.imports {
 ===
 import a.{b, *} // c
 >>>
-import a.*
+import a.* // c
 <<< removeRedundantSelectors, a name beside a wildcard, with a trailing comment, unfold
 rewrite.imports {
   selectors = unfold
@@ -14534,21 +14534,21 @@ rewrite.imports {
 ===
 import a.{b, *} // c
 >>>
-import a.*
+import a.* // c
 <<< removeRedundantSelectors, a name beside a wildcard, with a trailing comment, newlines.source = fold
 newlines.source = fold
 rewrite.imports.removeRedundantSelectors = true
 ===
 import a.{b, *} // c
 >>>
-import a.*
+import a.* // c
 <<< removeRedundantSelectors, a name beside a wildcard, with a trailing comment, newlines.source = unfold
 newlines.source = unfold
 rewrite.imports.removeRedundantSelectors = true
 ===
 import a.{b, *} // c
 >>>
-import a.*
+import a.* // c
 <<< removeRedundantSelectors and groups, a name beside a wildcard, with a trailing comment
 rewrite.imports {
   removeRedundantSelectors = true
@@ -14557,7 +14557,7 @@ rewrite.imports {
 ===
 import a.{b, *} // c
 >>>
-import a.*
+import a.* // c
 <<< a name beside a wildcard, with a trailing comment, removeRedundantSelectors only
 rewrite.imports.removeRedundantSelectors = true
 ===
@@ -14573,7 +14573,7 @@ rewrite.imports {
 ===
 import a.{b, _} // c
 >>>
-import a._
+import a._ // c
 <<< removeRedundantSelectors, export, a name beside a wildcard, with a trailing comment, fold
 rewrite.imports {
   selectors = fold
@@ -14582,7 +14582,7 @@ rewrite.imports {
 ===
 export a.{b, *} // c
 >>>
-export a.*
+export a.* // c
 <<< removeRedundantSelectors, a name beside a wildcard, with a trailing comment after the comma, fold
 rewrite.imports {
   selectors = fold
@@ -14592,7 +14592,7 @@ rewrite.imports {
 import a.{b, *}, // c
   d.e
 >>>
-import a.*
+import a.* // c
 import d.e
 <<< removeRedundantSelectors, a name beside a wildcard, with a trailing comment after the comma, unfold
 rewrite.imports {
@@ -14603,7 +14603,7 @@ rewrite.imports {
 import a.{b, *}, // c
   d.e
 >>>
-import a.*
+import a.* // c
 import d.e
 <<< removeRedundantSelectors and groups, a name beside a wildcard, with a trailing comment after the comma
 rewrite.imports {
@@ -14614,7 +14614,7 @@ rewrite.imports {
 import a.{b, *}, // c
   d.e
 >>>
-import a.*
+import a.* // c
 import d.e
 <<< a name beside a wildcard, with a trailing comment after the comma, removeRedundantSelectors only
 rewrite.imports.removeRedundantSelectors = true
@@ -14632,7 +14632,7 @@ rewrite.imports {
 ===
 import a.{given X, given} // c
 >>>
-import a.given
+import a.given // c
 <<< removeRedundantSelectors, a given by type beside a plain given, with a trailing comment, unfold
 rewrite.imports {
   selectors = unfold
@@ -14641,7 +14641,7 @@ rewrite.imports {
 ===
 import a.{given X, given} // c
 >>>
-import a.given
+import a.given // c
 <<< removeRedundantSelectors and groups, a given by type beside a plain given, with a trailing comment
 rewrite.imports {
   removeRedundantSelectors = true
@@ -14650,7 +14650,7 @@ rewrite.imports {
 ===
 import a.{given X, given} // c
 >>>
-import a.given
+import a.given // c
 <<< removeRedundantSelectors, a name, then the name beside another, each with a trailing comment, fold
 rewrite.imports {
   selectors = fold
@@ -14660,6 +14660,7 @@ rewrite.imports {
 import a.c // y
 import a.{b, c} // x
 >>>
+// x
 import a.{
   c, // y
   b
@@ -14674,7 +14675,7 @@ import a.c // y
 import a.{b, c} // x
 >>>
 import a.c // y
-import a.b
+import a.b // x
 <<< removeRedundantSelectors and groups, a name, then the name beside another, each with a trailing comment
 rewrite.imports {
   removeRedundantSelectors = true
@@ -14691,6 +14692,7 @@ rewrite.imports.selectors = fold
 import a.c // y
 import a.{b, c} // x
 >>>
+// x
 import a.{
   c, // y
   b
@@ -14715,7 +14717,7 @@ import a.{b, d} // y
 >>>
 import a.b
 import a.c // x
-import a.d
+import a.d // y
 <<< removeRedundantSelectors and groups, two importers sharing a name, each with a trailing comment
 rewrite.imports {
   removeRedundantSelectors = true
@@ -14725,7 +14727,7 @@ rewrite.imports {
 import a.{b, c} // x
 import a.{b, d} // y
 >>>
-import a.c
+import a.c // x
 import a.{b, d} // y
 <<< two importers sharing a name, each with a trailing comment, fold
 rewrite.imports.selectors = fold
@@ -14733,6 +14735,7 @@ rewrite.imports.selectors = fold
 import a.{b, c} // x
 import a.{b, d} // y
 >>>
+// y
 import a.{b, c, d} // x
 <<< a name, then the name beside another, then two others, the last two with a trailing comment, fold
 rewrite.imports.selectors = fold
@@ -14741,6 +14744,7 @@ import a.b
 import a.{b, c} // x
 import a.{d, e} // y
 >>>
+// x
 import a.{b, c, d, e} // y
 <<< a name, then the name beside another, then two others, the last two with a trailing comment, unfold
 rewrite.imports.selectors = unfold
@@ -14762,6 +14766,7 @@ import a.b
 import a.{b, c} // x
 import a.{d, e} // y
 >>>
+// x
 import a.{b, c, d, e} // y
 <<< removeRedundantSelectors and groups, a name, then the name beside another, then two others, the last two with a trailing comment
 rewrite.imports {
@@ -14785,6 +14790,7 @@ import a.{d, e} // y
 import a.b
 import a.{b, c} // x
 >>>
+// x
 import a.{b, c, d, e} // y
 <<< removeRedundantSelectors, a name, then the name beside another, then two others, the last two with a trailing comment, unfold
 rewrite.imports {
@@ -14797,7 +14803,7 @@ import a.{b, c} // x
 import a.{d, e} // y
 >>>
 import a.b
-import a.c
+import a.c // x
 import a.d
 import a.e // y
 <<< a name, then the name beside another, then the name beside a third, the last two with a trailing comment, fold
@@ -14807,19 +14813,20 @@ import a.b
 import a.{b, c} // x
 import a.{b, d} // y
 >>>
-import a.{b, c, d}
+// y
+import a.{b, c, d} // x
 <<< a name twice in one importer, with a trailing comment, fold
 rewrite.imports.selectors = fold
 ===
 import a.{b, b} // c
 >>>
-import a.b
+import a.b // c
 <<< a name twice in one importer, with a trailing comment, unfold
 rewrite.imports.selectors = unfold
 ===
 import a.{b, b} // c
 >>>
-import a.b
+import a.b // c
 <<< two importers, each with a trailing comment, fold
 rewrite.imports.selectors = fold
 ===
@@ -15166,7 +15173,7 @@ rewrite.imports {
 import a.{x => _, *} // c
 import a.{x => y}
 >>>
-import a.{x => y, *}
+import a.{x => y, *} // c
 <<< removeRedundantSelectors, a rename, then the rename beside a name, with a trailing comment, fold
 rewrite.imports {
   selectors = fold
@@ -15176,7 +15183,7 @@ rewrite.imports {
 import a.{b => c}
 import a.{b => c, d} // x
 >>>
-import a.{b => c, d}
+import a.{b => c, d} // x
 <<< removeRedundantSelectors, a rename, then the rename beside a name, with a trailing comment, unfold
 rewrite.imports {
   selectors = unfold
@@ -15187,7 +15194,7 @@ import a.{b => c}
 import a.{b => c, d} // x
 >>>
 import a.{b => c}
-import a.d
+import a.d // x
 <<< removeRedundantSelectors and groups, a rename, then the rename beside a name, with a trailing comment
 rewrite.imports {
   removeRedundantSelectors = true
@@ -15212,6 +15219,7 @@ import a.{
 } // x
 >>>
 import a.c
+// x
 import a.b // y
 <<< removeRedundantSelectors and groups, a name twice in one importer, with a trailing comment
 rewrite.imports {
@@ -15221,7 +15229,7 @@ rewrite.imports {
 ===
 import a.{b, b} // c
 >>>
-import a.b
+import a.b // c
 <<< two importers, each with a trailing comment, newlines.source = fold
 newlines.source = fold
 ===
@@ -15262,7 +15270,7 @@ import a.{c => d, *}
 import a.{c => _, *} // e
 >>>
 import a.{c => d, *}
-import a.{c => _}
+import a.{c => _} // e
 <<< removeRedundantSelectors, an unimport beside a wildcard, with a trailing comment, then the name, fold
 rewrite.imports {
   selectors = fold
@@ -15275,8 +15283,8 @@ import a.b
 Idempotency violated
 => Diff (- expected, + obtained)
 @@ -1,1 +1,1 @@
--import a.{b, *}
-+import a.*
+-import a.{b, *} // c
++import a.* // c
 <<< removeRedundantSelectors, an unimport beside a wildcard, with a trailing comment, then the name, unfold
 rewrite.imports {
   selectors = unfold
@@ -15289,7 +15297,7 @@ import a.b
 Idempotency violated
 => Diff (- expected, + obtained)
 @@ -1,2 +1,1 @@
- import a.*
+ import a.* // c
 -import a.b
 <<< removeRedundantSelectors and groups, an unimport beside a wildcard, with a trailing comment, then the name
 rewrite.imports {
@@ -15371,12 +15379,13 @@ import a.b // c2
 >>>
 Idempotency violated
 => Diff (- expected, + obtained)
-@@ -1,4 +1,1 @@
+@@ -1,5 +1,2 @@
+ // c1
 -import a.{
 -  b, // c2
 -  *
 -} // c2
-+import a.*
++import a.* // c2
 <<< removeRedundantSelectors, an unimport beside a wildcard, then the name, each with a trailing comment, unfold
 rewrite.imports {
   selectors = unfold
@@ -15389,7 +15398,7 @@ import a.b // c2
 Idempotency violated
 => Diff (- expected, + obtained)
 @@ -1,2 +1,1 @@
- import a.*
+ import a.* // c1
 -import a.b // c2
 <<< removeRedundantSelectors, an unimport beside a wildcard, then a wildcard, each with a trailing comment, fold
 rewrite.imports {
@@ -15403,7 +15412,7 @@ import a.* // c2
 Idempotency violated
 => Diff (- expected, + obtained)
 @@ -1,2 +1,1 @@
--import a.{b => _}
+-import a.{b => _} // c1
  import a.* // c2
 <<< removeRedundantSelectors, an unimport beside a wildcard, then a wildcard, each with a trailing comment, unfold
 rewrite.imports {
@@ -15417,7 +15426,7 @@ import a.* // c2
 Idempotency violated
 => Diff (- expected, + obtained)
 @@ -1,2 +1,1 @@
--import a.{b => _}
+-import a.{b => _} // c1
  import a.* // c2
 <<< removeRedundantSelectors, two unimports beside wildcards, each with a trailing comment, fold
 rewrite.imports {
@@ -15455,7 +15464,7 @@ Idempotency violated
 => Diff (- expected, + obtained)
 @@ -1,2 +1,1 @@
  import a._ // c1
--import a.given
+-import a.given // c2
 <<< removeRedundantSelectors and groups, a rename beside a wildcard with comments of their own, then a wildcard
 rewrite.imports {
   removeRedundantSelectors = true
@@ -15513,7 +15522,7 @@ rewrite.imports {
 import a.{b => _, given T} // c1
 import a.{b => _, c => _, given T} // c2
 >>>
-import a.{b => _}
+import a.{b => _} // c1
 import a.{b => _, c => _, given T} // c2
 <<< removeRedundantSelectors, a name, then the name and its rename beside a wildcard, each with a trailing comment, fold
 rewrite.imports {
@@ -15525,7 +15534,7 @@ import a.b // c1
 import a.{b, b => z, *} // c2
 >>>
 import a.b // c1
-import a.{b => z, *}
+import a.{b => z, *} // c2
 <<< removeRedundantSelectors, a wildcard, then a name after a comment beside another qualifier, fold
 rewrite.imports {
   selectors = fold
@@ -15563,7 +15572,7 @@ import a.{
   c
 } // c2
 >>>
-import a.c
+import a.c // c2
 <<< removeRedundantSelectors, a name, then an unimport with a trailing comment beside the name, fold
 rewrite.imports {
   selectors = fold

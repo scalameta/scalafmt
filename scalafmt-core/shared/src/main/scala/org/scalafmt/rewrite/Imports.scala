@@ -651,7 +651,17 @@ object Imports extends RewriteFactory {
       }
       foldMap.foreach { case ((kw, ref), v) => addToGroup(kw, ref, v.toList) }
 
+      val groupEntries = groups.map(_.result())
+      val countsToWrite = mutable.HashMap.empty[Importer, Int]
+      val countImportee: Importee => Unit = _.parent match {
+        case Some(p: Importer) =>
+          countsToWrite(p) = countsToWrite.getOrElse(p, 0) + 1
+        case _ =>
+      }
+      groupEntries.foreach(_.foreach(_.selectors.importees.foreach(countImportee)))
       val seenImports = mutable.HashMap.empty[Importer, Int]
+      val partialComments = mutable.ListBuffer.empty[T]
+      val appendPartialComment: T => Unit = partialComments += _
       val sb = new StringBuilder()
       @inline
       def appendIndent(): Unit = if (sb.nonEmpty) sb.append(indent)
@@ -665,8 +675,11 @@ object Imports extends RewriteFactory {
         case Some(p: Importer) =>
           val newSeen = seenImports.updateWith(p)(x => Some(1 + x.getOrElse(0)))
           val isHead = newSeen.contains(1)
-          val isLast = newSeen.contains(p.importees.length)
-          if (isLast) getCommentAfter(p).nnFor(appendTailComment)
+          val isLast = newSeen.contains(countsToWrite.getOrElse(p, 0))
+          if (isLast) getCommentAfter(p).nnFor(
+            if (newSeen.contains(p.importees.length)) appendTailComment
+            else appendPartialComment,
+          )
           p.parent match {
             case Some(pp: ImportExportStat) =>
               if (isHead && pp.importers.headOption.contains(p))
@@ -677,7 +690,7 @@ object Imports extends RewriteFactory {
         case _ =>
       }
 
-      val groupsIterator = groups.iterator
+      val groupsIterator = groupEntries.iterator
       def sortGroup(entries: Seq[GroupingEntry]): Iterable[GroupingEntry] = {
         val sortCatchallGroup =
           if (groupsIterator.hasNext || settings.numGroups == 0)
@@ -690,8 +703,7 @@ object Imports extends RewriteFactory {
         }
       }
 
-      groupsIterator.foreach { group =>
-        val entries = group.result()
+      groupsIterator.foreach { entries =>
         if (entries.nonEmpty) {
           if (sb.nonEmpty) sb.appendNL
           // sort and add empty line in all groups
@@ -701,6 +713,11 @@ object Imports extends RewriteFactory {
             val appendTailComment: T => Unit = commentsAfterBuilder += _
             importees.foreach(processImporteeComments(appendTailComment))
             commentsBefore.foreach(appendComment)
+            // prefer the comment of an importer that we write whole
+            if (partialComments.nonEmpty) {
+              commentsAfterBuilder ++= partialComments
+              partialComments.clear()
+            }
             val commentsAfter = commentsAfterBuilder.result().iterator
             val trailingComment = commentAfter ?? {
               if (commentsAfter.hasNext) commentsAfter.next() else null

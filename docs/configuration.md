@@ -4090,6 +4090,8 @@ or selector, as follows:
 - all consecutive standalone comments before (no blank lines and not
   following some other token)
 - the comment right after (possibly after a comma), on the same line
+  - an importer's trailing comment stays if at least one of its selectors
+    stays (see the terminology below)
 - only single-line (`//`) comments are supported; multiline (`/*`) comments
   will not be moved and in many cases will likely be removed instead
 
@@ -4117,7 +4119,9 @@ It takes the following values:
 - `fold`: will group selectors from multiple import statements sharing the same
   keyword (`import` or `export`) and the same reference (the part before the
   last dot) into a single statement
-  - it will keep import statements which have a trailing comment as-is
+  - it also folds importers with a trailing comment: one such comment stays
+    after the folded statement, and the others go on lines of their own above
+    it
   - [`binPack.importSelectors`](#binpackimportselectors) may not be `singleLine`
     as it might result in a very long line
 - `unfold`: will attempt to create a separate line for each selector (was: `expand = true`)
