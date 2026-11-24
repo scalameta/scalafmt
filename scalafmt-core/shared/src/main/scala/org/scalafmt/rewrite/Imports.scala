@@ -1035,7 +1035,8 @@ object Imports extends RewriteFactory {
           val newSeen = seenImports.updateWith(p)(x => Some(1 + x.getOrElse(0)))
           val isHead = newSeen.contains(1)
           val isLast = newSeen.contains(countsToWrite.getOrElse(p, 0))
-          if (isLast) getCommentAfter(p).nnFor(
+          // for `a.b // c`, we write `// c` with the selector `b`
+          if (isLast && p.pos.end != tree.pos.end) getCommentAfter(p).nnFor(
             if (newSeen.contains(p.importees.length)) appendTailComment
             else appendPartialComment,
           )
