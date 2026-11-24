@@ -394,15 +394,25 @@ object Imports extends RewriteFactory {
   /** Whether two importees of different importers must not share an importer,
     * because in one importer they would mean something else.
     */
-  private final def isConflict(a: Importee, b: Importee): Boolean = a match {
-    case _: Importee.Wildcard => isARename(b)
-    case _: Importee.Given | _: Importee.GivenAll => b.is[Importee.Unimport]
+  private final def isConflict(a: Importee, b: Importee)(implicit
+      dialect: Dialect,
+  ): Boolean = a match {
+    case _: Importee.Wildcard => isConflictWithWildcard(b)
+    case _: Importee.Given | _: Importee.GivenAll => isConflictWithGiven(b)
     case _ => b match {
-        case _: Importee.Wildcard => isARename(a)
-        case _: Importee.Given | _: Importee.GivenAll => a.is[Importee.Unimport]
+        case _: Importee.Wildcard => isConflictWithWildcard(a)
+        case _: Importee.Given | _: Importee.GivenAll => isConflictWithGiven(a)
         case _ => getMember(a) == getMember(b) && getRename(a) != getRename(b)
       }
   }
+
+  private final def isConflictWithWildcard(
+      b: Importee,
+  )(implicit dialect: Dialect): Boolean = isARename(b) ||
+    // beside a wildcard, a Name `given` would be parsed as a GivenAll
+    dialect.allowGivenImports && getMember(b) == "given"
+
+  private final def isConflictWithGiven(b: Importee): Boolean = isUnimport(b)
 
   /** Returns the importers in the order of their earliest importee. */
   private final def sortImporters[A](
