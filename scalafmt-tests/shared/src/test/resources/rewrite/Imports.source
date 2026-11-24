@@ -17004,6 +17004,7 @@ import a.*
 import a.b, d.e
 >>>
 import a.*
+// c
 import d.e
 <<< removeRedundantSelectors, a wildcard, then a comment and a name beside another qualifier, unfold
 rewrite.imports {
@@ -17016,6 +17017,7 @@ import a.*
 import a.b, d.e
 >>>
 import a.*
+// c
 import d.e
 <<< removeRedundantSelectors and groups, a wildcard, then a comment and a name beside another qualifier
 rewrite.imports {
@@ -17028,6 +17030,7 @@ import a.*
 import a.b, d.e
 >>>
 import a.*
+// c
 import d.e
 <<< removeRedundantSelectors, a wildcard, then a comment and a name beside another qualifier, newlines.source = fold
 newlines.source = fold
@@ -17038,6 +17041,7 @@ import a.*
 import a.b, d.e
 >>>
 import a.*
+// c
 import d.e
 <<< removeRedundantSelectors and sort, a wildcard, then a comment and a name beside another qualifier
 rewrite.imports {
@@ -17050,6 +17054,7 @@ import z.*
 // c
 import z.b, d.e
 >>>
+// c
 import d.e
 import z.*
 <<< removeRedundantSelectors and sort, a wildcard, then a comment and a name beside two other qualifiers
@@ -17065,6 +17070,7 @@ import a.b, z.y, d.e
 >>>
 import a.*
 import d.e
+// c
 import z.y
 <<< removeRedundantSelectors, a wildcard, then a comment and two names beside another qualifier, fold
 rewrite.imports {
@@ -17077,6 +17083,7 @@ import a.*
 import a.b, a.c, d.e
 >>>
 import a.*
+// c
 import d.e
 <<< removeRedundantSelectors, a wildcard, then a comment and two names beside another qualifier, unfold
 rewrite.imports {
@@ -17089,6 +17096,7 @@ import a.*
 import a.b, a.c, d.e
 >>>
 import a.*
+// c
 import d.e
 <<< removeRedundantSelectors, a wildcard, then a comment and two names, fold
 rewrite.imports {
@@ -17120,6 +17128,7 @@ import a.b
 import a.b, d.e
 >>>
 import a.b
+// c
 import d.e
 <<< a name, then a comment and the name beside another qualifier, unfold
 rewrite.imports.selectors = unfold
@@ -17140,6 +17149,7 @@ import a.b
 import a.b, d.e
 >>>
 import a.b
+// c
 import d.e
 <<< removeRedundantSelectors, an importer twice, each with a trailing comment, unfold
 rewrite.imports {
