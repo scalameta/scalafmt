@@ -11,9 +11,7 @@ import java.util.LinkedList
 import java.util.regex.Pattern
 
 import scala.annotation.tailrec
-import scala.collection.mutable.{
-  ArrayBuffer, HashMap, HashSet, LinkedHashMap, ListBuffer,
-}
+import scala.collection.mutable
 
 import metaconfig._
 
@@ -142,8 +140,8 @@ object Imports extends RewriteFactory {
   )
 
   private class Grouping(
-      buffer: ListBuffer[GroupingEntry] = ListBuffer.empty,
-      stats: HashSet[String] = HashSet.empty,
+      buffer: mutable.ListBuffer[GroupingEntry] = mutable.ListBuffer.empty,
+      stats: mutable.HashSet[String] = mutable.HashSet.empty,
   ) {
     def add(kw: String, ref: String, selectors: Selectors): Unit = {
       val stat = s"$kw $ref${selectors.pretty}"
@@ -170,9 +168,9 @@ object Imports extends RewriteFactory {
 
     def sortSelector(buf: Seq[Importee]): Iterable[(Importee, String)] = {
       // https://docs.scala-lang.org/scala3/reference/contextual/given-imports.html
-      val others = new ListBuffer[(Importee, String)]
-      val givens = new ListBuffer[(Importee, String)]
-      val wildcards = new ListBuffer[(Importee, String)]
+      val others = new mutable.ListBuffer[(Importee, String)]
+      val givens = new mutable.ListBuffer[(Importee, String)]
+      val wildcards = new mutable.ListBuffer[(Importee, String)]
       buf.foreach(x =>
         (x match {
           case _: Importee.Given => givens
@@ -180,7 +178,8 @@ object Imports extends RewriteFactory {
           case _ => others
         }) += selectorToTuple(x),
       )
-      def sorted(obj: ListBuffer[(Importee, String)]) = sortSelectors(obj.result())
+      def sorted(obj: mutable.ListBuffer[(Importee, String)]) =
+        sortSelectors(obj.result())
       // don't sort wildcards
       Iterable.concat(sorted(others), sorted(givens), wildcards)
     }
@@ -372,7 +371,7 @@ object Imports extends RewriteFactory {
 
     private def processStats(stats: Seq[Stat]): Unit = {
       val seqSeqBuilder = Seq.newBuilder[Seq[ImportExportStat]]
-      val seqBuffer = new ArrayBuffer[ImportExportStat]
+      val seqBuffer = new mutable.ArrayBuffer[ImportExportStat]
 
       def flush() = if (seqBuffer.nonEmpty) {
         seqSeqBuilder += seqBuffer.toList
@@ -469,8 +468,8 @@ object Imports extends RewriteFactory {
         val res = Set.newBuilder[Importee]
         var hadWildcard = false
         var hadGivenAll = false
-        val names = HashMap.empty[String, Importee.Name]
-        val givens = HashMap.empty[String, Importee.Given]
+        val names = mutable.HashMap.empty[String, Importee.Name]
+        val givens = mutable.HashMap.empty[String, Importee.Given]
         importees.foreach {
           case x: Importee.Wildcard =>
             if (!hadWildcard) { res += x; hadWildcard = true }
@@ -506,7 +505,7 @@ object Imports extends RewriteFactory {
 
     protected final def getCommentsBefore(tok: T): Seq[T] = {
       var hadLf = false
-      val slc = new ListBuffer[T]
+      val slc = new mutable.ListBuffer[T]
       ctx.tokenTraverser.findAtOrBefore(ctx.getIndex(tok) - 1) {
         case t: T.AtEOL =>
           if (hadLf || t.newlines > 1) MaybeBool.True
@@ -578,7 +577,8 @@ object Imports extends RewriteFactory {
       }
       val folding = settings.removeRedundantSelectors ||
         (ctx.style.importSelectorsRewrite eq Newlines.fold)
-      val foldMap = LinkedHashMap.empty[(String, String), ListBuffer[Importer]]
+      val foldMap = mutable.LinkedHashMap
+        .empty[(String, String), mutable.ListBuffer[Importer]]
       def addToGroup(kw: String, ref: String, importers: Seq[Importer]): Unit =
         addClausesToGroup(groups(settings.group(ref)), kw, ref, importers)
       stats.foreach { s =>
@@ -586,12 +586,13 @@ object Imports extends RewriteFactory {
         s.importers.foreach { i =>
           val ref = getRef(i)
           if (!folding) addToGroup(kw, ref, i :: Nil)
-          else foldMap.getOrElseUpdate((kw, ref), ListBuffer.empty).append(i)
+          else foldMap.getOrElseUpdate((kw, ref), mutable.ListBuffer.empty)
+            .append(i)
         }
       }
       foldMap.foreach { case ((kw, ref), v) => addToGroup(kw, ref, v.toList) }
 
-      val seenImports = HashMap.empty[Importer, Int]
+      val seenImports = mutable.HashMap.empty[Importer, Int]
       val sb = new StringBuilder()
       @inline
       def appendIndent(): Unit = if (sb.nonEmpty) sb.append(indent)
@@ -834,7 +835,7 @@ object Imports extends RewriteFactory {
         } else appendTo(importer, neither)
       }
 
-      val buffer = LinkedHashMap.empty[String, Importee]
+      val buffer = mutable.LinkedHashMap.empty[String, Importee]
       def tryFold(name: String, owner: Importee)(
           f: Option[Importee] => Int,
       ): Boolean = {
