@@ -1031,8 +1031,9 @@ object Imports extends RewriteFactory {
           )
           p.parent match {
             case Some(pp: ImportExportStat) =>
-              if (isHead && pp.importers.headOption.contains(p))
-                getCommentsBefore(pp).foreach(appendComment)
+              if (
+                isHead && (pp.importers.findOrNull(countsToWrite.contains) eq p)
+              ) getCommentsBefore(pp).foreach(appendComment)
             case _ =>
           }
           if (isHead) getCommentsBefore(p).foreach(appendComment)
