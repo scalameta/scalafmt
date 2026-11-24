@@ -16744,11 +16744,10 @@ rewrite.imports {
 import a.c // y
 import a.{b, c} // x
 >>>
-// x
 import a.{
   c, // y
   b
-} // y
+} // x
 <<< removeRedundantSelectors, a name, then the name beside another, each with a trailing comment, unfold
 rewrite.imports {
   selectors = unfold
@@ -16776,11 +16775,10 @@ rewrite.imports.selectors = fold
 import a.c // y
 import a.{b, c} // x
 >>>
-// x
 import a.{
   c, // y
   b
-} // y
+} // x
 <<< a name, then the name beside another, each with a trailing comment, unfold
 rewrite.imports.selectors = unfold
 ===
@@ -17714,18 +17712,17 @@ import a.b // c
 import a.{
   b, // c
   *
-} // c
+}
 <<< two names, each with a trailing comment, fold
 rewrite.imports.selectors = fold
 ===
 import a.b // x
 import a.c // y
 >>>
-// y
 import a.{
   b, // x
   c // y
-} // x
+}
 <<< a wildcard, then a name with a trailing comment, unfold
 rewrite.imports.selectors = unfold
 ===
@@ -17749,11 +17746,10 @@ rewrite.imports.removeRedundantSelectors = true
 import a.b // x
 import a.c // y
 >>>
-// y
 import a.{
   b, // x
   c // y
-} // x
+}
 <<< a name, then a rename with a trailing comment, fold
 rewrite.imports.selectors = fold
 ===
@@ -17763,7 +17759,7 @@ import a.b as d // e
 import a.{
   c,
   b as d // e
-} // e
+}
 <<< a wildcard, then two names with a trailing comment, fold
 rewrite.imports.selectors = fold
 ===
@@ -17780,11 +17776,10 @@ rewrite.imports {
 import a.c // y
 import a.b // x
 >>>
-// y
 import a.{
   b, // x
   c // y
-} // x
+}
 <<< #5179 source = keep
 newlines.source = keep
 rewrite.rules = [AsciiSortImports]

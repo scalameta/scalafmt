@@ -4122,6 +4122,8 @@ It takes the following values:
   - it also folds importers with a trailing comment: one such comment stays
     after the folded statement, and the others go on lines of their own above
     it
+    - the comment of an importer without braces stays beside its selector
+      instead
   - [`binPack.importSelectors`](#binpackimportselectors) may not be `singleLine`
     as it might result in a very long line
 - `unfold`: will attempt to create a separate line for each selector (was: `expand = true`)
