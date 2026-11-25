@@ -173,13 +173,13 @@ object Imports extends RewriteFactory {
       val others = new ListBuffer[(Importee, String)]
       val givens = new ListBuffer[(Importee, String)]
       val wildcards = new ListBuffer[(Importee, String)]
-      buf.foreach { x =>
-        val dst =
-          if (x.is[Importee.Given]) givens
-          else if (isWildcard(x)) wildcards
-          else others
-        dst += selectorToTuple(x)
-      }
+      buf.foreach(x =>
+        (x match {
+          case _: Importee.Given => givens
+          case _: Importee.Wildcard | _: Importee.GivenAll => wildcards
+          case _ => others
+        }) += selectorToTuple(x),
+      )
       def sorted(obj: ListBuffer[(Importee, String)]) = sortSelectors(obj.result())
       // don't sort wildcards
       Iterable.concat(sorted(others), sorted(givens), wildcards)
@@ -332,14 +332,23 @@ object Imports extends RewriteFactory {
     }
   }
 
-  private final def isRename(importee: Importee): Boolean = importee
-    .isAny[Importee.Rename, Importee.Unimport]
+  private final def isUnimport(importee: Importee): Boolean = importee
+    .is[Importee.Unimport]
 
   private final def isWildcard(importee: Importee): Boolean = importee
-    .isAny[Importee.Wildcard, Importee.GivenAll]
+    .is[Importee.Wildcard]
+
+  private final def isGivenAll(importee: Importee): Boolean = importee
+    .is[Importee.GivenAll]
+
+  private final def isARename(importee: Importee): Boolean =
+    isUnimport(importee) || importee.is[Importee.Rename]
+
+  private final def isAWildcard(importee: Importee): Boolean =
+    isWildcard(importee) || isGivenAll(importee)
 
   private final def notWildcardOrRename(importee: Importee): Boolean =
-    !isWildcard(importee) && !isRename(importee)
+    !isAWildcard(importee) && !isARename(importee)
 
   private final def filterWithImporteesToKeep(
       importeesToKeep: Set[Importee],
@@ -734,7 +743,9 @@ object Imports extends RewriteFactory {
       def addSelectorToGroup(selector: Importee): Unit = group
         .add(kw, ref, getSelector(selector))
       // if there's a wildcard, unimports and renames must come with it, cannot be expanded
-      if (importees.dropWhile(notWildcardOrRename).drop(1).exists(isWildcard)) {
+      if (
+        importees.dropWhile(notWildcardOrRename).drop(1).exists(isAWildcard)
+      ) {
         val filtered = importees.filter { x =>
           val expanding = notWildcardOrRename(x)
           if (expanding) addSelectorToGroup(x)
